@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Shared Ratios (The Gap) | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff;
+            border: 2px solid var(--cognis-blue);
+            border-radius: 16px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 350px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '💡'; }
+
+        /* INTRO: THE EXTRA PILE */
+        .stash-box { fill: #fff; stroke: #cbd5e0; stroke-width: 2; stroke-dasharray: 4; }
+        .item-a { fill: var(--cognis-blue); stroke: #001a35; stroke-width: 1; transition: all 0.3s; }
+        .item-b { fill: #94a3b8; stroke: #475569; stroke-width: 1; transition: all 0.3s; }
+        .item-extra { fill: var(--trap-red); stroke: #991b1b; stroke-width: 1; }
+
+        /* PROGRESSING: THE TOWER OVERHANG */
+        .tower-block { stroke: rgba(0,0,0,0.1); stroke-width: 2; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .bracket-line { stroke: var(--trap-red); stroke-width: 3; fill: none; }
+
+        /* SUPPLEMENTAL: COMPARATIVE BARS */
+        .bar-row { display: flex; align-items: center; margin-bottom: 15px; width: 100%; max-width: 500px;}
+        .bar-label { width: 80px; font-weight: 800; font-size: 0.7rem; color: var(--cognis-blue); text-transform: uppercase; }
+        .box-wrap { display: flex; gap: 4px; flex-wrap: nowrap; }
+        .box-s { width: 35px; height: 35px; border: 2px solid var(--cognis-blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; }
+        .box-s.a { background: var(--cognis-blue); color: white; }
+        .box-s.b { background: #e2e8f0; color: var(--cognis-blue); }
+        .box-s.gap { border: 2px dashed var(--trap-red); background: #fff5f5; color: var(--trap-red); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 3: Shared Ratios (The Gap)</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The "Secret Stash"</h2>
+            <p>If the ratio is <b>3:1</b>, it means one person has a "Secret Stash" of 2 extra boxes. When we know the "Difference" in money, that money only lives inside those <b>Extra Boxes</b>. It doesn't belong to the whole group!</p>
+            
+            <div class="parent-script">
+                "We both have 1 box. But you have <b>2 extra boxes</b>. If those extra boxes hold £10, then every box must hold £5. See how the 'extra' money explains the 'extra' boxes?"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200" id="intro-svg">
+                    <rect x="50" y="50" width="60" height="60" rx="8" class="item-b" />
+                    <rect x="120" y="50" width="60" height="60" rx="8" class="item-b" />
+                    <text x="50" y="40" font-size="10" font-weight="800" fill="#64748b">SHARED</text>
+                    
+                    <rect id="extra-1" x="190" y="50" width="60" height="60" rx="8" class="item-extra" />
+                    <rect id="extra-2" x="260" y="50" width="60" height="60" rx="8" class="item-extra" />
+                    <text x="210" y="40" font-size="10" font-weight="800" fill="var(--trap-red)">THE GAP</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>The Gap (Extra Boxes)</label>
+                        <input type="range" min="1" max="3" value="2" id="intro-gap-box" oninput="updateIntro()">
+                        <div class="val-out" id="intro-gap-val">2 extra</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log"></div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Height Contest</h2>
+            <p>Imagine two towers. If Tower A is 15cm taller than Tower B, that 15cm only accounts for the <b>overhang</b>. To find the "Magic Number" for one block, we divide that 15cm by the number of blocks sticking out at the top.</p>
+            
+            <div class="parent-script">
+                "Look at the red bracket. Tower A is taller by <b>3 blocks</b>. If that gap represents 30g, how much does 1 block weigh? We only divide the gap by the extra blocks, not the whole tower!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250" id="prog-svg"></svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Difference in Value</label>
+                        <input type="range" min="10" max="100" step="10" value="30" id="prog-diff-val" oninput="updateProg()">
+                        <div class="val-out" id="prog-diff-disp">30 units</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Ratio (A:B)</label>
+                        <div style="display:flex; gap:10px;">
+                            <input type="number" id="prog-a" value="5" style="width:50px; background:var(--engine-input); color:white; border:none; padding:8px; border-radius:6px; font-weight:800;" oninput="updateProg()">
+                            <input type="number" id="prog-b" value="2" style="width:50px; background:var(--engine-input); color:white; border:none; padding:8px; border-radius:6px; font-weight:800;" oninput="updateProg()">
+                        </div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('3-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>In the 11+, the examiner often hides the "Total" and only tells you the <b>Gap</b>. Success depends on realizing that this value only lives in the <b>Extra Boxes</b>. If your child can see that the "Extra £20" belongs to the "2 Extra Boxes," they find the Golden Unit instantly.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Pocket Money</b> "Money shared 3:1. Person A has £10 more than B. How much does B have?"</div>
+                <div class="tier-card"><b>The Classroom</b> "Boys to girls ratio is 5:2. There are 15 more boys than girls. Find the girls."</div>
+                <div class="tier-card"><b>The Mix</b> "Ratio 7:3. There is 200g more Flour than Sugar. Find the total mass."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Look at the <b>Comparative Bar</b>. The <b>Gap</b> isn't the whole bar—it’s just the overhang. We divide the gap value <i>only</i> by these extra segments to find our "Golden Unit." Count the dashed boxes together.</p>
+            <div class="anatomy-display">
+                <div class="bar-row"><div class="bar-label">Share A</div><div class="box-wrap" id="supp-a"></div></div>
+                <div class="bar-row"><div class="bar-label">Share B</div><div class="box-wrap" id="supp-b"></div></div>
+                <div id="supp-bracket" style="border-top:2px solid var(--trap-red); margin-top:10px; padding-top:5px; color:var(--trap-red); font-weight:800; font-size:0.8rem; text-align:right; width:100%; max-width:500px;"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the "Gap Amount" and the "Ratio." Watch how the value of one box is calculated <b>only</b> by using the difference between A and B.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>The Gap Value (£)</label><input type="range" id="in-d" min="10" max="200" step="10" value="20" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Ratio Part A</label><input type="range" id="in-a" min="1" max="10" value="5" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Ratio Part B</label><input type="range" id="in-b" min="1" max="10" value="3" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Total Blindness" Trap:</b> Children often see a number and immediately add the ratio parts together (e.g., 5 + 3 = 8). This is a disaster if the number is actually a <b>Gap</b>.</p>
+                <p><b>The Fix: The "Minus First" Rule.</b> If you see "more than" or "difference," you must <b>subtract</b> the ratio numbers first. The "Gap Money" only fits into the "Gap Boxes."</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(3)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED SYSTEM --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Ratios)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SECRET STASH --- */
+    function updateIntro() {
+        const gap = parseInt(document.getElementById('intro-gap-box').value);
+        document.getElementById('intro-gap-val').innerText = gap + " extra";
+        const svg = document.getElementById('intro-svg');
+        
+        // Clear previous extras
+        const extras = svg.querySelectorAll('.item-extra');
+        extras.forEach(e => e.remove());
+
+        for(let i=0; i<gap; i++) {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute("x", 190 + (i * 70));
+            rect.setAttribute("y", "50");
+            rect.setAttribute("width", "60");
+            rect.setAttribute("height", "60");
+            rect.setAttribute("rx", "8");
+            rect.setAttribute("class", "item-extra");
+            svg.appendChild(rect);
+        }
+
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">A has <b>${gap}</b> boxes that B doesn't have.</div>
+            <div class="discovery-step">If the gap is £20, then each red box holds <b>£${(20/gap).toFixed(2)}</b>.</div>
+        `;
+    }
+
+    /* --- PROGRESSING: TOWERS --- */
+    function updateProg() {
+        const diff = parseInt(document.getElementById('prog-diff-val').value);
+        const a = parseInt(document.getElementById('prog-a').value) || 1;
+        const b = parseInt(document.getElementById('prog-b').value) || 1;
+        document.getElementById('prog-diff-disp').innerText = diff + " units";
+
+        const svg = document.getElementById('prog-svg');
+        svg.innerHTML = '';
+        const blockH = 25; const blockW = 60;
+        const startY = 220;
+        const gapParts = Math.abs(a - b);
+        const unit = diff / gapParts;
+
+        // Draw Tower B
+        for(let i=0; i<b; i++) {
+            svg.innerHTML += `<rect x="80" y="${startY - (i+1)*blockH}" width="${blockW}" height="${blockH}" fill="#cbd5e0" class="tower-block" />`;
+        }
+        // Draw Tower A
+        for(let i=0; i<a; i++) {
+            const color = i >= Math.min(a,b) ? 'var(--trap-red)' : 'var(--cognis-blue)';
+            svg.innerHTML += `<rect x="150" y="${startY - (i+1)*blockH}" width="${blockW}" height="${blockH}" fill="${color}" class="tower-block" />`;
+        }
+
+        // Bracket
+        if (gapParts > 0) {
+            const topY = startY - (Math.max(a,b) * blockH);
+            const bottomY = startY - (Math.min(a,b) * blockH);
+            svg.innerHTML += `
+                <path d="M220,${topY} L240,${topY} L240,${bottomY} L220,${bottomY}" class="bracket-line" />
+                <text x="250" y="${topY + (bottomY-topY)/2}" fill="var(--trap-red)" font-weight="900" font-size="12">GAP: ${diff}</text>
+            `;
+        }
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">The height difference is <b>${gapParts}</b> blocks.</div>
+            <div class="discovery-step">One block must be <b>${diff} ÷ ${gapParts} = ${unit.toFixed(2)}</b>.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: BARS --- */
+    function runSupp() {
+        const d = parseInt(document.getElementById('in-d').value);
+        const a = parseInt(document.getElementById('in-a').value);
+        const b = parseInt(document.getElementById('in-b').value);
+        const gap = Math.abs(a - b);
+        const unit = gap > 0 ? d / gap : 0;
+
+        const wrapA = document.getElementById('supp-a');
+        const wrapB = document.getElementById('supp-b');
+        wrapA.innerHTML = ''; wrapB.innerHTML = '';
+
+        for(let i=0; i<a; i++) {
+            const isGap = a > b && i >= b;
+            wrapA.innerHTML += `<div class="box-s a ${isGap?'gap':''}">£${unit.toFixed(0)}</div>`;
+        }
+        for(let i=0; i<b; i++) {
+            const isGap = b > a && i >= a;
+            wrapB.innerHTML += `<div class="box-s b ${isGap?'gap':''}">£${unit.toFixed(0)}</div>`;
+        }
+
+        document.getElementById('supp-bracket').innerText = `GAP: £${d} (${gap} extra boxes)`;
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Overhang: ${Math.max(a,b)} - ${Math.min(a,b)} = <b>${gap} boxes</b><br>
+            → 2. One Unit: £${d} ÷ ${gap} = <b>£${unit.toFixed(2)}</b><br>
+            → 3. Total: ${(a+b)} × £${unit.toFixed(2)} = <b>£${((a+b)*unit).toFixed(2)}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro(); updateProg();
+        if(document.getElementById('in-d')) runSupp();
+        if(typeof initModule === "function") initModule(3);
+    });
+</script>
+</body>
+</html>

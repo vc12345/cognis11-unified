@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 30: Relative Letter Shift | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR CAESAR WHEEL */
+        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
+        
+        #caesar-svg { 
+            background: #0f172a; 
+            border-radius: 50%; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .ring-text { 
+            font-family: 'Consolas', monospace; 
+            font-weight: 900; 
+            font-size: 14px; 
+            fill: #4a5568; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: default; 
+        }
+
+        .outer-text { fill: #a0aec0; }
+        .inner-text { fill: var(--cognis-gold); opacity: 0.7; }
+        
+        .active-pair { 
+            fill: white; 
+            font-size: 19px; 
+            filter: drop-shadow(0 0 8px white); 
+            opacity: 1;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        .input-text { 
+            width: 100%; padding: 12px; border-radius: 8px; border: none; 
+            background: #2d3748; color: white; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 4px; font-size: 1.1rem;
+        }
+        
+        .btn-toggle { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 10px 15px; border-radius: 6px; font-size: 0.7rem; 
+            cursor: pointer; text-transform: uppercase; font-weight: 800;
+            width: 100%; transition: 0.3s;
+        }
+        .btn-toggle.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(30));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 30: Relative Letter Shift</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"The Secret Service Code."</b> In the 11+, your child will encounter words hidden behind a "shift"—where each letter has been moved a certain number of steps down the alphabet. The secret weapon is <b>Pattern Persistence</b>. Once your child figures out the "Key" (how many steps 'A' moved to become its new letter), they must apply that exact same jump to every other letter in the word to crack the code.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Single Step</b>
+                "If 'CAT' is coded as 'DBU', what is the shift? Use that same pattern to code 'DOG'."
+            </div>
+            <div class="tier-card">
+                <b>The Decoder Ring</b>
+                "In a secret code, 'FISH' becomes 'HKUJ'. Find the key and decode the mystery word 'BIRD'."
+            </div>
+            <div class="tier-card">
+                <b>The Reverse Riddle</b>
+                "The code is flipped (A=Z, B=Y). If the message is 'BCZ', what was the original word?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Concentric Cipher</b>. The outer ring is the "Normal" alphabet; the inner ring is the "Secret" alphabet. Point to the gold line at the top—that’s the <b>Sync Point</b>. When you rotate the inner ring, the relationship between every letter pair shifts. Help your child notice that the distance between letters never changes; the whole alphabet moves together like a set of locked gears.</p>
+        
+        <div class="anatomy-display">
+            <svg id="caesar-svg" width="100%" height="400" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet">
+                <circle cx="210" cy="210" r="165" fill="none" stroke="#2d3748" stroke-width="45" />
+                <circle cx="210" cy="210" r="115" fill="none" stroke="#1e293b" stroke-width="45" />
+                
+                <g id="outer-ring"></g>
+                <g id="inner-ring"></g>
+                
+                <path d="M 210 20 L 210 65" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
+            </svg>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the slider to rotate the inner dial and type a word into the box. Watch the <b>Trace Log</b> as it translates each letter using your custom key. Ask your child to predict the coded letter for 'A' before they move the slider—if they can guess one, they can solve the whole word.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Rotate the Inner Dial (Shift)</label>
+                    <input type="range" id="shift-slider" min="0" max="25" value="1" oninput="run30()">
+                </div>
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Alphabet Flow</label>
+                    <button id="btn-reverse" class="btn-toggle" onclick="toggleReverse()">Standard (A→B→C)</button>
+                </div>
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Your Word</label>
+                    <input type="text" id="word-in" class="input-text" value="FISH" maxlength="10" oninput="run30()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-30">Sync the alphabets to reveal the code...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Alphabet Wall" Trap:</strong> Most children visualize the alphabet as a flat line. When a shift moves past 'Z', they freeze because they think the alphabet has "run out" of room. If the code is $+2$ and they need to code 'Y', they get stuck.</p>
+            
+            <p><strong>The Insider Fix: The "Alphabet Clock" Rule.</strong> Tell your child: <i>"The alphabet is a ring, not a ruler."</i> Just like a clock goes from 12 back to 1, the alphabet goes from Z back to A. If they hit the 'Wall' at Z, they just keep counting from the start. <b>Z is not the end; it's just the bridge back to A.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(30)">Complete Module & Update Lattice</button>
+
+<script>
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let isReversed = false;
+
+    function toggleReverse() {
+        isReversed = !isReversed;
+        const btn = document.getElementById('btn-reverse');
+        btn.innerText = isReversed ? "Reverse (Z→Y→X)" : "Standard (A→B→C)";
+        btn.classList.toggle('active', isReversed);
+        run30();
+    }
+
+    function run30() {
+        const offset = parseInt(document.getElementById('shift-slider').value);
+        const word = document.getElementById('word-in').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const outerG = document.getElementById('outer-ring');
+        const innerG = document.getElementById('inner-ring');
+        
+        outerG.innerHTML = '';
+        innerG.innerHTML = '';
+
+        for (let i = 0; i < 26; i++) {
+            const angle = (i / 26) * 2 * Math.PI - Math.PI / 2;
+            const ox = 210 + 165 * Math.cos(angle);
+            const oy = 210 + 165 * Math.sin(angle);
+            const ix = 210 + 115 * Math.cos(angle);
+            const iy = 210 + 115 * Math.sin(angle);
+
+            const plainChar = alphabet[i];
+            
+            let cipherIdx;
+            if (!isReversed) {
+                cipherIdx = (i + offset) % 26;
+            } else {
+                cipherIdx = (26 - (i + offset) % 26) % 26;
+            }
+            const cipherChar = alphabet[cipherIdx];
+
+            const isActive = word.includes(plainChar);
+
+            outerG.innerHTML += `<text x="${ox}" y="${oy}" class="ring-text outer-text ${isActive ? 'active-pair' : ''}" text-anchor="middle" dominant-baseline="middle">${plainChar}</text>`;
+            innerG.innerHTML += `<text x="${ix}" y="${iy}" class="ring-text inner-text ${isActive ? 'active-pair' : ''}" text-anchor="middle" dominant-baseline="middle">${cipherChar}</text>`;
+        }
+
+        const keyChar = alphabet[isReversed ? (26-offset)%26 : offset];
+        let trace = `<div class="trace-step">→ 1. Key Identified: <b>A = ${keyChar}</b></div>`;
+        let results = [];
+        
+        for (let c of word) {
+            const idx = alphabet.indexOf(c);
+            let codeChar;
+            if (!isReversed) {
+                codeChar = alphabet[(idx + offset) % 26];
+            } else {
+                codeChar = alphabet[(offset - idx + 26) % 26];
+            }
+            results.push(codeChar);
+            trace += `<div class="trace-step" style="font-size:0.75rem;">Decoding <b>${c}</b> → <b>${codeChar}</b></div>`;
+        }
+
+        trace += `
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → ENCRYPTED WORD: ${results.join('') || '...'}
+            </div>
+        `;
+        document.getElementById('trace-30').innerHTML = trace;
+    }
+
+    window.onload = run30;
+</script>
+
+</body>
+</html>

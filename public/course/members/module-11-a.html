@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11: Average Speed | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff;
+            border: 2px solid var(--cognis-blue);
+            border-radius: 16px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800;
+            color: white;
+            background: var(--cognis-blue);
+            cursor: pointer;
+            padding: 20px;
+            outline: none;
+            list-style: none;
+        }
+
+        /* SVG VISUAL CONTAINERS & ALIGNMENT FIX */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; /* Vertical and horizontal centering */
+            min-height: 320px; 
+        }
+
+        .hour-box-container { display: flex; gap: 12px; margin-top: 25px; flex-wrap: wrap; justify-content: center; }
+        .hour-box { 
+            width: 85px; height: 85px; border: 3px solid var(--cognis-blue);
+            border-radius: 12px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-weight: 800;
+            background: #fff; box-shadow: 0 4px 0 var(--cognis-blue);
+        }
+
+        /* TUG OF WAR SCALE - CENTERED */
+        .scale-wrap { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 180px; 
+            width: 100%;
+            position: relative;
+        }
+        .scale-beam {
+            width: 300px; height: 12px; background: #2d3748;
+            border-radius: 6px; position: relative; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2;
+        }
+        .scale-pivot { 
+            width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; 
+            border-bottom: 30px solid var(--cognis-blue); 
+            margin-top: -2px;
+        }
+        .weight { position: absolute; bottom: 12px; transition: all 0.5s; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 0.7rem; }
+
+        /* SUPPLEMENTAL SECTION STYLES */
+        .anatomy-display { padding: 60px 40px; }
+        .journey-line { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; position: relative; display: flex; margin: 40px 0; }
+        .leg { height: 100%; position: relative; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .leg-1 { background: var(--cognis-blue); border-radius: 4px 0 0 4px; }
+        .leg-2 { background: var(--cognis-gold); border-radius: 0 4px 4px 0; }
+        .marker { position: absolute; width: 24px; height: 24px; border-radius: 50%; border: 4px solid white; top: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10; }
+        .marker-start { left: 0; background: var(--cognis-blue); }
+        .marker-mid { left: 100%; background: #fff; border-color: var(--cognis-blue); }
+        .marker-end { right: -24px; background: var(--cognis-gold); transform: translateY(-50%); }
+        .leg-label { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); white-space: nowrap; text-align: center; }
+        .leg-label b { display: block; color: var(--cognis-blue); font-size: 0.9rem; }
+        .leg-label span { font-size: 0.75rem; color: #718096; font-weight: 600; }
+        .summary-banner { background: var(--cognis-light); padding: 15px 30px; border-radius: 30px; font-weight: 800; color: var(--cognis-blue); font-size: 1.1rem; border: 1px solid var(--border-light); text-align: center; }
+
+        /* LAYOUT UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); }
+        .phase { border: 1px solid var(--border-light); margin-bottom: 30px !important; }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        
+        .foundational-only .btn-complete { margin-top: 20px; width: 100%; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 11: Average Speed</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Big Squash</h2>
+            <p>Average speed isn't a complex formula; it's a <b>"Fair Share"</b> game. Imagine your child has a big pile of miles. To find the average, they just have to deal those miles out into "Hour Boxes" like playing cards until the pile is gone.</p>
+            
+            <div class="parent-script">
+                "Look at this pile of <b><span id="script-dist">40</span> miles</b>. We have <b><span id="script-time">2</span> hours</b> to travel. If we want to be 'fair' and do the exact same amount each hour, how many miles go into each box?"
+            </div>
+
+            <div class="viz-container">
+                <div id="intro-pile-display" style="background: var(--cognis-blue); color: white; padding: 10px 25px; border-radius: 20px; font-weight: 800; margin-bottom: 15px;">TOTAL PILE: 40 MILES</div>
+                <div style="font-size: 2rem;">🚗💨</div>
+                <div class="hour-box-container" id="box-display-intro"></div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>The Mile Pile</label>
+                        <input type="range" min="10" max="100" step="10" value="40" id="intro-dist">
+                        <div class="val-out" id="intro-dist-val">40 miles</div>
+                    </div>
+                    <div class="control-group">
+                        <label>The Hour Boxes</label>
+                        <input type="range" min="1" max="5" step="1" value="2" id="intro-time">
+                        <div class="val-out" id="intro-time-val">2 hours</div>
+                    </div>
+                </div>
+                <div class="trace-log" id="intro-log"></div>
+            </div>
+
+            <div class="trap-box" style="margin-top:20px;">
+                <h3>The "Box Rule"</h3>
+                <p>Tell your child: <b>"Average Speed is just the number inside ONE box."</b> It doesn't matter how many miles there are total; we only care about the share for one single hour.</p>
+            </div>
+
+            
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Tug-of-War</h2>
+            <p>In the 11+, the average speed is rarely right in the middle. It has <b>Gravity</b>. If a car travels slowly for 5 hours and quickly for only 1 hour, the average speed will be "pulled" down toward the slow speed.</p>
+            
+            <div class="parent-script">
+                "The car traveled at two different speeds. But look at the weights—we spent much more <b>time</b> going slow. That 'Slow Time' is heavier, so it wins the tug-of-war and pulls the average toward it."
+            </div>
+
+            <div class="viz-container">
+                <div class="scale-wrap">
+                    <div class="scale-beam" id="beam">
+                        <div class="weight" style="left:15px; background:var(--trap-red);" id="w-slow">SLOW</div>
+                        <div class="weight" style="right:15px; background:var(--cognis-gold);" id="w-fast">FAST</div>
+                    </div>
+                    <div class="scale-pivot"></div>
+                </div>
+                <p id="scale-status" style="margin-top:20px; font-weight:800; color:var(--cognis-blue);"></p>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Slow Time (Weight)</label>
+                        <input type="range" min="1" max="10" value="8" id="prog-slow">
+                    </div>
+                    <div class="control-group">
+                        <label>Fast Time (Weight)</label>
+                        <input type="range" min="1" max="10" value="2" id="prog-fast">
+                    </div>
+                </div>
+                <div class="trace-log" id="prog-log"></div>
+            </div>
+
+            <div class="trap-box" style="margin-top:20px;">
+                <h3>The "Tie-Breaker" Secret</h3>
+                <p>The only time the average is in the middle is if the weights are a <b>Perfect Tie</b>. Look for the winner! The speed with the most time always wins the pull.</p>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('11-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Average speed is your <b>Big Picture Journey</b>. In the 11+, examiners love to show you two different speeds to tempt your child into a quick guess. The secret weapon is to ignore those middle speeds and zoom out. Success isn't about averaging numbers; it's about squashing the whole trip into one "Total Distance" and one "Total Time." If your child can collapse the journey into these two grand totals, the points are theirs.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Road Trip</b> "A car travels 15 miles in the morning and 25 miles in the afternoon. The trip took 2 hours. What was the average speed?"</div>
+                <div class="tier-card"><b>The Morning Cycle</b> "A cyclist travels 20km at 10km/h, then another 20km at 20km/h. What is the average speed for the whole trip?"</div>
+                <div class="tier-card"><b>The Flight Path</b> "A plane flies 600 miles at 300mph, then 400 miles at 200mph. Calculate the speed for the 1000-mile flight."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Look at the <b>Journey Line</b> below. Point to the blue leg and the gold leg. We aren't interested in them as separate trips; we are watching them merge into one long road. Notice how the <b>Meeting Point</b> shifts. No matter where that point sits, the rule is the same: add the distances to get the "Road" and add the hours to get the "Time."</p>
+            <div class="anatomy-display">
+                <div class="journey-line">
+                    <div class="marker marker-start"></div>
+                    <div id="visual-leg-1" class="leg leg-1">
+                        <div class="leg-label"><b id="label-d1">30.00 km</b><span id="label-t1">1.00 hrs</span></div>
+                        <div class="marker marker-mid"></div>
+                    </div>
+                    <div id="visual-leg-2" class="leg leg-2">
+                        <div class="leg-label"><b id="label-d2">60.00 km</b><span id="label-t2">2.00 hrs</span></div>
+                        <div class="marker marker-end"></div>
+                    </div>
+                </div>
+                <div class="summary-banner" id="total-summary">TOTAL: 90.00 km in 3.00 hours</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the sliders for each leg of the journey. Ask your child: <i>"If we travel for longer, what happens to our average speed?"</i> Watch the <b>Trace Log</b>—it shows you the logic of 'collapsing' the journey into one final calculation. Point out that the "Final Speed" only appears once we have both grand totals ready.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Leg 1 Distance (km)</label><input type="number" id="d1-in" value="30" step="1"></div>
+                    <div class="control-group"><label>Leg 1 Time (hrs)</label><input type="number" id="t1-in" value="1" step="0.5"></div>
+                    <div class="control-group" style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 10px;"><label>Leg 2 Distance (km)</label><input type="number" id="d2-in" value="60" step="1"></div>
+                    <div class="control-group"><label>Leg 2 Time (hrs)</label><input type="number" id="t2-in" value="2" step="0.5"></div>
+                </div>
+                <div class="trace-log" id="logic-trace"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><strong>The "Speed Splitter" Trap:</strong> If a car travels at 40mph then 60mph, bright children will often confidently shout "50mph!" It feels logical because 50 is right in the middle. This is a classic 11+ trap. <br><br><strong>The Insider Fix:</strong> Tell your child: <i>"Speeds don't matter until the very last step."</i> You only find the average by dividing the <b>Grand Totals</b>. Unless the time spent at each speed is exactly the same (which it almost never is in exams), adding the speeds together will lead to a confident wrong answer.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(11)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    // --- ROBUST PLAN CHECK ---
+    async function applyLayout() {
+        if (!window.supabaseClient) {
+            setTimeout(applyLayout, 100);
+            return;
+        }
+
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await window.supabaseClient
+            .from('profiles')
+            .select('subscription_plan')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        const plan = profile ? profile.subscription_plan : 'foundational';
+        const body = document.body;
+        const foundationBundle = document.getElementById('foundation-bundle');
+        const suppSection = document.getElementById('sub-supplemental');
+
+        if (plan === 'supplemental') {
+            body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Year 3/4 Foundations)</summary>`;
+            acc.appendChild(foundationBundle);
+            suppSection.parentNode.insertBefore(acc, suppSection);
+        } else {
+            body.className = 'user-plan-foundational';
+            if(suppSection) suppSection.style.display = 'none';
+        }
+    }
+
+    function updateIntro() {
+        const d = parseInt(document.getElementById('intro-dist').value);
+        const t = parseInt(document.getElementById('intro-time').value);
+        const share = (d / t).toFixed(1);
+        document.getElementById('intro-dist-val').innerText = d + " miles";
+        document.getElementById('intro-time-val').innerText = t + " hours";
+        document.getElementById('script-dist').innerText = d;
+        document.getElementById('script-time').innerText = t;
+        document.getElementById('intro-pile-display').innerText = `TOTAL PILE: ${d} MILES`;
+        
+        const container = document.getElementById('box-display-intro');
+        container.innerHTML = '';
+        for(let i=0; i<t; i++) container.innerHTML += `<div class="hour-box"><span>Hour ${i+1}</span>${share}</div>`;
+        document.getElementById('intro-log').innerHTML = `→ <b>Action:</b> Squashing ${d} miles into ${t} boxes.<br>→ <b>Result:</b> Each hour holds ${share} miles. That's the Average Speed!`;
+    }
+
+    function updateProg() {
+        const s = parseInt(document.getElementById('prog-slow').value);
+        const f = parseInt(document.getElementById('prog-fast').value);
+        const total = s + f;
+        document.getElementById('w-slow').style.width = (s * 15) + "px";
+        document.getElementById('w-slow').style.height = (s * 15) + "px";
+        document.getElementById('w-fast').style.width = (f * 15) + "px";
+        document.getElementById('w-fast').style.height = (f * 15) + "px";
+        document.getElementById('beam').style.transform = `rotate(${(f - s) * 2}deg)`;
+        
+        let winnerText = s === f ? "It's a perfect tie!" : (s > f ? "Slow side is winning!" : "Fast side is winning!");
+        let logWinner = s > f ? "Slow" : (f > s ? "Fast" : "Neither (it's a Tie)");
+        document.getElementById('scale-status').innerText = winnerText;
+        document.getElementById('prog-log').innerHTML = `→ <b>Gravity Check:</b> Slow has ${s} units vs Fast ${f}.<br>→ <b>The Winner:</b> The average is pulled toward: <b>${logWinner}</b>.`;
+    }
+
+    function updateSupp() {
+        const inputs = ['d1-in', 't1-in', 'd2-in', 't2-in'].map(id => document.getElementById(id));
+        const [d1, t1, d2, t2] = inputs.map(i => parseFloat(i.value) || 0);
+        const totalDist = d1 + d2; const totalTime = t1 + t2;
+        const avgSpeed = totalTime > 0 ? (totalDist / totalTime) : 0;
+        const p1 = totalDist > 0 ? (d1 / totalDist) * 100 : 50;
+        document.getElementById('visual-leg-1').style.width = `${p1}%`;
+        document.getElementById('visual-leg-2').style.width = `${100-p1}%`;
+        document.getElementById('label-d1').innerText = `${d1.toFixed(2)} km`;
+        document.getElementById('label-t1').innerText = `${t1.toFixed(2)} hrs`;
+        document.getElementById('label-d2').innerText = `${d2.toFixed(2)} km`;
+        document.getElementById('label-t2').innerText = `${t2.toFixed(2)} hrs`;
+        document.getElementById('total-summary').innerText = `TOTAL: ${totalDist.toFixed(2)} km in ${totalTime.toFixed(2)} hours`;
+        document.getElementById('logic-trace').innerHTML = `
+            <div class="trace-step">→ 1. Grand Distance: ${d1} + ${d2} = <b>${totalDist.toFixed(2)} km</b></div>
+            <div class="trace-step">→ 2. Grand Time: ${t1} + ${t2} = <b>${totalTime.toFixed(2)} hrs</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #e2e8f0; margin-top:10px; padding-top:10px;">
+                → AVERAGE SPEED: ${avgSpeed.toFixed(2)} km/h
+            </div>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        document.getElementById('intro-dist').oninput = updateIntro;
+        document.getElementById('intro-time').oninput = updateIntro;
+        document.getElementById('prog-slow').oninput = updateProg;
+        document.getElementById('prog-fast').oninput = updateProg;
+        ['d1-in', 't1-in', 'd2-in', 't2-in'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.oninput = updateSupp;
+        });
+        updateIntro(); updateProg(); updateSupp();
+        if(typeof initModule === "function") initModule(11);
+    });
+</script>
+</body>
+</html>

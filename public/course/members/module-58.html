@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 58: Punctuation Mechanics | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR PUNCTUATION MAPPING */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .junction-map {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .clause-box {
+            background: white;
+            border: 2px solid var(--cognis-blue);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--cognis-blue);
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            flex: 1;
+        }
+
+        .punct-symbol {
+            font-size: 2.5rem;
+            color: var(--cognis-gold);
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; }
+        
+        .sentence-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #cbd5e0;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .punct-gap {
+            display: inline-block;
+            min-width: 40px;
+            border-bottom: 3px solid var(--cognis-gold);
+            margin: 0 10px;
+            color: var(--cognis-gold);
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+            font-size: 1.8rem;
+            transition: 0.3s;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-load { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
+            text-align: left; transition: 0.2s;
+        }
+        .btn-load:hover { background: #4a5568; color: white; }
+        .btn-load.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
+
+        .punct-bank { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .btn-punct {
+            background: transparent;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: 0.2s;
+        }
+        .btn-punct:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
+        .btn-punct.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(58));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 58: Punctuation Junctions</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of punctuation as <b>Traffic Lights for Reading</b>. Without them, ideas crash into each other. Every mark has one job: telling the reader how two thoughts connect. A <b>Semicolon (;)</b> glues two equal ideas together; a <b>Colon (:)</b> is like a drumroll for a list or a big reveal; and a <b>Comma (,)</b> is just a quick breath to add a little detail. Master these, and you can "hear" the rhythm of the writing.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The List Divider</b>
+                "I like dogs, cats, and birds."<br>
+                <b>The Mark:</b> Comma (,)<br>
+                <b>The Job:</b> Keeping items in a list tidy.
+            </div>
+            <div class="tier-card">
+                <b>The Equal Link</b>
+                "The rain stopped; the sun came out."<br>
+                <b>The Mark:</b> Semicolon (;)<br>
+                <b>The Job:</b> Connecting two full, heavy thoughts.
+            </div>
+            <div class="tier-card">
+                <b>The Big Reveal</b>
+                "One thing remained: victory."<br>
+                <b>The Mark:</b> Colon (:)<br>
+                <b>The Job:</b> Pointing at the main event.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Junction Map</b>. Look at how the mark in the middle acts as the glue. Punctuation decides if the thoughts are standing alone, leaning on each other, or if one is introducing the other. Point this out to your child: the mark defines the relationship.</p>
+        
+        <div class="anatomy-display">
+            <div class="junction-map">
+                <div class="clause-box">THOUGHT A <br><small style="font-weight:400; font-size:0.6rem;">(The Setup)</small></div>
+                <div class="punct-symbol">;</div>
+                <div class="clause-box">THOUGHT B <br><small style="font-weight:400; font-size:0.6rem;">(The Equal Partner)</small></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <div class="simulation-area">
+            <div class="sentence-well" id="sentence-well">
+                </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Choose a Sentence Type</label>
+                    <div class="preset-grid">
+                        <button class="btn-load active" onclick="loadCase(0, this)">Case: Two Heavy Thoughts</button>
+                        <button class="btn-load" onclick="loadCase(1, this)">Case: The Drumroll Reveal</button>
+                        <button class="btn-load" onclick="loadCase(2, this)">Case: The Brief Pause</button>
+                    </div>
+
+                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-top: 20px;">2. Pick the Right Tool</label>
+                    <div class="punct-bank" id="punct-bank">
+                        </div>
+                </div>
+                <div class="trace-log" id="trace-58">Testing the logic...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Lazy Comma" Trap:</strong> Many children use a comma to join two full sentences just because they "take a breath" there. (e.g., "I'm hungry, I want pizza.") This is a crash! A comma isn't strong enough to hold two heavy, finished thoughts together.</p>
+            
+            <p><strong>The Fix:</strong> Use the <b>Full Stop Test</b>. Ask your child: "Could we put a full stop here?" If the answer is yes, and both sides work as perfect sentences, you need a <b>Semicolon (;)</b>. Use a comma only for small pauses or extra bits that can't stand alone.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(58)">Complete Module & Update Lattice</button>
+
+<script>
+    const cases = [
+        {
+            text: "The storm was fierce <span class='punct-gap' id='active-gap'>?</span> the sailors lowered the sails.",
+            target: ";",
+            desc: "Two full, independent thoughts.",
+            error_msg: "Too weak! These are two full sentences.",
+            correct_msg: "Strong Link! Semicolons join two finished thoughts."
+        },
+        {
+            text: "The backpack contained three items <span class='punct-gap' id='active-gap'>?</span> a map, a compass, and a rope.",
+            target: ":",
+            desc: "A list is coming up.",
+            error_msg: "Wait for it! We need a drumroll for this list.",
+            correct_msg: "Spot on! Colons introduce what's next."
+        },
+        {
+            text: "Although it was late <span class='punct-gap' id='active-gap'>?</span> the lights were still on.",
+            target: ",",
+            desc: "A short introductory fragment.",
+            error_msg: "Too heavy! Use a semicolon for two full thoughts.",
+            correct_msg: "Perfect! A comma handles a quick breath."
+        }
+    ];
+
+    let currentCase = cases[0];
+    const marks = [",", ";", ":"];
+
+    function loadCase(idx, btn) {
+        document.querySelectorAll('.btn-load').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCase = cases[idx];
+        
+        document.getElementById('sentence-well').innerHTML = currentCase.text;
+        
+        const bank = document.getElementById('punct-bank');
+        bank.innerHTML = '';
+        marks.forEach(m => {
+            bank.innerHTML += `<button class="btn-punct" onclick="testMark('${m}', this)">${m}</button>`;
+        });
+
+        updateTrace();
+    }
+
+    function testMark(val, btn) {
+        document.querySelectorAll('.btn-punct').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const gap = document.getElementById('active-gap');
+        gap.innerText = val;
+
+        const isCorrect = val === currentCase.target;
+        gap.style.color = isCorrect ? "var(--pass-green)" : "#f87171";
+        
+        updateTrace(val, isCorrect);
+    }
+
+    function updateTrace(val, success) {
+        const log = document.getElementById('trace-58');
+        let html = `<div class="trace-step">→ 1. Analyzing: <b>${currentCase.desc}</b></div>`;
+        
+        if(!val) {
+            html += `<div class="trace-step">→ 2. Status: Waiting for your move...</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        html += `<div class="trace-step">→ 2. Trying: [ <b>${val}</b> ]</div>`;
+        
+        if(success) {
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → RESULT: ${currentCase.correct_msg}
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → HINT: ${currentCase.error_msg}
+                </div>
+            `;
+        }
+        log.innerHTML = html;
+    }
+
+    window.onload = () => loadCase(0, document.querySelector('.btn-load'));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 37: Missing Letters | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔑'; }
+
+        /* INTRO: THE THREE-WAY LOCK */
+        .door-f { width: 80px; height: 100px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.4s; }
+        .door-open { border-color: #10b981; background: #f0fdf4; transform: translateY(-10px); }
+        .door-f b { font-size: 1.2rem; color: var(--cognis-blue); }
+        .door-f span { font-size: 1.5rem; color: var(--cognis-gold); font-weight: 900; margin-top: 5px; }
+
+        /* PROGRESSING: CROSSROADS */
+        .crossroad-path { stroke: #cbd5e0; stroke-width: 40; fill: none; stroke-linecap: round; }
+        .path-active { stroke: var(--cognis-blue); opacity: 0.1; }
+        .letter-node-f { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
+
+        /* SUPPLEMENTAL: RADIAL ENGINE */
+        .anatomy-display-s { background: #1a202c; padding: 60px; border-radius: 12px; text-align: center; }
+        .word-path-s { font-family: 'Consolas', monospace; font-size: 1.8rem; font-weight: 900; color: rgba(255,255,255,0.4); letter-spacing: 6px; transition: all 0.3s; }
+        .word-path-s b { color: var(--cognis-gold); text-decoration: underline; font-size: 2.2rem; }
+        .keyhole-s { width: 90px; height: 90px; background: white; border: 5px solid var(--cognis-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 30px auto; box-shadow: 0 0 30px rgba(197, 160, 89, 0.4); }
+        .keyhole-s input { width: 100%; border: none; text-align: center; font-size: 3rem; font-weight: 900; color: var(--cognis-blue); text-transform: uppercase; outline: none; background: transparent; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-preset-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; font-weight: 800; width: 100%; text-align: left; margin-bottom: 5px; }
+        .btn-preset-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 37: Missing Letters</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Master Key</h2>
+            <p>Imagine you have three locked doors. Each door has a word on it, but the word is missing a letter. To win the game, you must find the <b>one single letter</b> that fits into all three locks at the same time.</p>
+            
+            <div class="parent-script">
+                "Look at these three words: **B_RD**, **C_RD**, and **H_RD**. If we try the letter 'A', does it work? BARD (Yes), CARD (Yes), HARD (Yes!). Click 'Try Letter A' to see the Master Key unlock all three doors at once!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:15px; margin-bottom: 30px;">
+                    <div id="door-1" class="door-f"><b>B</b><span id="d-val-1">?</span><b>RD</b></div>
+                    <div id="door-2" class="door-f"><b>C</b><span id="d-val-2">?</span><b>RD</b></div>
+                    <div id="door-3" class="door-f"><b>H</b><span id="d-val-3">?</span><b>RD</b></div>
+                </div>
+                <button class="btn-action" onclick="runIntroLock()">Try Letter 'A'</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Locks</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">A letter is a guess until it works for everyone.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Crossroad Check</h2>
+            <p>Sometimes a letter works for one word but fails for the others. These are <b>Decoys</b>. To find the true answer, you must mentally "triangulate"—checking that your chosen letter makes sense for every single path.</p>
+            
+            <div class="parent-script">
+                "Look at the crossroad. If we put 'O' in the middle, we get 'STOP' (Good!) and 'SICK' becomes... 'SIOK'? That doesn't sound right! Click 'Test T' to see the letter that actually works for both paths."
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <path d="M50 100 L250 100" class="crossroad-path" />
+                    <path d="M150 20 L150 180" class="crossroad-path" />
+                    <text x="70" y="110" text-anchor="middle" font-weight="900" fill="var(--cognis-blue)">S</text>
+                    <text x="210" y="110" text-anchor="middle" font-weight="900" fill="var(--cognis-blue)">OP</text>
+                    <text x="150" y="50" text-anchor="middle" font-weight="900" fill="var(--cognis-blue)">S</text>
+                    <text x="150" y="160" text-anchor="middle" font-weight="900" fill="var(--cognis-blue)">ICK</text>
+                    
+                    <circle cx="150" cy="100" r="25" class="letter-node-f" />
+                    <text id="prog-key" x="150" y="112" text-anchor="middle" font-weight="900" font-size="24" fill="var(--cognis-gold)">?</text>
+                </svg>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" style="background:#4a5568;" onclick="testProg('O')">Test 'O'</button>
+                    <button class="btn-action" onclick="testProg('T')">Test 'T'</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Is 'T' the true Master Key?</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Keyhole Rule."</b> You aren't looking for three separate answers; you are looking for the <i>only</i> letter in the alphabet that completes three different spelling rules simultaneously. If it doesn't work for the whole set, it's a decoy designed to steal your time.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Middle Vowel</b> "Find the letter for: <i>B_RD</i>, <i>C_RD</i>, <i>H_RD</i>."</div>
+                <div class="tier-card"><b>Consonant Blend</b> "Find the letter for: <i>S_AMP</i>, <i>S_ICK</i>, <i>S_OP</i>."</div>
+                <div class="tier-card"><b>11+ Prefix</b> "Find the letter for: <i>_RAIN</i>, <i>_RACK</i>, <i>_RICK</i>."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Master Keyhole</b>. Type a single letter into the gold circle. Watch the paths illuminate. The system is only "Unlocked" when all three words are readable English. Notice how decoys fail the "Triple-Check."</p>
+            <div class="anatomy-display-s">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:40px;">
+                    <div id="s-w1" class="word-path-s">B<b>_</b>RD</div>
+                    <div style="display:flex; gap:80px; align-items:center;">
+                        <div id="s-w2" class="word-path-s" style="transform:rotate(-30deg)">C<b>_</b>RD</div>
+                        <div class="keyhole-s"><input type="text" id="si-key" maxlength="1" oninput="runSupp()"></div>
+                        <div id="s-w3" class="word-path-s" style="transform:rotate(30deg)">H<b>_</b>RD</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Choose a word set and test different keys. Watch the <b>Trace Log</b> validate the logic. Help your child spot letters that are "Almost Right" (working for 2 out of 3).</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-preset-s active" onclick="setSupp('B_RD,C_RD,H_RD', this)">Set A: Vowels (Try A)</button>
+                    <button class="btn-preset-s" onclick="setSupp('S_AMP,S_ICK,S_OP', this)">Set B: Blends (Try T)</button>
+                    <button class="btn-preset-s" onclick="setSupp('_RAIN,_RACK,_RICK', this)">Set C: Prefixes (Try T)</button>
+                    <button class="btn-preset-s" onclick="setSupp('HOU_E,MOU_E,ROU_E', this)">Set D: Suffix (Try S)</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "First Word" Trap:</b> Children find a letter that works for the first word and immediately circle it. They don't check if it turns the rest into gibberish.</p>
+                <p><b>The Fix: The "Total Validation" Rule.</b> <i>"Test the whole set."</i> A letter is just a guess until it has been checked against every word in the cluster. **The answer must be a triple-threat.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(37)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: LOCKS --- */
+    function runIntroLock() {
+        ['door-1','door-2','door-3'].forEach(id => document.getElementById(id).classList.add('door-open'));
+        ['d-val-1','d-val-2','d-val-3'].forEach(id => document.getElementById(id).textContent = 'A');
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Success! 'A' makes <b>BARD</b>, <b>CARD</b>, and <b>HARD</b>.</div>`;
+    }
+    function resetIntro() {
+        ['door-1','door-2','door-3'].forEach(id => document.getElementById(id).classList.remove('door-open'));
+        ['d-val-1','d-val-2','d-val-3'].forEach(id => document.getElementById(id).textContent = '?');
+    }
+
+    /* --- PROGRESSING: CROSSROAD --- */
+    function testProg(l) {
+        document.getElementById('prog-key').textContent = l;
+        if(l === 'T') {
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">YES! 'T' makes <b>STOP</b> and <b>STICK</b>. Both paths are clear!</div>`;
+        } else {
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Oh no! 'O' makes <b>STOP</b> but 'SIOK' is not a word. Path blocked!</div>`;
+        }
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sWords = ['B_RD','C_RD','H_RD'];
+    function setSupp(csv, btn) {
+        document.querySelectorAll('.btn-preset-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sWords = csv.split(',');
+        document.getElementById('si-key').value = '';
+        runSupp();
+    }
+    function runSupp() {
+        const key = document.getElementById('si-key').value.toUpperCase() || '?';
+        const displayKey = (key === '?') ? '_' : key;
+        
+        ['s-w1','s-w2','s-w3'].forEach((id, i) => {
+            const el = document.getElementById(id);
+            el.innerHTML = sWords[i].replace('_', `<b>${displayKey}</b>`);
+            el.style.color = (key === '?') ? 'rgba(255,255,255,0.4)' : 'white';
+        });
+
+        const results = sWords.map(w => w.replace('_', key));
+        document.getElementById('supp-log').innerHTML = `→ Testing Key: <b>${key}</b><br>→ Results: ${results.join(' | ')}<br>→ <b>Logic: Triple Check Required</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro();
+        if(document.getElementById('si-key')) runSupp();
+        if(typeof initModule === "function") initModule(37);
+    });
+</script>
+</body>
+</html>

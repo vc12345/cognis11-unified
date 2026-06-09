@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 47: Valid Cube Nets | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR NET MANIPULATION */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 50px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2d3748;
+            min-height: 400px;
+        }
+
+        .net-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 60px); 
+            grid-template-rows: repeat(3, 60px); 
+            gap: 12px; 
+        }
+
+        .face { 
+            width: 60px; 
+            height: 60px; 
+            background: #2d3748; 
+            border: 2px solid #4a5568; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: 900; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.2rem;
+        }
+
+        .face:hover { border-color: var(--cognis-gold); background: #3d495d; }
+
+        .face.active { 
+            background: var(--cognis-gold); 
+            border-color: white; 
+            transform: scale(1.1); 
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.5); 
+            z-index: 10;
+        }
+
+        .face.opposite { 
+            background: #ef4444; 
+            border-color: white; 
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        .face.empty { visibility: hidden; pointer-events: none; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .btn-variant {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            width: 100%;
+            margin-bottom: 8px;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .btn-variant:hover { color: white; border-color: var(--cognis-gold); }
+        .btn-variant.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: white; border-left: 5px solid var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(47));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 47: Valid Cube Nets</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a cube net as a <b>"Flattened Cardboard Box."</b> In the 11+, the biggest hurdle is mentally folding that 2D shape back into a 3D solid. The secret weapon? Identifying <b>Opposite Pairs</b>. Because opposite faces (like the Lid and Base) can never touch each other and can never be seen at the same time, finding them is the fastest way to spot impossible decoy answers. Use the <b>Leapfrog Rule</b>: in any straight line of three or more squares, the faces separated by exactly one "jump" are partners.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Standard Cross</b>
+                Identify the "Base" face if the "Top" face is selected in a 1-4-1 net.
+            </div>
+            <div class="tier-card">
+                <b>The T-Shape</b>
+                Find all three opposite pairs in a standard T-style layout.
+            </div>
+            <div class="tier-card">
+                <b>The Advanced "Z"</b>
+                Solve a "Z-Net" where there are no long straight lines of three squares.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Pairing Map</b>. Click any numbered face on the net below. The engine will instantly highlight its partner in red. Note how it always <b>jumps over exactly one face</b> to find its opposite. If two numbers are highlighted as opposites here, they can <u>never</u> share an edge on the finished cube. This is the ultimate "No-Go" rule for elimination.</p>
+        
+        <div class="anatomy-display">
+            <div class="net-grid" id="net-container"></div>
+            <div style="margin-top: 30px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                Interactive Blueprint: Click a face to find its partner
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Swap between different net layouts below. Use the <b>Trace Log</b> to confirm your child's guesses. Challenge them: <i>"If I pick face 2, where is its parallel partner?"</i> This builds the mental muscle required to see through 3D distractions.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Choose your layout</label>
+                <button class="btn-variant active" onclick="loadNet('cross', this)">1-4-1 (Standard Cross)</button>
+                <button class="btn-variant" onclick="loadNet('t-aligned', this)">1-4-1 (T-Style)</button>
+                <button class="btn-variant" onclick="loadNet('z-shape', this)">2-3-1 (The Z-Net)</button>
+            </div>
+            <div class="trace-log" id="trace-47">Select a layout to audit the logic...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Touching Corner" Trap:</strong> Most children assume that if two squares share a corner on a flat sheet of paper, they must touch on the cube. <b>This is an illusion!</b> In the 3D world, many faces that look far apart on the net actually fold to meet at the exact same edge.</p>
+            
+            <p><strong>The Insider Fix: The "Opposite Shield."</strong> Tell your child: <i>"Don't look for what DOES touch; look for what CAN'T."</i> Find the three opposite pairs first. If a 3D answer shows two of those opposites sharing a line or a corner, that answer is a scientific impossibility. <b>Cross it out and move on—no second-guessing needed.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(47)">Complete Module & Update Lattice</button>
+
+<script>
+    const nets = {
+        'cross': { 
+            layout: [0,1,0,0, 2,3,4,5, 0,6,0,0], 
+            opps: {1:6, 6:1, 2:4, 4:2, 3:5, 5:3} 
+        },
+        't-aligned': { 
+            layout: [1,0,0,0, 2,3,4,5, 6,0,0,0], 
+            opps: {1:6, 6:1, 2:4, 4:2, 3:5, 5:3} 
+        },
+        'z-shape': { 
+            layout: [1,2,0,0, 0,3,4,0, 0,0,5,6], 
+            opps: {1:4, 4:1, 2:5, 5:2, 3:6, 6:3} 
+        }
+    };
+
+    function loadNet(id, btn) {
+        document.querySelectorAll('.btn-variant').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const cont = document.getElementById('net-container');
+        cont.innerHTML = '';
+        
+        nets[id].layout.forEach((val) => {
+            const div = document.createElement('div');
+            div.className = val === 0 ? 'face empty' : 'face';
+            div.id = 'f' + val;
+            div.innerText = val === 0 ? '' : val;
+            
+            div.onclick = () => {
+                const allFaces = document.querySelectorAll('.face');
+                allFaces.forEach(f => f.classList.remove('active', 'opposite'));
+                
+                div.classList.add('active');
+                const opp = nets[id].opps[val];
+                if(opp) {
+                    const oppEl = document.getElementById('f' + opp);
+                    if (oppEl) oppEl.classList.add('opposite');
+                    updateTrace(val, opp);
+                }
+            };
+            cont.appendChild(div);
+        });
+        
+        document.getElementById('trace-47').innerHTML = `<div class="trace-step">→ Net structure loaded.</div><div class="trace-step">→ Click a face to test the Leapfrog Rule.</div>`;
+    }
+
+    function updateTrace(active, opp) {
+        const log = document.getElementById('trace-47');
+        log.innerHTML = `
+            <div class="trace-step">→ 1. Selected: Face ${active}</div>
+            <div class="trace-step">→ 2. Scan: Jumping over one face...</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → PARTNERS: ${active} AND ${opp}
+            </div>
+            <div class="trace-step" style="font-size:0.7rem; opacity:0.7;">Remember: Partners can never share an edge on the finished cube.</div>
+        `;
+    }
+
+    window.onload = () => loadNet('cross', document.querySelector('.btn-variant'));
+</script>
+
+</body>
+</html>

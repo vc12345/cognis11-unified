@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 31: Vowel/Consonant Ciphers | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚪'; }
+
+        /* INTRO: COLORED GATES */
+        .gate { stroke-width: 4; fill: #fff; transition: all 0.3s; }
+        .gate-vowel { stroke: #3182ce; }
+        .gate-consonant { stroke: #e53e3e; }
+        .gate-active { fill: rgba(0,0,0,0.05); }
+        .letter-particle { font-weight: 900; font-size: 2rem; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* PROGRESSING: CONVEYORS */
+        .belt { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 2; }
+        .belt-gear { fill: #cbd5e0; }
+        .belt-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* SUPPLEMENTAL: TILES */
+        .char-tile-s { width: 80px; height: 80px; background: white; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; transition: all 0.4s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .char-tile-s.vowel { border: 3px solid #3182ce; color: #3182ce; }
+        .char-tile-s.consonant { border: 3px solid #e53e3e; color: #e53e3e; }
+        .char-tile-s small { font-size: 0.5rem; opacity: 0.7; margin-bottom: 2px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .input-dark { background: #2d3748; color: white; border: 1px solid #4a5568; padding: 8px; border-radius: 6px; font-weight: 800; text-align: center; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 31: Vowel/Consonant Ciphers</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Sorting Doors</h2>
+            <p>Imagine a sorting office with two doors. One door is **Blue** for Vowels (A, E, I, O, U) and the other is **Red** for all other letters (Consonants). Before we change a letter, we must first decide which door it belongs in.</p>
+            
+            <div class="parent-script">
+                "Click 'Generate Letter'. Watch as it moves toward the gates. If it's a Vowel, it enters the blue door. If it's a Consonant, it enters the red one. We can't solve the code until we know which door the letter uses!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200">
+                    <rect id="gate-v" x="80" y="50" width="80" height="100" rx="8" class="gate gate-vowel" />
+                    <rect id="gate-c" x="240" y="50" width="80" height="100" rx="8" class="gate gate-consonant" />
+                    <text x="120" y="40" text-anchor="middle" font-weight="800" font-size="10" fill="#3182ce">VOWELS</text>
+                    <text x="280" y="40" text-anchor="middle" font-weight="800" font-size="10" fill="#e53e3e">CONSONANTS</text>
+                    
+                    <text id="intro-letter" x="200" y="180" text-anchor="middle" class="letter-particle" fill="var(--cognis-blue)">?</text>
+                </svg>
+                <button class="btn-action" onclick="runIntroSort()">Generate & Sort Letter</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Ready to sort the alphabet.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Dual Conveyors</h2>
+            <p>In advanced codes, the two groups have their own rules. The Vowel conveyor might move forward (+1) while the Consonant conveyor moves backward (-1). This means letters in the same word can jump in opposite directions!</p>
+            
+            <div class="parent-script">
+                "Look at the word <b>BRAIN</b>. The letters move on different tracks. B, R, and N are on the Red track. A and I are on the Blue track. Watch them move independently when you click 'Shift'."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <rect x="50" y="60" width="300" height="40" rx="20" class="belt" />
+                    <text x="200" y="50" text-anchor="middle" class="belt-label" fill="#3182ce">Vowel Track (+1)</text>
+                    <text id="prog-v-chars" x="100" y="88" font-weight="900" fill="#3182ce">A I</text>
+                    
+                    <rect x="50" y="160" width="300" height="40" rx="20" class="belt" />
+                    <text x="200" y="150" text-anchor="middle" class="belt-label" fill="#e53e3e">Consonant Track (-1)</text>
+                    <text id="prog-c-chars" x="100" y="188" font-weight="900" fill="#e53e3e">B R N</text>
+                </svg>
+                <button class="btn-action" onclick="runProgShift()">Execute Dual Shift</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Word: BRAIN. Rules: Vowels +1, Consonants -1.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Sorting Office."</b> The rule depends on <i>what kind</i> of letter you are holding. Vowels (A,E,I,O,U) and Consonants each have their own math. Act like a gatekeeper—categorize every letter through a mental "check" before shifting it.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Basic Gate</b> "If Vowels shift +1 and Consonants stay same, find 'BAT'."</div>
+                <div class="tier-card"><b>Split Shift</b> "Vowels shift +2, Consonants shift -1. Find code for 'DOG'."</div>
+                <div class="tier-card"><b>11+ Reverse</b> "Reverse the rules to turn 'QMANFU' back into 'PLANET'."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Property Gatekeeper</b>. Notice the color coding: Blue for Vowels, Red for Consonants. A single word can follow two different paths simultaneously. A vowel might jump forward while its neighbor jumps back.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;" id="s-tiles-cont"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Type a word and set separate shifts. Watch the <b>Trace Log</b> sort the characters. Spot the moment the rule "flips" as the word moves between types.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Test Word</label><input type="text" id="si-word" class="input-dark" value="BRAIN" maxlength="10" style="width:100%;" oninput="runSupp()"></div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <div class="control-group" style="flex:1;"><label style="color:#3182ce;">VOWEL +/-</label><input type="number" id="si-v" value="1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
+                        <div class="control-group" style="flex:1;"><label style="color:#e53e3e;">CONS. +/-</label><input type="number" id="si-c" value="-1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "One-Track" Trap:</b> Children get into a rhythm. If they shift consonants by -1, they often shift vowels by -1 too by mistake.</p>
+                <p><b>The Fix: The "Label Before You Leap" Rule.</b> <i>"Don't do the math yet."</i> Write a tiny 'V' or 'C' above every letter in the word first. Tagging stops the autopilot from ruining the code.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(31)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: GATES --- */
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const vowels = "AEIOU";
+    function runIntroSort() {
+        const char = alpha[Math.floor(Math.random() * 26)];
+        const isV = vowels.includes(char);
+        const p = document.getElementById('intro-letter');
+        const gV = document.getElementById('gate-v'), gC = document.getElementById('gate-c');
+        
+        p.style.transition = 'none'; p.setAttribute("x", "200"); p.setAttribute("y", "180"); p.textContent = char;
+        gV.classList.remove('gate-active'); gC.classList.remove('gate-active');
+
+        setTimeout(() => {
+            p.style.transition = 'all 0.8s ease-in-out';
+            p.setAttribute("y", "105");
+            p.setAttribute("x", isV ? "120" : "280");
+            if(isV) gV.classList.add('gate-active'); else gC.classList.add('gate-active');
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Letter <b>${char}</b> is a <b>${isV?'Vowel':'Consonant'}</b>. It used the ${isV?'Blue':'Red'} door!</div>`;
+        }, 50);
+    }
+
+    /* --- PROGRESSING: BELTS --- */
+    let progShifted = false;
+    function runProgShift() {
+        const vChars = document.getElementById('prog-v-chars');
+        const cChars = document.getElementById('prog-c-chars');
+        if(!progShifted) {
+            vChars.textContent = "B J"; // A+1, I+1
+            cChars.textContent = "A Q M"; // B-1, R-1, N-1
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Shifted! Vowels jumped forward, Consonants jumped back.</div>`;
+        } else {
+            vChars.textContent = "A I"; cChars.textContent = "B R N";
+        }
+        progShifted = !progShifted;
+    }
+
+    /* --- SUPPLEMENTAL: TILES --- */
+    function runSupp() {
+        const word = document.getElementById('si-word').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const vS = parseInt(document.getElementById('si-v').value) || 0;
+        const cS = parseInt(document.getElementById('si-c').value) || 0;
+        const cont = document.getElementById('s-tiles-cont');
+        cont.innerHTML = '';
+        
+        let res = "";
+        for(let c of word) {
+            const isV = vowels.includes(c);
+            const s = isV ? vS : cS;
+            const next = alpha[(alpha.indexOf(c) + s + 26) % 26];
+            res += next;
+            cont.innerHTML += `<div class="char-tile-s ${isV?'vowel':'consonant'}"><small>${isV?'VOWEL':'CONS.'}</small><div>${c} → ${next}</div></div>`;
+        }
+        document.getElementById('supp-log').innerHTML = `→ Rules: Vowels ${vS>=0?'+':''}${vS}, Consonants ${cS>=0?'+':''}${cS}<br>→ <b>Final Cipher: ${res}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-word')) runSupp();
+        if(typeof initModule === "function") initModule(31);
+    });
+</script>
+</body>
+</html>

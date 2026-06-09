@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Direct Proportion | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR PROPORTIONAL SCALING */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 50px 20px; 
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .scale-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .shape-box {
+            border: 3px solid var(--cognis-blue);
+            background: rgba(0, 45, 91, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: var(--cognis-blue);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px;
+        }
+
+        .label-sm {
+            font-size: 0.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 1px;
+        }
+
+        .multiplier-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--cognis-gold);
+        }
+
+        .multiplier-val {
+            font-size: 1.2rem;
+            font-weight: 900;
+            margin-bottom: -5px;
+        }
+
+        .arrow-svg { width: 60px; height: 20px; }
+
+        .engine-container { grid-template-columns: 1.2fr 1fr; }
+        
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+        .val-display { color: var(--cognis-gold); }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(5));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 5: Direct Proportion</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Direct Proportion is just fancy talk for <b>"Perfect Lockstep."</b> If you buy twice as many stickers, you pay twice as much money. The easiest way to teach this is to find the <b>Value of One</b> first. If your child can find the "unit price," they can scale up to any number—whether it's 10 people or 10,000—without the math getting messy.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Sticker Shop</b>
+                "If 2 stickers cost 10p, how much do 6 stickers cost?"
+            </div>
+            <div class="tier-card">
+                <b>The Kitchen Scale</b>
+                "A recipe for 4 people uses 300g of sugar. How much sugar for 10 people?"
+            </div>
+            <div class="tier-card">
+                <b>The Map Master</b>
+                "On a 1:25,000 scale map, an 8cm road represents a massive real-world distance. How many km is it?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Think of this as a <b>Photocopier</b>. The "Multiplier" is like the zoom setting. Point to the <b>Input</b>—that’s your starting point. Now, point to the <b>Multiplier</b>—that’s the growth engine. Watch how the <b>Output</b> grows in perfect lockstep. It doesn't just get bigger; it grows by the exact same "times table" rule every single time.</p>
+        
+        <div class="anatomy-display">
+            <div class="scale-container">
+                <span class="label-sm">The Input</span>
+                <div class="shape-box" id="box-in" style="width: 50px; height: 50px;">4</div>
+            </div>
+
+            <div class="multiplier-node">
+                <span class="label-sm">The Multiplier</span>
+                <div class="multiplier-val" id="factor-val">x2.5</div>
+                <svg class="arrow-svg" viewBox="0 0 60 20">
+                    <path d="M0 10 L55 10 M50 5 L55 10 L50 15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+
+            <div class="scale-container">
+                <span class="label-sm" style="color:var(--cognis-gold)">The Output</span>
+                <div class="shape-box" id="box-out" style="width: 125px; height: 125px; border-color: var(--cognis-gold); color:var(--cognis-gold);">10</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Slide the <b>Quantity</b> and watch the <b>Trace Log</b>. Help your child notice that we aren't adding numbers; we are multiplying. Notice how the <b>Value of One</b> (the weight per person) stays exactly the same no matter how large the group gets.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Original Group (People): <span class="val-display" id="q1-val">4</span></label>
+                    <input type="range" id="q1-in" min="1" max="20" value="4" oninput="run5()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Original Weight (Grams): <span class="val-display" id="v1-val">300</span></label>
+                    <input type="range" id="v1-in" min="10" max="1000" step="10" value="300" oninput="run5()">
+                </div>
+                <div class="control-group" style="margin-top:30px; border-top: 1px solid #e2e8f0; padding-top:20px;">
+                    <label>New Target Group: <span class="val-display" id="q2-val">10</span></label>
+                    <input type="range" id="q2-in" min="1" max="50" value="10" oninput="run5()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-5">Awaiting scaling parameters...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Just Add a Bit" Trap:</strong> If a recipe for 4 people needs 10g of salt, and we scale it to 6 people, bright children often think: "That's 2 more people, so I'll just add 2g more salt." They are treating the recipe like a pile of blocks rather than a balanced mix.</p>
+            
+            <p><strong>The Fix: The "Taste Test."</strong> Ask them: "If we just add a tiny bit, will it still taste the same, or will it be too weak?" Remind them that proportion is a <b>Multiplication Game</b>, never an addition game. If the quantity doubles, the ingredient MUST double to keep the taste perfect.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(5)">Complete Module & Update Lattice</button>
+
+<script>
+    function run5() {
+        const q1 = parseFloat(document.getElementById('q1-in').value);
+        const v1 = parseFloat(document.getElementById('v1-in').value);
+        const q2 = parseFloat(document.getElementById('q2-in').value);
+
+        // Update UI Labels
+        document.getElementById('q1-val').innerText = q1;
+        document.getElementById('v1-val').innerText = v1;
+        document.getElementById('q2-val').innerText = q2;
+
+        // Math Logic
+        const unitValue = v1 / q1;
+        const multiplier = q2 / q1;
+        const result = v1 * multiplier;
+
+        // Visual Anatomy Scaling
+        const baseSize = 50;
+        const boxIn = document.getElementById('box-in');
+        const boxOut = document.getElementById('box-out');
+        const factorText = document.getElementById('factor-val');
+
+        boxIn.innerText = q1;
+        boxOut.innerText = q2;
+        factorText.innerText = "x" + multiplier.toFixed(2);
+        
+        // Clamp output size for UI
+        const outputSize = Math.max(40, Math.min(200, baseSize * multiplier));
+        boxOut.style.width = outputSize + "px";
+        boxOut.style.height = outputSize + "px";
+
+        // Trace Output
+        document.getElementById('trace-5').innerHTML = `
+            <div class="trace-step">→ 1. Find the Value of One: ${v1}g ÷ ${q1} people = <b>${unitValue.toFixed(2)}g</b></div>
+            <div class="trace-step">→ 2. Identify the Growth: New group is <b>x${multiplier.toFixed(2)}</b> bigger</div>
+            <div class="trace-step">→ 3. The Final Step: Multiply that "Value of One" by ${q2}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → FINAL WEIGHT: ${result.toFixed(1)} GRAMS
+            </div>
+        `;
+    }
+
+    window.onload = run5;
+</script>
+
+</body>
+</html>

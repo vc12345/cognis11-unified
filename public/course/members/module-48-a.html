@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 48: Non-Standard Nets | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 420px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📐'; }
+
+        /* INTRO: FLOWER PETALS */
+        .base-floor { fill: var(--cognis-gold); opacity: 0.3; stroke: var(--cognis-gold); stroke-width: 3; }
+        .petal { fill: rgba(49, 130, 206, 0.1); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.6s; }
+        .petal-active { fill: var(--cognis-blue); stroke-width: 3; }
+
+        /* SUPPLEMENTAL: BLUEPRINTS */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; text-align: center; }
+        #net-svg-s { width: 100%; max-width: 500px; height: 300px; stroke: var(--cognis-gold); stroke-width: 2; fill: rgba(197, 160, 89, 0.1); }
+        .btn-logic-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 12px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-logic-s.active { background: var(--cognis-gold); color: white; border-color: white; }
+        .type-toggle-s { display: flex; gap: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 20px; }
+        .toggle-btn-s { flex: 1; padding: 10px; border: none; border-radius: 6px; background: #4a5568; color: white; font-weight: 900; font-size: 0.6rem; cursor: pointer; text-transform: uppercase; }
+        .toggle-btn-s.active { background: var(--cognis-blue); color: var(--cognis-gold); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 48: Non-Standard Nets</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Flower Petals</h2>
+            <p>A Pyramid net is like a flower. The center is the **Base** (the floor), and the triangles are the **Petals**. To close the pyramid, every petal must fold up to meet at a single point in the middle.</p>
+            
+            <div class="parent-script">
+                "Look at our square floor. It has 4 sides. That means it needs exactly 4 petals to cover it. Click 'Fold Petal' to see them prepare to meet. If a petal was missing, the flower couldn't close!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="240" height="240" viewBox="0 0 240 240">
+                    <rect x="90" y="90" width="60" height="60" class="base-floor" />
+                    <polygon id="p-1" points="90,90 150,90 120,30" class="petal" />
+                    <polygon id="p-2" points="150,90 150,150 210,120" class="petal" />
+                    <polygon id="p-3" points="150,150 90,150 120,210" class="petal" />
+                    <polygon id="p-4" points="90,150 90,90 30,120" class="petal" />
+                </svg>
+                <button class="btn-action" onclick="stepPetal()">Fold Next Petal</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetPetals()">Reset Flower</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The square floor needs 4 triangle walls.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Prism Sandwich</h2>
+            <p>A Prism is different from a pyramid. It has **two identical floors** (like slices of bread) connected by a belt of rectangles (the filling). The number of rectangles must match the number of sides on the floor.</p>
+            
+            <div class="parent-script">
+                "Look at this net. We have two triangles. They are the 'bread' of our sandwich. Since a triangle has 3 sides, we need exactly 3 rectangles to wrap around them. Let's count the rectangles together."
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <polygon points="120,40 180,40 150,10" class="base-floor" />
+                    <polygon points="120,160 180,160 150,190" class="base-floor" />
+                    <rect x="60" y="40" width="60" height="120" class="petal" />
+                    <rect x="120" y="40" width="60" height="120" class="petal" style="fill:rgba(49, 130, 206, 0.2);" />
+                    <rect x="180" y="40" width="60" height="120" class="petal" />
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top: 10px;">Triangular Prism: 2 Bases + 3 Walls</div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Check the floor: 3 sides = 3 rectangles.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of a net as the <b>"Unfolded Cardboard Skeleton."</b> Success starts with identifying the <b>Base Shape</b>. Once you know the "Floor," you know exactly how many "Walls" the shape needs to close. <b>Pyramids</b> have one floor and a star of triangles; <b>Prisms</b> have two identical floors connected by a belt of rectangles.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Pyramid Point</b> "Count the triangles on a square-based pyramid. Why exactly four?"</div>
+                <div class="tier-card"><b>Prism Belt</b> "A pentagonal prism is unfolded. How many rectangular panels wrap it?"</div>
+                <div class="tier-card"><b>Gap Test</b> "An octagonal solid net has only six rectangles. How many are missing?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Blueprint Generator</b>. Notice that as the <b>Floor</b> gains more sides, the <b>Walls</b> must increase to match. If the floor has 5 sides but the net only has 4 walls, the shape has a "leak."</p>
+            <div class="anatomy-display-s">
+                <svg id="net-svg-s" viewBox="0 0 400 400"></svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Toggle between geometry types. Observe the <b>Trace Log</b> confirm the mathematical relationship between the base sides and the resulting faces.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="type-toggle-s">
+                        <button class="toggle-btn-s active" id="s-type-pyramid" onclick="setSuppType('pyramid')">Pyramid</button>
+                        <button class="toggle-btn-s" id="s-type-prism" onclick="setSuppType('prism')">Prism</button>
+                    </div>
+                    <button class="btn-logic-s active" id="s-side-3" onclick="setSuppSides(3)">Triangle Base</button>
+                    <button class="btn-logic-s" id="s-side-4" onclick="setSuppSides(4)">Square Base</button>
+                    <button class="btn-logic-s" id="s-side-5" onclick="setSuppSides(5)">Pentagon Base</button>
+                    <button class="btn-logic-s" id="s-side-6" onclick="setSuppSides(6)">Hexagon Base</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Inventory Only" Trap:</b> Most children assume a net is correct if it has the right number of shapes. **False.** If 5 triangles clump on one side of a pentagon, they cannot fold to meet at the top.</p>
+                <p><b>The Fix: The "Edge-to-Wall" Rule.</b> <i>"Every floor side needs a wall."</i> Count the base edges. Ensure a face folds up from **each** edge. If an edge is empty, the net is an impostor.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(48)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: PETALS --- */
+    let petalStep = 0;
+    function stepPetal() {
+        if(petalStep >= 4) return;
+        petalStep++;
+        document.getElementById('p-' + petalStep).classList.add('petal-active');
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Petal ${petalStep} folded! ${4-petalStep} left to go.</div>`;
+    }
+    function resetPetals() {
+        petalStep = 0;
+        document.querySelectorAll('.petal').forEach(p => p.classList.remove('petal-active'));
+        document.getElementById('intro-log').innerHTML = "Flower reset.";
+    }
+
+    /* --- SUPPLEMENTAL: BLUEPRINTS --- */
+    let sType = 'pyramid'; let sSides = 3;
+    function setSuppType(t) {
+        sType = t;
+        document.getElementById('s-type-pyramid').classList.toggle('active', t === 'pyramid');
+        document.getElementById('s-type-prism').classList.toggle('active', t === 'prism');
+        drawSupp();
+    }
+    function setSuppSides(s) {
+        sSides = s;
+        [3,4,5,6].forEach(n => {
+            const btn = document.getElementById('s-side-'+n);
+            if(btn) btn.classList.toggle('active', n === s);
+        });
+        drawSupp();
+    }
+    function drawSupp() {
+        const svg = document.getElementById('net-svg-s'); if(!svg) return;
+        svg.innerHTML = '';
+        const cx = 200, cy = 150, edge = 40;
+
+        if(sType === 'pyramid') {
+            const r = edge / (2 * Math.sin(Math.PI / sSides));
+            const angleOffset = -Math.PI / 2 - (Math.PI / sSides);
+            let pts = [];
+            for(let i=0; i<sSides; i++) {
+                let a = angleOffset + (i * 2 * Math.PI / sSides);
+                pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+            }
+            svg.innerHTML += `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" class="base-floor"/>`;
+            for(let i=0; i<sSides; i++) {
+                let p1 = pts[i], p2 = pts[(i+1)%sSides];
+                let mx = (p1[0]+p2[0])/2, my = (p1[1]+p2[1])/2;
+                let dx = mx - cx, dy = my - cy;
+                let mag = Math.sqrt(dx*dx + dy*dy);
+                let tx = mx + (dx/mag)*60, ty = my + (dy/mag)*60;
+                svg.innerHTML += `<polygon points="${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${tx},${ty}" fill="none" stroke="var(--cognis-gold)" stroke-width="2"/>`;
+            }
+        } else {
+            const rectH = 60; const startX = cx - (sSides*edge)/2; const startY = cy - rectH/2;
+            for(let i=0; i<sSides; i++) svg.innerHTML += `<rect x="${startX + i*edge}" y="${startY}" width="${edge}" height="${rectH}" fill="none" stroke="var(--cognis-gold)" stroke-width="2"/>`;
+            const drawBase = (isTop) => {
+                let r = edge / (2 * Math.sin(Math.PI / sSides));
+                let apothem = edge / (2 * Math.tan(Math.PI / sSides));
+                let baseY = isTop ? (startY - apothem) : (startY + rectH + apothem);
+                let baseX = startX + edge/2;
+                let offset = isTop ? (Math.PI/2 - Math.PI/sSides) : (-Math.PI/2 - Math.PI/sSides);
+                let pts = [];
+                for(let i=0; i<sSides; i++) {
+                    let a = offset + (i * 2 * Math.PI / sSides);
+                    pts.push(`${baseX + r*Math.cos(a)},${baseY + r*Math.sin(a)}`);
+                }
+                svg.innerHTML += `<polygon points="${pts.join(' ')}" class="base-floor"/>`;
+            };
+            drawBase(true); drawBase(false);
+        }
+        document.getElementById('supp-log').innerHTML = `→ Geometry: <b>${sSides}-Sided ${sType}</b><br>→ <b>Rule: Base edges (${sSides}) = Wall faces (${sSides})</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('net-svg-s')) drawSupp();
+        if(typeof initModule === "function") initModule(48);
+    });
+</script>
+</body>
+</html>

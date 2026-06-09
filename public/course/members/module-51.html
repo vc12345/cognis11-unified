@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 51: Block Counting | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR ISOMETRIC STACKS */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin: 20px 0; 
+            text-align: center;
+            border: 2px solid #2d3748;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #stack-svg { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 400px; 
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+        }
+        
+        .cube-top { fill: var(--cognis-gold); stroke: #fff; stroke-width: 1; }
+        .cube-left { fill: #b58d4a; stroke: #fff; stroke-width: 1; }
+        .cube-right { fill: #8e6c38; stroke: #fff; stroke-width: 1; }
+
+        /* X-Ray Effect */
+        .xray .cube-top, .xray .cube-left, .xray .cube-right { opacity: 0.15; }
+        .xray .hidden-marker { fill: #ef4444 !important; opacity: 1 !important; stroke: #fff; stroke-width: 2; }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        
+        .btn-action { 
+            background: var(--cognis-gold); color: white; border: none; 
+            padding: 15px; border-radius: 8px; width: 100%; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; 
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+            transition: 0.2s;
+        }
+        .btn-action:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: transparent; color: #a0aec0; border: 1px solid #4a5568; 
+            margin-top: 15px; cursor: pointer; font-size: 0.65rem; 
+            padding: 10px; border-radius: 6px; width: 100%;
+            text-transform: uppercase; font-weight: 800; letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .btn-secondary:hover { color: white; border-color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(51));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 51: Block Counting</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Invisible Foundations."</b> In the 11+, you are shown a 3D stack of blocks and asked: <i>"How many blocks are here total?"</i> The secret weapon is realizing that <b>Gravity never sleeps</b>. If you see a block sitting on the 3rd floor, there must be two blocks hiding directly beneath it to hold it up. Success isn't about counting what you see—it's about deducing what <i>must</i> be there for the tower to stand.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Simple L-Stack</b>
+                "Count the blocks in a 2-level stack. Don't forget the one hiding in the corner!"
+            </div>
+            <div class="tier-card">
+                <b>The 3x3 Grid</b>
+                "A corner column is 3 blocks high. How many 'ghost' blocks are supporting the top one?"
+            </div>
+            <div class="tier-card">
+                <b>The Skyline Challenge</b>
+                "Calculate the total volume of an irregular building where some columns are completely out of sight."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Volumetric Scanner</b>. Below is a random stack of blocks. To the naked eye, it looks like a single surface. Click <b>"Toggle X-Ray Vision"</b> to reveal the red "Support Blocks." These are the blocks required by physics to exist, even though they are hidden behind their neighbors. Notice that the total count always includes these red foundations.</p>
+        
+        <div class="anatomy-display">
+            <svg id="stack-svg" viewBox="0 0 400 400"></svg>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the generator to build new structures. Ask your child to guess the total count first, then use the <b>X-Ray</b> to check their work. Watch the <b>Trace Log</b> as it performs a "Column Audit"—counting the height of every stack from the roof down to the floor.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <button class="btn-action" onclick="toggleXRay()">Toggle X-Ray Vision</button>
+                <button class="btn-secondary" onclick="render()">Build New Stack</button>
+            </div>
+            <div class="trace-log" id="trace-51">Scanning for hidden support...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Face-Value" Trap:</strong> Most children count visible "diamond" faces. Because a single corner block on the top level shows 3 different faces (Top, Left, and Right), they often count that one block three times! This leads to a massive overcount.</p>
+            
+            <p><strong>The Insider Fix: The "Roof Tally" Rule.</strong> Tell your child: <i>"Only count the roofs."</i> They should pick one top-facing gold diamond and ask: <i>"What floor is this on?"</i> If it's on floor 4, that counts as 4 blocks. They should write "4" on that diamond, then move to the next gold roof. <b>Summing the floor numbers of the roofs is the only way to never double-count.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(51)">Complete Module & Update Lattice</button>
+
+<script>
+    function drawCube(svg, x, y, z, isHidden) {
+        const isoX = 200 + (x - y) * 40;
+        const isoY = 220 + (x + y) * 22 - z * 45;
+        
+        const top = `M${isoX},${isoY-45} l40,22 l-40,22 l-40,-22 z`;
+        const left = `M${isoX-40},${isoY-23} l0,45 l40,22 l0,-45 z`;
+        const right = `M${isoX},${isoY-1} l0,45 l40,-22 l0,-45 z`;
+
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        
+        group.innerHTML = `
+            <path d="${top}" class="cube-top ${isHidden ? 'hidden-marker' : ''}" />
+            <path d="${left}" class="cube-left ${isHidden ? 'hidden-marker' : ''}" />
+            <path d="${right}" class="cube-right ${isHidden ? 'hidden-marker' : ''}" />
+        `;
+        svg.appendChild(group);
+    }
+
+    function render() {
+        const svg = document.getElementById('stack-svg');
+        svg.innerHTML = '';
+        let total = 0, hidden = 0;
+        
+        const grid = [];
+        for(let x=0; x<3; x++) {
+            grid[x] = [];
+            for(let y=0; y<3; y++) {
+                grid[x][y] = Math.floor(Math.random() * 4) + 1;
+            }
+        }
+
+        for(let x=0; x<3; x++) {
+            for(let y=0; y<3; y++) {
+                let h = grid[x][y];
+                total += h;
+                for(let z=0; z<h; z++) {
+                    let isUnder = (z < h - 1);
+                    if(isUnder) hidden++;
+                    drawCube(svg, x, y, z, isUnder);
+                }
+            }
+        }
+
+        document.getElementById('trace-51').innerHTML = `
+            <div class="trace-step">→ 1. Total Volume: <b>${total} Blocks</b></div>
+            <div class="trace-step">→ 2. Visible Roofs: <b>9 Gold Surfaces</b></div>
+            <div class="trace-step">→ 3. Red Foundation Blocks: <b style="color:#f87171">${hidden}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → AUDIT: ${total} blocks confirmed (Roofs + Foundations).
+            </div>
+        `;
+    }
+
+    function toggleXRay() {
+        document.getElementById('stack-svg').classList.toggle('xray');
+    }
+
+    window.onload = render;
+</script>
+
+</body>
+</html>

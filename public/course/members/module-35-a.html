@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 35: Word Morphing | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚚'; }
+
+        /* INTRO: TRAVELING TILE */
+        .tile-tray { display: flex; gap: 8px; padding: 15px; background: #e2e8f0; border-radius: 12px; min-width: 150px; justify-content: center; }
+        .tile-f { width: 40px; height: 55px; background: white; border: 2px solid var(--cognis-blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .tile-traveler { background: var(--cognis-gold); color: white; border-color: #b45309; z-index: 10; }
+
+        /* PROGRESSING: BALANCE CHECK */
+        .dictionary-card { width: 120px; padding: 15px; background: white; border: 3px solid #cbd5e0; border-radius: 8px; text-align: center; font-weight: 900; transition: all 0.3s; }
+        .dict-valid { border-color: #10b981; color: #10b981; background: #f0fdf4; }
+        .dict-invalid { border-color: var(--trap-red); color: var(--trap-red); background: #fef2f2; }
+
+        /* SUPPLEMENTAL: LAB */
+        .anatomy-display-s { background: #1a202c; padding: 40px 20px; border-radius: 12px; text-align: center; }
+        .letter-node-s { width: 45px; height: 60px; background: white; color: var(--cognis-blue); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.8rem; border-radius: 6px; margin: 0 4px; cursor: pointer; transition: 0.2s; }
+        .node-selected { background: var(--cognis-gold); color: white; transform: translateY(-10px); }
+        .target-word-s { font-family: 'Consolas', monospace; font-size: 3rem; color: white; letter-spacing: 5px; margin-top: 30px; font-weight: 900; }
+        .insertion-s { color: var(--cognis-gold); text-decoration: underline; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 35: Word Morphing</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Stolen Letter</h2>
+            <p>Imagine two words. A "Stolen Letter" migrates from the first word and sneaks into the second one. To solve the mystery, the move must leave a real word behind and create a real word where it lands.</p>
+            
+            <div class="parent-script">
+                "We have **CHART** and **EAT**. One letter in CHART wants to move. Click 'Move Letter' to see the **H** travel. Notice that it leaves the word **CART** behind and creates **HEAT**. Both are real words!"
+            </div>
+
+            <div class="viz-container">
+                <div class="tile-tray" style="margin-bottom: 40px;">
+                    <div class="tile-f">C</div><div class="tile-f" id="intro-h">H</div><div class="tile-f">A</div><div class="tile-f">R</div><div class="tile-f">T</div>
+                </div>
+                <div class="tile-tray">
+                    <div class="tile-f">E</div><div class="tile-f">A</div><div class="tile-f">T</div>
+                    <div class="tile-f" id="intro-dest" style="opacity: 0; border: 2px dashed #94a3b8;"></div>
+                </div>
+                <button class="btn-action" style="margin-top: 30px;" onclick="runIntroMorph()">Move the 'H'</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for the letter to migrate...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Dual Dictionary Check</h2>
+            <p>Moving a letter is like building a bridge—if one side is weak, the whole answer collapses. You must check the <b>Remainder Word</b> (what's left) and the <b>Arrival Word</b> (the new one).</p>
+            
+            <div class="parent-script">
+                "Look at **STEAM** and **BIT**. If we move the 'M', we get 'STEA' and 'MBIT'. Do those look like real words? No! Click 'Try the S' to see a better move. Both dictionary cards must turn green for you to win."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:30px; margin-bottom: 20px;">
+                    <div id="dict-1" class="dictionary-card">STEA ?</div>
+                    <div id="dict-2" class="dictionary-card">MBIT ?</div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="checkValid(false)">Try moving 'M'</button>
+                    <button class="btn-action" style="background:var(--cognis-gold);" onclick="checkValid(true)">Try moving 'S'</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Check both sides of the bridge!</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as the <b>"Expendable Letter"</b> mystery. One letter migrates from the first word into the second. The secret is recognizing that the letter must leave a perfect word behind. It is a dual-validation task: the migration must be linguistically legal on both ends.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Easy Swap</b> "Move one letter from <i>CHART</i> to <i>EAT</i>."</div>
+                <div class="tier-card"><b>The Hidden Slot</b> "Move a letter from <i>STEAM</i> to <i>BIT</i>. Where does it land?"</div>
+                <div class="tier-card"><b>11+ Powerplay</b> "Find the letter migrating from <i>POUND</i> to <i>EACH</i>."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Welcome to the <b>Morph Lab</b>. Click a letter in the top word to select it, then use the slider to find its new home in the second word. If either word looks like gibberish, the "stolen" letter or its position is wrong.</p>
+            <div class="anatomy-display-s">
+                <div id="s-word-a" style="margin-bottom:40px;"></div>
+                <div id="s-word-b" class="target-word-s"></div>
+                <input type="range" id="si-slider" min="0" max="4" value="0" style="width:200px; margin-top:40px;" oninput="updateSupp()">
+                <div style="display:flex; justify-content:space-between; width:200px; margin:5px auto; font-size:0.6rem; color:#94a3b8; font-weight:800;">
+                    <span>FRONT</span><span>BACK</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Use the presets to explore 11+ migrations. Watch the <b>Trace Log</b> verify the Dictionary Check. Notice that letters often hide in the middle of their new homes.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <select id="si-preset" class="input-dark" style="width:100%;" onchange="loadSuppPair()">
+                        <option value="CHART,EAT">CHART → EAT</option>
+                        <option value="STEAM,BIT">STEAM → BIT</option>
+                        <option value="POUND,EACH">POUND → EACH</option>
+                        <option value="SMILE,PORT">SMILE → PORT</option>
+                    </select>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "One-Sided" Trap:</b> Children find a letter that makes a great new word in the second box (e.g. H from CHART makes HEAT) and stop. They forget to check if CART is a real word!</p>
+                <p><b>The Fix: The "Dual Dictionary" Rule.</b> <i>"The letter is a bridge."</i> Both sides must stay standing. Perform two checks: 1. Is the first word alive? 2. Is the second word born? **Both must pass.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(35)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: TRAVELING --- */
+    function runIntroMorph() {
+        const h = document.getElementById('intro-h');
+        const dest = document.getElementById('intro-dest');
+        h.classList.add('tile-traveler');
+        h.style.transform = "translateY(110px) translateX(25px)";
+        setTimeout(() => {
+            h.style.opacity = "0";
+            dest.style.opacity = "1";
+            dest.textContent = "H";
+            dest.style.borderColor = "var(--cognis-gold)";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">CHART became <b>CART</b>. EAT became <b>HEAT</b>. Perfection!</div>`;
+        }, 600);
+    }
+
+    /* --- PROGRESSING: BALANCE --- */
+    function checkValid(isS) {
+        const d1 = document.getElementById('dict-1');
+        const d2 = document.getElementById('dict-2');
+        if(isS) {
+            d1.className = "dictionary-card dict-valid"; d1.textContent = "TEAM ✅";
+            d2.className = "dictionary-card dict-valid"; d2.textContent = "SBIT? NO, BITS! ✅";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Success! Moving 'S' creates <b>TEAM</b> and <b>BITS</b>.</div>`;
+        } else {
+            d1.className = "dictionary-card dict-invalid"; d1.textContent = "STEA ❌";
+            d2.className = "dictionary-card dict-invalid"; d2.textContent = "MBIT ❌";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Both failed. Neither 'STEA' nor 'MBIT' are real words.</div>`;
+        }
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sA = "CHART", sB = "EAT", sIdx = 0;
+    function loadSuppPair() {
+        const val = document.getElementById('si-preset').value;
+        [sA, sB] = val.split(',');
+        sIdx = 0;
+        document.getElementById('si-slider').max = sB.length;
+        updateSupp();
+    }
+    function updateSupp() {
+        const wordACont = document.getElementById('s-word-a');
+        wordACont.innerHTML = '';
+        sA.split('').forEach((l, i) => {
+            const n = document.createElement('div'); n.className = `letter-node-s ${i===sIdx?'node-selected':''}`;
+            n.textContent = l; n.onclick = () => { sIdx = i; updateSupp(); };
+            wordACont.appendChild(n);
+        });
+
+        const ins = parseInt(document.getElementById('si-slider').value);
+        const letter = sA[sIdx];
+        const newB = sB.slice(0, ins) + `<span class="insertion-s">${letter}</span>` + sB.slice(ins);
+        document.getElementById('s-word-b').innerHTML = newB;
+
+        const remA = sA.slice(0, sIdx) + sA.slice(sIdx+1);
+        const fullB = sB.slice(0, ins) + letter + sB.slice(ins);
+        document.getElementById('supp-log').innerHTML = `→ Remainder: <b>${remA}</b><br>→ New Word: <b>${fullB}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-preset')) loadSuppPair();
+        if(typeof initModule === "function") initModule(35);
+    });
+</script>
+</body>
+</html>

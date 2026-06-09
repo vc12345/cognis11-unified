@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Cognis 11+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    
+    <style>
+        /* CATEGORY LOGIC GUIDE STYLES */
+        .guide-container {
+            margin-bottom: 40px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+
+        .guide-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .guide-header h2 {
+            font-size: 0.8rem;
+            color: var(--cognis-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .category-key {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        .key-item {
+            font-size: 0.8rem;
+            color: #475569;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            line-height: 1.4;
+        }
+
+        .key-item b {
+            color: var(--cognis-blue);
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* CARD ID TAG STYLING */
+        .mod-id {
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.65rem;
+            color: var(--cognis-blue);
+            text-transform: uppercase;
+        }
+
+        /* WELCOME HEADER TWEAKS */
+        .welcome-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #1B3A5C;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/auth-guard.js"></script>
+    <script src="../js/nav-injector.js"></script>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    <div class="dashboard-container">
+        <header class="welcome-section">
+            <div class="header-left">
+                <h1 id="user-greeting">Learning Lattice</h1>
+                <div class="status-bar">
+                    <span id="user-welcome">Syncing your progress...</span>
+                    <span class="dot-separator">•</span>
+                    <span id="account-status" class="status-badge status-checking">Checking Status</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="guide-container">
+            <div class="guide-header">
+                <h2>Category Logic Guide</h2>
+                <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Schema v1.0</span>
+            </div>
+            <div class="category-key">
+                <div class="key-item"><b>A</b> Proportionality & Fractions</div>
+                <div class="key-item"><b>B</b> Motion & Time</div>
+                <div class="key-item"><b>C</b> Operational Logic</div>
+                <div class="key-item"><b>D</b> Data & Geometry</div>
+                <div class="key-item"><b>E</b> Coding & Decoding</div>
+                <div class="key-item"><b>F</b> Word Mechanics</div>
+                <div class="key-item"><b>G</b> Semantic Logic</div>
+                <div class="key-item"><b>H</b> 2D Transformations</div>
+                <div class="key-item"><b>I</b> 3D & Manipulation</div>
+                <div class="key-item"><b>J</b> Comprehension Logic</div>
+                <div class="key-item"><b>K</b> Applied Linguistics</div>
+            </div>
+        </section>
+
+        <main id="lattice-root"></main>
+    </div>
+
+    <script src="../js/registry.js"></script>
+    <script>
+        // Maps registry pillar keys to full UI titles
+        const expandAcronym = (name) => {
+            const map = {
+                "Maths": "Core Maths",
+                "VR": "Verbal Reasoning",
+                "NVR": "Non-Verbal Reasoning",
+                "English": "English Literacy"
+            };
+            return map[name] || name;
+        };
+
+        async function loadDashboard() {
+            if (!window.supabaseClient) {
+                setTimeout(loadDashboard, 100);
+                return;
+            }
+
+            try {
+                const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
+                if (authError || !user) {
+                    window.location.href = "/login.html";
+                    return;
+                }
+                document.getElementById('user-welcome').innerText = user.email;
+
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('subscription_status, subscription_plan')
+                    .eq('id', user.id)
+                    .maybeSingle();
+
+                const statusEl = document.getElementById('account-status');
+                let userPlan = 'none';
+                
+                if (profile) {
+                    userPlan = profile.subscription_plan || 'none';
+                    const status = profile.subscription_status || 'inactive';
+                    statusEl.innerText = `${status.toUpperCase()} PLAN: ${userPlan.toUpperCase()}`;
+                    statusEl.className = `status-badge status-${status}`;
+                }
+
+                const { data: completedData } = await window.supabaseClient
+                    .from('module_progress')
+                    .select('module_id')
+                    .eq('user_id', user.id);
+
+                const completedIds = completedData ? completedData.map(item => Number(item.module_id)) : [];
+                const maxCompleted = completedIds.length > 0 ? Math.max(...completedIds) : 0;
+                const nextUnlockedId = maxCompleted + 1;
+
+                const root = document.getElementById('lattice-root');
+                root.innerHTML = ''; 
+                
+                const pillars = [...new Set(COGNIS_MODULES.map(m => m.pillar))];
+
+                pillars.forEach(pillarName => {
+                    const expandedName = expandAcronym(pillarName);
+                    const section = document.createElement('section');
+                    section.className = 'pillar-section';
+                    section.innerHTML = `
+                        <div class="pillar-header">
+                            <span class="pillar-indicator" style="background: var(--pillar-${pillarName.toLowerCase()})"></span>
+                            <h2>${expandedName}</h2>
+                        </div>
+                        <div class="category-grid" id="group-${pillarName}"></div>
+                    `;
+                    root.appendChild(section);
+                    
+                    const groupContainer = document.getElementById(`group-${pillarName}`);
+
+                    COGNIS_MODULES.filter(m => m.pillar === pillarName).forEach(mod => {
+                        const modId = Number(mod.id);
+                        const isDone = completedIds.includes(modId);
+                        let isLocked = false;
+
+                        if (userPlan === 'foundational' && modId > 1) {
+                            if (modId > nextUnlockedId) isLocked = true;
+                        }
+
+                        const card = document.createElement(isLocked ? 'div' : 'a');
+                        card.className = `module-card ${isDone ? 'is-complete' : ''} ${isLocked ? 'is-locked' : ''}`;
+                        if (!isLocked) card.href = mod.path;
+                        
+                        card.innerHTML = `
+                            <div class="card-top">
+                                <span class="cat-tag">Category ${mod.cat}</span>
+                                ${isDone ? '<span class="check-mark">✓</span>' : ''}
+                                ${isLocked ? '<span class="lock-tag">Locked 🔒</span>' : ''}
+                            </div>
+                            <h3 class="mod-title">${mod.title}</h3>
+                            <div class="card-bottom">
+                                <span class="mod-id">MODULE ${String(modId).padStart(2, '0')}</span>
+                                <span class="status-text">
+                                    ${isLocked ? 'Complete previous module' : (isDone ? 'Revision Mode' : 'Start Module →')}
+                                </span>
+                            </div>
+                        `;
+                        groupContainer.appendChild(card);
+                    });
+                });
+            } catch (err) {
+                console.error("Dashboard Render Error:", err);
+            }
+        }
+        loadDashboard();
+    </script>
+</body>
+</html>

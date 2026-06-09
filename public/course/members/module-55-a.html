@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 55: Fact vs. Opinion | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '⚖️'; }
+
+        /* INTRO: RULER VS HEART */
+        .tool-icon { font-size: 3.5rem; transition: transform 0.3s; cursor: pointer; }
+        .tool-icon:hover { transform: scale(1.1); }
+        .statement-card { background: white; padding: 15px 25px; border-radius: 50px; border: 2px solid var(--cognis-blue); font-weight: 800; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* PROGRESSING: MACHINE AUDIT */
+        .logic-gate-f { background: white; border: 2px solid var(--cognis-blue); padding: 15px; border-radius: 8px; font-weight: 900; color: var(--cognis-blue); display: flex; align-items: center; gap: 10px; }
+        .audit-light { width: 15px; height: 15px; border-radius: 50%; background: #cbd5e0; }
+
+        /* SUPPLEMENTAL: VERIFICATION LAB */
+        .simulation-area-s { background: #1a202c; padding: 40px; border-radius: 12px; border: 1px solid #2d3748; }
+        .logic-well-s { background: rgba(255,255,255,0.03); border: 1px solid #334155; padding: 25px; border-radius: 8px; color: #cbd5e0; line-height: 1.8; text-align: center; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .token-s { cursor: pointer; border-bottom: 2px dashed #4a5568; padding: 0 2px; transition: 0.2s; }
+        .token-s.fact-hit { color: var(--pass-green); border-color: var(--pass-green); border-bottom-style: solid; font-weight: 800; }
+        .token-s.opinion-hit { color: var(--cognis-gold); border-color: var(--cognis-gold); border-bottom-style: solid; font-style: italic; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-load-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-load-s.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 55: Fact vs. Opinion</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Ruler vs. The Heart</h2>
+            <p>A **Fact** is something you can measure with a tool, like a ruler or a clock. An **Opinion** is how someone feels in their heart. It doesn't mean it's "wrong," it just means a machine can't prove it!</p>
+            
+            <div class="parent-script">
+                "Look at this statement: **'The cake is 10cm tall.'** Can we use a ruler to prove that? Yes! That makes it a Fact. But if we say **'The cake is delicious,'** can a ruler prove that? No! Delicious is a heart-feeling, which makes it an Opinion."
+            </div>
+
+            <div class="viz-container">
+                <div class="statement-card" id="intro-statement">The cake is 10cm tall.</div>
+                <div style="display:flex; gap:60px;">
+                    <div style="text-align:center;">
+                        <div class="tool-icon" onclick="checkIntro('fact')">📏</div>
+                        <small style="font-weight:800; color:var(--cognis-blue);">RULER (Fact)</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="tool-icon" onclick="checkIntro('opinion')">❤️</div>
+                        <small style="font-weight:800; color:var(--cognis-gold);">HEART (Opinion)</small>
+                    </div>
+                </div>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem; margin-top:40px;" onclick="resetIntro()">Next Statement</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Pick a tool to test the statement.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Machine Audit</h2>
+            <p>In the 11+, authors use "Fancy Words" to make opinions sound like facts. To catch them, you must perform a **Machine Audit**. If a robot could record it as data, it passes. If a robot would be confused, it fails.</p>
+            
+            <div class="parent-script">
+                "Look at this sentence: 'The **difficult** exam started at **9:00 AM**.' Click 'Audit' to see the machine work. '9:00 AM' passes because a clock can prove it. 'Difficult' fails because some people might find it easy! Adjectives are usually opinions in disguise."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; flex-direction:column; gap:15px;">
+                    <div class="logic-gate-f">
+                        <div class="audit-light" id="light-1"></div>
+                        "9:00 AM"
+                    </div>
+                    <div class="logic-gate-f">
+                        <div class="audit-light" id="light-2"></div>
+                        "Difficult"
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runAudit()">Perform Machine Audit</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Does the data pass the machine test?</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Truth Filter."</b> In Reading Comprehension, you must separate <b>Facts</b> (measurable by tools) from <b>Opinions</b> (personal value judgments). Success relies on ignoring "fancy language." Authors dress up opinions in authoritative words. Always ask: <i>"Could a machine prove this?"</i></p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Direct Proof</b> "Sun is a star" (Fact) vs "Sun is beautiful" (Opinion).</div>
+                <div class="tier-card"><b>The Number Trap</b> "The report was 42 pages long and far too tedious." (Fact vs Subjective feeling).</div>
+                <div class="tier-card"><b>Authority Filter</b> "The scientist argued the policy was a failure." (Is 'failure' data or a belief?)</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Measurement Machine</b>. If the output of a sentence can be recorded as data, it's a fact. If it depends on the observer's perspective, it's an opinion. Note that "stunning" or "standard" vary by person.</p>
+            <div class="anatomy-display" style="background:#f8fafc;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:15px; font-weight:900; color:var(--cognis-blue);">
+                    SENTENCE <span>→</span> <span style="color:var(--cognis-gold)">MACHINE AUDIT</span> <span>→</span> <span style="color:var(--pass-green)">PROVABLE DATA</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Audit the diagnostic passages. Click tokens to classify them as <b>Fact</b> (measurable) or <b>Opinion</b> (subjective). This builds the critical eye for advanced English papers.</p>
+            <div class="simulation-area-s">
+                <div class="logic-well-s" id="s-well"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <button class="btn-load-s active" onclick="loadSuppPassage(0, this)">Hotel Inspection</button>
+                        <button class="btn-load-s" onclick="loadSuppPassage(1, this)">Scientific Report</button>
+                        <button class="btn-load-s" onclick="loadSuppPassage(2, this)">Historical Record</button>
+                    </div>
+                    <div class="trace-log" id="supp-log">Click words to verify their status...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Expert Fallacy" Trap:</b> Children often believe a statement is a fact just because a "Professor" or "Doctor" said it. (e.g. "The Doctor said it tasted horrible").</p>
+                <p><b>The Fix: The "Value Word" Audit.</b> <i>"Adjectives are often opinions in disguise."</i> If a word describes a *feeling* or a *value* (best, worst, important), it is an opinion. **Factual people can still have opinions.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(55)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: RULER --- */
+    const introItems = [
+        { s: "The cake is 10cm tall.", type: "fact" },
+        { s: "The cake is delicious.", type: "opinion" },
+        { s: "It is 20 degrees outside.", type: "fact" },
+        { s: "It is a beautiful day.", type: "opinion" }
+    ];
+    let introIdx = 0;
+    function checkIntro(tool) {
+        const item = introItems[introIdx];
+        if(tool === item.type) {
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Correct! <b>${item.s}</b> is a ${item.type.toUpperCase()}.</div>`;
+        } else {
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Not quite. A ruler can't measure feelings, and a heart can't measure centimeters!</div>`;
+        }
+    }
+    function resetIntro() {
+        introIdx = (introIdx + 1) % introItems.length;
+        document.getElementById('intro-statement').textContent = introItems[introIdx].s;
+        document.getElementById('intro-log').textContent = "Pick a tool to test the statement.";
+    }
+
+    /* --- PROGRESSING: AUDIT --- */
+    function runAudit() {
+        document.getElementById('light-1').style.background = '#10b981';
+        document.getElementById('light-2').style.background = '#ef4444';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Audit Finished! <b>9:00 AM</b> is a fact (Green). <b>Difficult</b> is an opinion (Red).</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sPassages = [
+        { ctx: "Property Inspection", tokens: [{t:"The",y:"x"}, {t:"stunning",y:"o"}, {t:"5-star hotel",y:"f"}, {t:"has",y:"x"}, {t:"exactly",y:"x"}, {t:"42 rooms",y:"f"}] },
+        { ctx: "Lab Report", tokens: [{t:"The",y:"x"}, {t:"brilliant",y:"o"}, {t:"scientist",y:"f"}, {t:"conducted",y:"x"}, {t:"three",y:"f"}, {t:"difficult",y:"o"}, {t:"tests",y:"f"}] },
+        { ctx: "History Archive", tokens: [{t:"The",y:"x"}, {t:"1920",y:"f"}, {t:"treaty",y:"f"}, {t:"was",y:"x"}, {t:"a",y:"x"}, {t:"disastrous",y:"o"}, {t:"mistake",y:"o"}] }
+    ];
+    let sCur = 0;
+    function loadSuppPassage(idx, btn) {
+        sCur = idx; document.querySelectorAll('.btn-load-s').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+        const well = document.getElementById('s-well'); well.innerHTML = '';
+        sPassages[idx].tokens.forEach((tk, i) => {
+            if(tk.y === 'x') well.innerHTML += `<span>${tk.t}</span> `;
+            else well.innerHTML += `<span class="token-s" onclick="classifySupp(this, '${tk.y}')">${tk.t}</span> `;
+        });
+        document.getElementById('supp-log').innerHTML = `→ Context: <b>${sPassages[idx].ctx}</b><br>→ Waiting for audit...`;
+    }
+    function classifySupp(el, type) {
+        if(type === 'f') el.className = "token-s fact-hit"; else el.className = "token-s opinion-hit";
+        const res = type === 'f' ? 'FACT (Provable)' : 'OPINION (Personal)';
+        document.getElementById('supp-log').innerHTML = `→ Token: "<b>${el.innerText}</b>"<br>→ Audit: <b>${res}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSuppPassage(0, document.querySelector('.btn-load-s'));
+        if(typeof initModule === "function") initModule(55);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10: Constant Speed | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🏎️'; }
+
+        /* INTRO: THE STEP COUNTER */
+        .ruler-path { stroke: #cbd5e0; stroke-width: 2; }
+        .tick { stroke: #94a3b8; stroke-width: 1; }
+        .snail-body { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* PROGRESSING: DISTANCE BAR */
+        .dist-bar-frame { width: 100%; max-width: 400px; height: 40px; background: #e2e8f0; border-radius: 20px; position: relative; overflow: hidden; border: 2px solid #cbd5e0; }
+        .dist-fill { height: 100%; background: var(--cognis-blue); transition: width 0.5s ease; }
+        .speed-marker { position: absolute; top: -30px; transform: translateX(-50%); font-weight: 800; font-size: 0.7rem; color: var(--cognis-gold); }
+
+        /* SUPPLEMENTAL: DST TRIANGLE */
+        .triangle-wrapper { position: relative; width: 260px; height: 220px; }
+        .dst-shape { width: 0; height: 0; border-left: 130px solid transparent; border-right: 130px solid transparent; border-bottom: 220px solid var(--cognis-blue); filter: drop-shadow(0 10px 20px rgba(0,45,91,0.2)); }
+        .dst-node { position: absolute; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.4rem; cursor: pointer; transition: all 0.3s; z-index: 10; }
+        .dst-node.active { background: var(--cognis-gold); border-color: white; transform: scale(1.2); box-shadow: 0 0 20px var(--cognis-gold); }
+        .node-d { top: 65px; left: 100px; }
+        .node-s { top: 145px; left: 40px; }
+        .node-t { top: 145px; left: 160px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .solving-badge { background: var(--cognis-gold); color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; margin-bottom: 10px; display: inline-block; font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 10: Constant Speed</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Snail Step</h2>
+            <p>Speed isn't a scary math word; it's just the size of a <b>Single Jump</b>. If a snail has a speed of "3 cm per second," it means every time the clock ticks, that snail moves exactly 3 cm forward.</p>
+            
+            <div class="parent-script">
+                "Look at our snail. His speed is set to 2 cm per second. Every time you click 'Tick', he will take one jump. Count with me: One tick, 2 cm. Two ticks, 4 cm. Speed is just the distance of **one** jump!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150">
+                    <line x1="20" y1="100" x2="380" y2="100" class="ruler-path" />
+                    <g id="ruler-ticks"></g>
+                    <g id="snail" class="snail-body" transform="translate(20, 0)">
+                        <text x="0" y="90" font-size="30">🐌</text>
+                    </g>
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin: 10px 0;">Time Passed: <span id="intro-time">0</span> seconds</div>
+                <button class="btn-complete" style="width:auto; padding:10px 20px;" onclick="advanceSnail()">Tick! (Move 1 Second)</button>
+                <button class="btn-complete" style="width:auto; padding:5px 15px; background:#94a3b8; font-size:0.7rem; margin-top:10px;" onclick="resetSnail()">Reset Snail</button>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Snail's Speed (cm/s)</label>
+                        <input type="range" min="1" max="5" value="2" id="intro-s" oninput="resetSnail()">
+                        <div class="val-out" id="intro-s-val">2 cm/s</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log">Ready to race? Click Tick!</div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Distance Total</h2>
+            <p>Distance is the <b>Grand Total</b>. If you know the Speed (how far in 1 hour) and the Time (how many hours you traveled), you just multiply them together. It's like building a long road out of identical speed blocks.</p>
+            
+            <div class="parent-script">
+                "We are driving at 60 mph. That's our block size. If we drive for 3 hours, we just put three 60-mile blocks together. See how the distance grows? Distance is the boss because it's the result of the other two!"
+            </div>
+
+            <div class="viz-container">
+                <div class="dist-bar-frame">
+                    <div id="prog-fill" class="dist-fill" style="width: 0%;"></div>
+                </div>
+                <div id="prog-summary" style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Distance: 0 miles</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Speed (mph)</label>
+                        <input type="range" min="10" max="100" step="10" value="60" id="prog-s" oninput="updateProg()">
+                        <div class="val-out" id="prog-s-val">60 mph</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Time (hours)</label>
+                        <input type="range" min="1" max="5" value="1" id="prog-t" oninput="updateProg()">
+                        <div class="val-out" id="prog-t-val">1 hour</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('10-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of Speed, Distance, and Time as the <b>"Travel Trio."</b> They are three sides of the same story. The secret weapon is recognizing that <b>Distance is the Boss</b>—it sits at the top of everything. If you know how the trio connects, you can calculate any missing part of the journey in seconds.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Toy Car</b> "A remote car travels 20m in 4 seconds. What is its speed?"</div>
+                <div class="tier-card"><b>The Fast Train</b> "A train travels at 75mph. How far in 3 hours?"</div>
+                <div class="tier-card"><b>The Flight</b> "A plane flies 1,200 miles at 400mph. How long does it take?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Magic Triangle</b>. This is your logical map. Tell your child: <i>"Cover the letter we are looking for with your thumb."</i> What's left tells you the math. Distance (D) is on top; Speed (S) and Time (T) are the partners at the bottom.</p>
+            
+            
+
+[Image of Speed Distance Time formula triangle]
+
+
+            <div class="anatomy-display">
+                <div class="triangle-wrapper">
+                    <div class="dst-shape"></div>
+                    <div class="dst-node node-d active" id="supp-node-d" onclick="setSuppTarget('d')">D</div>
+                    <div class="dst-node node-s" id="supp-node-s" onclick="setSuppTarget('s')">S</div>
+                    <div class="dst-node node-t" id="supp-node-t" onclick="setSuppTarget('t')">T</div>
+                </div>
+                <div class="formula-hint" id="supp-formula-hint">Solving for Distance...</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Change the values to see the trio in action. Notice the <b>logic shift</b>: To find Distance, we multiply. To find Speed or Time, we divide the top by the bottom.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="solving-badge" id="supp-badge">TARGET: DISTANCE</div>
+                    <div id="supp-dynamic-inputs"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Clock Confuser":</b> Bright children often forget that clocks and math don't speak the same language. For a 1 hour 30 minute trip, they often plug <b>1.3</b> into the formula. <b>Trap!</b></p>
+                <p><b>The Fix: The "Divide by 60" Rule.</b> Minutes are fractions of 60. 30 minutes is <b>0.5</b> (30/60). 15 minutes is <b>0.25</b>. Always convert minutes to decimals before they touch the triangle!</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(10)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Motion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SNAIL STEP --- */
+    let snailTime = 0;
+    function resetSnail() {
+        snailTime = 0;
+        document.getElementById('intro-time').innerText = "0";
+        document.getElementById('snail').style.transform = `translate(20px, 0)`;
+        document.getElementById('intro-s-val').innerText = document.getElementById('intro-s').value + " cm/s";
+        document.getElementById('intro-log').innerHTML = "Ready! Click Tick to start.";
+        
+        const ticks = document.getElementById('ruler-ticks');
+        ticks.innerHTML = '';
+        for(let i=0; i<=25; i++) {
+            ticks.innerHTML += `<line x1="${20 + i*14}" y1="100" x2="${20 + i*14}" y2="${i%5==0?115:108}" class="tick" />`;
+        }
+    }
+
+    function advanceSnail() {
+        const s = parseInt(document.getElementById('intro-s').value);
+        if (snailTime >= 10) return;
+        snailTime++;
+        const dist = snailTime * s;
+        document.getElementById('intro-time').innerText = snailTime;
+        document.getElementById('snail').style.transform = `translate(${20 + (dist * 14)}px, 0)`;
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">After <b>${snailTime}</b> seconds, the snail has moved <b>${dist}</b> cm.</div>
+            <div class="discovery-step">Logic: ${snailTime} ticks × ${s} cm each = ${dist} cm.</div>
+        `;
+    }
+
+    /* --- PROGRESSING: DISTANCE BAR --- */
+    function updateProg() {
+        const s = parseInt(document.getElementById('prog-s').value);
+        const t = parseInt(document.getElementById('prog-t').value);
+        const dist = s * t;
+        
+        document.getElementById('prog-s-val').innerText = s + " mph";
+        document.getElementById('prog-t-val').innerText = t + (t === 1 ? " hour" : " hours");
+        
+        // Bar logic (max 500 units)
+        const percent = (dist / 500) * 100;
+        document.getElementById('prog-fill').style.width = percent + "%";
+        document.getElementById('prog-summary').innerText = `Total Distance: ${dist} miles`;
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">Speed (size of one block): <b>${s}</b>.</div>
+            <div class="discovery-step">Time (number of blocks): <b>${t}</b>.</div>
+            <div class="discovery-step"><b>${s} × ${t} = ${dist} miles.</b></div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: DST ENGINE --- */
+    let suppTarget = 'd';
+    function setSuppTarget(type) {
+        suppTarget = type;
+        document.querySelectorAll('[id^="supp-node-"]').forEach(n => n.classList.remove('active'));
+        document.getElementById('supp-node-' + type).classList.add('active');
+        const names = {d: 'Distance', s: 'Speed', t: 'Time'};
+        document.getElementById('supp-formula-hint').innerText = `Solving for ${names[type]}...`;
+        document.getElementById('supp-badge').innerText = `TARGET: ${names[type].toUpperCase()}`;
+        renderSuppInputs();
+    }
+
+    function renderSuppInputs() {
+        const container = document.getElementById('supp-dynamic-inputs');
+        let html = '';
+        if (suppTarget !== 'd') html += `<div class="control-group"><label>Distance</label><input type="number" id="si-d" value="100"></div>`;
+        if (suppTarget !== 's') html += `<div class="control-group"><label>Speed</label><input type="number" id="si-s" value="50"></div>`;
+        if (suppTarget !== 't') html += `<div class="control-group"><label>Time (Decimals)</label><input type="number" id="si-t" value="2"></div>`;
+        container.innerHTML = html;
+        container.querySelectorAll('input').forEach(el => el.oninput = runSuppLogic);
+        runSuppLogic();
+    }
+
+    function runSuppLogic() {
+        const d = parseFloat(document.getElementById('si-d')?.value) || 0;
+        const s = parseFloat(document.getElementById('si-s')?.value) || 0;
+        const t = parseFloat(document.getElementById('si-t')?.value) || 0;
+        let res, log;
+
+        if (suppTarget === 'd') {
+            res = s * t;
+            log = `→ Distance = Speed × Time<br>→ ${s} × ${t} = <b>${res} units</b>`;
+        } else if (suppTarget === 's') {
+            res = t ? d / t : 0;
+            log = `→ Speed = Distance ÷ Time<br>→ ${d} ÷ ${t} = <b>${res.toFixed(2)} units</b>`;
+        } else {
+            res = s ? d / s : 0;
+            log = `→ Time = Distance ÷ Speed<br>→ ${d} ÷ ${s} = <b>${res.toFixed(2)} units</b>`;
+        }
+        document.getElementById('supp-log').innerHTML = log;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetSnail(); updateProg();
+        if(document.getElementById('sub-supplemental')) setSuppTarget('d');
+        if(typeof initModule === "function") initModule(10);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 49: Rotated Cubes | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR 3D CUBE SIMULATION */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 80px 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2d3748;
+            perspective: 1000px;
+            min-height: 400px;
+        }
+
+        .cube-viewport {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 3px solid rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
+            backface-visibility: visible;
+        }
+
+        /* Symbol Mapping & Faces */
+        .f-front  { transform: rotateY(0deg) translateZ(60px); background: var(--cognis-gold); color: #1a202c; }
+        .f-back   { transform: rotateY(180deg) translateZ(60px); background: #3182ce; color: white; }
+        .f-right  { transform: rotateY(90deg) translateZ(60px); background: #48bb78; color: white; }
+        .f-left   { transform: rotateY(-90deg) translateZ(60px); background: #e53e3e; color: white; }
+        .f-top    { transform: rotateX(90deg) translateZ(60px); background: #f6ad55; color: white; }
+        .f-bottom { transform: rotateX(-90deg) translateZ(60px); background: #805ad5; color: white; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .spin-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .btn-spin {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-spin:hover { color: white; border-color: var(--cognis-gold); }
+        .btn-spin span { color: var(--cognis-gold); }
+
+        .btn-reset {
+            background: transparent;
+            color: #718096;
+            border: 1px solid #4a5568;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            width: 100%;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(49));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 49: Rotated Cubes</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"3D Tracking."</b> In the 11+, examiners show a cube and then ask you to find it again after it’s been spun like a top or flipped over. The secret weapon is <b>Adjacency Logic</b>. Since you only ever see three faces at once, your child must pick an "Anchor" face and track its neighbors. If the Star is directly above the Circle in the original, it will stay above the Circle no matter how much you spin it horizontally.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Horizontal Spin</b>
+                "Identify the cube after one 90° turn to the right. Which side face becomes the front?"
+            </div>
+            <div class="tier-card">
+                <b>The Adjacency Audit</b>
+                "Find the 'Impossible Neighbor'—a face that is opposite the anchor but is shown touching it."
+            </div>
+            <div class="tier-card">
+                <b>The Orientation Trap</b>
+                "Does the arrow point toward the Star or away from it after a 180° flip?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Spatial Matrix</b>. Use the controls below to spin the cube. Notice how the relationship between faces is "Fixed." Even when symbols move to the top or side, they keep the same neighbors. Help your child visualize the "Back" and "Bottom" faces that are currently hidden—this mental X-ray is the key to 11+ success.</p>
+        
+        
+
+        <div class="anatomy-display">
+            <div class="cube-viewport" id="cube-element">
+                <div class="face f-front">★</div>
+                <div class="face f-back">●</div>
+                <div class="face f-right">▲</div>
+                <div class="face f-left">■</div>
+                <div class="face f-top">♦</div>
+                <div class="face f-bottom">♣</div>
+            </div>
+            <div style="margin-top: 50px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                3D Laboratory: Spin to verify adjacency
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Manipulate the cube's axes below. Watch the <b>Trace Log</b> as it tracks the exact orientation. Ask your child: <i>"If the Star (★) is on the front and we flip it up, what symbol will be on top now?"</i> This builds the spatial intuition needed for the fastest-paced NVR sections.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Rotate the Cube</label>
+                <div class="spin-grid">
+                    <button class="btn-spin" onclick="rotateCube('y', 90)">Turn Right <span>Y-Axis</span></button>
+                    <button class="btn-spin" onclick="rotateCube('x', 90)">Flip Over <span>X-Axis</span></button>
+                    <button class="btn-spin" onclick="rotateCube('z', 90)">Tilt Clockwise <span>Z-Axis</span></button>
+                </div>
+                <button class="btn-reset" onclick="resetCube()">Reset Origin</button>
+            </div>
+            <div class="trace-log" id="trace-49">Orientation mapping active...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Mirage Neighbor" Trap:</strong> Distractors often use the correct symbols but place them in impossible spots. They might show two faces touching that you know are actually <b>Opposites</b> (like the front and back of the box).</p>
+            
+            <p><strong>The Insider Fix: The "Law of Opposites."</strong> Tell your child: <i>"Opposites are shy."</i> If Symbol A and Symbol B are on opposite sides of the cube, they can <b>never</b> be seen at the same time. If a multiple-choice answer shows both, it’s a lie. Cross it out immediately and don't waste another second checking its rotation. <b>Opposites can never be neighbors.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(49)">Complete Module & Update Lattice</button>
+
+<script>
+    let rotX = -20, rotY = -30, rotZ = 0;
+
+    function rotateCube(axis, deg) {
+        if(axis === 'x') rotX += deg;
+        if(axis === 'y') rotY += deg;
+        if(axis === 'z') rotZ += deg;
+
+        const cube = document.getElementById('cube-element');
+        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+        updateTrace();
+    }
+
+    function resetCube() {
+        rotX = -20; rotY = -30; rotZ = 0;
+        const cube = document.getElementById('cube-element');
+        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+        updateTrace();
+    }
+
+    function updateTrace() {
+        const log = document.getElementById('trace-49');
+        log.innerHTML = `
+            <div class="trace-step">→ 1. Spin (Y): ${rotY % 360}°</div>
+            <div class="trace-step">→ 2. Tilt (X): ${rotX % 360}°</div>
+            <div class="trace-step">→ 3. Lean (Z): ${rotZ % 360}°</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → STATUS: SPATIAL COORDS LOGGED
+            </div>
+            <div class="trace-step" style="font-size:0.7rem; opacity:0.7;">Check: Does the front face still hide its opposite?</div>
+        `;
+    }
+
+    window.onload = () => {
+        const cube = document.getElementById('cube-element');
+        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+    };
+</script>
+
+</body>
+</html>

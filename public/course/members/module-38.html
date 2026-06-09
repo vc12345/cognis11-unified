@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 38: Synonym Precision | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR THERMAL SPECTRUM */
+        .anatomy-display { 
+            background: #1a202c; 
+            border-radius: 12px; 
+            padding: 80px 40px; 
+            margin: 20px 0; 
+            text-align: center; 
+            min-height: 280px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            border: 2px solid #2d3748;
+        }
+
+        #word-tag { 
+            font-family: 'Consolas', monospace; 
+            font-weight: 900; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        
+        .spectrum-container { 
+            width: 100%; 
+            max-width: 500px;
+            height: 14px; 
+            background: #2d3748; 
+            border-radius: 20px; 
+            margin-top: 60px; 
+            position: relative; 
+            overflow: hidden;
+            border: 1px solid #4a5568;
+        }
+        
+        .spectrum-fill { 
+            height: 100%; 
+            background: linear-gradient(to right, #ecc94b, #ed8936, #e53e3e); 
+            width: 0%; 
+            border-radius: 10px; 
+            transition: width 0.15s ease-out; 
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-set { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 10px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 800; 
+            transition: 0.2s;
+        }
+        .btn-set:hover { background: #4a5568; color: white; }
+        .btn-set.active { background: var(--cognis-gold); color: white; border-color: white; }
+
+        .slider-control-box {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px dashed #4a5568;
+        }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(38));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 38: Synonym Precision</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Vocabulary Volume."</b> In the 11+, synonyms aren't just words that mean the same thing—they are words that carry different <b>Levels of Intensity</b>. A slight breeze is <i>gentle</i>, but a hurricane is <i>violent</i>. The secret weapon is matching the "Magnitude" of the word to the drama of the sentence. If your child can learn to rank synonyms from quiet to loud, they’ll dodge the decoys that are technically correct but "too weak" for the story.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Heat Check</b>
+                "Which word is 'louder': <i>Warm</i> or <i>Scorching</i>?"
+            </div>
+            <div class="tier-card">
+                <b>The Light Scale</b>
+                "Rank these from weakest to strongest: <i>Bright</i>, <i>Dim</i>, <i>Dazzling</i>."
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Nuance</b>
+                "Contrast the shades of <i>Thrifty</i> (Careful) vs. <i>Stingy</i> (Extreme)."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Semantic Spectrum</b>. Point to the word below. As you move the slider, watch the word "Heat Up." Help your child notice that as the intensity increases, the color shifts to red and the size grows. This visual "Heat Signature" is exactly how a strong vocabulary feels in a real exam.</p>
+        
+        <div class="anatomy-display">
+            <div id="word-tag" style="color: #ecc94b; font-size: 1.5rem;">WARM</div>
+            <div class="spectrum-container">
+                <div id="fill" class="spectrum-fill"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Choose a semantic set below and "Crank the Intensity." Ask your child to define the difference between the yellow (mild) word and the red (extreme) word. This exercise builds the <b>Magnitude Sensitivity</b> needed to crack high-level Verbal Reasoning papers.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Select Word Category</label>
+                <div class="preset-grid">
+                    <button class="btn-set active" onclick="setScale(['WARM','HOT','SCORCHING'], this)">Heat</button>
+                    <button class="btn-set" onclick="setScale(['HAPPY','JOYFUL','ECSTATIC'], this)">Emotion</button>
+                    <button class="btn-set" onclick="setScale(['LARGE','HUGE','GARGANTUAN'], this)">Size</button>
+                    <button class="btn-set" onclick="setScale(['FAST','QUICK','RAPID'], this)">Speed</button>
+                    <button class="btn-set" onclick="setScale(['LOUD','DEAFENING','THUNDEROUS'], this)">Volume</button>
+                    <button class="btn-set" onclick="setScale(['SCARED','AFRAID','TERRIFIED'], this)">Fear</button>
+                </div>
+
+                <div class="slider-control-box">
+                    <label style="font-size:0.6rem; color:#a0aec0; display:block; margin-bottom:12px; text-transform:uppercase; font-weight:800; letter-spacing:1px;">↔ Crank the Intensity ↔</label>
+                    <input type="range" id="nuance-slider" min="0" max="100" value="0" oninput="update38()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-38">Slide to reveal the semantic magnitude...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Volume Mismatch" Trap:</strong> Most children choose a synonym that is accurate but "underpowered" for the sentence. For example, describing a massive volcanic explosion as a "noisy" event instead of a "cataclysmic" one. The word fits, but the drama is missing.</p>
+            
+            <p><strong>The Insider Fix: The "Drama Test."</strong> Tell your child: <i>"Check the neighbors."</i> Look at the other verbs and adjectives in the sentence. If they use high-drama words like <i>shattered</i>, <i>shrieked</i>, or <i>instantly</i>, they <b>must</b> choose the synonym from the extreme red end of the spectrum. <b>Match the drama level to find the answer.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(38)">Complete Module & Update Lattice</button>
+
+<script>
+    let activeScale = ['WARM','HOT','SCORCHING'];
+    
+    function setScale(s, btn) {
+        activeScale = s;
+        document.querySelectorAll('.btn-set').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('nuance-slider').value = 0;
+        update38();
+    }
+
+    function update38() {
+        const val = parseInt(document.getElementById('nuance-slider').value);
+        const tag = document.getElementById('word-tag');
+        const fill = document.getElementById('fill');
+        
+        fill.style.width = val + "%";
+        
+        let word = activeScale[0];
+        let color = "#ecc94b"; 
+        let intensityDesc = "Mild Intensity";
+
+        if(val > 33) { 
+            word = activeScale[1]; 
+            color = "#ed8936"; 
+            intensityDesc = "High Intensity";
+        }
+        if(val > 66) { 
+            word = activeScale[2]; 
+            color = "#e53e3e"; 
+            intensityDesc = "Maximum Intensity";
+        }
+        
+        tag.innerText = word;
+        tag.style.color = color;
+        tag.style.fontSize = (1.5 + (val/40)) + "rem";
+        tag.style.textShadow = val > 80 ? `0 0 15px ${color}66` : "none";
+
+        document.getElementById('trace-38').innerHTML = `
+            <div class="trace-step">→ 1. Word: <b style="color:var(--cognis-gold)">${word}</b></div>
+            <div class="trace-step">→ 2. Magnitude: <b>${intensityDesc}</b></div>
+            <div class="trace-step">→ 3. Red-Shift: ${val}% across the spectrum</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → SEMANTIC IMPACT: ${val > 50 ? 'HIGH' : 'LOW'}
+            </div>
+        `;
+    }
+
+    window.onload = () => update38();
+</script>
+
+</body>
+</html>

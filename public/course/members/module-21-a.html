@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 21: Venn Diagrams (2 Circles) | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🍏'; }
+
+        /* INTRO: FRUIT SORTING */
+        .basket { fill: none; stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 4; }
+        .basket-label { font-size: 10px; font-weight: 800; fill: #64748b; text-transform: uppercase; }
+        .fruit { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
+
+        /* PROGRESSING: THE ROOM SHARE */
+        .room { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.5s; }
+        .room-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.05); }
+        .number-bubble { fill: white; stroke: #cbd5e0; stroke-width: 1; }
+
+        /* SUPPLEMENTAL: OVERLAP VIZ */
+        .venn-circle-s { fill: rgba(0, 45, 91, 0.04); stroke: var(--cognis-blue); stroke-width: 4; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .venn-circle-s.target-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.04); }
+        .label-intersect-s { fill: #e53e3e; font-size: 24px; font-weight: 900; opacity: 0; transition: opacity 0.5s; }
+        .merged .label-intersect-s { opacity: 1; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 21: Venn Diagrams (2 Circles)</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Land of Both</h2>
+            <p>Venn Diagrams are just sorting baskets with a twist. Some things are <b>Red</b>, some things are <b>Round</b>. But what if something is Red AND Round? It can't be in two places at once, so we create a shared middle basket called the <b>Both</b> zone.</p>
+            
+            <div class="parent-script">
+                "We have a bowl of fruit. Some are Green (Apples), some are Small (Grapes). But look at the Green Grape—it satisfies both rules! Click 'Sort Fruit' to see how the Green Grape finds its home in the middle."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250" id="intro-svg">
+                    <circle cx="130" cy="120" r="80" class="basket" />
+                    <circle cx="270" cy="120" r="80" class="basket" />
+                    <text x="100" y="30" class="basket-label">Green Things</text>
+                    <text x="300" y="30" class="basket-label">Small Things</text>
+                    
+                    <text id="fruit-apple" x="50" y="220" class="fruit" font-size="40">🍏</text>
+                    <text id="fruit-blueberry" x="350" y="220" class="fruit" font-size="30">🫐</text>
+                    <text id="fruit-grape" x="200" y="220" class="fruit" font-size="30">🍇</text>
+                </svg>
+                <button class="btn-action" onclick="sortIntroFruit()">Sort the Fruit!</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntroFruit()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting to sort...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Room Share</h2>
+            <p>In the 11+, groups always overlap. If Group A has 10 people and 3 are also in Group B, then Group A only has **7 people who are ONLY in A**. We must subtract the shared middle to see the true numbers.</p>
+            
+            <div class="parent-script">
+                "Imagine two rooms. Room A has 15 children. But 5 of them are actually sitting in the doorway sharing with Room B. If we don't subtract those 5, we count them twice and the total is wrong! Look how the 'Only' numbers change when they slide together."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200" id="prog-svg">
+                    <circle id="p-circle-a" cx="120" cy="100" r="70" class="room" />
+                    <circle id="p-circle-b" cx="280" cy="100" r="70" class="room room-b" />
+                    <text id="p-txt-a" x="120" y="105" font-weight="900" font-size="20" fill="var(--cognis-blue)">15</text>
+                    <text id="p-txt-b" x="280" y="105" font-weight="900" font-size="20" fill="var(--cognis-gold)">10</text>
+                    <text id="p-txt-int" x="200" y="105" font-weight="900" font-size="20" fill="#ef4444" opacity="0">5</text>
+                </svg>
+                <button id="btn-prog-merge" class="btn-action" onclick="toggleProgVenn()">Merge Rooms</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Room A: 15 | Room B: 10.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of a Venn Diagram as <b>"The Land of Both."</b> The secret weapon is the <b>Intersection</b> ($A \cap B$)—the sweet spot where things satisfy both rules. Adding the two group totals together creates a "double count" trap. To find the truth, always subtract the overlap from the totals to see who is <b>"Only"</b> in a group.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sports Club</b> "12 footballers, 3 also play rugby. How many play football <b>ONLY</b>?"</div>
+                <div class="tier-card"><b>The Merge</b> "Group A has 20, Group B has 15. 5 are in both. Total unique people?"</div>
+                <div class="tier-card"><b>The Minimum</b> "40 students: 25 like Art, 20 like Music. Smallest number who <b>must</b> like both?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Overlap Shift</b>. Notice how the numbers in the main circles <b>shrink</b> as soon as the Intersection (the red number) appears. We haven't lost any people; we've just moved them into the "Both" room to avoid double-counting.</p>
+            <div class="anatomy-display">
+                <svg id="s-venn-svg" width="460" height="260" viewBox="0 0 460 260">
+                    <circle id="s-c-a" cx="130" cy="130" r="100" class="venn-circle-s" />
+                    <circle id="s-c-b" cx="330" cy="130" r="100" class="venn-circle-s target-b" />
+                    <text id="s-t-a" x="130" y="135" class="label-val" font-size="22" font-weight="900">20</text>
+                    <text id="s-t-b" x="330" y="135" class="label-val label-target-b" font-size="22" font-weight="900">15</text>
+                    <text id="s-t-int" x="230" y="135" class="label-intersect-s">5</text>
+                </svg>
+                <button class="btn-action" style="background:var(--cognis-gold);" onclick="toggleSuppVenn()">Shift to Intersection</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the population sizes. Watch the <b>Trace Log</b> to see the "Logic Subtraction" that ensures every person is only counted once.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Total in Group A</label><input type="number" id="in-a" value="20" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Total in Group B</label><input type="number" id="in-b" value="15" oninput="runSupp()"></div>
+                    <div class="control-group"><label>The Overlap (Both)</label><input type="number" id="in-int" value="5" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Blind Addition" Trap:</b> Most children see "15 Footballers" and "10 Swimmers" and say "25 total." They've accidentally invented extra people if 5 do both!</p>
+                <p><b>The Fix: The "Once Only" Rule.</b> Subtract the intersection from both sides first. **Clean the groups, then add them up.** $Total = (A-Int) + (B-Int) + Int$.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(21)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: FRUIT --- */
+    function resetIntroFruit() {
+        document.getElementById('fruit-apple').setAttribute("x", "50");
+        document.getElementById('fruit-apple').setAttribute("y", "220");
+        document.getElementById('fruit-blueberry').setAttribute("x", "350");
+        document.getElementById('fruit-blueberry').setAttribute("y", "220");
+        document.getElementById('fruit-grape').setAttribute("x", "200");
+        document.getElementById('fruit-grape').setAttribute("y", "220");
+        document.getElementById('intro-log').innerHTML = "Ready to sort...";
+    }
+    function sortIntroFruit() {
+        document.getElementById('fruit-apple').setAttribute("x", "100");
+        document.getElementById('fruit-apple').setAttribute("y", "120");
+        document.getElementById('fruit-blueberry').setAttribute("x", "300");
+        document.getElementById('fruit-blueberry').setAttribute("y", "120");
+        document.getElementById('fruit-grape').setAttribute("x", "200");
+        document.getElementById('fruit-grape').setAttribute("y", "120");
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The Apple is ONLY Green. The Blueberry is ONLY Small. The Grape is <b>BOTH</b>!</div>`;
+    }
+
+    /* --- PROGRESSING: ROOMS --- */
+    let progMerged = false;
+    function toggleProgVenn() {
+        progMerged = !progMerged;
+        const cA = document.getElementById('p-circle-a'), cB = document.getElementById('p-circle-b');
+        const tA = document.getElementById('p-txt-a'), tB = document.getElementById('p-txt-b'), tI = document.getElementById('p-txt-int');
+        if(progMerged) {
+            cA.setAttribute("cx", "170"); cB.setAttribute("cx", "230");
+            tA.setAttribute("x", "140"); tA.textContent = "10";
+            tB.setAttribute("x", "260"); tB.textContent = "5";
+            tI.style.opacity = "1";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look! A shrank to 10 and B shrank to 5. The missing 5 are now in the middle.</div>`;
+        } else {
+            cA.setAttribute("cx", "120"); cB.setAttribute("cx", "280");
+            tA.setAttribute("x", "120"); tA.textContent = "15";
+            tB.setAttribute("x", "280"); tB.textContent = "10";
+            tI.style.opacity = "0";
+            document.getElementById('prog-log').innerHTML = "Totals pulled apart.";
+        }
+    }
+
+    /* --- SUPPLEMENTAL: VENN --- */
+    let suppMerged = false;
+    function toggleSuppVenn() {
+        suppMerged = !suppMerged;
+        const svg = document.getElementById('s-venn-svg');
+        if(suppMerged) {
+            document.getElementById('s-c-a').setAttribute("cx", "180");
+            document.getElementById('s-c-b').setAttribute("cx", "280");
+            svg.classList.add('merged');
+        } else {
+            document.getElementById('s-c-a').setAttribute("cx", "130");
+            document.getElementById('s-c-b').setAttribute("cx", "330");
+            svg.classList.remove('merged');
+        }
+        runSupp();
+    }
+    function runSupp() {
+        const a = parseInt(document.getElementById('in-a').value) || 0;
+        const b = parseInt(document.getElementById('in-b').value) || 0;
+        const i = parseInt(document.getElementById('in-int').value) || 0;
+        
+        document.getElementById('s-t-a').textContent = suppMerged ? (a - i) : a;
+        document.getElementById('s-t-b').textContent = suppMerged ? (b - i) : b;
+        document.getElementById('s-t-int').textContent = i;
+        
+        document.getElementById('s-t-a').setAttribute("x", suppMerged ? "140" : "130");
+        document.getElementById('s-t-b').setAttribute("x", suppMerged ? "320" : "330");
+
+        document.getElementById('supp-log').innerHTML = `→ A (Only): ${a-i}<br>→ B (Only): ${b-i}<br>→ Both: ${i}<br>→ <b>Total Unique: ${(a-i)+(b-i)+i}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntroFruit();
+        if(document.getElementById('in-a')) runSupp();
+        if(typeof initModule === "function") initModule(21);
+    });
+</script>
+</body>
+</html>

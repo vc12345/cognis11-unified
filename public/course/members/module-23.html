@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 23: The Average Family | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR DATA VISUALIZATION */
+        .anatomy-display { padding: 40px; background: #f0f4f8; border-radius: 12px; border: 2px solid #e2e8f0; }
+        
+        .chart-area { 
+            display: flex; 
+            align-items: flex-end; 
+            justify-content: center; 
+            gap: 12px; 
+            height: 220px; 
+            margin-bottom: 30px; 
+            border-bottom: 3px solid var(--cognis-blue); 
+            padding-bottom: 5px;
+            width: 100%;
+        }
+
+        .bar { 
+            width: 45px; 
+            background: var(--cognis-blue); 
+            border-radius: 4px 4px 0 0; 
+            position: relative; 
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        .bar span { 
+            position: absolute; 
+            top: -25px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            font-weight: 800; 
+            font-size: 0.8rem; 
+            color: var(--cognis-blue);
+        }
+
+        .bar.is-median { 
+            background: var(--cognis-gold); 
+            box-shadow: 0 0 15px rgba(197, 160, 89, 0.4); 
+        }
+
+        .bar.is-mean { 
+            background: #10b981; 
+            opacity: 0.8;
+        }
+
+        .btn-sim-row { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .sim-btn { 
+            background: #fff; 
+            border: 2px solid var(--cognis-blue); 
+            color: var(--cognis-blue); 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            font-weight: 800; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: 0.2s;
+        }
+        .sim-btn:hover { background: var(--cognis-blue); color: white; }
+
+        /* Engine Result Overrides */
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .res-box { 
+            background: var(--engine-input); 
+            padding: 12px; 
+            border-radius: 8px; 
+            text-align: center; 
+            border: 1px solid #4a5568;
+        }
+        .res-box small { display: block; font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; margin-bottom: 5px; }
+        .res-box b { font-size: 1.2rem; color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(23));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header"><h1>Module 23: The Average Family</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of averages as finding the <b>"Center of Gravity"</b> for a group of numbers. In the 11+, there are three siblings in the family: the <b>Mean</b> (the fair sharer), the <b>Median</b> (the middle person in a line-up), and the <b>Mode</b> (the most popular choice). Your child needs to know exactly which tool to grab based on the "story" the examiner is telling.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Fair Share</b>
+                "Find the mean of 3, 5, and 7. If you shared these points equally, what would everyone get?"
+            </div>
+            <div class="tier-card">
+                <b>The Line Up</b>
+                "Find the median of: 15, 4, 9, 15, 2. Who stands in the exact middle of the queue?"
+            </div>
+            <div class="tier-card">
+                <b>The Missing Link</b>
+                "The mean age of four children is 12. Three children are 10, 11, and 14. How old is the fourth?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Averages are visual. Use the buttons below to see how the numbers behave. <b>Sorting</b> shows you the Median—the physical middle of the group. <b>Leveling</b> shows you the Mean—where every bar is cut and filled to make them all identical.</p>
+        
+        <div class="anatomy-display">
+            <div class="chart-area" id="viz-chart"></div>
+            <div class="btn-sim-row">
+                <button class="sim-btn" onclick="visualizeSort()">Sort (Find Median)</button>
+                <button class="sim-btn" onclick="visualizeLevel()">Level (Find Mean)</button>
+                <button class="sim-btn" onclick="resetSim()" style="border-color: #cbd5e0; color: #94a3b8;">Reset Data</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Type a list of numbers (separated by commas) to see the "Family" analyze them. Help your child notice how <b>Range</b> describes the width of the whole group, while the others look for the center.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Your Data Set</label>
+                    <input type="text" id="in-data" value="8, 12, 4, 8, 18" oninput="processData()">
+                </div>
+                
+                <div class="result-grid">
+                    <div class="res-box"><small>Mean (Average)</small><b id="out-mean">0</b></div>
+                    <div class="res-box"><small>Median (Middle)</small><b id="out-median">0</b></div>
+                    <div class="res-box"><small>Mode (Popular)</small><b id="out-mode">0</b></div>
+                    <div class="res-box"><small>Range (Width)</small><b id="out-range">0</b></div>
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">Analyzing the numbers...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Jumbled Median" Trap:</strong> Most children look at a list like "8, 2, 5" and pick 2 as the Median because it’s in the middle of the sentence. <b>This is a mistake.</b> The Median doesn't care about the sentence; it only cares about the size.</p>
+            
+            <p><strong>The Fix: The "Parade" Rule.</strong> Tell your child: <i>"Numbers must stand in height order."</i> You cannot find a Median until the numbers are sorted from Smallest to Largest. If there is an even number of items, find the tiny "Mean" between the two people in the very center.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(23)">Complete Module & Update Lattice</button>
+
+<script>
+    let rawData = [];
+
+    function processData() {
+        const input = document.getElementById('in-data').value;
+        rawData = input.split(',').map(n => parseFloat(n.trim())).filter(n => !isNaN(n));
+        
+        if (rawData.length === 0) {
+            document.getElementById('engine-trace').innerHTML = "Awaiting valid data points...";
+            return;
+        }
+
+        const sorted = [...rawData].sort((a, b) => a - b);
+        const sum = rawData.reduce((a, b) => a + b, 0);
+        const meanVal = sum / rawData.length;
+
+        let medianVal;
+        const midIndex = Math.floor(sorted.length / 2);
+        if (sorted.length % 2 === 0) {
+            medianVal = (sorted[midIndex - 1] + sorted[midIndex]) / 2;
+        } else {
+            medianVal = sorted[midIndex];
+        }
+
+        const counts = {};
+        rawData.forEach(n => counts[n] = (counts[n] || 0) + 1);
+        let maxFreq = 0; let modes = [];
+        for (let n in counts) {
+            if (counts[n] > maxFreq) { maxFreq = counts[n]; modes = [Number(n)]; }
+            else if (counts[n] === maxFreq) { modes.push(Number(n)); }
+        }
+
+        document.getElementById('out-mean').innerText = formatNum(meanVal);
+        document.getElementById('out-median').innerText = formatNum(medianVal);
+        document.getElementById('out-mode').innerText = maxFreq > 1 ? modes.join(', ') : "None";
+        document.getElementById('out-range').innerText = formatNum(sorted[sorted.length-1] - sorted[0]);
+
+        document.getElementById('engine-trace').innerHTML = `
+            <div class="trace-step">→ 1. Height Order: [${sorted.join(', ')}]</div>
+            <div class="trace-step">→ 2. Mean (Fair Share): ${sum} ÷ ${rawData.length} = <b>${formatNum(meanVal)}</b></div>
+            <div class="trace-step">→ 3. Median (True Middle): ${sorted.length % 2 === 0 ? `Between ${sorted[midIndex-1]} and ${sorted[midIndex]}` : `Central value is ${sorted[midIndex]}`}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → ANALYSIS COMPLETE
+            </div>
+        `;
+        
+        renderBars(rawData);
+    }
+
+    function renderBars(data, highlightMedian = false, forceMean = false) {
+        const chart = document.getElementById('viz-chart');
+        chart.innerHTML = '';
+        const maxVal = Math.max(...data, 1);
+        const midIndex = Math.floor(data.length / 2);
+
+        data.forEach((val, i) => {
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            if (highlightMedian) {
+                if (data.length % 2 !== 0 && i === midIndex) bar.classList.add('is-median');
+                if (data.length % 2 === 0 && (i === midIndex || i === midIndex - 1)) bar.classList.add('is-median');
+            }
+            if (forceMean) bar.classList.add('is-mean');
+            
+            bar.style.height = (val / maxVal * 100) + '%';
+            bar.innerHTML = `<span>${formatNum(val)}</span>`;
+            chart.appendChild(bar);
+        });
+    }
+
+    function visualizeSort() {
+        const sorted = [...rawData].sort((a, b) => a - b);
+        renderBars(sorted, true, false);
+    }
+
+    function visualizeLevel() {
+        const sum = rawData.reduce((a, b) => a + b, 0);
+        const avg = sum / rawData.length;
+        renderBars(rawData.map(() => avg), false, true);
+    }
+
+    function resetSim() { processData(); }
+
+    function formatNum(n) {
+        return Math.round(n * 100) / 100;
+    }
+
+    window.onload = processData;
+</script>
+
+</body>
+</html>

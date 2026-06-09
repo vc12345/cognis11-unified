@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 52: Explicit Retrieval | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR RETRIEVAL HUD */
+        .anatomy-display { 
+            background: #0f172a; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #1e293b;
+        }
+
+        .hud-container {
+            position: relative;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--cognis-gold);
+            padding: 30px;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-family: 'Consolas', monospace;
+            overflow: hidden;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--cognis-gold);
+            opacity: 0.3;
+            animation: scan 3s linear infinite;
+            box-shadow: 0 0 15px var(--cognis-gold);
+        }
+        @keyframes scan { 0% { top: 0% } 100% { top: 100% } }
+
+        .hook-box {
+            display: inline-block;
+            border: 2px solid var(--cognis-gold);
+            padding: 10px 20px;
+            color: white;
+            font-weight: 900;
+            margin: 10px;
+            border-radius: 4px;
+            background: rgba(197, 160, 89, 0.1);
+        }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
+        
+        .passage-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 25px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #cbd5e0;
+            margin-bottom: 30px;
+        }
+
+        .fact-node {
+            cursor: pointer;
+            padding: 0 4px;
+            border-bottom: 2px solid transparent;
+            transition: 0.2s;
+            font-weight: 700;
+        }
+        .fact-node:hover { background: rgba(197, 160, 89, 0.2); border-color: var(--cognis-gold); color: white; }
+        .fact-node.hit { background: var(--pass-green); color: white; border-color: transparent; }
+        .fact-node.miss { background: var(--fail-red); color: white; border-color: transparent; text-decoration: line-through; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .btn-scan {
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800;
+            text-align: left; transition: 0.2s; margin-bottom: 8px; width: 100%;
+            display: flex; justify-content: space-between;
+        }
+        .btn-scan:hover { background: #4a5568; color: white; }
+        .btn-scan.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(52));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 52: Explicit Retrieval</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of Explicit Retrieval as <b>"Data Mining."</b> In the Reading Comprehension paper, some answers aren't hidden behind clues—they are literally printed on the page. The secret weapon is the <b>"Hook and Type"</b> system. Your child must learn to ignore the story for a moment and look for a specific <b>Noun</b> (the Hook) and a <b>Question Word</b> (the Type, like "Who" or "When"). Success is about scanning speed, not deep thought.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Color Catcher</b>
+                "The cat wore a <i>blue</i> collar."<br>
+                <b>Q:</b> What color was the collar? (Target: Adjective)
+            </div>
+            <div class="tier-card">
+                <b>The Midnight Runner</b>
+                "Professor Snape left at <i>midnight</i>."<br>
+                <b>Q:</b> When did the Professor leave? (Target: Time/Date)
+            </div>
+            <div class="tier-card">
+                <b>The Location Link</b>
+                "The 1892 treaty was signed in <i>Berlin</i>."<br>
+                <b>Q:</b> Where was the treaty finalized? (Target: Place Name)
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Fact HUD</b>. Before your child looks at the text, they must "program" their brain with a search query. Notice how knowing the "Type" (When) tells the eyes to ignore all the words and search only for numbers or dates. By narrowing the field of vision, they can find the answer in a fraction of the time it takes to re-read the paragraph.</p>
+        
+        <div class="anatomy-display">
+            <div class="hud-container">
+                <div class="scan-line"></div>
+                <div>QUERY: "When was the base built?"</div>
+                <div style="margin: 15px 0;">
+                    <span class="hook-box" style="border-color:#3b82f6;">TYPE: WHEN (Look for numbers)</span>
+                    <span class="hook-box" style="border-color:#eab308;">HOOK: BASE (Target word)</span>
+                </div>
+                <div style="color:var(--pass-green); font-weight:bold; font-size: 0.8rem;">SCAN STATUS: FILTERING FOR TEMPORAL DATA</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Choose a retrieval type below to set the "Filter." Then, click the correct word in the passage to retrieve it. Help your child notice that if they are looking for "Who," their eyes should naturally jump to the capitalized names of people.</p>
+        <div class="simulation-area">
+            <div class="passage-well" id="passage">
+                In <span class="fact-node" data-type="when">1924</span>, the <span class="fact-node" data-type="who">Explorer Finch</span> discovered the <span class="fact-node" data-type="what">Emerald Idol</span> inside a <span class="fact-node" data-type="where">hidden cave</span>. He used <span class="fact-node" data-type="how">thick rope</span> to reach the floor.
+            </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Program Retrieval Scan</label>
+                    <button class="btn-scan active" onclick="setScan('when', '1924', this)">WHEN <span>(Year)</span></button>
+                    <button class="btn-scan" onclick="setScan('who', 'Explorer Finch', this)">WHO <span>(Name)</span></button>
+                    <button class="btn-scan" onclick="setScan('where', 'hidden cave', this)">WHERE <span>(Place)</span></button>
+                    <button class="btn-scan" onclick="setScan('what', 'Emerald Idol', this)">WHAT <span>(Object)</span></button>
+                </div>
+                <div class="trace-log" id="trace-52">Awaiting coordinates...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Enjoyment" Trap:</strong> This is the biggest time-waster in the exam. Most children read the entire story from start to finish because they find it interesting. This burns 2-3 minutes of clock time before they even know what the questions are.</p>
+            
+            <p><strong>The Insider Fix: The "Sacrificial Scan."</strong> Tell your child: <i>"Don't read the story, solve the mystery."</i> They should read the question <b>first</b>. Identify the "Hook" (the unique noun) and the "Type" (Who/When/Where). Use a finger to scan the page in a fast 'Z' shape, ignoring every word that doesn't match the target type. <b>Extract the data, then move on.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(52)">Complete Module & Update Lattice</button>
+
+<script>
+    let activeType = 'when';
+
+    function setScan(type, goal, btn) {
+        activeType = type;
+        document.querySelectorAll('.btn-scan').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.querySelectorAll('.fact-node').forEach(node => {
+            node.classList.remove('hit', 'miss');
+        });
+
+        document.getElementById('trace-52').innerHTML = `
+            <div class="trace-step">→ 1. HUD: Tracking <b>${type.toUpperCase()}</b></div>
+            <div class="trace-step">→ 2. Filter: ${type === 'when' ? 'Digits' : type === 'who' ? 'Proper Nouns' : 'Descriptive Phrases'}</div>
+            <div class="trace-step">→ 3. Status: Awaiting Scan Match</div>
+        `;
+    }
+
+    document.querySelectorAll('.fact-node').forEach(node => {
+        node.addEventListener('click', function() {
+            const nodeType = this.dataset.type;
+            if(nodeType === activeType) {
+                this.classList.add('hit');
+                updateTrace(true, this.innerText);
+            } else {
+                this.classList.add('miss');
+                updateTrace(false, this.innerText);
+            }
+        });
+    });
+
+    function updateTrace(success, val) {
+        const trace = document.getElementById('trace-52');
+        let html = `
+            <div class="trace-step">→ 1. HUD: Locked on <b>${activeType.toUpperCase()}</b></div>
+            <div class="trace-step">→ 2. Detected: <b>"${val}"</b></div>
+        `;
+
+        if(success) {
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → RESULT: DATA RETRIEVED (100% MATCH)
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → ERROR: DATA TYPE MISMATCH
+                </div>
+            `;
+        }
+        trace.innerHTML = html;
+    }
+
+    window.onload = () => setScan('when', '1924', document.querySelector('.btn-scan'));
+</script>
+
+</body>
+</html>

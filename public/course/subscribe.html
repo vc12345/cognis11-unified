@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe · Cognis11</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YK13FYQ1CJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YK13FYQ1CJ');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy:#1B3A5C; --steel:#2E6DA4; --gold:#c5a059; --cream:#FAFAF6; --off:#F4F2ED; --grey:#64748b; --dgrey:#334155; --lgrey:#E2E8F0; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'DM Sans', sans-serif; background:var(--cream); color:var(--dgrey); font-size:16px; line-height:1.6; -webkit-font-smoothing: antialiased; }
+        .wrap { max-width:950px; margin:0 auto; padding:0 32px; }
+        
+        nav { border-bottom:1px solid var(--lgrey); padding:18px 32px; display:flex; align-items:center; justify-content:space-between; background:#fff; position:sticky; top:0; z-index:100; }
+        .brand { font-family:'Playfair Display', serif; font-size:1.15rem; color:var(--navy); font-weight:700; text-decoration:none; }
+        .nav-right { display:flex; align-items:center; gap:20px; }
+        .nav-link { font-size:.85rem; color:var(--navy); text-decoration:none; font-weight:600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* HERO */
+        .hero { padding:100px 32px 60px; max-width:850px; margin:0 auto; text-align:center; }
+        .eyebrow { font-size:.7rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--grey); margin-bottom:15px; }
+        .hero h1 { font-family:'Playfair Display', serif; font-size:clamp(2.2rem, 5vw, 3.2rem); color:var(--navy); margin-bottom:20px; line-height:1.1; }
+        .hero p { font-size:1.15rem; color:var(--grey); max-width:700px; margin:0 auto; }
+
+        /* PITCH SECTION */
+        section { padding:40px 0; border-top:1px solid var(--lgrey); }
+        .pitch-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; align-items: start; }
+        .pitch-text h2 { font-family:'Playfair Display', serif; color: var(--navy); margin-bottom: 20px; font-size: 2rem; }
+        
+        /* CATEGORY GUIDE */
+        .category-guide { background: #fff; padding: 30px; border-radius: 12px; border: 1px solid var(--lgrey); }
+        .category-guide h3 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--grey); margin-bottom: 20px; }
+        .category-key { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .key-item { font-size: 0.75rem; font-weight: 500; color: var(--navy); display: flex; align-items: center; gap: 10px; }
+        .key-item b { background: var(--navy); color: #fff; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; font-size: 0.65rem; }
+
+        /* HOW IT WORKS STEPS */
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; background: var(--lgrey); border: 1.5px solid var(--lgrey); margin: 30px 0; }
+        .step { background: var(--cream); padding: 2rem; }
+        .step-n { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--lgrey); margin-bottom: 0.6rem; line-height: 1; }
+        .step h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--navy); }
+        .step p { font-size: 0.85rem; color: var(--dgrey); line-height: 1.6; }
+
+        .mandate-note { background: #ebf4ef; border-left: 3px solid var(--accent, #2d6a4f); padding: 1.5rem; margin-top: 20px; border-radius: 0 8px 8px 0; }
+        .mandate-note p { font-size: 0.9rem; color: var(--dgrey); }
+
+        /* PLANS GRID */
+        .plans { margin-top: 20px; }
+        .plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5px; background: var(--lgrey); border: 1.5px solid var(--lgrey); }
+        .plan { background: #fff; padding: 3rem; display: flex; flex-direction: column; }
+        .plan-tag { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold); margin-bottom: 0.8rem; }
+        .plan h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--navy); }
+        .plan-price { font-size: 2.5rem; font-family: 'Playfair Display', serif; color: var(--navy); margin-bottom: 1.25rem; line-height: 1; }
+        .plan-price span { font-size: 0.9rem; color: var(--grey); font-weight: 400; font-family: 'DM Sans', sans-serif; }
+        .plan-desc { font-size: 0.95rem; color: var(--grey); margin-bottom: 2rem; min-height: 3em; }
+        .plan-features { list-style: none; margin-bottom: 2.5rem; flex-grow: 1; }
+        .plan-features li { font-size: 0.88rem; color: var(--dgrey); padding: 0.6rem 0; border-bottom: 1px solid var(--off); display: flex; gap: 0.75rem; align-items: flex-start; }
+        .plan-features li::before { content: '→'; color: var(--gold); font-weight: 700; }
+
+        /* BUTTONS */
+        .btn-plan { display: block; width: 100%; text-align: center; background: var(--navy); color: #fff; padding: 1.1rem; border-radius: 3rem; font-size: 0.95rem; font-weight: 700; text-decoration: none; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-plan:hover { background: var(--steel); transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--navy); color: var(--navy); }
+        .btn-small-outline { display: inline-block; padding: 10px 24px; border: 1.5px solid var(--navy); color: var(--navy); text-decoration: none; border-radius: 30px; font-size: 0.85rem; font-weight: 700; margin-top: 32px; transition: 0.2s; }
+        .btn-small-outline:hover { background: var(--navy); color: #fff; }
+
+        /* LIGHT MODAL */
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(27, 58, 92, 0.3); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-bg.open { display: flex; }
+        .modal { background: #fff; max-width: 440px; width: 90%; padding: 3.5rem; position: relative; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); text-align: center; }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--grey); }
+        .modal h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 1rem; color: var(--navy); }
+        .field { margin-bottom: 1.2rem; text-align: left; }
+        .field label { display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--grey); margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+        .field input { width: 100%; padding: 16px; border: 1.5px solid var(--lgrey); background: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--navy); border-radius: 12px; outline: none; }
+        .modal-plan-label { font-size: 0.8rem; color: var(--grey); margin-top: 1.5rem; }
+
+        footer { border-top: 1px solid var(--lgrey); padding: 60px 32px; text-align: center; font-size: 0.85rem; color: var(--grey); }
+        footer a { color: var(--navy); text-decoration: none; margin: 0 10px; font-weight: 500; }
+
+        @media (max-width: 850px) { .pitch-grid, .steps, .plans-grid { grid-template-columns: 1fr; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/supabase-config.js"></script>
+    <script src="/js/auth-system.js"></script>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="brand">Cognis11</a>
+    <div class="nav-right">
+
+        <a href="login.html" class="nav-link">Login</a>
+    </div>
+</nav>
+
+<div class="wrap">
+    <div class="hero">
+        <p class="eyebrow">Access the Lattice</p>
+        <h1>Choose your <em>starting point.</em></h1>
+        <p>Built for the parent-led session — ten minutes together, across all 11 branches of 11+ logic.</p>
+    </div>
+
+    <section style="border-top:none; padding-top:0;">
+        <div class="pitch-grid">
+            <div class="pitch-text">
+                <h2>The 10-Minute Collaborative Model</h2>
+                <p>Cognis11+ is built to be led by you. Each module prepares you first, then gives you the tools to guide your child. No technical background required.</p>
+                <p>Traditional 11+ prep often feels like an endless cycle of workbooks and repetitive drills. It’s exhausting for the child and frustrating for the parent.</p>
+                <p>Our modules solve this by focusing on <span class="pitch-highlight">Conceptual X-Rays</span>. Each session is designed to be completed together in just 10 minutes. As an adult, you can master the concept in 60 seconds, then guide your child through the interactive logic engine.</p>
+                <p>By focusing on <i>why</i> a problem works, speed and accuracy follow naturally as a byproduct of clarity.</p>
+                
+                <a href="sample.html" class="btn-small-outline">See Sample Modules →</a>
+            </div>
+
+            <div class="category-guide">
+                <h3>11 Logic Categories</h3>
+                <div class="category-key">
+                    <div class="key-item"><b>A</b> Proportionality & Fractions</div>
+                    <div class="key-item"><b>B</b> Motion & Time</div>
+                    <div class="key-item"><b>C</b> Operational Logic</div>
+                    <div class="key-item"><b>D</b> Data & Geometry</div>
+                    <div class="key-item"><b>E</b> Coding & Decoding</div>
+                    <div class="key-item"><b>F</b> Word Mechanics</div>
+                    <div class="key-item"><b>G</b> Semantic Logic</div>
+                    <div class="key-item"><b>H</b> 2D Transformations</div>
+                    <div class="key-item"><b>I</b> 3D & Manipulation</div>
+                    <div class="key-item"><b>J</b> Comprehension Logic</div>
+                    <div class="key-item"><b>K</b> Applied Linguistics</div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="plans">
+        <p class="eyebrow" style="text-align:center; margin-bottom: 1.5rem;">Access Plans</p>
+        <h2 style="text-align:center; font-family:'Playfair Display'; font-size: 2.2rem; margin-bottom: 3rem;">Two plans. <em>One curriculum.</em></h2>
+
+        <div class="plans-grid">
+            <div class="plan">
+                <p class="plan-tag">Years 2–3</p>
+                <h3>Foundational</h3>
+                <div class="plan-price">£6 <span>/ month</span></div>
+                <p class="plan-desc">Build reasoning instincts before the pressure of drilling begins. Master one structure to unlock the next.</p>
+                <ul class="plan-features">
+                    <li><strong>Sequential progression</strong> — one module unlocks the next, ensuring a solid foundation.</li>
+                    <li>Interactive visualisers to build mental models alongside your child.</li>
+                    <li>Covers the full 59-module logic schema across all 11 branches.</li>
+                    <li>Personal progress tracking via the parent dashboard.</li>
+                    <li>Cancel anytime. No minimum contract.</li>
+                </ul>
+                <button class="btn-plan btn-outline" onclick="openModal('foundational', 'Foundational · £6/month')">Select Foundational</button>
+            </div>
+
+            <div class="plan">
+                <p class="plan-tag">Years 4–5</p>
+                <h3>Supplemental</h3>
+                <div class="plan-price">£9 <span>/ month</span></div>
+                <p class="plan-desc">Open access to all 59 modules. Ideal for targeted revision, mock exam analysis, and resolving specific logic gaps.</p>
+                <ul class="plan-features">
+                    <li><strong>Open access</strong> — jump immediately to any module for targeted revision and problem-solving.</li>
+                    <li>Ideal for resolving specific gaps identified in mock exams or homework sessions.</li>
+                    <li>High-level logic covering Maths, VR, and NVR.</li>
+                    <li>Full tracking for mastery across all branches.</li>
+                    <li>Secure payment. Simple dashboard cancellation.</li>
+                </ul>
+                <button class="btn-plan" onclick="openModal('supplemental', 'Supplemental · £9/month')">Select Supplemental</button>
+            </div>
+        </div>
+
+        <p style="text-align: center; font-size: 0.75rem; color: var(--grey); margin-top: 2rem;">Securely processed by Stripe. All plans are rolling monthly subscriptions.</p>
+</div>
+
+<div class="modal-bg" id="modalBg">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <h2>Join Cognis11</h2>
+        <p class="modal-desc" id="modalPlanLabel">Let's get your account set up.</p>
+        <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="sub-email" placeholder="your@email.com" />
+        </div>
+        <div class="field">
+            <label>Create Password</label>
+            <input type="password" id="sub-password" placeholder="At least 8 characters" />
+        </div>
+        <input type="hidden" id="selected-plan" value="">
+        <button class="btn-plan" id="modal-btn" onclick="handleSubscriptionSignup()">Create Account</button>
+        <p class="modal-plan-label">Secured by Stripe. Cancel anytime.</p>
+    </div>
+</div>
+
+<footer>
+    <span>© 2026 Cognis11 · Reasoning-First Preparation</span>
+    <div style="margin-top:15px;">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="mailto:hello@cognis11.com">Contact</a>
+    </div>
+</footer>
+
+<script>
+    function openModal(planId, label) {
+        document.getElementById('selected-plan').value = planId;
+        document.getElementById('modalPlanLabel').textContent = label;
+        document.getElementById('modalBg').classList.add('open');
+    }
+    function closeModal() {
+        document.getElementById('modalBg').classList.remove('open');
+    }
+    document.getElementById('modalBg').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: Reverse Percentages | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 360px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '⏪'; }
+
+        /* INTRO: THE UNDO MACHINE */
+        .machine-portal { fill: #f1f5f9; stroke: var(--cognis-blue); stroke-width: 3; stroke-dasharray: 6; }
+        .object-original { fill: var(--cognis-blue); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .object-result { fill: var(--cognis-gold); transition: all 0.5s; }
+
+        /* PROGRESSING: THE UNITARY BRIDGE */
+        .bridge-line { stroke: #cbd5e0; stroke-width: 2; stroke-dasharray: 4; fill: none; }
+        .bridge-node-f { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
+        .bridge-node-f.active { fill: var(--cognis-gold); stroke: var(--cognis-gold); }
+
+        /* SUPPLEMENTAL: REVERSE BRIDGE */
+        .node-s { 
+            width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--cognis-blue); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            font-weight: 900; background: white; z-index: 2; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .node-s.result { border-color: var(--cognis-gold); }
+        .node-s span { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; }
+        .bridge-container-s { position: relative; width: 140px; height: 80px; display: flex; align-items: center; }
+        .op-bubble-s { position: absolute; left: 50%; transform: translateX(-50%); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; color: white; white-space: nowrap; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .val-display { color: var(--cognis-gold); font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 7: Reverse Percentages</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Undo Button</h2>
+            <p>Every percentage change is like a machine. If a "Double Machine" (200%) turns a small toy into a big one, the only way to fix it is to run the machine <b>backwards</b>. Reverse percentages are just using the "Undo" button to find out what we started with.</p>
+            
+            <div class="parent-script">
+                "Look at this gold shape. It’s been changed by the machine. We know it’s now 200% of its original size. If we want to find the original blue shape, we have to 'Undo' the growth. Watch what happens when we reverse the power!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200">
+                    <rect x="50" y="50" width="100" height="100" class="machine-portal" />
+                    <rect x="250" y="50" width="100" height="100" class="machine-portal" />
+                    <rect id="intro-obj-start" x="75" y="75" width="50" height="50" class="object-original" opacity="0.3" />
+                    <rect id="intro-obj-now" x="260" y="60" width="80" height="80" class="object-result" />
+                    <path d="M160 100 L240 100 M170 90 L160 100 L170 110" stroke="var(--cognis-gold)" stroke-width="4" fill="none" stroke-linecap="round" />
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue);">Status: REWINDING TO START</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Machine Power (Current Size)</label>
+                        <input type="range" min="50" max="200" step="50" value="150" id="intro-p" oninput="updateIntro()">
+                        <div class="val-out" id="intro-p-val">150%</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log"></div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Unitary Bridge</h2>
+            <p>If we don't know the 100% (the start), we look for a smaller "stepping stone." If 20% of a price is £10, we can easily find 10% or 1%, and then walk the bridge all the way back to the full 100%. We always find <b>"The One"</b> first.</p>
+            
+            <div class="parent-script">
+                "We know that 80% of the price is £40. We can't jump to 100% in one go! Let's find 10% first by dividing by 8. Once we have that small piece, we can multiply it by 10 to cross the bridge to the full price."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="180" viewBox="0 0 400 180" id="prog-svg">
+                    <path d="M80 90 Q200 20 320 90" class="bridge-line" />
+                    <circle cx="80" cy="90" r="35" class="bridge-node-f active" />
+                    <circle cx="200" cy="50" r="25" class="bridge-node-f" id="node-step" />
+                    <circle cx="320" cy="90" r="35" class="bridge-node-f" id="node-target" />
+                    <text x="80" y="95" text-anchor="middle" font-weight="900" font-size="10" id="text-start">80%</text>
+                    <text x="200" y="55" text-anchor="middle" font-weight="900" font-size="10" id="text-step">10%</text>
+                    <text x="320" y="95" text-anchor="middle" font-weight="900" font-size="10">100%</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>What % do we have?</label>
+                        <select id="prog-perc" onchange="updateProg()">
+                            <option value="80">80% of original</option>
+                            <option value="50">50% of original</option>
+                            <option value="20">20% of original</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Value we have (£)</label>
+                        <input type="number" id="prog-val" value="40" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('7-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Reverse Percentages are about <b>Time Travel</b>. Usually, we start at the beginning and work forward. Here, we are at the "Destination" and need to <b>Rewind</b>. Since multiplication moved us forward, we must use <b>Division</b> to drive the car back to the start.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sale</b> "A toy costs £8 after a 20% discount. What was the original price?"</div>
+                <div class="tier-card"><b>The Hike</b> "A rare card is worth £120 after a 50% increase. What was it worth before?"</div>
+                <div class="tier-card"><b>The Goal</b> "90% of a journey is 180km. How long is the whole trip?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Reverse Bridge</b>. To get to the "Final Value," we multiplied by a shortcut. To get back to the "Original," we apply the <b>Inverse Secret</b>: we divide by that exact same number. The gold bubble is our path home.</p>
+            <div class="anatomy-display" style="gap:15px; padding:30px;">
+                <div class="node-s"><span>Original</span><div id="supp-orig">£100</div></div>
+                <div class="bridge-container-s">
+                    <div style="width:100%; height:2px; background:#cbd5e0;"></div>
+                    <div class="op-bubble-s" style="top:0; background:#94a3b8;" id="supp-op-top">× 0.80</div>
+                    <div class="op-bubble-s" style="bottom:0; background:var(--cognis-gold);" id="supp-op-bot">÷ 0.80</div>
+                </div>
+                <div class="node-s result"><span>Final</span><div id="supp-final">£80</div></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Input the price you see in the shop. Choose if it was an increase or a discount. Watch the <b>Rewind</b> logic calculate the true starting price instantly.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Final Price (£)</label><input type="number" id="in-v" value="80"></div>
+                    <div class="control-group"><label>The History</label>
+                        <select id="in-type">
+                            <option value="dec" selected>After a DECREASE (-)</option>
+                            <option value="inc">After an INCREASE (+)</option>
+                        </select>
+                    </div>
+                    <div class="control-group"><label>Change (%)</label><input type="number" id="in-p" value="20"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Forward Percent" Trap:</b> If a shirt is £90 after a 10% discount, children often find 10% of £90 (£9) and add it back to get £99. <b>Stop!</b> This is a trap. That 10% was stolen from a <i>bigger</i> number, not the £90.</p>
+                <p><b>The Fix: The "Division Stretch."</b> Never calculate a percentage of the sale price. Find the <b>Multiplier</b> first (like 0.90) and <b>DIVIDE</b>. Division is the only tool that "stretches" the price back to its original size.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(7)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: UNDO MACHINE --- */
+    function updateIntro() {
+        const p = parseInt(document.getElementById('intro-p').value);
+        document.getElementById('intro-p-val').innerText = p + "%";
+        
+        const scale = p / 100;
+        const size = 50 * scale;
+        const obj = document.getElementById('intro-obj-now');
+        obj.setAttribute("width", size);
+        obj.setAttribute("height", size);
+        obj.setAttribute("x", 300 - (size/2));
+        obj.setAttribute("y", 100 - (size/2));
+
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">The machine grew the toy to <b>${p}%</b>.</div>
+            <div class="discovery-step">To find the start, we <b>Undo</b> that ${scale}x growth!</div>
+        `;
+    }
+
+    /* --- PROGRESSING: UNITARY BRIDGE --- */
+    function updateProg() {
+        const p = parseInt(document.getElementById('prog-perc').value);
+        const v = parseFloat(document.getElementById('prog-val').value) || 0;
+        
+        const stepPerc = 10;
+        const stepVal = v / (p / 10);
+        const finalVal = stepVal * 10;
+
+        document.getElementById('text-start').textContent = p + "% = £" + v;
+        document.getElementById('text-step').textContent = "10% = £" + stepVal.toFixed(1);
+        
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">1. Shrink: Divide £${v} by ${p/10} to find 10%.</div>
+            <div class="discovery-step">2. Grow: Multiply £${stepVal.toFixed(1)} by 10 to find 100%.</div>
+            <div class="discovery-step"><b>Original Price: £${finalVal.toFixed(2)}</b></div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const v = parseFloat(document.getElementById('in-v').value) || 0;
+        const per = parseFloat(document.getElementById('in-p').value) || 0;
+        const type = document.getElementById('in-type').value;
+        
+        const mult = type === 'inc' ? (1 + per/100) : (1 - per/100);
+        const orig = v / mult;
+
+        document.getElementById('supp-orig').innerText = "£" + orig.toFixed(2);
+        document.getElementById('supp-final').innerText = "£" + v.toFixed(2);
+        document.getElementById('supp-op-top').innerText = "× " + mult.toFixed(2);
+        document.getElementById('supp-op-bot').innerText = "÷ " + mult.toFixed(2);
+
+        document.getElementById('supp-log').innerHTML = `
+            → 1. The Multiplier: <b>${mult.toFixed(2)}</b><br>
+            → 2. The Rewind: £${v} ÷ ${mult.toFixed(2)}<br>
+            → 3. Result: <b>£${orig.toFixed(2)}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro(); updateProg();
+        ['in-v', 'in-type', 'in-p'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.oninput = runSupp;
+        });
+        runSupp();
+        if(typeof initModule === "function") initModule(7);
+    });
+</script>
+</body>
+</html>

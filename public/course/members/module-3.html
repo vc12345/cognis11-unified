@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Shared Ratios (The Gap) | Cognis 11+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR COMPARATIVE RATIO BARS */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            position: relative;
+        }
+
+        .bar-row { 
+            display: flex; 
+            align-items: center; 
+            margin-bottom: 20px; 
+        }
+
+        .bar-label { 
+            width: 100px; 
+            font-weight: 800; 
+            font-size: 0.75rem; 
+            color: var(--cognis-blue); 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        .box-container { display: flex; gap: 6px; }
+
+        .box { 
+            width: 45px; 
+            height: 45px; 
+            border: 3px solid var(--cognis-blue); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 0.8rem; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+
+        .box.a { background: #1b3a5c; color: white; }
+        .box.b { background: #64748b; color: white; }
+
+        /* The 'Extra' boxes that represent the difference */
+        .box.diff-highlight { 
+            background: white; 
+            color: var(--trap-red); 
+            border: 3px dashed var(--trap-red); 
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(229, 62, 62, 0.2);
+        }
+        
+        .overhang-container { 
+            margin-top: 10px; 
+            position: relative; 
+            height: 40px; 
+            width: 100%;
+        }
+
+        .diff-bracket { 
+            position: absolute; 
+            border-bottom: 3px solid var(--trap-red); 
+            border-left: 3px solid var(--trap-red); 
+            border-right: 3px solid var(--trap-red); 
+            height: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: var(--trap-red); 
+            font-weight: 900; 
+            font-size: 0.85rem; 
+            text-transform: uppercase;
+            padding-bottom: 25px;
+            transition: all 0.4s ease;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+        .val-display { color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(3));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 3: Shared Ratios (The Gap)</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>In the 11+, the examiner often hides the "Total" and only tells you the <b>Gap</b> (e.g., "Person A has £10 more than B"). The secret weapon is realizing that this money only lives in the <b>Extra Boxes</b>. If your child can see that the "Extra £10" belongs to the "2 Extra Boxes," they can find the value of one box and solve the whole puzzle instantly.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Pocket Money</b>
+                "Money shared 3:1. Person A has £10 more than B. How much does B have?"
+            </div>
+            <div class="tier-card">
+                <b>The Classroom</b>
+                "The ratio of boys to girls is 5:2. There are 15 more boys than girls. Find the girls."
+            </div>
+            <div class="tier-card">
+                <b>The Baker's Mix</b>
+                "Flour and sugar are in ratio 7:3. There is 200g more flour than sugar. Find the total mass."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Look at the <b>Comparative Bar</b>. Point to the "Share A" and "Share B" rows. The <b>Gap</b> isn't the whole bar—it’s just the overhang. We divide the gap value <i>only</i> by these extra segments to find our "Golden Unit."</p>
+        
+        <div class="anatomy-display">
+            <div class="bar-row">
+                <div class="bar-label">Share A</div>
+                <div class="box-container" id="bar-a"></div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label">Share B</div>
+                <div class="box-container" id="bar-b"></div>
+            </div>
+            <div class="overhang-container">
+                <div id="diff-bracket" class="diff-bracket">THE GAP</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the sliders with your child to shift the ratio. Watch the <b>Red Bracket</b>—it only cares about the difference between the two people. Help them notice that the value of one box is found by dividing the "Difference Amount" by the "Difference in Boxes."</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>The Gap Amount (£): <span class="val-display" id="d-disp">£20</span></label>
+                    <input type="range" id="in-d" min="10" max="200" step="10" value="20" oninput="run3()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Ratio - Person A: <span class="val-display" id="a-disp">5</span></label>
+                    <input type="range" id="in-a" min="1" max="10" value="5" oninput="run3()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Ratio - Person B: <span class="val-display" id="b-disp">3</span></label>
+                    <input type="range" id="in-b" min="1" max="10" value="3" oninput="run3()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-3">Awaiting gap parameters...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Total Blindness" Trap:</strong> Most children see a number and immediately add the ratio parts together (e.g., 5 + 3 = 8) to divide. This is a disaster if the number is actually a <b>Gap</b>. It makes every box way too small.</p>
+            
+            <p><strong>The Fix: The "Minus First" Rule.</strong> Remind your child: "If you see the words 'more than' or 'difference,' you must subtract the ratio numbers first." (5 - 3 = 2). The "Gap Money" only fits into the "Gap Boxes."</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(3)">Complete Module & Update Lattice</button>
+
+<script>
+    function run3() {
+        const diffAmt = parseInt(document.getElementById('in-d').value);
+        const a = parseInt(document.getElementById('in-a').value);
+        const b = parseInt(document.getElementById('in-b').value);
+        
+        const partDiff = Math.abs(a - b);
+        const trace = document.getElementById('trace-3');
+
+        // Update Labels
+        document.getElementById('d-disp').innerText = '£' + diffAmt;
+        document.getElementById('a-disp').innerText = a;
+        document.getElementById('b-disp').innerText = b;
+
+        if (partDiff === 0) {
+            trace.innerHTML = `<div class="trace-step" style="color:#ef4444">→ To see a "Gap," the two ratio numbers must be different!</div>`;
+            return;
+        }
+
+        const unitValue = diffAmt / partDiff;
+        const totalA = unitValue * a;
+        const totalB = unitValue * b;
+
+        // Update Anatomy
+        const barA = document.getElementById('bar-a');
+        const barB = document.getElementById('bar-b');
+        barA.innerHTML = ''; barB.innerHTML = '';
+        
+        const minParts = Math.min(a, b);
+        
+        for(let i=0; i<a; i++) {
+            const div = document.createElement('div');
+            div.className = `box a ${ (a > b && i >= minParts) ? 'diff-highlight' : '' }`;
+            div.innerText = `£${unitValue.toFixed(0)}`;
+            barA.appendChild(div);
+        }
+        for(let i=0; i<b; i++) {
+            const div = document.createElement('div');
+            div.className = `box b ${ (b > a && i >= minParts) ? 'diff-highlight' : '' }`;
+            div.innerText = `£${unitValue.toFixed(0)}`;
+            barB.appendChild(div);
+        }
+
+        // Bracket Logic
+        const startOffset = 100 + (minParts * 51); // label width + (box width + gap)
+        const bracketWidth = (partDiff * 51) - 6;
+        const bracket = document.getElementById('diff-bracket');
+        bracket.style.left = `${startOffset}px`;
+        bracket.style.width = `${bracketWidth}px`;
+        bracket.innerText = `Difference = £${diffAmt}`;
+
+        // Trace Output
+        trace.innerHTML = `
+            <div class="trace-step">→ 1. The Overhang: ${Math.max(a,b)} - ${Math.min(a,b)} = <b>${partDiff} extra boxes</b></div>
+            <div class="trace-step">→ 2. One Box: £${diffAmt} ÷ ${partDiff} = <b>£${unitValue.toFixed(2)}</b></div>
+            <div class="trace-step">→ 3. Person A Share: ${a} boxes × £${unitValue.toFixed(2)} = £${totalA.toFixed(2)}</div>
+            <div class="trace-step">→ 4. Person B Share: ${b} boxes × £${unitValue.toFixed(2)} = £${totalB.toFixed(2)}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → COMBINED TOTAL: £${(totalA + totalB).toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run3;
+</script>
+
+</body>
+</html>

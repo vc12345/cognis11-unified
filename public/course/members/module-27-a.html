@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 27: Angle Logic | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📐'; }
+
+        /* INTRO: THE SCISSORS */
+        .scissor-line { stroke: var(--cognis-blue); stroke-width: 6; stroke-linecap: round; transition: transform 0.4s; }
+        .angle-arc { fill: none; stroke: var(--cognis-gold); stroke-width: 2; stroke-dasharray: 4; }
+
+        /* PROGRESSING: THE STAMP */
+        .rail-line { stroke: #cbd5e0; stroke-width: 4; }
+        .stamp-ghost { opacity: 0.2; transition: all 0.6s ease; }
+        .stamp-active { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* SUPPLEMENTAL: TRANSVERSAL */
+        #canvas-27 { background: #0f172a; border-radius: 12px; }
+        .p-line { stroke: rgba(255,255,255,0.15); stroke-width: 2; stroke-dasharray: 8,4; }
+        .t-line-s { stroke: var(--cognis-gold); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 0 8px rgba(197, 160, 89, 0.4)); }
+        .angle-text-s { font-family: 'Consolas', monospace; font-weight: 900; font-size: 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 27: Angle Logic</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Scissor Twins</h2>
+            <p>When two lines cross, they create a "mirror" effect. If the top opening of the scissors gets wider, the bottom opening must get wider too. We call these <b>Vertically Opposite Angles</b>, and they are always identical twins.</p>
+            
+            <div class="parent-script">
+                "Look at the scissors. Move the slider to open them. Notice that as the top angle grows, the bottom one copies it perfectly. They are locked together. If one is **40°**, its twin across the pivot must be **40°** too!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200" id="intro-svg">
+                    <line x1="50" y1="50" x2="250" y2="150" class="scissor-line" id="sci-1" />
+                    <line x1="50" y1="150" x2="250" y2="50" class="scissor-line" id="sci-2" />
+                    <circle cx="150" cy="100" r="6" fill="#4a5568" />
+                    <text id="ang-top" x="150" y="70" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">40°</text>
+                    <text id="ang-bot" x="150" y="140" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">40°</text>
+                </svg>
+                <input type="range" min="10" max="80" value="40" id="intro-slider" oninput="updateIntro()" style="width:200px; accent-color:var(--cognis-gold);">
+            </div>
+
+            <div class="discovery-log" id="intro-log">Open the scissors to see the twins!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Rubber Stamp</h2>
+            <p>If two lines are <b>Parallel</b> (like train tracks), a line cutting through them creates two identical intersections. You can think of the top intersection as a rubber stamp that gets pressed down onto the bottom line. The angles don't change—they just move!</p>
+            
+            <div class="parent-script">
+                "We have a **60°** angle on the top track. Because the tracks are parallel, we can 'stamp' that angle down to the bottom track. Click 'Stamp' to see the angle slide down. These are called **Corresponding Angles**."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <line x1="50" y1="80" x2="350" y2="80" class="rail-line" />
+                    <line x1="50" y1="180" x2="350" y2="180" class="rail-line" />
+                    <line x1="100" y1="220" x2="300" y2="40" stroke="var(--cognis-blue)" stroke-width="4" />
+                    
+                    <g id="angle-stamp" class="stamp-active">
+                        <path d="M255,80 A20,20 0 0 0 275,60" fill="none" stroke="var(--cognis-gold)" stroke-width="3" />
+                        <text x="290" y="65" font-weight="900" fill="var(--cognis-gold)">60°</text>
+                    </g>
+                </svg>
+                <button class="btn-action" onclick="runStamp()">Stamp the Angle!</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Ready to copy the pattern.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of angles on parallel lines as <b>"The Shadow Rule."</b> In the 11+, you only ever have <b>two numbers</b> to deal with. Every angle in a parallel diagram belongs to one of two "families." They are either identical twins, or they add up to exactly **180°** to make a straight line.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Straight Line</b> "Angles on a flat road add to **180°**. If one side is **110°**, what is its neighbor?"</div>
+                <div class="tier-card"><b>The 'Z' Switch</b> "A slope cuts tracks. If top-right is **60°**, what is its 'Alternate' (Z) partner?"</div>
+                <div class="tier-card"><b>The 'C' Squeeze</b> "If one co-interior angle is **75°**, why must the other be **105°**?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Transversal Pivot</b>. The eight different angles are actually just two values repeated. They alternate like a pattern. Rotate the road to see how the "Acute Family" and "Obtuse Family" swap sizes.</p>
+            <div class="anatomy-display">
+                <svg id="canvas-27" width="100%" height="300" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
+                    <line x1="50" y1="100" x2="550" y2="100" class="p-line" />
+                    <line x1="50" y1="200" x2="550" y2="200" class="p-line" />
+                    <line id="t-line-s" x1="300" y1="50" x2="300" y2="250" class="t-line-s" />
+                    
+                    <text id="s-lab-lt" class="angle-text-s" y="85" text-anchor="end"></text>
+                    <text id="s-lab-rt" class="angle-text-s" y="85" text-anchor="start"></text>
+                    <text id="s-lab-lb" class="angle-text-s" y="185" text-anchor="end"></text>
+                    <text id="s-lab-rb" class="angle-text-s" y="185" text-anchor="start"></text>
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Rotate the slope. Notice that no matter how steep it gets, the Gold (Acute) and Blue (Obtuse) numbers always combine to make **180°**.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group">
+                        <label>Rotate Road (θ)</label>
+                        <input type="range" id="s-angle-slider" min="25" max="155" value="65" oninput="runSupp()">
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Looks Parallel" Trap:</b> Children see two lines that "look" like tracks and use Z/F rules. **Trap!** If the lines aren't perfectly parallel, the top track has no connection to the bottom track.</p>
+                <p><b>The Fix: The "Arrow Hunt."</b> <i>"The math is illegal without the arrows."</i> Look for the arrowheads or the words "Parallel Lines." **No arrows = No jumping.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(27)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Shape Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SCISSORS --- */
+    function updateIntro() {
+        const theta = parseInt(document.getElementById('intro-slider').value);
+        const l1 = document.getElementById('sci-1');
+        const l2 = document.getElementById('sci-2');
+        l1.setAttribute("transform", `rotate(${theta - 40}, 150, 100)`);
+        l2.setAttribute("transform", `rotate(${(theta - 40) * -1}, 150, 100)`);
+        document.getElementById('ang-top').textContent = theta + "°";
+        document.getElementById('ang-bot').textContent = theta + "°";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Opposite angles are <b>${theta}°</b> and <b>${theta}°</b>. Still Twins!</div>`;
+    }
+
+    /* --- PROGRESSING: STAMP --- */
+    let stampPos = 0;
+    function runStamp() {
+        const stamp = document.getElementById('angle-stamp');
+        stampPos = (stampPos === 0) ? 100 : 0;
+        stamp.style.transform = `translateY(${stampPos}px)`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">The pattern moved. Notice the angle is still <b>60°</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: TRANSVERSAL --- */
+    function runSupp() {
+        const theta = parseInt(document.getElementById('s-angle-slider').value);
+        const rad = (theta * Math.PI) / 180;
+        const dx = 130 * Math.cos(rad), dy = 130 * Math.sin(rad);
+        
+        const line = document.getElementById('t-line-s');
+        line.setAttribute('x1', 300 + dx); line.setAttribute('y1', 150 - dy);
+        line.setAttribute('x2', 300 - dx); line.setAttribute('y2', 150 + dy);
+
+        const acute = Math.min(theta, 180 - theta);
+        const obtuse = 180 - acute;
+        const rightIsAcute = theta < 90;
+        const gold = "#c5a059", blue = "#3182ce";
+
+        const labs = { 
+            rt: document.getElementById('s-lab-rt'), 
+            lt: document.getElementById('s-lab-lt'),
+            rb: document.getElementById('s-lab-rb'),
+            lb: document.getElementById('s-lab-lb')
+        };
+
+        labs.rt.textContent = (rightIsAcute ? acute : obtuse) + '°';
+        labs.rt.setAttribute('fill', rightIsAcute ? gold : blue);
+        labs.lt.textContent = (rightIsAcute ? obtuse : acute) + '°';
+        labs.lt.setAttribute('fill', rightIsAcute ? blue : gold);
+        labs.rb.textContent = labs.rt.textContent; labs.rb.setAttribute('fill', labs.rt.getAttribute('fill'));
+        labs.lb.textContent = labs.lt.textContent; labs.lb.setAttribute('fill', labs.lt.getAttribute('fill'));
+
+        document.getElementById('supp-log').innerHTML = `→ Acute: <b>${acute}°</b> | Obtuse: <b>${obtuse}°</b><br>→ Total: <b>180°</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro();
+        if(document.getElementById('s-angle-slider')) runSupp();
+        if(typeof initModule === "function") initModule(27);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 7: Reverse Percentages | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR THE REVERSE BRIDGE GRAPHIC */
+        .anatomy-display { 
+            margin: 40px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 20px; 
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .node { 
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            border: 4px solid var(--cognis-blue); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            text-align: center; 
+            background: white; 
+            z-index: 2; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .node.result { border-color: var(--cognis-gold); }
+        .node span { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .node div { font-size: 1.1rem; color: var(--cognis-blue); }
+
+        .bridge-container { position: relative; width: 180px; height: 100px; }
+        .arrow-path { position: absolute; width: 100%; height: 3px; background: #cbd5e0; top: 50%; transform: translateY(-50%); }
+        
+        .op-bubble { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: var(--cognis-blue); 
+            color: white; 
+            padding: 6px 15px; 
+            border-radius: 20px; 
+            font-size: 0.8rem; 
+            font-weight: 900; 
+            white-space: nowrap;
+        }
+        .op-bubble.top { top: 0; background: #718096; }
+        .op-bubble.bottom { bottom: 0; background: var(--cognis-gold); border: 2px solid white; }
+
+        /* Engine Customization */
+        .engine-container { grid-template-columns: 1.1fr 1fr; }
+        
+        input[type=number], select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: white;
+            font-weight: 800;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(7));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 7: Reverse Percentages</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Reverse Percentages are about <b>Time Travel</b>. Usually, we start at the beginning and work forward to find a sale price. Here, we are standing at the "Destination" (the final price) and need to <b>Rewind</b> back to the original cost. Since multiplication moved us forward, we must use <b>Division</b> to drive the car back to the start.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Toy Sale</b>
+                "A toy costs £5 in a half-price sale. What was it worth originally?"
+            </div>
+            <div class="tier-card">
+                <b>The Sneaker Discount</b>
+                "After a 10% discount, trainers cost £45. Find the price before the sale."
+            </div>
+            <div class="tier-card">
+                <b>The House Hike</b>
+                "A house worth £240,000 increased by 20%. What was the starting value?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Reverse Bridge</b>. Look at the path below. To get to the "Final Value," we multiplied by a number. To get back to the "Original," we apply the <b>Inverse Secret</b>: we divide by that exact same multiplier. Point to the gold bubble—that's our shortcut home.</p>
+        
+        <div class="anatomy-display">
+            <div class="node">
+                <span>Original</span>
+                <div id="disp-orig">£200.00</div>
+            </div>
+            <div class="bridge-container">
+                <div class="arrow-path"></div>
+                <div class="op-bubble top" id="top-op">× 1.20</div>
+                <div class="op-bubble bottom" id="bot-op">÷ 1.20</div>
+            </div>
+            <div class="node result">
+                <span>Final Value</span>
+                <div id="disp-new">£240.00</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the inputs to simulate a sale or a price hike. Help your child notice that the "Original" value always changes instantly when you <b>Divide</b> the final price. Watch how the numbers "stretch" back to their larger starting size.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>The Sale Price (£):</label>
+                    <input type="number" id="v-in" value="240" oninput="run7()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>The History:</label>
+                    <select id="type-in" onchange="run7()">
+                        <option value="inc">After an INCREASE (+)</option>
+                        <option value="dec" selected>After a DECREASE (-)</option>
+                    </select>
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Percentage Change (%):</label>
+                    <input type="number" id="p-in" value="10" oninput="run7()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-7">Awaiting the rewind...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Forward Percent" Trap:</strong> If a shirt is £90 after a 10% discount, your child will be tempted to find 10% of £90 (£9) and add it back to get £99. <b>Stop!</b> This is a trap. That 10% was originally stolen from a <i>bigger</i> number, not the £90.</p>
+            
+            <p><strong>The Fix: The "Division Stretch."</strong> Never calculate a percentage of the sale price. Always find the <b>Multiplier</b> first (like 0.90 for a 10% off sale) and then <b>DIVIDE</b>. Division is the only tool that can correctly "stretch" the price back to its true original size.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(7)">Complete Module & Update Lattice</button>
+
+<script>
+    function run7() {
+        const val = parseFloat(document.getElementById('v-in').value) || 0;
+        const per = parseFloat(document.getElementById('p-in').value) || 0;
+        const isInc = document.getElementById('type-in').value === 'inc';
+
+        // Logic
+        const multiplier = isInc ? (1 + (per/100)) : (1 - (per/100));
+        const original = val / multiplier;
+
+        // Update Anatomy
+        document.getElementById('disp-orig').innerText = "£" + original.toFixed(2);
+        document.getElementById('disp-new').innerText = "£" + val.toFixed(2);
+        document.getElementById('top-op').innerText = "× " + multiplier.toFixed(2);
+        document.getElementById('bot-op').innerText = "÷ " + multiplier.toFixed(2);
+
+        // Trace Output
+        document.getElementById('trace-7').innerHTML = `
+            <div class="trace-step">→ 1. The Fact: The price is ${isInc ? '100% + ' + per + '%' : '100% - ' + per + '%'} of the start.</div>
+            <div class="trace-step">→ 2. The Multiplier: <b>${multiplier.toFixed(2)}</b></div>
+            <div class="trace-step">→ 3. The Rewind: £${val} ÷ ${multiplier.toFixed(2)}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → ORIGINAL PRICE: £${original.toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run7;
+</script>
+
+</body>
+</html>

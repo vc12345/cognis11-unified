@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 46: Series Progression | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🎞️'; }
+
+        /* INTRO: THE FLIPBOOK */
+        .flipbook-frame { width: 140px; height: 140px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; position: relative; transition: all 0.3s; }
+        .flipbook-dot { width: 20px; height: 20px; background: var(--cognis-gold); border-radius: 50%; position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* PROGRESSING: SPOTLIGHT */
+        .spotlight-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); transition: clip-path 0.5s; pointer-events: none; z-index: 5; }
+        .busy-box { width: 200px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; overflow: hidden; }
+
+        /* SUPPLEMENTAL: SERIES ENGINE */
+        .series-row-s { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .frame-s { width: 100px; height: 100px; background: #2d3748; border: 2px solid #4a5568; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .frame-s.target { border: 2px dashed var(--cognis-gold); background: rgba(197, 160, 89, 0.08); }
+        .element-s { position: absolute; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .dot-s { width: 18px; height: 18px; border-radius: 50%; background: var(--cognis-gold); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-logic-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 6px; font-size: 0.6rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .btn-logic-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: var(--cognis-blue); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 46: Series Progression</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Secret Animation</h2>
+            <p>A pattern series is like a flipbook. Each box is one frame of a movie. To find the missing piece, you just have to figure out how the "character" in the box is moving from one frame to the next.</p>
+            
+            <div class="parent-script">
+                "Look at the Gold Dot. Click 'Next Frame' to watch it move. Notice that it takes the same size 'jump' every time. If it moves from the top-left to the top-right in step 1, it <b>must</b> keep that rhythm going!"
+            </div>
+
+            <div class="viz-container">
+                <div class="flipbook-frame">
+                    <div id="intro-dot" class="flipbook-dot" style="top:20px; left:20px;"></div>
+                    <div style="position:absolute; bottom:5px; width:100%; text-align:center; font-size:0.6rem; font-weight:900; color:var(--cognis-blue);" id="intro-label">FRAME 1</div>
+                </div>
+                <button class="btn-action" onclick="stepIntro()">Next Frame (Move +60px)</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Movie</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting for the first frame...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Spotlight Method</h2>
+            <p>In hard puzzles, there are too many things moving at once. To win, you must act like a spotlight—look at only <b>one thing</b> at a time and ignore the rest. This is the "Pinch Method."</p>
+            
+            <div class="parent-script">
+                "This box is messy! There is a dot, a square, and a cross. Don't stare at the whole thing. Click 'Focus on Dot'. See how everything else disappears? Now you can easily see the rule for the dot without getting confused."
+            </div>
+
+            <div class="viz-container">
+                <div class="busy-box" id="prog-box">
+                    <div class="spotlight-mask" id="prog-mask" style="clip-path: circle(100% at 50% 50%);"></div>
+                    <div style="position:absolute; top:20px; left:20px; font-size:1.5rem;" id="prog-dot">🌕</div>
+                    <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem;" id="prog-sq">🟦</div>
+                    <div style="position:absolute; top:80px; left:80px; font-size:1.5rem;">❌</div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="focusProg('dot')">Focus on Moon</button>
+                    <button class="btn-action" onclick="focusProg('sq')">Focus on Square</button>
+                    <button class="btn-action" style="background:#4a5568;" onclick="focusProg('all')">View All</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Isolate the element to find the rule.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Detective's Film Strip."</b> The secret weapon is finding the <b>Delta</b>—the mathematical rule of change between frames. If an object jumps in step 1, it <i>must</i> repeat that vector in the final step. Track just one tiny piece of the film at a time to avoid cognitive overload.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Single Jump</b> "A circle moves top-left to bottom-right. Where will it land next?"</div>
+                <div class="tier-card"><b>Dual Rule</b> "A shape rotates 90° clockwise AND flips color in each step."</div>
+                <div class="tier-card"><b>Triple Threat</b> "Object changes position, shading, and size at once. Track them separately!"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Vector Scan</b>. Notice how elements move independently. Each "character" has its own script. When isolated, the complex dance becomes a predictable sequence. Use the engine below to toggle different logic scripts.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div id="s-row" class="series-row-s"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Select a logic type. Watch the <b>Trace Log</b> identify the "Deltas" (change vectors). The answer is found in the parts, not the whole.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-logic-s active" onclick="loadSupp('slider', this)">Steady Slide (Linear)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('light', this)">Stoplight (Cycling)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('ping', this)">Ping-Pong (Binary)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Dual Orbit (Complex)</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Visual Overload" Trap:</b> Children try to "feel" the answer by staring at the whole frame. The brain gets overwhelmed by moving parts and misses the critical detail.</p>
+                <p><b>The Fix: The "Pinch" Method.</b> <i>"Divide and conquer."</i> Physically cover everything except for <b>one</b> element. Solve that dot first. Then ignore it and move to the next. **Three simple puzzles are easier than one big one.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(46)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: FLIPBOOK --- */
+    let introStep = 0;
+    const introPos = [[20,20], [20,80], [80,80], [80,20]];
+    function stepIntro() {
+        introStep = (introStep + 1) % 4;
+        const dot = document.getElementById('intro-dot');
+        dot.style.top = introPos[introStep][0] + 'px';
+        dot.style.left = introPos[introStep][1] + 'px';
+        document.getElementById('intro-label').textContent = 'FRAME ' + (introStep + 1);
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Character moved! It is currently at position <b>${introPos[introStep]}</b>.</div>`;
+    }
+    function resetIntro() { introStep = 0; stepIntro(); }
+
+    /* --- PROGRESSING: SPOTLIGHT --- */
+    function focusProg(type) {
+        const mask = document.getElementById('prog-mask');
+        if(type === 'dot') mask.style.clipPath = 'circle(30px at 35px 35px)';
+        else if(type === 'sq') mask.style.clipPath = 'circle(30px at 165px 165px)';
+        else mask.style.clipPath = 'circle(100% at 50% 50%)';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Spotlight active! Everything else is blocked out so you can focus.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function loadSupp(type, btn) {
+        document.querySelectorAll('.btn-logic-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const row = document.getElementById('s-row'); row.innerHTML = '';
+        let log = "";
+
+        for(let i=0; i<4; i++) {
+            const f = document.createElement('div');
+            f.className = `frame-s ${i===3?'target':''}`;
+            if(type === 'slider') {
+                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:${15 + i*20}px"></div>`;
+                log = "→ Tracker: Dot | Delta: +20px Right per step";
+            } else if(type === 'light') {
+                const cols = ['#ef4444', '#eab308', '#22c55e', '#ef4444'];
+                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:40px; background:${cols[i]}"></div>`;
+                log = "→ Tracker: Color | Delta: Red → Gold → Green";
+            } else if(type === 'ping') {
+                f.innerHTML += `<div class="element-s dot-s" style="top:10px; left:${i%2===0?10:70}px"></div>`;
+                log = "→ Tracker: Dot | Delta: Back & Forth (Binary)";
+            } else if(type === 'orbit') {
+                const pts = [[10,10], [10,70], [70,70], [70,10]];
+                f.innerHTML += `<div class="element-s dot-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px"></div>`;
+                f.innerHTML += `<div class="element-s" style="top:45px; left:30px; width:40px; height:10px; background:white; transform:rotate(${i*45}deg)"></div>`;
+                log = "→ Trackers: Dot & Bar | Delta: Corner Hop + 45° Spin";
+            }
+            row.appendChild(f);
+        }
+        document.getElementById('supp-log').innerHTML = log + `<br><b>Status: Logic Dissected.</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-row')) loadSupp('slider', document.querySelector('.btn-logic-s'));
+        if(typeof initModule === "function") initModule(46);
+    });
+</script>
+</body>
+</html>

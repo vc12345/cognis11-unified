@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10: Constant Speed | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR DST TRIANGLE */
+        .anatomy-display { padding: 60px; }
+        .triangle-wrapper { position: relative; width: 260px; height: 220px; }
+        
+        /* The Visual Triangle */
+        .dst-shape {
+            width: 0; height: 0;
+            border-left: 130px solid transparent;
+            border-right: 130px solid transparent;
+            border-bottom: 220px solid var(--cognis-blue);
+            filter: drop-shadow(0 10px 20px rgba(0,45,91,0.2));
+        }
+
+        /* Interactive Nodes */
+        .dst-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+        }
+
+        .dst-node:hover { background: var(--cognis-gold); border-color: white; transform: scale(1.1); }
+        .dst-node.active { background: var(--cognis-gold); border-color: white; box-shadow: 0 0 20px var(--cognis-gold); transform: scale(1.2); }
+
+        .node-d { top: 65px; left: 100px; }
+        .node-s { top: 145px; left: 40px; }
+        .node-t { top: 145px; left: 160px; }
+
+        /* Formula Helper overlay */
+        .formula-hint {
+            margin-top: 30px;
+            font-weight: 800;
+            color: var(--cognis-blue);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .solving-badge {
+            background: var(--cognis-gold);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(10));</script>
+</head>
+<body>
+
+<div class="module-card">
+    <div class="header"><h1>Module 10: Constant Speed</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of Speed, Distance, and Time as the <b>"Travel Trio."</b> They are three sides of the same story. In the 11+, the examiner will give you two parts of the story and hide the third. The secret weapon is recognizing that <b>Distance is the Boss</b>—it sits at the top of everything. If you know how the trio connects, you can calculate how far, how fast, or how long in seconds.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Toy Car</b>
+                "A remote-control car travels 20 metres in 4 seconds. What is its speed?"
+            </div>
+            <div class="tier-card">
+                <b>The Fast Train</b>
+                "A train travels at 75mph. How far will it go in 3 hours?"
+            </div>
+            <div class="tier-card">
+                <b>The Flight Path</b>
+                "A plane flies 1,200 miles at 400mph. How long does the journey take?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>The <b>Magic Triangle</b>. This is the logical map for your child. Tell them: <i>"Cover the letter we are looking for with your thumb."</i> What's left tells you the math. Distance (D) is on top because it is the total; Speed (S) and Time (T) are the partners at the bottom.</p>
+        
+        
+
+[Image of Speed Distance Time formula triangle]
+
+
+        <div class="anatomy-display">
+            <div class="triangle-wrapper">
+                <div class="dst-shape"></div>
+                <div class="dst-node node-d active" id="node-d" onclick="setTarget('d')">D</div>
+                <div class="dst-node node-s" id="node-s" onclick="setTarget('s')">S</div>
+                <div class="dst-node node-t" id="node-t" onclick="setTarget('t')">T</div>
+            </div>
+            <div class="formula-hint" id="formula-display">Solving for Distance...</div>
+            <p style="font-size: 0.8rem; color: #718096; margin-top: 10px;">(Click a letter above to show your child the shortcut)</p>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the inputs to change the story. Help your child notice the <b>logic shift</b>: When we look for Distance, we multiply the bottom two. When we look for Speed or Time, we divide the top by the bottom.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="solving-badge" id="badge-text">TARGET: DISTANCE</div>
+                <div id="dynamic-inputs">
+                    </div>
+            </div>
+            <div class="trace-log" id="engine-trace"></div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Clock Confuser":</strong> Bright children often forget that clocks and math don't speak the same language. If a car travels for 1 hour and 30 minutes, they will often plug <b>1.3</b> into the formula. This is a trap!
+            <br><br>
+            <strong>The "Divide by 60" Fix:</strong> Tell your child: <i>"Minutes are just fractions of 60."</i> 30 minutes is <b>0.5</b> of an hour (30/60). 15 minutes is <b>0.25</b>. Always convert minutes into decimals before they touch the triangle, or the result will be a "Saboteur" answer.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(10)">Complete Module & Update Lattice</button>
+
+<script>
+    let currentTarget = 'd';
+
+    function setTarget(type) {
+        currentTarget = type;
+        // Update Triangle UI
+        document.querySelectorAll('.dst-node').forEach(n => n.classList.remove('active'));
+        document.getElementById('node-' + type).classList.add('active');
+        
+        // Update Labels
+        const names = {d: 'Distance', s: 'Speed', t: 'Time'};
+        document.getElementById('formula-display').innerText = `Solving for ${names[type]}...`;
+        document.getElementById('badge-text').innerText = `TARGET: ${names[type].toUpperCase()}`;
+        
+        renderInputs();
+    }
+
+    function renderInputs() {
+        const container = document.getElementById('dynamic-inputs');
+        let html = '';
+        
+        if (currentTarget !== 'd') {
+            html += `<div class="control-group"><label>Distance (km/m)</label><input type="number" id="in-d" value="100"></div>`;
+        }
+        if (currentTarget !== 's') {
+            html += `<div class="control-group"><label>Speed (km/h or m/s)</label><input type="number" id="in-s" value="50"></div>`;
+        }
+        if (currentTarget !== 't') {
+            html += `<div class="control-group"><label>Time (Hours/Secs)</label><input type="number" id="in-t" value="2"></div>`;
+        }
+        
+        container.innerHTML = html;
+        
+        // Re-attach listeners to new inputs
+        container.querySelectorAll('input').forEach(el => el.addEventListener('input', runLogic));
+        runLogic();
+    }
+
+    function runLogic() {
+        const d = parseFloat(document.getElementById('in-d')?.value) || 0;
+        const s = parseFloat(document.getElementById('in-s')?.value) || 0;
+        const t = parseFloat(document.getElementById('in-t')?.value) || 0;
+        
+        let result = 0;
+        let trace = '';
+
+        if (currentTarget === 'd') {
+            result = s * t;
+            trace = `
+                <div class="trace-step">→ The Logic: <b>Distance = Speed × Time</b></div>
+                <div class="trace-step">→ The Calculation: ${s} × ${t}</div>
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; margin-top:10px;">→ Final Distance: ${result} units</div>
+            `;
+        } else if (currentTarget === 's') {
+            result = t !== 0 ? d / t : 0;
+            trace = `
+                <div class="trace-step">→ The Logic: <b>Speed = Distance ÷ Time</b></div>
+                <div class="trace-step">→ The Calculation: ${d} ÷ ${t}</div>
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; margin-top:10px;">→ Final Speed: ${result.toFixed(2)} units</div>
+            `;
+        } else {
+            result = s !== 0 ? d / s : 0;
+            trace = `
+                <div class="trace-step">→ The Logic: <b>Time = Distance ÷ Speed</b></div>
+                <div class="trace-step">→ The Calculation: ${d} ÷ ${s}</div>
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; margin-top:10px;">→ Final Time: ${result.toFixed(2)} units</div>
+            `;
+        }
+
+        document.getElementById('engine-trace').innerHTML = trace;
+    }
+
+    window.onload = () => {
+        setTarget('d');
+    };
+</script>
+
+</body>
+</html>

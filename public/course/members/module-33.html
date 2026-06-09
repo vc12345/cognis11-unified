@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 33: Hidden Words | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR SCANNER SIMULATION */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 80px 40px; 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .word-display { 
+            font-family: 'Consolas', monospace; 
+            font-size: 3.2rem; 
+            letter-spacing: 12px; 
+            font-weight: 900; 
+            display: inline-block; 
+            position: relative; 
+            white-space: nowrap; 
+            color: rgba(255,255,255,0.2); 
+            z-index: 1;
+        }
+
+        .scanner-beam { 
+            position: absolute; 
+            height: 140%; 
+            background: rgba(197, 160, 89, 0.15); 
+            border-left: 3px solid var(--cognis-gold); 
+            border-right: 3px solid var(--cognis-gold); 
+            top: -20%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            pointer-events: none; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.3);
+            z-index: 2;
+        }
+
+        .highlight-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: white;
+            z-index: 3;
+            pointer-events: none;
+            font-family: 'Consolas', monospace;
+            font-size: 3.2rem;
+            letter-spacing: 12px;
+            font-weight: 900;
+            clip-path: inset(0 40% 0 40%); 
+            transition: clip-path 0.3s ease;
+        }
+
+        .btn-example-row { text-align: center; margin-top: 15px; }
+        .btn-example { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 8px 15px; border-radius: 6px; font-size: 0.7rem; 
+            cursor: pointer; text-transform: uppercase; margin: 5px; 
+            font-weight: 800; transition: 0.2s;
+        }
+        .btn-example:hover { background: #4a5568; color: white; }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        .input-text { 
+            width: 100%; padding: 12px; border-radius: 8px; border: none; 
+            background: #2d3748; color: white; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 2px; font-size: 1.1rem;
+        }
+        
+        .control-group label { font-size: 0.65rem !important; margin-bottom: 8px !important; }
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(33));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 33: Hidden Words</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"The Seam Secret."</b> In standard reading, our eyes see spaces as walls that define where words begin and end. In the 11+, examiners love to "glue" a secret word across those gaps. To find it, your child must learn to dissolve those walls and treat the whole sentence as a continuous stream. Most hidden words are <b>"Bridge Words"</b>—they steal their letters from the end of one word and the start of the next.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Atomic Bridge</b>
+                "Find the 3-letter word hidden in: 'THE ATOM'."
+            </div>
+            <div class="tier-card">
+                <b>The Deep Forest</b>
+                "Find the 4-letter word hidden in: 'FISH ARE DEEP'."
+            </div>
+            <div class="tier-card">
+                <b>The Foul Play</b>
+                "Find the 4-letter word hidden in: 'MADE A FOUL'."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Seam Scanner</b>. Point to the "Bridge" in the examples below. Notice how the space between words disappears, revealing a completely different word that was hiding in plain sight. Help your child see that the "ghost word" doesn't care about the original meaning of the sentence.</p>
+        
+        <div class="anatomy-display">
+            <div id="scanner" class="scanner-beam"></div>
+            <div class="word-display" id="word-bg">THEATOM</div>
+            <div class="word-display highlight-overlay" id="word-fg">THEATOM</div>
+        </div>
+        
+        <div class="btn-example-row">
+            <button class="btn-example" onclick="setPhrase('THE ATOM', 3)">EAT (at the junction)</button>
+            <button class="btn-example" onclick="setPhrase('FISH ARE DEEP', 4)">HARE (bridging FISH and ARE)</button>
+            <button class="btn-example" onclick="setPhrase('MADE A FOUL', 4)">DEAF (bridging MADE and A)</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Type a phrase and use the <b>Scanner Position</b> slider to hunt for bridges. Adjust the <b>Window Width</b> to look for longer or shorter words. Ask your child to stop you the moment they see a real word appear in the gold beam.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Type a Phrase</label>
+                    <input type="text" id="phrase-in" class="input-text" value="THE ATOM" oninput="update33()">
+                </div>
+                <div class="control-group" style="margin-top:20px;">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Scanner Position</label>
+                    <input type="range" id="scan-slider" min="0" max="100" value="35" oninput="update33()">
+                </div>
+                <div class="control-group" style="margin-top:20px;">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Target Word Length</label>
+                    <input type="range" id="scan-width" min="2" max="5" value="3" oninput="update33()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-33">Collapsing the spaces...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Inside Job" Trap:</strong> Most children look for a small word entirely <i>inside</i> one of the big words (like finding "CAT" inside "SCATTER"). In the 11+, the hidden word is almost <b>never</b> inside a single word. If it were that easy, it wouldn't be a puzzle!</p>
+            
+            <p><strong>The Insider Fix: The "Pinch" Method.</strong> Tell your child: <i>"The answer lives in the cracks."</i> Have them place their finger over the space between two words. They should look at the 2 letters before the space and the 2 letters after the space. That junction is the 90% "Hot Zone" where the hidden word is hiding. <b>Focus on the seams, ignore the centers.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(33)">Complete Module & Update Lattice</button>
+
+<script>
+    function setPhrase(p, w) {
+        document.getElementById('phrase-in').value = p;
+        document.getElementById('scan-width').value = w;
+        const positions = {"THE ATOM": 35, "FISH ARE DEEP": 38, "MADE A FOUL": 33};
+        document.getElementById('scan-slider').value = positions[p] || 50;
+        update33();
+    }
+
+    function update33() {
+        const raw = document.getElementById('phrase-in').value.toUpperCase();
+        const collapsed = raw.replace(/\s/g, '');
+        const slider = document.getElementById('scan-slider').value;
+        const widthVal = parseInt(document.getElementById('scan-width').value);
+        
+        const displayBg = document.getElementById('word-bg');
+        const displayFg = document.getElementById('word-fg');
+        const scanner = document.getElementById('scanner');
+        
+        displayBg.innerText = collapsed;
+        displayFg.innerText = collapsed;
+
+        const totalChars = collapsed.length;
+        const beamCenterPercent = parseFloat(slider);
+        
+        const leftPercent = Math.max(0, beamCenterPercent - (widthVal/totalChars * 50));
+        const rightPercent = Math.min(100, beamCenterPercent + (widthVal/totalChars * 50));
+
+        displayFg.style.clipPath = `inset(0 ${100 - rightPercent}% 0 ${leftPercent}%)`;
+        scanner.style.left = beamCenterPercent + "%";
+        scanner.style.width = (widthVal / totalChars * 100) + "%";
+
+        document.getElementById('trace-33').innerHTML = `
+            <div class="trace-step">→ 1. Character Stream: <b>${collapsed}</b></div>
+            <div class="trace-step">→ 2. Scan Window: <b>${widthVal} letters</b></div>
+            <div class="trace-step">→ 3. Active Search: <b style="color:var(--cognis-gold)">${collapsed.substring(Math.floor(leftPercent/100 * totalChars), Math.floor(rightPercent/100 * totalChars))}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → STATUS: Scanning the Seams
+            </div>
+        `;
+    }
+
+    window.onload = update33;
+</script>
+
+</body>
+</html>

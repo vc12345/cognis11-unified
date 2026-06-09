@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 32: Symbol Mapping | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR CRYPTOGRAPHY LAB */
+        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
+        
+        .rosetta-stone {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid #2d3748;
+            border-radius: 16px;
+            padding: 30px;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .code-display { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .code-slot { display: flex; flex-direction: column; align-items: center; width: 45px; }
+        .code-slot .sym { font-size: 2.2rem; color: var(--cognis-gold); font-family: serif; line-height: 1; }
+        .code-slot .letter { 
+            font-size: 1.5rem; font-weight: 900; color: white; 
+            margin-top: 8px; border-bottom: 2px solid #4a5568; 
+            width: 100%; height: 35px; text-align: center;
+        }
+        .code-slot.space { width: 20px; }
+
+        .variant-selector { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .v-btn { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568;
+            padding: 8px 15px; border-radius: 20px; font-size: 0.7rem; 
+            font-weight: 800; cursor: pointer; text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .v-btn.active { background: var(--cognis-gold); color: white; border-color: white; }
+
+        .mapping-bank { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); 
+            gap: 10px; 
+            margin-top: 30px;
+        }
+        
+        .key-pair { 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            background: #2d3748; padding: 10px; border-radius: 10px; 
+            border: 1px solid #4a5568; 
+        }
+        .key-pair b { font-size: 1.4rem; color: var(--cognis-gold); }
+        .key-pair input { 
+            width: 32px; height: 32px; text-align: center; 
+            font-size: 1.1rem; font-weight: 900; border-radius: 6px; 
+            border: none; background: white; color: #1a202c; 
+            text-transform: uppercase;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        .reset-btn {
+            background: transparent; border: 2px solid var(--cognis-gold);
+            color: var(--cognis-gold); padding: 10px 20px; border-radius: 8px;
+            font-weight: 800; cursor: pointer; text-transform: uppercase;
+            width: 100%; transition: 0.3s; margin-top: 10px;
+        }
+        .reset-btn:hover { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(32));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 32: Symbol Mapping</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of symbol mapping as <b>"Pattern Fingerprinting."</b> In the 11+, you are given a code made of strange shapes and asked to match it to a word. The secret weapon isn't knowing what the symbols mean—it's knowing <b>where they repeat</b>. If a symbol appears twice, the letter it hides <i>must</i> also appear twice in those exact same spots. Cracking the code is simply a game of finding the word with the same repeating "skeleton" as the symbols.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Simple Swap</b>
+                "If Δ = G and Ω = O, what 3-letter word is represented by Δ-Ω-Δ?"
+            </div>
+            <div class="tier-card">
+                <b>The Double-Letter Trap</b>
+                "The word is STEER, STARE, or STAIR. If the code is Square-Star-Circle-Circle-Triangle, which word is it?"
+            </div>
+            <div class="tier-card">
+                <b>The Phrase Cracker</b>
+                "Two codes: 'Ψ-Ω-Σ' and 'Ψ-Δ-Γ'. If the words are 'THE END' and 'THE DOG', which symbol stands for 'G'?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Pattern Matcher</b>. Select a word type below. Notice how the symbols are placed. Assign letters to the <b>Key Bank</b> at the bottom. Watch how typing a letter for one symbol instantly updates every matching symbol in the word. This "global update" is exactly how a detective's brain should work.</p>
+        
+        <div class="anatomy-display">
+            <div class="variant-selector">
+                <button class="v-btn active" onclick="setTarget('PUPPY', this)">Double Letter Word</button>
+                <button class="v-btn" onclick="setTarget('SUN IS HOT', this)">Short Phrase</button>
+                <button class="v-btn" onclick="setTarget('BANANAS', this)">Repeating Pattern</button>
+            </div>
+
+            <div class="rosetta-stone">
+                <div class="code-display" id="viz-display">
+                    </div>
+            </div>
+
+            <div class="mapping-bank" id="key-bank">
+                </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the <b>Key Bank</b> above to experiment with the mapping. Notice <b>Structural Integrity</b>: if you decide that Δ is 'A', every Δ must become an 'A'. If the word stops making sense, your initial "Pattern Match" was likely wrong.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <p style="font-size: 0.75rem; color: #a0aec0; margin-bottom: 20px;">
+                    Logic Test: If you map a letter, it fills every slot for that symbol. Can you complete the current pattern?
+                </p>
+                <button class="reset-btn" onclick="resetDecoder()">Clear All Mappings</button>
+            </div>
+            <div class="trace-log" id="trace-32">Assign a letter to a symbol to begin...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Visual Guess" Trap:</strong> Most children look at a symbol and try to guess the letter based on its shape (e.g., assuming a Circle <i>must</i> be 'O' or a Bolt <i>must</i> be 'S'). This is a trap set by examiners to lead them to the wrong answer.</p>
+            
+            <p><strong>The Insider Fix: The "Position Check."</strong> Tell your child: <i>"The shape is a lie; the position is the truth."</i> If a symbol appears at position 2 and 5 of a word, they are only looking for words with the same letter at position 2 and 5 (like L<b>E</b>V<b>E</b>L). <b>Ignore the drawing; count the slots.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(32)">Complete Module & Update Lattice</button>
+
+<script>
+    const allSymbols = ["Ψ", "Ω", "Σ", "Δ", "Ξ", "Φ", "Π", "Γ", "Λ", "Θ"];
+    let currentTarget = "PUPPY";
+    let activeSymbols = [];
+    const userMap = {};
+
+    function setTarget(word, btn) {
+        if(btn) {
+            document.querySelectorAll('.v-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        currentTarget = word;
+        resetDecoder();
+    }
+
+    function initDisplay() {
+        const display = document.getElementById('viz-display');
+        const bank = document.getElementById('key-bank');
+        display.innerHTML = '';
+        bank.innerHTML = '';
+        
+        const uniqueChars = [...new Set(currentTarget.replace(/\s/g, ''))];
+        const charToSym = {};
+        uniqueChars.forEach((char, i) => charToSym[char] = allSymbols[i]);
+        activeSymbols = Object.values(charToSym);
+
+        for (let char of currentTarget) {
+            if (char === " ") {
+                display.innerHTML += `<div class="code-slot space"></div>`;
+                continue;
+            }
+            const sym = charToSym[char];
+            display.innerHTML += `
+                <div class="code-slot">
+                    <div class="sym">${sym}</div>
+                    <div class="letter" id="slot-${sym}">${userMap[sym] || ""}</div>
+                </div>
+            `;
+        }
+
+        activeSymbols.forEach(s => {
+            bank.innerHTML += `
+                <div class="key-pair">
+                    <b>${s}</b>
+                    <input type="text" maxlength="1" oninput="updateMap('${s}', this.value)">
+                </div>
+            `;
+        });
+
+        updateTrace();
+    }
+
+    function updateMap(sym, val) {
+        userMap[sym] = val.toUpperCase();
+        const slots = document.querySelectorAll(`[id="slot-${sym}"]`);
+        slots.forEach(slot => {
+            if(slot) slot.innerText = userMap[sym];
+        });
+        updateTrace();
+    }
+
+    function updateTrace() {
+        let count = 0;
+        let trace = `<div class="trace-step">→ 1. Fingerprint: <b>${currentTarget.replace(/./g, (c) => c === " " ? " " : "_")}</b></div>`;
+        
+        for(let sym of activeSymbols) {
+            if(userMap[sym]) {
+                trace += `<div class="trace-step">→ Mapping [${sym}] globally to [<b>${userMap[sym]}</b>]</div>`;
+                count++;
+            }
+        }
+
+        trace += `
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → RECONSTRUCTION: ${count}/${activeSymbols.length} SYMBOLS IDENTIFIED
+            </div>
+        `;
+        
+        document.getElementById('trace-32').innerHTML = trace;
+    }
+
+    function resetDecoder() {
+        activeSymbols.forEach(s => userMap[s] = "");
+        initDisplay();
+    }
+
+    window.onload = () => setTarget("PUPPY");
+</script>
+
+</body>
+</html>

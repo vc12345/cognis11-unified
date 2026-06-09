@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: The Unitary Method | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .user-plan-checking .submodule-wrapper { visibility: hidden; }
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff;
+            border: 2px solid var(--cognis-blue);
+            border-radius: 16px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800;
+            color: white;
+            background: var(--cognis-blue);
+            cursor: pointer;
+            padding: 22px 30px;
+            outline: none;
+            list-style: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 16px; padding: 40px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            min-height: 350px; position: relative;
+        }
+
+        /* INTRO: THE UNITARY BRIDGE SVG */
+        .bridge-svg { width: 100%; max-width: 500px; height: 180px; }
+        .bridge-node { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
+        .bridge-node.gold { fill: var(--cognis-gold); stroke: var(--cognis-gold); }
+        .bridge-text { font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 14px; text-anchor: middle; }
+        .bridge-line { stroke: #cbd5e0; stroke-width: 2; stroke-dasharray: 4; }
+
+        /* PROGRESSING: THE VALUE SCALE */
+        .scale-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; width: 100%; position: relative; }
+        .scale-beam { width: 320px; height: 12px; background: #2d3748; border-radius: 6px; position: relative; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2; }
+        .scale-pivot { width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 30px solid var(--cognis-blue); margin-top: -2px; }
+        .weight { position: absolute; bottom: 12px; transition: all 0.5s; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 0.7rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+        /* SUPPLEMENTAL MASTER STYLES */
+        .anatomy-display-supp { background: #f8fafc; padding: 40px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; border: 2px solid #e2e8f0; }
+        .bridge-viz-supp { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center; }
+        .unit-square-supp { width: 50px; height: 50px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--cognis-blue); transition: all 0.4s; font-size: 0.8rem; }
+        .unit-square-supp.is-one { background: var(--cognis-gold); border-color: var(--cognis-gold); color: white; transform: scale(1.2); box-shadow: 0 10px 20px rgba(197, 160, 89, 0.4); z-index: 5; }
+        .label-bridge-supp { font-weight: 900; color: var(--cognis-blue); text-transform: uppercase; font-size: 1.1rem; margin-top: 15px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 5px 15px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; background: #f1f5f9; color: var(--cognis-blue); border-left: 4px solid var(--cognis-gold); }
+        .phase { border: 1px solid var(--border-light); margin-bottom: 40px !important; }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 20px; margin: 20px 0; line-height: 1.5; }
+        .btn-complete { background: var(--cognis-blue) !important; box-shadow: 0 4px 0 #001a35; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card" style="margin-top: 20px;">
+    <div class="header"><h1>Module 1: The Unitary Method</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Unitary Bridge</h2>
+            <p>The Unitary Method is like a bridge. To get from a "Known Group" to a "Target Group," we always have to stop in the middle at <b>The One</b>. We "Shrink" the first group to find the value of a single item, then "Grow" it back up to find the new total.</p>
+            
+            <div class="parent-script">
+                "We can't jump straight from 4 sweets to 10 sweets. It's too far! First, let's cross the bridge. Shrink the group to find the value of <b>just one</b> sweet, then we can grow it to any number we want."
+            </div>
+
+            <div class="viz-container">
+                <svg class="bridge-svg" viewBox="0 0 500 180">
+                    <line x1="100" y1="90" x2="250" y2="90" class="bridge-line" />
+                    <line x1="250" y1="90" x2="400" y2="90" class="bridge-line" />
+                    <circle cx="100" cy="90" r="35" class="bridge-node" />
+                    <circle cx="250" cy="90" r="45" class="bridge-node gold" />
+                    <circle cx="400" cy="90" r="35" class="bridge-node" />
+                    <text x="100" y="95" class="bridge-text" id="node-start">4</text>
+                    <text x="250" y="95" class="bridge-text" style="fill:white;">1</text>
+                    <text x="400" y="95" class="bridge-text" id="node-end">10</text>
+                    <text x="100" y="145" class="bridge-text" style="font-size:10px; fill:#64748b;">KNOWN</text>
+                    <text x="250" y="160" class="bridge-text" style="font-weight:900; fill:var(--cognis-gold);">THE BRIDGE</text>
+                    <text x="400" y="145" class="bridge-text" style="font-size:10px; fill:#64748b;">TARGET</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Known Group Size</label>
+                        <input type="range" min="2" max="10" value="4" id="intro-q">
+                        <div class="val-out" id="intro-q-val">4 items</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Target Group Size</label>
+                        <input type="range" min="1" max="20" value="10" id="intro-t">
+                        <div class="val-out" id="intro-t-val">10 items</div>
+                    </div>
+                </div>
+                <div class="trace-log" id="intro-log"></div>
+            </div>
+
+            <div class="trap-box">
+                <h3>The "Box Rule"</h3>
+                <p>Tell your child: <b>"The Bridge is the most important part."</b> If they try to guess the final answer without finding the value of 'One' first, they are trying to jump over the river instead of using the bridge!</p>
+            </div>
+
+            
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Deal Detector</h2>
+            <p>We use the Unitary Method to compare two different "deals." By finding the cost of <b>one single unit</b> in each shop, we can see which one has the most "Gravity"—the one that pulls the most money from our pocket.</p>
+            
+            <div class="parent-script">
+                "Shop A sells a big pack, and Shop B sells a small pack. It's confusing! But look at the scale. When we find the price of <b>just one</b> in each shop, we can see which one is truly heavier and more expensive."
+            </div>
+
+            <div class="viz-container">
+                <div class="scale-wrap">
+                    <div class="scale-beam" id="beam">
+                        <div class="weight" style="left:20px; background:var(--trap-red);" id="w-a">SHOP A</div>
+                        <div class="weight" style="right:20px; background:var(--cognis-gold);" id="w-b">SHOP B</div>
+                    </div>
+                    <div class="scale-pivot"></div>
+                </div>
+                <p id="scale-status" style="margin-top:20px; font-weight:800; color:var(--cognis-blue);"></p>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group"><label>Shop A Unit Cost (£)</label><input type="range" min="1" max="25" value="18" id="prog-a"></div>
+                    <div class="control-group"><label>Shop B Unit Cost (£)</label><input type="range" min="1" max="25" value="10" id="prog-b"></div>
+                </div>
+                <div class="trace-log" id="prog-log"></div>
+            </div>
+
+            <div class="trap-box">
+                <h3>The "Tie-Breaker" Secret</h3>
+                <p>The only way to know which deal is better is to ignore the "Total Price" and find the "Unit Price." The shop with the <b>lightest</b> unit wins the Value Battle!</p>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('1-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>This is the <b>"Value of One"</b> shortcut. In the 11+, children often panic when they see messy groups of numbers. Instead of guessing how they fit together, we always stop at a "bridge" halfway: finding the cost (or weight) of just <b>one single item</b>. Once they find "The One," they can scale up to any number the examiner throws at them with total confidence.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sweet Shop</b> "If 4 apples cost 80p, how much do 6 apples cost?"</div>
+                <div class="tier-card"><b>The Road Trip</b> "A car travels 150 miles on 5 gallons. How far can it go on 8 gallons?"</div>
+                <div class="tier-card"><b>The Heavy Crate</b> "9 crates weigh 108kg. What is the mass of 13 crates?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Point to the <b>Unit Bridge</b> below. We take the "Known Group" and slice it into equal pieces. By finding the <b>Golden Unit</b> (the gold square), we find the master key. This number never changes, no matter how many items we add later. Help your child notice that we <i>shrink</i> first to find the one, then <i>grow</i> to find the many.</p>
+            
+            <div class="anatomy-display-supp">
+                <div class="bridge-viz-supp" id="bridge-viz-supp"></div>
+                <div class="label-bridge-supp" id="label-bridge-supp">1 Unit = £0.00</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Use the sliders with your child. Watch how the <b>Golden Unit</b> stays the same even as we change the "Target Quantity." The math always flows through that single unit cost.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Known Quantity: <span class="val-display" id="q-disp">5</span></label><input type="range" id="in-q" min="2" max="10" value="5"></div>
+                    <div class="control-group" style="margin-top:15px;"><label>Known Total (£): <span class="val-display" id="v-disp">£20</span></label><input type="range" id="in-v" min="5" max="100" step="5" value="20"></div>
+                    <div class="control-group" style="margin-top:30px; border-top: 1px solid #e2e8f0; padding-top:20px;"><label>Target Quantity: <span class="val-display" id="t-disp">8</span></label><input type="range" id="in-t" min="1" max="15" value="8"></div>
+                </div>
+                <div class="trace-log" id="trace-1">Awaiting the shortcut...</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Backwards Divide":</b> Bright children often try to divide the smaller number by the bigger one (like $5 \div £20$) because it feels "easier" to fit them together. This leads to a messy decimal that makes no sense in a shop.</p>
+                <p><b>The Fix: "Money is Boss."</b> Tell your child: "The total value (the money or weight) always goes into the calculator first." We always divide the <b>Total Price</b> by the <b>Quantity</b>. If they get a tiny result like $0.25$ for a cake that clearly costs more, ask them: "Does that price look like it belongs in a real shop?"</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(1)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    // --- SUBSCRIPTION & LAYOUT ---
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'supplemental'; 
+
+        const body = document.body;
+        const bundle = document.getElementById('foundation-bundle');
+        const supp = document.getElementById('sub-supplemental');
+
+        if (plan === 'supplemental') {
+            body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Year 3/4 Foundations)</summary>`;
+            acc.appendChild(bundle);
+            supp.parentNode.insertBefore(acc, supp);
+        } else {
+            body.className = 'user-plan-foundational';
+            if(supp) supp.remove();
+        }
+    }
+
+    // --- ENGINE: INTRO ---
+    function updateIntro() {
+        const q = parseInt(document.getElementById('intro-q').value);
+        const t = parseInt(document.getElementById('intro-t').value);
+        document.getElementById('intro-q-val').innerText = q + " items";
+        document.getElementById('intro-t-val').innerText = t + " items";
+        document.getElementById('node-start').textContent = q;
+        document.getElementById('node-end').textContent = t;
+        document.getElementById('intro-log').innerHTML = `→ <b>Action:</b> Shrinking ${q} down to 1.<br>→ <b>Action:</b> Growing 1 up to ${t}.<br>→ <b>Result:</b> Bridge completed!`;
+    }
+
+    // --- ENGINE: PROGRESSING ---
+    function updateProg() {
+        const a = parseInt(document.getElementById('prog-a').value);
+        const b = parseInt(document.getElementById('prog-b').value);
+        const total = a + b;
+        document.getElementById('w-a').style.width = (a * 5) + 60 + "px";
+        document.getElementById('w-a').style.height = (a * 5) + 60 + "px";
+        document.getElementById('w-b').style.width = (b * 5) + 60 + "px";
+        document.getElementById('w-b').style.height = (b * 5) + 60 + "px";
+        document.getElementById('beam').style.transform = `rotate(${(b - a) * 2}deg)`;
+        
+        let winner = a === b ? "It's a tie!" : (a > b ? "Shop A is 'heavier'!" : "Shop B is 'heavier'!");
+        document.getElementById('scale-status').innerText = winner;
+        document.getElementById('prog-log').innerHTML = `→ <b>Gravity Check:</b> Shop A (£${a}) vs Shop B (£${b}).<br>→ <b>The Winner:</b> ${a < b ? 'Shop A' : 'Shop B'} is the better deal!`;
+    }
+
+    // --- ENGINE: SUPPLEMENTAL (Restored) ---
+    function updateSupp() {
+        const q = parseInt(document.getElementById('in-q').value) || 5;
+        const v = parseInt(document.getElementById('in-v').value) || 20;
+        const t = parseInt(document.getElementById('in-t').value) || 8;
+        document.getElementById('q-disp').innerText = q;
+        document.getElementById('v-disp').innerText = '£' + v;
+        document.getElementById('t-disp').innerText = t;
+        const uv = v / q; const res = uv * t;
+        const viz = document.getElementById('bridge-viz-supp'); viz.innerHTML = '';
+        for(let i=0; i<q; i++) {
+            const sq = document.createElement('div');
+            sq.className = 'unit-square-supp' + (i === 0 ? ' is-one' : '');
+            sq.innerText = i === 0 ? '£' + uv.toFixed(2) : '?';
+            viz.appendChild(sq);
+        }
+        document.getElementById('label-bridge-supp').innerText = `1 UNIT = £${uv.toFixed(2)}`;
+        document.getElementById('trace-1').innerHTML = `→ 1. Start: £${v} ÷ ${q}<br>→ 2. Unit: £${uv.toFixed(2)}<br>→ 3. Final: £${res.toFixed(2)}`;
+    }
+
+    // --- INIT ---
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        document.getElementById('intro-q').oninput = updateIntro;
+        document.getElementById('intro-t').oninput = updateIntro;
+        document.getElementById('prog-a').oninput = updateProg;
+        document.getElementById('prog-b').oninput = updateProg;
+        ['in-q', 'in-v', 'in-t'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.oninput = updateSupp;
+        });
+        updateIntro(); updateProg(); if(document.getElementById('in-q')) updateSupp();
+        if(typeof initModule === "function") initModule(1);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6: Percentage Multipliers | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR PROPORTIONAL GROWTH BARS */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .viz-row {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .viz-label {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 40px;
+            background: #edf2f7;
+            border-radius: 6px;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* The 100% Reference Bar */
+        .bar-base {
+            height: 100%;
+            width: 250px; /* This represents our "100%" unit in px */
+            background: var(--cognis-blue);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            color: white;
+            font-weight: 900;
+            font-size: 0.75rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* The Ghost Frame for Decrease */
+        .ghost-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 250px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 6px;
+            z-index: 1;
+        }
+
+        /* The Scaling Segment */
+        .bar-new {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: 900;
+            font-size: 0.75rem;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .multiplier-bubble {
+            align-self: center;
+            background: var(--cognis-gold);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);
+        }
+
+        .engine-container { grid-template-columns: 1.1fr 1fr; }
+        
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+        .val-display { color: var(--cognis-gold); }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(6));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 6: Percentage Multipliers</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>In the 11+, doing percentage problems in two steps (finding 10%, then doubling it, then adding it) is a "Speed Trap." We use the <b>One-Step Shortcut</b>. By treating the original price as 1.00, we simply multiply once to get straight to the final answer. This turns a messy word problem into a 5-second calculation.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Toy Sale</b>
+                "A £20 teddy is 10% off. How much is the new price?"
+            </div>
+            <div class="tier-card">
+                <b>The Marble Bonus</b>
+                "40 marbles get a 20% 'extra free' bonus. What is the new total?"
+            </div>
+            <div class="tier-card">
+                <b>The Price Hike</b>
+                "A £40 item increases by 15%. What is the new cost?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Think of the <b>Starting Block</b>. The blue bar is always your 100% (the number 1.00). An increase stretches that bar forward, while a decrease cuts it back. Notice how the "Shortcut Number" in the gold bubble tells you exactly how much bar you have left.</p>
+        
+        <div class="anatomy-display">
+            <div class="viz-row">
+                <div class="viz-label"><span>Starting Block</span><span>100% (1.00)</span></div>
+                <div class="bar-container" style="background:transparent;">
+                    <div class="bar-base">ORIGINAL VALUE</div>
+                </div>
+            </div>
+
+            <div class="multiplier-bubble" id="m-val">x1.20</div>
+
+            <div class="viz-row">
+                <div class="viz-label"><span id="mode-label">The Result</span><span id="perc-label">120%</span></div>
+                <div class="bar-container">
+                    <div class="ghost-frame"></div>
+                    <div class="bar-new" id="scaled-bar" style="width: 300px; background: #22c55e;">NEW TOTAL</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Toggle between increase and decrease with your child. Watch the <b>Shortcut Number</b> in the gold bubble. Help them notice that a 20% increase is just multiplying by 1.2, while a 20% decrease is just multiplying by 0.8.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Original Value (£): <span class="val-display" id="v-disp">100</span></label>
+                    <input type="range" id="v-in" min="10" max="500" value="100" oninput="run6()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Action:</label>
+                    <select id="mode-in" onchange="run6()">
+                        <option value="inc">Increase (+)</option>
+                        <option value="dec">Decrease (-)</option>
+                    </select>
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Percentage Change: <span class="val-display" id="p-disp">20%</span></label>
+                    <input type="range" id="p-in" min="1" max="95" value="20" oninput="run6()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-6">Awaiting parameters...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Simple Addition" Trap:</strong> If a price is £50 and goes up 10%, many kids just add the number 10 (making it £60). They are treating the percentage like a £10 note instead of a part of the original price.</p>
+            
+            <p><strong>The Fix: The "Shortcut Multiplier."</strong> Remind your child: "Percentages are for multiplying, not adding." Turn the 10% into its shortcut (1.1) and multiply: 50 × 1.1 = £55. This keeps the "extra" proportionate to the starting value.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(6)">Complete Module & Update Lattice</button>
+
+<script>
+    function run6() {
+        const val = parseFloat(document.getElementById('v-in').value);
+        const perc = parseFloat(document.getElementById('p-in').value);
+        const mode = document.getElementById('mode-in').value;
+
+        // Update Labels
+        document.getElementById('v-disp').innerText = val;
+        document.getElementById('p-disp').innerText = perc + "%";
+
+        // Constants for Visuals
+        const baseWidth = 250;
+        
+        const scaledBar = document.getElementById('scaled-bar');
+        const mBubble = document.getElementById('m-val');
+        const mLabel = document.getElementById('mode-label');
+        const pLabel = document.getElementById('perc-label');
+
+        let multiplier, finalVal;
+
+        if (mode === 'inc') {
+            multiplier = 1 + (perc / 100);
+            finalVal = val * multiplier;
+            
+            scaledBar.style.width = (baseWidth * multiplier) + "px";
+            scaledBar.style.background = "#22c55e";
+            scaledBar.innerText = "NEW TOTAL";
+            mLabel.innerText = "Increase Result";
+            pLabel.innerText = (100 + perc) + "%";
+        } else {
+            multiplier = 1 - (perc / 100);
+            finalVal = val * multiplier;
+
+            scaledBar.style.width = (baseWidth * multiplier) + "px";
+            scaledBar.style.background = "#ef4444";
+            scaledBar.innerText = "REMAINDER";
+            mLabel.innerText = "Decrease Result";
+            pLabel.innerText = (100 - perc) + "%";
+        }
+
+        mBubble.innerText = "x" + multiplier.toFixed(2);
+
+        // Trace Output
+        document.getElementById('trace-6').innerHTML = `
+            <div class="trace-step">→ 1. The Shortcut: 1.00 ${mode === 'inc' ? '+' : '-'} ${perc / 100}</div>
+            <div class="trace-step">→ 2. Multiplier: <b>${multiplier.toFixed(2)}</b></div>
+            <div class="trace-step">→ 3. The Jump: £${val} × ${multiplier.toFixed(2)}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → FINAL TOTAL: £${finalVal.toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run6;
+</script>
+
+</body>
+</html>

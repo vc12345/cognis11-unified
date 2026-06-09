@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 45: Attribute Matrices | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 420px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🏗️'; }
+
+        /* INTRO: TOY FACTORY */
+        .factory-grid { display: grid; grid-template-columns: 50px 80px 80px; gap: 10px; align-items: center; }
+        .mold-label { font-weight: 800; color: var(--cognis-blue); font-size: 0.8rem; }
+        .paint-label { font-weight: 800; color: var(--cognis-gold); font-size: 0.7rem; text-align: center; }
+        .factory-cell { width: 80px; height: 80px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.5s; }
+
+        /* PROGRESSING: CROSS-HAIR */
+        .crosshair-target { position: relative; border: 3px solid var(--cognis-gold); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); }
+        .crosshair-line-h { position: absolute; left: -100px; width: 300px; height: 2px; background: rgba(197, 160, 89, 0.3); pointer-events: none; }
+        .crosshair-line-v { position: absolute; top: -100px; height: 300px; width: 2px; background: rgba(197, 160, 89, 0.3); pointer-events: none; }
+
+        /* SUPPLEMENTAL: MATRIX */
+        .matrix-container-s { display: grid; grid-template-columns: repeat(3, 80px); gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .matrix-cell-s { width: 80px; height: 80px; background: #f1f5f9; border: 1px solid #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s; }
+        .matrix-cell-s.target { border: 2px dashed var(--cognis-gold); color: var(--cognis-gold); background: #fffaf0; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 45: Attribute Matrices</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Toy Factory</h2>
+            <p>Imagine a factory that makes toys. The **Rows** decide which mold to use (Stars or Circles). The **Columns** decide which color paint to use (Red or Blue). To find out what toy comes out of the machine, you just look at the Row and the Column!</p>
+            
+            <div class="parent-script">
+                "We have a Star mold in the top row and a Blue paint bucket in the second column. When the machine runs, it combines them to make a **Blue Star**. Click 'Start Machine' to see the toys appear where the rules meet!"
+            </div>
+
+            <div class="viz-container">
+                <div class="factory-grid">
+                    <div></div><div class="paint-label">RED PAINT</div><div class="paint-label">BLUE PAINT</div>
+                    <div class="mold-label">STAR MOLD</div><div class="factory-cell" id="f-1">?</div><div class="factory-cell" id="f-2">?</div>
+                    <div class="mold-label">CIRCLE MOLD</div><div class="factory-cell" id="f-3">?</div><div class="factory-cell" id="f-4">?</div>
+                </div>
+                <button class="btn-action" onclick="runFactory()">Start the Machine</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting for the factory rules...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Cross-Hair Scan</h2>
+            <p>To solve big 3x3 grids, don't look at the whole puzzle at once. Use a "Cross-Hair" to look at only one Row and one Column. The answer is the perfect mix of those two paths.</p>
+            
+            <div class="parent-script">
+                "Look at the target box at the bottom right. Let's scan the row first. Row 3 is the **Square Row**. Now let's scan the column. Column 3 is the **Green Column**. Click 'Scan' to see the cross-hairs find the answer!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:grid; grid-template-columns:repeat(3, 60px); gap:10px;">
+                    <div class="factory-cell" style="color:red">▲</div><div class="factory-cell" style="color:blue">▲</div><div class="factory-cell" style="color:green">▲</div>
+                    <div class="factory-cell" style="color:red">●</div><div class="factory-cell" style="color:blue">●</div><div class="factory-cell" style="color:green">●</div>
+                    <div class="factory-cell" style="color:red">■</div><div class="factory-cell" style="color:blue">■</div><div class="factory-cell" id="prog-target">?</div>
+                </div>
+                <button class="btn-action" onclick="runCrosshair()">Activate Cross-Hair Scan</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Isolate the attributes to avoid the trap.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of a matrix as <b>"The Logic Intersection."</b> Every cell is governed by two separate laws: the <b>Row Rule</b> (horizontal change) and the <b>Column Rule</b> (vertical change). The missing piece is the fusion of these rules. If Row 3 is "Circles" and Column 3 is "Green," the answer is locked.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Pattern Match</b> "Row 1: Red Sq, Blue Sq, Green Sq. Row 2: Red Tr, Blue Tr, [?]."</div>
+                <div class="tier-card"><b>Rotation Grid</b> "Elements spin 90° clockwise in every successive cell."</div>
+                <div class="tier-card"><b>11+ Fusion</b> "Size increases down columns, while color alternates across rows."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Attribute Intersection</b>. Notice that shape is constant per row (Triangles, Squares, Circles). The target cell must fit Row 3's shape and the column's property. The answer is "pinned" by both axes.</p>
+            <div class="anatomy-display" style="background:#f1f5f9;">
+                <div class="matrix-container-s" id="s-matrix">
+                    <div class="matrix-cell-s">▲</div><div class="matrix-cell-s">▲</div><div class="matrix-cell-s">▲</div>
+                    <div class="matrix-cell-s">■</div><div class="matrix-cell-s">■</div><div class="matrix-cell-s">■</div>
+                    <div class="matrix-cell-s">●</div><div class="matrix-cell-s">●</div><div class="matrix-cell-s target">?</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Layer the logic below. Watch how the matrix updates when both rules are active. This "Double-Lock" environment is a core 11+ NVR challenge.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="applySuppRule('color')">Rule A: Column Color</button>
+                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="applySuppRule('rotate')">Rule B: Row Rotation</button>
+                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="resetSupp()">Reset Matrix</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "One-Track" Trap:</b> Children find one pattern (e.g. "it's a circle row") and pick the first circle they see, ignoring color or tilt.</p>
+                <p><b>The Fix: The "Cross-Hair" Method.</b> <i>"Split the evidence."</i> Isolate Attribute 1 (Shape) via rows. Isolate Attribute 2 (Color/Tilt) via columns. **The answer is the sum of both facts.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(45)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: FACTORY --- */
+    function runFactory() {
+        document.getElementById('f-1').innerHTML = '<span style="color:#ef4444">★</span>';
+        document.getElementById('f-2').innerHTML = '<span style="color:#3b82f6">★</span>';
+        document.getElementById('f-3').innerHTML = '<span style="color:#ef4444">●</span>';
+        document.getElementById('f-4').innerHTML = '<span style="color:#3b82f6">●</span>';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Machine complete! Each toy is a mix of its <b>Mold</b> and its <b>Paint</b>.</div>`;
+    }
+
+    /* --- PROGRESSING: CROSSHAIR --- */
+    function runCrosshair() {
+        const target = document.getElementById('prog-target');
+        target.classList.add('crosshair-target');
+        target.innerHTML = '<div class="crosshair-line-h"></div><div class="crosshair-line-v"></div><span style="color:green">■</span>';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Success! Row 3 (Square) + Column 3 (Green) = <b>Green Square</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sRules = { color: false, rotate: false };
+    const sPalette = ['#ef4444', '#3b82f6', '#22c55e'];
+
+    function applySuppRule(type) {
+        sRules[type] = true;
+        updateSuppMatrix();
+    }
+
+    function updateSuppMatrix() {
+        const cells = document.querySelectorAll('.matrix-cell-s:not(.target)');
+        cells.forEach((cell, i) => {
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+            if (sRules.color) cell.style.color = sPalette[col];
+            if (sRules.rotate) cell.style.transform = `rotate(${row * 90}deg)`;
+        });
+        document.getElementById('supp-log').innerHTML = `
+            → Active Rules: ${sRules.color?'Col-Color ':''}${sRules.rotate?'Row-Rotate':''}<br>
+            → <b>Fusion: Row-Shape (●) + Col-Color (Green) + Row-Rotation (180°)</b>
+        `;
+    }
+
+    function resetSupp() {
+        sRules = { color: false, rotate: false };
+        const cells = document.querySelectorAll('.matrix-cell-s');
+        cells.forEach(c => { c.style.color = '#1a202c'; c.style.transform = 'none'; });
+        document.getElementById('supp-log').innerHTML = "Ready for new logic scan.";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(typeof initModule === "function") initModule(45);
+    });
+</script>
+</body>
+</html>

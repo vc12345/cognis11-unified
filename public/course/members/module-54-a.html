@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 54: Tone & Purpose | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🎭'; }
+
+        /* INTRO: MOOD MASK */
+        .mask-face { width: 120px; height: 120px; background: #fff; border: 4px solid var(--cognis-blue); border-radius: 50%; position: relative; transition: all 0.5s; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .event-box { margin-top: 20px; padding: 15px; background: #e2e8f0; border-radius: 8px; font-weight: 800; color: #4a5568; }
+
+        /* PROGRESSING: WORD PALETTE */
+        .sentence-lab { width: 100%; max-width: 400px; padding: 25px; background: white; border: 2px solid var(--cognis-gold); border-radius: 12px; font-size: 1.2rem; line-height: 1.6; text-align: center; }
+        .word-tag-p { font-weight: 800; border-bottom: 3px solid var(--cognis-blue); color: var(--cognis-blue); cursor: help; }
+        .word-tag-t { font-weight: 800; border-bottom: 3px solid var(--cognis-gold); color: var(--cognis-gold); cursor: help; }
+
+        /* SUPPLEMENTAL: TONE SHIFTER */
+        .output-well-s { background: #1a202c; border: 1px solid #334155; padding: 30px; border-radius: 8px; font-size: 1.3rem; line-height: 1.6; color: white; margin-bottom: 30px; text-align: center; font-style: italic; min-height: 100px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .voice-mapping-s { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .pill-s { padding: 10px 20px; border-radius: 30px; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 54: Tone & Purpose</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Mood Mask</h2>
+            <p>Every story has a **Purpose** (the job it’s doing) and a **Tone** (how it feels). Imagine you are telling a friend that it is raining. You can say it as a fact, a joke, or a complaint. The rain is the same, but your "Mask" changes!</p>
+            
+            <div class="parent-script">
+                "We are telling people it is raining. That's our Purpose: To Inform. But look at our face. Click 'Change Tone' to see the difference between a 'Sad' rainy day and a 'Grumpy' rainy day. The news is the same, but the feeling is different!"
+            </div>
+
+            <div class="viz-container">
+                <div id="intro-face" class="mask-face">😐</div>
+                <div class="event-box">EVENT: It is raining outside.</div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="setIntroTone('🙂', 'Cheerful', 'var(--pass-green)')">Cheerful</button>
+                    <button class="btn-action" style="background:#64748b" onclick="setIntroTone('😢', 'Gloomy', '#3b82f6')">Gloomy</button>
+                    <button class="btn-action" style="background:var(--trap-red)" onclick="setIntroTone('😠', 'Annoyed', '#ef4444')">Annoyed</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for a tone selection...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Word Palette</h2>
+            <p>In the 11+, you can "paint" a sentence to change its tone. **Verbs** usually tell you the Purpose (what is happening), while **Adjectives** tell you the Tone (how the author feels about it).</p>
+            
+            <div class="parent-script">
+                "Look at this sentence: 'The **massive** giant **stomped**.' Click 'Analyze' to see the paint colors. 'Stomped' is our Purpose Verb—it tells us he is moving. 'Massive' is our Tone Adjective—it makes him sound scary and powerful."
+            </div>
+
+            <div class="viz-container">
+                <div class="sentence-lab">
+                    "The <span id="p-adj" class="word-tag-t">massive</span> giant <span id="p-verb" class="word-tag-p">stomped</span> through the forest."
+                </div>
+                <div style="display:flex; gap:20px; margin-top:40px;">
+                    <div style="text-align:center;">
+                        <div style="width:40px; height:40px; background:var(--cognis-blue); border-radius:50%; margin:auto;"></div>
+                        <small style="font-weight:800; color:var(--cognis-blue);">PURPOSE<br>(Verb)</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="width:40px; height:40px; background:var(--cognis-gold); border-radius:50%; margin:auto;"></div>
+                        <small style="font-weight:800; color:var(--cognis-gold);">TONE<br>(Adjective)</small>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runProgAnalyze()">Analyze Sentence Paint</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Identify the parts to find the intent.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Author's Intent."</b> Tone is the emotional temperature—how the author feels. Purpose is the mechanical job the text is doing—why it was written. By isolating <b>Verbs</b> and <b>Adjectives</b>, we reveal if the writer is trying to help, trick, or ridicule.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Rule-Maker</b> "Clean your room!" <b>Tone:</b> Stern. <b>Purpose:</b> Command.</div>
+                <div class="tier-card"><b>Story-Teller</b> "Golden sun dipped below velvet clouds." <b>Tone:</b> Serene. <b>Purpose:</b> Describe.</div>
+                <div class="tier-card"><b>11+ Critic</b> "A 'miracle' as useful as a chocolate teapot." <b>Tone:</b> Sarcastic. <b>Purpose:</b> Ridicule.</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Semantic Ratio</b>. Purpose is usually hidden in the <b>Verbs</b> (Action), while Tone is painted with <b>Adjectives</b> (Feeling). Swapping the adjectives while keeping the verbs preserves the action but shifts the vibe completely.</p>
+            <div class="anatomy-display" style="background:#1a202c; color:white;">
+                <div class="voice-mapping-s">
+                    <div class="pill-s" style="border:2px solid #3b82f6; color:#3b82f6;">Verbs &rarr; Purpose</div>
+                    <div style="font-weight:bold;">+</div>
+                    <div class="pill-s" style="border:2px solid var(--cognis-gold); color:var(--cognis-gold);">Adjectives &rarr; Tone</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">The <b>Tone-Shifter</b>. Observe how the description of rainfall transforms. Notice which specific words change to alter the author's perceived intent.</p>
+            <div class="anatomy-display-s" style="background:#1a202c; text-align:left;">
+                <div class="output-well-s" id="s-sentence">The rainfall is currently recorded at 5mm per hour.</div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <div style="display:flex; justify-content:space-between; color:#94a3b8; font-size:0.6rem; font-weight:800; margin-bottom:5px;">
+                            <span>CLINICAL</span><span>SARCASTIC</span><span>ANGRY</span>
+                        </div>
+                        <input type="range" id="si-slider" min="0" max="2" value="0" step="1" style="width:100%;" oninput="runSuppShift()">
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Topic" Trap:</b> Children mistake the *topic* for the *tone*. If the story is about rain, they assume the tone is "sad." They are reacting to the weather, not the words.</p>
+                <p><b>The Fix: The "Adjective Audit."</b> <i>"Ignore the story, look at the paint."</i> List only the descriptive words. If a sad event uses "standard" and "noted," the tone is **Clinical**, not sad. **Tone lives in choice, not plot.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(54)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: MASK --- */
+    function setIntroTone(emoji, name, color) {
+        const face = document.getElementById('intro-face');
+        face.textContent = emoji;
+        face.style.borderColor = color;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Tone shifted to <b>${name}</b>. The author sounds ${name.toLowerCase()}!</div>`;
+    }
+
+    /* --- PROGRESSING: PALETTE --- */
+    function runProgAnalyze() {
+        document.getElementById('p-adj').style.background = 'var(--cognis-gold)';
+        document.getElementById('p-adj').style.color = 'white';
+        document.getElementById('p-verb').style.background = 'var(--cognis-blue)';
+        document.getElementById('p-verb').style.color = 'white';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Analysis complete! Tone = <b>Massive</b> (Scary). Purpose = <b>Stomped</b> (Moving).</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sData = [
+        { text: "The rainfall is currently recorded at 5mm per hour.", tone: "Clinical", purp: "To Inform", key: "recorded", color: "white" },
+        { text: "Oh, what a 'delightful' day for a stroll in this soaking downpour.", tone: "Sarcastic", purp: "To Mock", key: "'delightful'", color: "var(--cognis-gold)" },
+        { text: "This miserable rain has completely ruined our entire afternoon!", tone: "Aggressive", purp: "To Complain", key: "miserable", color: "#f87171" }
+    ];
+
+    function runSuppShift() {
+        const val = document.getElementById('si-slider').value;
+        const d = sData[val];
+        const out = document.getElementById('s-sentence');
+        out.textContent = d.text; out.style.color = d.color;
+        document.getElementById('supp-log').innerHTML = `→ Voice: <b>${d.tone.toUpperCase()}</b><br>→ Goal: <b>${d.purp}</b><br>→ Paint: [${d.key}]`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-slider')) runSuppShift();
+        if(typeof initModule === "function") initModule(54);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings | Cognis 11+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy:#1B3A5C; --steel:#2E6DA4; --cream:#FAFAF6; --lgrey:#E5E3DD; --grey:#888; --red:#d9534f; }
+        body { font-family:'DM Sans', sans-serif; background:var(--cream); color:var(--navy); margin:0; padding:0; -webkit-font-smoothing: antialiased; }
+        
+        /* Navigation */
+        .nav { background:#fff; border-bottom:1px solid var(--lgrey); padding:18px 32px; display:flex; justify-content:space-between; align-items:center; position: sticky; top: 0; z-index: 100; }
+        .nav a { color:var(--navy); text-decoration:none; font-weight:600; font-size:0.85rem; display: flex; align-items: center; gap: 8px; }
+        .brand-small { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--navy); }
+        
+        .container { max-width: 650px; margin: 60px auto; padding: 0 24px; }
+        h1 { font-family:'Playfair Display', serif; font-size: 2.4rem; margin-bottom: 8px; color: var(--navy); }
+        .sub-h1 { color: var(--grey); margin-bottom: 40px; font-size: 1rem; }
+        
+        /* Settings Card */
+        .settings-card { background:#fff; border:1px solid var(--lgrey); border-radius:12px; padding:8px 32px; box-shadow: 0 10px 30px rgba(27, 58, 92, 0.04); margin-bottom: 24px; }
+        .section-title { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--steel); padding-top: 24px; margin-bottom: 8px; }
+        
+        .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--lgrey); }
+        .setting-row:last-child { border-bottom: none; }
+        
+        .label-group { display: flex; flex-direction: column; gap: 4px; }
+        .label { font-weight: 700; font-size: 0.9rem; color: var(--navy); }
+        .desc { font-size: 0.8rem; color: var(--grey); }
+        .value { color: var(--navy); font-size: 0.95rem; font-weight: 500; }
+        
+        /* Badges */
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge-active { background: #E2F0E9; color: #276245; }
+        .badge-foundational { background: #E4EEF8; color: var(--steel); }
+        .badge-supplemental { background: var(--navy); color: #fff; }
+        .badge-inactive { background: #F4F2ED; color: #888; }
+
+        /* Buttons */
+        .btn-text { background: none; border: none; color: var(--steel); font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 0; text-decoration: underline; }
+        .btn-manage { display: block; width: 100%; margin-top: 32px; padding: 18px; background: var(--navy); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; }
+        .btn-manage:hover:not(:disabled) { background: var(--steel); transform: translateY(-1px); }
+        .btn-manage:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .footer-actions { text-align: center; margin-top: 40px; border-top: 1px solid var(--lgrey); padding-top: 24px; }
+        .btn-logout { color: var(--red); font-size: 0.85rem; text-decoration: none; font-weight: 700; cursor: pointer; }
+        
+        /* Email Modal */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(27, 58, 92, 0.8); z-index:1000; justify-content:center; align-items:center; }
+        .modal-content { background:#fff; padding:40px; border-radius:12px; width:90%; max-width:400px; }
+        .modal-content h3 { font-family: 'Playfair Display', serif; margin-top: 0; }
+        .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid var(--lgrey); border-radius: 6px; box-sizing: border-box; }
+    </style>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="/members/dashboard-a.html">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Dashboard
+    </a>
+    <div class="brand-small">Cognis 11+</div>
+</nav>
+
+<div class="container">
+    <h1>Account Settings</h1>
+    <p class="sub-h1">Manage your profile and subscription preferences.</p>
+    
+    <div class="settings-card">
+        <div class="section-title">Profile Identity</div>
+        <div class="setting-row">
+            <div class="label-group">
+                <div class="label">Email Address</div>
+                <div class="desc">Used for login and progress syncing.</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="value" id="user-email">Loading...</div>
+                <button class="btn-text" onclick="toggleEmailModal()">Update Email</button>
+            </div>
+        </div>
+        
+        <div class="section-title">Subscription Details</div>
+        <div class="setting-row">
+            <div class="label-group">
+                <div class="label">Current Plan</div>
+                <div class="desc">Your active learning tier.</div>
+            </div>
+            <div id="plan-badge-container">
+                <span class="badge badge-inactive">Checking...</span>
+            </div>
+        </div>
+
+        <div class="setting-row">
+            <div class="label-group">
+                <div class="label">Next Renewal</div>
+                <div class="desc">Automatic billing date.</div>
+            </div>
+            <div class="value" id="renewal-date">--</div>
+        </div>
+
+        <div class="setting-row">
+            <div class="label-group">
+                <div class="label">Account Status</div>
+                <div class="desc">Current standing of your membership.</div>
+            </div>
+            <div id="status-badge-container">
+                <span class="badge badge-inactive">Checking...</span>
+            </div>
+        </div>
+
+        <button class="btn-manage" id="portal-btn" onclick="redirectToStripePortal()">Manage Billing & Cancellation</button>
+    </div>
+    
+    <div class="footer-actions">
+        <div class="btn-logout" onclick="handleLogout()">Sign Out of All Devices</div>
+    </div>
+</div>
+
+<div id="email-modal" class="modal">
+    <div class="modal-content">
+        <h3>Update Email</h3>
+        <p class="desc" style="font-size: 0.8rem;">A confirmation link will be sent to your new address.</p>
+        <input type="email" id="new-email" placeholder="new-email@example.com">
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-manage" style="margin-top:0" onclick="updateEmail()">Update Address</button>
+            <button class="btn-manage" style="margin-top:0; background:var(--lgrey); color:var(--navy)" onclick="toggleEmailModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadAccountData() {
+        if (!window.supabaseClient) {
+            setTimeout(loadAccountData, 100);
+            return;
+        }
+
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) { window.location.href = "/login.html"; return; }
+
+        document.getElementById('user-email').textContent = user.email;
+
+        const { data: profile } = await window.supabaseClient
+            .from('profiles')
+            .select('subscription_status, subscription_plan, current_period_end')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        if (profile) {
+            // 1. Plan Badge
+            const plan = profile.subscription_plan || 'none';
+            const planContainer = document.getElementById('plan-badge-container');
+            const planDisplay = plan.charAt(0).toUpperCase() + plan.slice(1);
+            planContainer.innerHTML = `<span class="badge badge-${plan}">${planDisplay} Access</span>`;
+
+            // 2. Renewal Date
+            if (profile.current_period_end) {
+                const date = new Date(profile.current_period_end);
+                document.getElementById('renewal-date').textContent = date.toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+            }
+
+            // 3. Status Badge
+            const statusContainer = document.getElementById('status-badge-container');
+            const status = profile.subscription_status || 'inactive';
+            statusContainer.innerHTML = `<span class="badge badge-${status === 'active' ? 'active' : 'inactive'}">${status.toUpperCase()}</span>`;
+        }
+    }
+
+    async function redirectToStripePortal() {
+        const btn = document.getElementById('portal-btn');
+        const originalText = btn.innerText;
+        btn.innerText = "Connecting to Stripe...";
+        btn.disabled = true;
+
+        try {
+            // This calls the Supabase Edge Function
+            const { data, error } = await window.supabaseClient.functions.invoke('create-portal-session');
+
+            if (error) throw error;
+
+            if (data && data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error("No URL returned from billing server.");
+            }
+
+        } catch (e) {
+            console.error("Portal Error:", e);
+            alert("Unable to reach the billing portal. Please contact support or try again later.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    async function updateEmail() {
+        const newEmail = document.getElementById('new-email').value;
+        if (!newEmail) return;
+
+        const { error } = await window.supabaseClient.auth.updateUser({ email: newEmail });
+        if (error) {
+            alert(error.message);
+        } else {
+            alert("Check your new email address for a confirmation link!");
+            toggleEmailModal();
+        }
+    }
+
+    function toggleEmailModal() {
+        const m = document.getElementById('email-modal');
+        m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    function handleLogout() {
+        window.supabaseClient.auth.signOut().then(() => {
+            window.location.href = "/login.html";
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAccountData);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 19: Missing Signs | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🗝️'; }
+
+        /* INTRO: SIGN DOOR */
+        .door { width: 80px; height: 120px; fill: #e2e8f0; stroke: var(--cognis-blue); stroke-width: 4; transition: all 0.3s; }
+        .door-open { fill: #fef3c7; stroke: var(--cognis-gold); }
+        .sign-key { cursor: pointer; transition: transform 0.2s; }
+        .sign-key:hover { transform: translateY(-5px); }
+
+        /* PROGRESSING: PRIORITY PIPES */
+        .pipe { stroke: #cbd5e0; stroke-width: 10; fill: none; }
+        .pipe-active { stroke: var(--cognis-blue); transition: stroke 0.5s; }
+        .pipe-priority { stroke: var(--cognis-gold); stroke-width: 12; }
+        .number-node { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
+
+        /* SUPPLEMENTAL: PHYSICS SCALE */
+        .scale-pivot-s { width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-bottom: 50px solid #cbd5e0; margin-top: -5px; z-index: 1; }
+        .scale-beam-s { width: 400px; height: 10px; background: var(--cognis-blue); border-radius: 5px; position: relative; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); z-index: 2; display: flex; justify-content: space-between; padding: 0 40px; }
+        .pan-s { width: 100px; background: white; border: 3px solid var(--cognis-blue); border-radius: 0 0 50px 50px; padding: 10px; margin-top: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.8s; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .q-box { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--cognis-gold); border-radius: 4px; background: #fff; vertical-align: middle; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 19: Missing Signs</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Sign Keys</h2>
+            <p>Every sign (+, -, x, ÷) is like a <b>Key</b>. If you have two numbers and a target result, only one sign will unlock the door. Instead of guessing, we look at the target. Is the result big? Use a "Growth" key (+ or x). Is it small? Use a "Shrink" key (- or ÷).</p>
+            
+            <div class="parent-script">
+                "We have the numbers 10 and 2. Our goal is to reach the number 5. Should we use the Plus key or the Divide key? Click a key to see if the door to Island 5 opens!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect id="intro-door" x="110" y="40" class="door" rx="5" />
+                    <circle cx="150" cy="160" r="10" fill="var(--cognis-blue)" />
+                    <text x="150" y="105" text-anchor="middle" font-weight="900" fill="var(--cognis-blue)" id="door-label">EXIT 5</text>
+                    
+                    <text x="60" y="165" font-weight="900" font-size="24" fill="var(--cognis-blue)">10</text>
+                    <text x="210" y="165" font-weight="900" font-size="24" fill="var(--cognis-blue)">2</text>
+                    
+                    <g transform="translate(100, 150)" class="sign-key" onclick="testKey('add')">
+                        <rect width="30" height="30" rx="5" fill="#e2e8f0" />
+                        <text x="15" y="22" text-anchor="middle" font-weight="900">+</text>
+                    </g>
+                    <g transform="translate(170, 150)" class="sign-key" onclick="testKey('div')">
+                        <rect width="30" height="30" rx="5" fill="#e2e8f0" />
+                        <text x="15" y="22" text-anchor="middle" font-weight="900">÷</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Pick a key to connect 10 and 2.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Priority Pipes</h2>
+            <p>When you have three numbers and two signs, it's not a straight race. The **Multiplication (x)** and **Division (÷)** signs are like high-pressure pipes—they always push their numbers through first. We must solve the "High Pressure" part before the "Low Pressure" (+ and -) part can even start.</p>
+            
+            <div class="parent-script">
+                "Look at the equation: 2 <div class='q-box'></div> 3 <div class='q-box'></div> 4 = 14. If we put a 'x' in the second box, it becomes a high-pressure pipe! Watch how it solves 3 x 4 first to get 12, then adds the 2 to reach 14."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200" id="prog-svg"></svg>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="setProgSigns('+', 'x')">Try + then x</button>
+                    <button class="btn-action" style="background:#94a3b8;" onclick="setProgSigns('x', '+')">Try x then +</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Target: 14. Numbers: 2, 3, 4.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"Mathematical Search and Rescue."</b> The bridges (signs) have vanished. Success is not about guessing; it's about identifying <b>"Heavy" Operators</b>. If the target is very high or low, multiplication or division is lurking. Your job is to find the path that creates a perfect balance.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Single</b> 10 <div class="q-box"></div> 2 = 5</div>
+                <div class="tier-card"><b>Double</b> 12 <div class="q-box"></div> 3 <div class="q-box"></div> 2 = 18</div>
+                <div class="tier-card"><b>11+ Challenge</b> $\sqrt{16}$ <div class="q-box"></div> 2 <div class="q-box"></div> 3 = 12</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>An equation is a <b>Physical Scale</b>. Balance is only achieved when the math is perfect. The pans below will only level out when you find the correct "weight" for your signs. Remember: BODMAS gravity is always active!</p>
+            <div class="anatomy-display" style="display:flex; flex-direction:column; align-items:center; height:350px;">
+                <div id="s-beam" class="scale-beam-s">
+                    <div class="pan-s" id="s-l-pan">
+                        <div style="font-weight:900; color:var(--cognis-blue); font-size:0.9rem;"><span id="s-v1">16</span> <span id="s-op1" style="color:var(--cognis-gold)">?</span> <span id="s-v2">2</span> <span id="s-op2" style="color:var(--cognis-gold)">?</span> <span id="s-v3">4</span></div>
+                        <div style="font-size:0.5rem; color:#94a3b8; font-weight:800;">WEIGHT: <span id="s-calc-w">0</span></div>
+                    </div>
+                    <div class="pan-s" id="s-r-pan">
+                        <div style="font-weight:900; color:var(--cognis-blue); font-size:0.9rem;" id="s-target">12</div>
+                        <div style="font-size:0.5rem; color:#94a3b8; font-weight:800;">TARGET</div>
+                    </div>
+                </div>
+                <div class="scale-pivot-s"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Build a challenge. Notice how <b>x</b> and <b>^</b> add massive weight, while <b>÷</b> slims it down instantly.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Left Equation</label>
+                        <div style="display:flex; gap:5px; align-items:center;">
+                            <input type="number" id="si-a" value="16" style="width:45px;">
+                            <select id="si-o1" style="width:60px;"><option value="">Op</option><option value="+">+</option><option value="x">x</option><option value="/">÷</option></select>
+                            <input type="number" id="si-b" value="2" style="width:45px;">
+                            <select id="si-o2" style="width:60px;"><option value="">Op</option><option value="+">+</option><option value="x">x</option><option value="/">÷</option></select>
+                            <input type="number" id="si-c" value="4" style="width:45px;">
+                        </div>
+                    </div>
+                    <div class="control-group"><label>Target Result</label><input type="number" id="si-t" value="12"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Linear Story" Trap:</b> Most children read left-to-right. For $2 + 3^2$, they do $2+3=5$, then $5^2=25$. This fails in the 11+.</p>
+                <p><b>The Fix: The "Heavyweight" Rule.</b> Roots and Powers are heaviest. In the example, the power happens first ($3^2=9$), making the weight $2+9=11$. Find the heaviest sign first!</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(19)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Operational Logic)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SIGN DOOR --- */
+    function testKey(type) {
+        const door = document.getElementById('intro-door');
+        const log = document.getElementById('intro-log');
+        if(type === 'div') {
+            door.classList.add('door-open');
+            log.innerHTML = `<div class="discovery-step">Success! <b>10 ÷ 2 = 5</b>. The door is unlocked!</div>`;
+        } else {
+            door.classList.remove('door-open');
+            log.innerHTML = `<div class="discovery-step">Click! The 'Plus' key doesn't work. 10 + 2 = 12. Too heavy!</div>`;
+        }
+    }
+
+    /* --- PROGRESSING: PIPES --- */
+    function setProgSigns(op1, op2) {
+        const svg = document.getElementById('prog-svg');
+        svg.innerHTML = '';
+        
+        // Render simple pipe visual
+        svg.innerHTML = `
+            <path d="M50 100 L150 100" class="pipe ${op1==='x'?'pipe-priority':''}" />
+            <path d="M150 100 L250 100" class="pipe ${op2==='x'?'pipe-priority':''}" />
+            <circle cx="50" cy="100" r="20" class="number-node" /><text x="50" y="105" text-anchor="middle" font-weight="900">2</text>
+            <circle cx="150" cy="100" r="20" class="number-node" /><text x="150" y="105" text-anchor="middle" font-weight="900">3</text>
+            <circle cx="250" cy="100" r="20" class="number-node" /><text x="250" y="105" text-anchor="middle" font-weight="900">4</text>
+            <text x="100" y="80" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">${op1}</text>
+            <text x="200" y="80" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">${op2}</text>
+        `;
+
+        const res = (op2 === 'x') ? (3 * 4) + 2 : (2 * 3) + 4;
+        const log = document.getElementById('prog-log');
+        if(res === 14) {
+            log.innerHTML = `<div class="discovery-step">Correct! Because <b>${op2}</b> is high pressure, we do 3 x 4 = 12 first, then 2 + 12 = 14.</div>`;
+        } else {
+            log.innerHTML = `<div class="discovery-step">Almost! 2 x 3 = 6, then 6 + 4 = 10. Not enough pressure to reach 14!</div>`;
+        }
+    }
+
+    /* --- SUPPLEMENTAL: SCALE --- */
+    function runSupp() {
+        const a = parseFloat(document.getElementById('si-a').value) || 0;
+        const b = parseFloat(document.getElementById('si-b').value) || 0;
+        const c = parseFloat(document.getElementById('si-c').value) || 0;
+        const t = parseFloat(document.getElementById('si-t').value) || 0;
+        const o1 = document.getElementById('si-o1').value;
+        const o2 = document.getElementById('si-o2').value;
+
+        document.getElementById('s-v1').innerText = a;
+        document.getElementById('s-v2').innerText = b;
+        document.getElementById('s-v3').innerText = c;
+        document.getElementById('s-op1').innerText = o1 || '?';
+        document.getElementById('s-op2').innerText = o2 || '?';
+        document.getElementById('s-target').innerText = t;
+
+        if(!o1 || !o2) { document.getElementById('supp-log').innerHTML = "Select signs..."; return; }
+
+        const weight = { '+':1, '-':1, 'x':2, '/':2 };
+        let res = 0;
+        if(weight[o2] > weight[o1]) res = calc(a, o1, calc(b, o2, c));
+        else res = calc(calc(a, o1, b), o2, c);
+
+        document.getElementById('s-calc-w').innerText = res.toFixed(1);
+        const tilt = Math.max(-20, Math.min(20, (res - t) * -2));
+        document.getElementById('s-beam').style.transform = `rotate(${tilt}deg)`;
+        document.getElementById('s-l-pan').style.transform = `rotate(${-tilt}deg)`;
+        document.getElementById('s-r-pan').style.transform = `rotate(${-tilt}deg)`;
+
+        document.getElementById('supp-log').innerHTML = `→ Calculation Result: <b>${res.toFixed(1)}</b><br>→ Target: <b>${t}</b>`;
+
+        function calc(n1, op, n2) {
+            if(op==='+') return n1+n2; if(op==='-') return n1-n2;
+            if(op==='x') return n1*n2; if(op==='/') return n2!==0 ? n1/n2 : 0;
+            return 0;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        ['si-a', 'si-b', 'si-c', 'si-t', 'si-o1', 'si-o2'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.oninput = runSupp;
+        });
+        if(document.getElementById('si-a')) runSupp();
+        setProgSigns('+', '+');
+        if(typeof initModule === "function") initModule(19);
+    });
+</script>
+</body>
+</html>

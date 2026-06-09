@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 13: Train & Tunnel | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR TRAIN SIMULATION */
+        .simulation-area { 
+            background: #f8fafc; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            padding: 80px 0; 
+            margin: 20px 0; 
+            position: relative; 
+            overflow: hidden; 
+            width: 100%; 
+        }
+        .track-line { height: 4px; background: #cbd5e0; width: 100%; position: absolute; top: 60%; left: 0; transform: translateY(-50%); }
+        
+        .tunnel-block { 
+            position: absolute; 
+            left: 60%; 
+            top: 60%; 
+            transform: translate(-50%, -50%); 
+            height: 70px; 
+            background: rgba(30, 41, 59, 0.9); 
+            border: 3px solid #0f172a; 
+            z-index: 2; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 0.7rem; 
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .train-sprite { 
+            position: absolute; 
+            left: -250px; 
+            top: 60%; 
+            transform: translateY(-50%); 
+            height: 25px; 
+            background: var(--cognis-gold); 
+            z-index: 3; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            border-radius: 2px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-msg { position: absolute; top: 20px; width: 100%; text-align: center; font-weight: 800; color: var(--cognis-blue); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .sim-btn-wrapper { text-align: center; margin-bottom: 20px; }
+        .sim-btn { background: var(--cognis-gold); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: transform 0.2s; }
+        .sim-btn:hover { transform: scale(1.05); }
+        .sim-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .engine-container { grid-template-columns: 1fr 1fr; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(13));</script>
+</head>
+<body>
+
+<div class="module-card">
+    <div class="header"><h1>Module 13: Train & Tunnel</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>In the 11+, a train isn't just a point moving on a line—it’s a long object that takes time to fully "arrive" and fully "leave." Most children forget that for a train to pass through a tunnel, the nose has to enter, but the <b>tail</b> has to clear the exit. This means the total distance traveled is actually the length of the tunnel <b>plus</b> the length of the train itself.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Signal Post</b>
+                "A 50m train passes a signal post. How far does the front travel before the back clears the post?"
+            </div>
+            <div class="tier-card">
+                <b>The Mountain Tunnel</b>
+                "A 100m train goes through a 300m tunnel. What is the total distance covered to be completely out?"
+            </div>
+            <div class="tier-card">
+                <b>The Speed Calculation</b>
+                "A 200m train passes a 400m platform in 30 seconds. What is the train's speed in m/s?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Look at the <b>Total Journey</b> below. Notice that the distance isn't just the dark tunnel box. It’s the entire path from the moment the "nose" touches the entrance to the moment the "tail" disappears from the exit. Point this out to your child: the train has to travel its own length just to get its "bottom" out of the door.</p>
+        
+        <div class="simulation-area" id="sim-container">
+            <div id="status" class="status-msg">Ready to Simulate</div>
+            <div class="track-line"></div>
+            <div id="tunnel-vis" class="tunnel-block">TUNNEL</div>
+            <div id="train-vis" class="train-sprite">TRAIN</div>
+        </div>
+        
+        <div class="sim-btn-wrapper">
+            <button id="sim-btn" class="sim-btn" onclick="runSimulation()">Watch the "Clearance" Moment</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Adjust the lengths with your child. Watch how the <b>Total Distance</b> in the log below is always the sum of both. When you run the simulation, wait for the status to say "TAIL CLEARED"—that is the only moment the math is actually finished.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Train Length (m)</label>
+                    <input type="number" id="train-len" value="180" oninput="initVisuals()">
+                </div>
+                <div class="control-group">
+                    <label>Tunnel Length (m)</label>
+                    <input type="number" id="tunnel-len" value="400" oninput="initVisuals()">
+                </div>
+            </div>
+            <div id="logic-trace" class="trace-log">Adjust values to see the "Hidden Distance"...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Front-Door" Trap:</strong> Most children only use the tunnel length (e.g., 400m) for their calculation. If they do this, their speed or time will be wrong because, at 400m, the train's nose has exited, but its body is still stuck inside the tunnel!
+            <br><br>
+            <strong>The Fix: The "String and Tube" Rule.</strong> Tell your child: "Imagine pulling a 2m piece of string through a 4m toilet roll tube. To get the whole string out, you have to pull it 6m in total." <b>The secret is simple: Always add the Train + the Tunnel.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(13)">Complete Module & Update Lattice</button>
+
+<script>
+    const train = document.getElementById('train-vis');
+    const tunnel = document.getElementById('tunnel-vis');
+    const status = document.getElementById('status');
+    const simBtn = document.getElementById('sim-btn');
+    const container = document.getElementById('sim-container');
+
+    function initVisuals() {
+        const tLen = parseInt(document.getElementById('train-len').value) || 100;
+        const tunLen = parseInt(document.getElementById('tunnel-len').value) || 100;
+        
+        train.style.width = (tLen / 2) + 'px';
+        tunnel.style.width = (tunLen / 2) + 'px';
+        
+        train.style.transition = 'none';
+        train.style.left = '-250px';
+        status.innerText = "Ready to Simulate";
+        
+        document.getElementById('logic-trace').innerHTML = `
+            <div class="trace-step">→ 1. Train Body: ${tLen}m</div>
+            <div class="trace-step">→ 2. Tunnel Gap: ${tunLen}m</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → TRUE DISTANCE: ${tLen + tunLen}m
+            </div>
+        `;
+    }
+
+    async function runSimulation() {
+        simBtn.disabled = true;
+        const cRect = container.getBoundingClientRect();
+        const tRect = tunnel.getBoundingClientRect();
+        
+        const tunnelEntryX = tRect.left - cRect.left;
+        const tunnelExitX = tRect.right - cRect.left;
+        const trainW = train.offsetWidth;
+
+        train.style.transition = 'none';
+        train.style.left = '-250px';
+        await new Promise(r => setTimeout(r, 100));
+
+        status.innerText = "NOSE ENTERING...";
+        train.style.transition = 'left 1.2s ease-out';
+        train.style.left = (tunnelEntryX - trainW) + 'px';
+        await new Promise(r => setTimeout(r, 1500));
+
+        status.innerText = "BODY INSIDE...";
+        train.style.transition = 'left 2s linear';
+        train.style.left = tunnelExitX + 'px';
+        await new Promise(r => setTimeout(r, 2200));
+
+        status.innerText = "TAIL FINALLY CLEAR!";
+        await new Promise(r => setTimeout(r, 1000));
+
+        status.innerText = "Simulation Complete";
+        simBtn.disabled = false;
+    }
+
+    window.onload = initVisuals;
+</script>
+
+</body>
+</html>

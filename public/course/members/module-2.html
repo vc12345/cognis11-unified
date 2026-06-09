@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: Shared Ratios | Cognis 11+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR RATIO PARTITIONING */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .ratio-bar { 
+            display: flex; 
+            width: 100%; 
+            height: 60px; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            border: 3px solid var(--cognis-blue); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+        }
+
+        .ratio-box { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-weight: 800; 
+            font-size: 0.9rem; 
+            border-right: 1px solid rgba(255,255,255,0.2); 
+            transition: all 0.3s ease; 
+        }
+
+        .ratio-box:last-child { border-right: none; }
+        .box-a { background: #1b3a5c; }
+        .box-b { background: var(--cognis-gold); }
+
+        .anatomy-labels { 
+            display: flex; 
+            justify-content: space-between; 
+            width: 100%; 
+            margin-top: 15px; 
+            font-weight: 800; 
+            color: var(--cognis-blue);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+        .val-display { color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(2));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 2: Shared Ratios</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a ratio as a <b>Chocolate Bar</b>. To share it fairly, you don't just look at two people; you look at the total number of "chunks." The secret weapon for every ratio problem is finding the <b>Value of One Chunk</b>. Once your child knows what one single piece is worth, they can hand out the right amount to anyone.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Sweet Shop</b>
+                "Share 15 sweets between Ben and Sam in the ratio 2:1. How many does Ben get?"
+            </div>
+            <div class="tier-card">
+                <b>The Cash Prize</b>
+                "A £60 prize is split in the ratio 5:7. What is the larger share?"
+            </div>
+            <div class="tier-card">
+                <b>The Ruler Challenge</b>
+                "A 1.5m line is divided 3:2. Find the difference between the two lengths."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Partition Bar</b>. Every box inside this bar is identical. To find the "Value of One Box," you must divide the <b>Total Amount</b> by the <b>Total Number of Boxes</b>. Point to the bar below—count the boxes together to find the "Total Parts" before you do any math.</p>
+        
+        
+
+        <div class="anatomy-display">
+            <div class="ratio-bar" id="ratio-bar">
+                </div>
+            <div class="anatomy-labels">
+                <span id="label-total">Total: £100</span>
+                <span id="label-parts" style="color: var(--cognis-gold);">Total Parts: 5</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Adjust the ratio sliders with your child. Watch how the <b>Total Parts</b> change, and see how the "Total Value" is spread across every single box. Point out that when the ratio changes, the "Value of One" has to shift to keep the total the same.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Total Value (£): <span class="val-display" id="v-disp">£100</span></label>
+                    <input type="range" id="in-v" min="10" max="500" step="10" value="100" oninput="run2()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Ratio Part A: <span class="val-display" id="a-disp">3</span></label>
+                    <input type="range" id="in-a" min="1" max="10" value="3" oninput="run2()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Ratio Part B: <span class="val-display" id="b-disp">2</span></label>
+                    <input type="range" id="in-b" min="1" max="10" value="2" oninput="run2()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-2">Awaiting the split...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "One-Sided" Mistake:</strong> Children often try to divide the total by just one side of the ratio (e.g., trying to find one part by doing $£100 \div 3$). They forget that the money covers the <i>whole</i> bar, not just one person's share.</p>
+            
+            <p><strong>The Fix: The "Add First" Rule.</strong> Remind your child: "Before you divide, you must find the <b>Whole Bar</b>." Add the ratio numbers together (A + B) first to see the total number of parts. Only then can you find the value of one chunk.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(2)">Complete Module & Update Lattice</button>
+
+<script>
+    function run2() {
+        const total = parseInt(document.getElementById('in-v').value);
+        const a = parseInt(document.getElementById('in-a').value);
+        const b = parseInt(document.getElementById('in-b').value);
+        
+        const sumParts = a + b;
+        const unitValue = total / sumParts;
+        const shareA = unitValue * a;
+        const shareB = unitValue * b;
+
+        // Update Labels
+        document.getElementById('v-disp').innerText = '£' + total;
+        document.getElementById('a-disp').innerText = a;
+        document.getElementById('b-disp').innerText = b;
+        document.getElementById('label-total').innerText = `Total: £${total}`;
+        document.getElementById('label-parts').innerText = `Total Parts: ${sumParts}`;
+
+        // Update Visualization
+        const bar = document.getElementById('ratio-bar');
+        bar.innerHTML = '';
+        for(let i=0; i<a; i++) {
+            const div = document.createElement('div');
+            div.className = 'ratio-box box-a';
+            div.innerText = `£${unitValue.toFixed(0)}`;
+            bar.appendChild(div);
+        }
+        for(let i=0; i<b; i++) {
+            const div = document.createElement('div');
+            div.className = 'ratio-box box-b';
+            div.innerText = `£${unitValue.toFixed(0)}`;
+            bar.appendChild(div);
+        }
+
+        // Trace Output
+        document.getElementById('trace-2').innerHTML = `
+            <div class="trace-step">→ 1. Total Boxes: ${a} + ${b} = <b>${sumParts}</b> chunks</div>
+            <div class="trace-step">→ 2. One Chunk: £${total} ÷ ${sumParts} = <b>£${unitValue.toFixed(2)}</b></div>
+            <div class="trace-step">→ 3. Part A: ${a} chunks × £${unitValue.toFixed(2)} = £${shareA.toFixed(2)}</div>
+            <div class="trace-step">→ 4. Part B: ${b} chunks × £${unitValue.toFixed(2)} = £${shareB.toFixed(2)}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → FINAL SPLIT: £${shareA.toFixed(2)} : £${shareB.toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run2;
+</script>
+
+</body>
+</html>

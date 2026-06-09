@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 43: Reflection Logic | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🪞'; }
+
+        /* INTRO: INK FOLD */
+        .paper-half { fill: #fff; stroke: #cbd5e0; stroke-width: 2; }
+        .ink-shape { fill: var(--cognis-blue); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mirror-line-intro { stroke: #ef4444; stroke-width: 2; stroke-dasharray: 4; }
+
+        /* PROGRESSING: DISTANCE TWINS */
+        .grid-dot { r: 6; transition: all 0.4s; }
+        .dot-original { fill: var(--cognis-blue); }
+        .dot-twin { fill: var(--cognis-gold); opacity: 0; }
+        .distance-line { stroke: #cbd5e0; stroke-width: 1; stroke-dasharray: 2; }
+
+        /* SUPPLEMENTAL: REFLECTION CHAMBER */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; text-align: center; }
+        .f-shape-s { fill: var(--cognis-gold); transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: 0 0; }
+        .f-ghost-s { fill: rgba(255,255,255,0.03); stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+        .mirror-line-s { stroke: #ef4444; stroke-width: 3; stroke-dasharray: 8,4; transition: transform 0.4s; filter: drop-shadow(0 0 8px #ef4444); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .axis-group-s { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .btn-axis-s { background: #2d3748; border: 1px solid #4a5568; color: #a0aec0; padding: 10px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; font-weight: 800; }
+        .btn-axis-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 43: Reflection Logic</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Wet Ink Fold</h2>
+            <p>Imagine you have a piece of paper with a wet ink drawing on one side. If you fold the paper in half and press down, the ink transfers to the other side. This is a <b>Reflection</b>!</p>
+            
+            <div class="parent-script">
+                "Look at the heart on the left. Click 'Fold Paper'. Notice that the reflected heart isn't just sliding over; it is turning around to face the opposite way. In a reflection, the shape's 'face' always points back at the mirror!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="320" height="200" viewBox="0 0 320 200">
+                    <rect x="10" y="20" width="145" height="160" class="paper-half" />
+                    <rect x="165" y="20" width="145" height="160" class="paper-half" />
+                    <line x1="160" y1="10" x2="160" y2="190" class="mirror-line-intro" />
+                    
+                    <path d="M60,100 Q60,70 85,70 Q110,70 110,100 Q110,130 85,160 Q60,130 60,100" class="ink-shape" />
+                    <path id="intro-reflection" d="M60,100 Q60,70 85,70 Q110,70 110,100 Q110,130 85,160 Q60,130 60,100" class="ink-shape" style="opacity:0; transform-origin: 160px 100px;" />
+                </svg>
+                <button class="btn-action" onclick="runIntroFold()">Fold & Transfer Ink</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The original ink is on the left.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Distance Twins</h2>
+            <p>Every point on a shape has a "Distance Twin" on the other side of the mirror. If a corner is 3 steps away from the mirror on the left, it <b>must</b> be exactly 3 steps away on the right.</p>
+            
+            <div class="parent-script">
+                "Look at the Blue Dot. It is far away from the mirror. Click 'Find Twin'. Notice how the Gold Dot appears at the exact same distance on the other side. This is called the **Equidistant Rule**. The mirror never lies about distance!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <line x1="150" y1="20" x2="150" y2="180" class="mirror-line-intro" stroke="#ef4444" />
+                    <line x1="50" y1="100" x2="250" y2="100" class="distance-line" />
+                    
+                    <circle cx="50" cy="100" class="grid-dot dot-original" />
+                    <circle id="prog-twin" cx="250" cy="100" class="grid-dot dot-twin" />
+                    
+                    <text x="100" y="90" text-anchor="middle" font-size="10" font-weight="800">100 units</text>
+                    <text x="200" y="90" text-anchor="middle" font-size="10" font-weight="800" id="prog-dist-text" style="opacity:0;">100 units</text>
+                </svg>
+                <button class="btn-action" onclick="revealTwin()">Find the Distance Twin</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Original point is 100 units from the mirror.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of reflection as <b>"The Mirror Trap."</b> In the 11+, examiners use flips to hide patterns. The secret weapon is the <b>Equidistant Rule</b>: every point has a twin. If the "arms" of a shape point away from the mirror, the reflected arms must point away too. Mirrors reverse direction, but they preserve distance.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Vertical Flip</b> "Reflect a square across a vertical line. Does the shape change?"</div>
+                <div class="tier-card"><b>Asymmetry</b> "Horizontal flip on a 'P' shape. Which way is the loop facing now?"</div>
+                <div class="tier-card"><b>11+ Diagonal</b> "Reflection across a 45° line. Where does the top corner land?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Mirror Axis</b>. Pick a corner of the Gold 'F'. Count its distance to the red line. In a true reflection, it lands at the exact same distance on the other side. Track the furthest points first—they are the easiest to verify.</p>
+            <div class="anatomy-display-s">
+                <svg id="s-reflect-svg" width="300" height="300" viewBox="-150 -150 300 300">
+                    <line x1="-150" y1="0" x2="150" y2="0" stroke="#2d3748" stroke-width="1" />
+                    <line x1="0" y1="-150" x2="0" y2="150" stroke="#2d3748" stroke-width="1" />
+                    <circle cx="0" cy="0" r="5" fill="#ef4444" />
+                    <path d="M-90,-90 h 50 v 15 h -35 v 15 h 25 v 15 h -25 v 35 h -15 z" class="f-ghost-s" />
+                    <path id="s-f-shape" d="M-90,-90 h 50 v 15 h -35 v 15 h 25 v 15 h -25 v 35 h -15 z" class="f-shape-s" />
+                    <line id="s-mirror-line" x1="-145" y1="0" x2="145" y2="0" class="mirror-line-s" transform="rotate(90)" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Select an axis and click <b>"Perform Flip."</b> Notice how the "ghost" stays at the origin to highlight the transformation logic.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="axis-group-s">
+                        <button class="btn-axis-s active" onclick="setSuppAxis(90, this)">Vertical (Y)</button>
+                        <button class="btn-axis-s" onclick="setSuppAxis(0, this)">Horizontal (X)</button>
+                        <button class="btn-axis-s" onclick="setSuppAxis(45, this)">45° Slope</button>
+                        <button class="btn-axis-s" onclick="setSuppAxis(135, this)">135° Slope</button>
+                    </div>
+                    <button class="btn-action" style="width:100%; background:var(--cognis-gold);" onclick="doSuppFlip()">Perform Flip</button>
+                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="resetSupp()">Reset Engine</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Slide" Trap:</b> Many children think reflection is just a slide (translation). They move the shape without changing its "face." If the 'F' faces right on the left, they keep it facing right on the right.</p>
+                <p><b>The Fix: The "Corner Count."</b> <i>"The furthest stays furthest."</i> If a tip is the furthest thing on the left, it must become the furthest on the right. **Count the gaps to prove the flip.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(43)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: FOLD --- */
+    function runIntroFold() {
+        const refl = document.getElementById('intro-reflection');
+        refl.style.opacity = "1";
+        refl.style.transform = "scaleX(-1) translateX(-320px)";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Reflected! Notice the heart is now <b>pointing left</b>.</div>`;
+    }
+
+    /* --- PROGRESSING: TWIN --- */
+    function revealTwin() {
+        document.getElementById('prog-twin').style.opacity = "1";
+        document.getElementById('prog-dist-text').style.opacity = "1";
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Identified! Both points are <b>100 units</b> from the mirror. Twins!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sAxis = 90; let sMatrix = [1,0,0,1];
+    function setSuppAxis(deg, btn) {
+        sAxis = deg; document.querySelectorAll('.btn-axis-s').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+        document.getElementById('s-mirror-line').setAttribute('transform', `rotate(${deg})`);
+        updateSuppLog(false);
+    }
+    function doSuppFlip() {
+        const rad = (sAxis * Math.PI) / 180;
+        const r11 = Math.cos(2*rad), r21 = Math.sin(2*rad), r12 = Math.sin(2*rad), r22 = -Math.cos(2*rad);
+        const a = r11*sMatrix[0] + r12*sMatrix[1], b = r21*sMatrix[0] + r22*sMatrix[1], c = r11*sMatrix[2] + r12*sMatrix[3], d = r21*sMatrix[2] + r22*sMatrix[3];
+        sMatrix = [a,b,c,d];
+        document.getElementById('s-f-shape').style.transform = `matrix(${sMatrix[0]},${sMatrix[1]},${sMatrix[2]},${sMatrix[3]},0,0)`;
+        updateSuppLog(true);
+    }
+    function resetSupp() { sMatrix = [1,0,0,1]; document.getElementById('s-f-shape').style.transform = `matrix(1,0,0,1,0,0)`; updateSuppLog(false); }
+    function updateSuppLog(flipped) {
+        document.getElementById('supp-log').innerHTML = `→ Axis: <b>${sAxis}°</b><br>→ Scan: Tracking vertex distance...<br>→ <b>Status: ${flipped?'FLIP VALIDATED':'READY'}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-mirror-line')) updateSuppLog(false);
+        if(typeof initModule === "function") initModule(43);
+    });
+</script>
+</body>
+</html>

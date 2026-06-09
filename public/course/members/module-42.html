@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 42: Rotational Invariance | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR ROTATIONAL CHAMBER */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 60px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #2d3748;
+            min-height: 380px;
+        }
+
+        .spin-chamber {
+            width: 180px;
+            height: 180px;
+            position: relative;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed #4a5568;
+            border-radius: 50%;
+        }
+
+        .shape-complex {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .main-pole {
+            width: 12px;
+            height: 80px;
+            background: var(--cognis-gold);
+            border-radius: 4px;
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+        }
+
+        .flag-arm {
+            width: 45px;
+            height: 30px;
+            background: var(--cognis-gold);
+            position: absolute;
+            top: 10px;
+            left: 32px;
+            border-radius: 4px;
+        }
+
+        .anchor-dot {
+            width: 12px;
+            height: 12px;
+            background: #ef4444; 
+            border-radius: 50%;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            border: 2px solid white;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .angle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-angle {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-angle:hover { color: white; border-color: var(--cognis-gold); }
+        .btn-angle.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(42));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 42: Rotational Invariance</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Mental Acrobatics."</b> In Non-Verbal Reasoning (NVR), a shape is technically identical no matter which way it’s facing—as long as you’ve just turned it. The secret weapon is picking a tiny, unique feature (a <b>Tracker</b>) and checking its position. If your Tracker moves from the "right side" to the "left side" of the main shape, it hasn't been rotated—it’s been mirrored. Learning to spot this difference is how your child will dodge the nastiest traps in the exam.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Clock Turn</b>
+                "Identify the triangle after a 90° clockwise turn. Does it look the same?"
+            </div>
+            <div class="tier-card">
+                <b>The Flip vs. Spin</b>
+                "Distinguish between a turned 'L' shape and its mirrored 'Backwards' twin."
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Mastery</b>
+                "Find the complex shape after a 135° rotation. Keep your eye on the corner dot!"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Tracker Point</b>. Look at the flag below. Notice the red dot on the corner. As the shape spins, that dot <i>must</i> stay on the outside edge of the flag arm. If it suddenly jumps to the inside edge, the shape has been "flipped" (reflected), and it’s no longer the same object. Use the buttons to watch how a true rotation preserves the dot's position.</p>
+        
+        <div class="anatomy-display">
+            <div id="chamber" class="spin-chamber">
+                <div class="shape-complex">
+                    <div class="main-pole"></div>
+                    <div class="flag-arm">
+                        <div class="anchor-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 25px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                TRACKING: Red Dot must stay on the flag's "tip"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Initiate a rotation below. Watch the <b>Trace Log</b> to see the "Logic Scan" in action. Help your child realize that no matter how much the shape spins, the red dot never switches sides relative to the gold pole. This is the "Identity Lock."</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Spin the Chamber</label>
+                <div class="angle-grid">
+                    <button class="btn-angle active" onclick="rotate(0, this)">0° (Original)</button>
+                    <button class="btn-angle" onclick="rotate(90, this)">90° Turn</button>
+                    <button class="btn-angle" onclick="rotate(180, this)">180° Flip</button>
+                    <button class="btn-angle" onclick="rotate(270, this)">270° Turn</button>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-42">Awaiting the spin...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Mirror" Trap:</strong> This is the #1 NVR point-stealer. The examiner shows a shape that has been <b>reflected</b> (flipped like a mirror) but turned to the correct angle. Your child’s brain sees the correct angle and thinks: <i>"That's it!"</i></p>
+            
+            <p><strong>The Insider Fix: The "Clockwise Rule."</strong> Tell your child: <i>"Trace the features in a circle."</i> In a rotation, the order of details (Pole &rarr; Arm &rarr; Dot) will always be clockwise. In a reflection, that order will flip to anti-clockwise. <b>If the order breaks, the shape is a fake.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(42)">Complete Module & Update Lattice</button>
+
+<script>
+    function rotate(deg, btn) {
+        document.getElementById('chamber').style.transform = `rotate(${deg}deg)`;
+        
+        document.querySelectorAll('.btn-angle').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const log = document.getElementById('trace-42');
+        log.innerHTML = `
+            <div class="trace-step">→ 1. Input: Rotating shape to <b>${deg}°</b></div>
+            <div class="trace-step">→ 2. Scan: Tracking dot position relative to pole...</div>
+            <div class="trace-step">→ 3. Result: Dot is still on the "tip" of the arm.</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → STATUS: VALID ROTATION (Identity Confirmed)
+            </div>
+        `;
+    }
+
+    window.onload = () => rotate(0, document.querySelector('.btn-angle'));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 21: Venn Diagrams (2 Circles) | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR VENN INTERACTION */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        svg { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.05); 
+            max-width: 100%;
+        }
+
+        circle { 
+            fill: rgba(0, 45, 91, 0.04); 
+            stroke: var(--cognis-blue); 
+            stroke-width: 4; 
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        circle.target-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.04); }
+
+        text { 
+            font-family: 'DM Sans', sans-serif; 
+            font-weight: 900; 
+            pointer-events: none; 
+            transition: all 0.8s ease; 
+            text-anchor: middle; 
+            dominant-baseline: middle; 
+        }
+
+        .label-val { fill: var(--cognis-blue); font-size: 22px; }
+        .label-target-b { fill: var(--cognis-gold); }
+        .label-intersect { fill: #e53e3e; font-size: 26px; opacity: 0; }
+        
+        .merged .label-intersect { opacity: 1; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .btn-action {
+            margin-top: 25px;
+            background: var(--cognis-gold);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+        }
+        .btn-action:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        input[type=number] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: white;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(21));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 21: Venn Diagrams (2 Circles)</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a Venn Diagram as <b>"The Land of Both."</b> In the 11+, examiners love to set traps by giving you two separate group totals that overlap. The secret weapon is the <b>Intersection</b> ($A \cap B$)—the sweet spot where things satisfy both rules at once. If your child can visualize those shared items, they'll realize that simply adding the two groups together creates a "double count" that breaks the logic. To find the truth, we must always subtract the overlap from the totals to see who is <b>"Only"</b> in a group.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Football/Rugby Club</b>
+                "In a class of 12 footballers, 3 also play rugby. How many play football <b>ONLY</b>?"
+            </div>
+            <div class="tier-card">
+                <b>The Group Merge</b>
+                "Group A has 20 people, Group B has 15. If 5 people are in both, how many people are there in total?"
+            </div>
+            <div class="tier-card">
+                <b>The Minimum Secret</b>
+                "Out of 40 students, 25 like Art and 20 like Music. What is the smallest number of students that <b>must</b> like both?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Overlap Shift</b>. Point to the circles below. Right now, they are separate totals. When you click the button, watch them slide together. Notice how the numbers in the main circles <b>shrink</b> as soon as the <b>Intersection</b> (the red number) appears. We haven't lost any people; we've just moved them into the "Both" room to avoid counting them twice.</p>
+        
+        <div class="anatomy-display">
+            <svg id="venn2-svg" width="500" height="300" viewBox="0 0 500 300">
+                <circle id="v2-c-a" cx="130" cy="150" r="110" />
+                <circle id="v2-c-b" cx="370" cy="150" r="110" class="target-b" />
+                <text id="v2-t-oa" x="130" y="150" class="label-val">15</text>
+                <text id="v2-t-ob" x="370" y="150" class="label-val label-target-b">10</text>
+                <text id="v2-t-int" x="250" y="150" class="label-intersect">5</text>
+            </svg>
+            <button class="btn-action" onclick="toggleVenn2()" id="btn-v2">Activate Intersection</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the boxes below to change the population. Help your child notice that the <b>Total Union</b> (the whole group) isn't just A + B. Watch the <b>Trace Log</b> to see the "Logic Subtraction" that reveals the true count of people.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Total in Group A</label>
+                    <input type="number" id="v2-in-ta" value="15" oninput="updateV2()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Total in Group B</label>
+                    <input type="number" id="v2-in-tb" value="10" oninput="updateV2()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">The Overlap (A ∩ B)</label>
+                    <input type="number" id="v2-in-int" value="5" oninput="updateV2()">
+                </div>
+            </div>
+            <div class="trace-log" id="v2-trace">Awaiting set analysis...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Blind Addition" Trap:</strong> Most children see "15 Footballers" and "10 Swimmers" and immediately say "25 people total." They are assuming that nobody plays both! If 5 people actually do both, your child has just accidentally invented 5 extra people.</p>
+            
+            <p><strong>The Insider Fix: The "Once Only" Rule.</strong> Remind your child: <i>"Each person has one seat."</i> To find the real total, they must subtract the intersection from both sides first. The secret formula is: $Total = (A - Intersection) + (B - Intersection) + Intersection$. <b>Clean the groups first, then add them up.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(21)">Complete Module & Update Lattice</button>
+
+<script>
+    let v2Merged = false;
+
+    function updateV2() {
+        const ta = parseFloat(document.getElementById('v2-in-ta').value) || 0;
+        const tb = parseFloat(document.getElementById('v2-in-tb').value) || 0;
+        const inter = parseFloat(document.getElementById('v2-in-int').value) || 0;
+        
+        const oa = ta - inter; 
+        const ob = tb - inter;
+        const union = oa + ob + inter;
+
+        document.getElementById('v2-t-oa').textContent = v2Merged ? oa : ta;
+        document.getElementById('v2-t-ob').textContent = v2Merged ? ob : tb;
+        document.getElementById('v2-t-int').textContent = inter;
+
+        document.getElementById('v2-trace').innerHTML = `
+            <div class="trace-step">→ 1. A (Only): ${ta} - ${inter} = <b>${oa}</b></div>
+            <div class="trace-step">→ 2. B (Only): ${tb} - ${inter} = <b>${ob}</b></div>
+            <div class="trace-step">→ 3. The Shared Both: <b>${inter}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → TOTAL UNIQUE PEOPLE: ${union}
+            </div>
+        `;
+    }
+
+    function toggleVenn2() {
+        v2Merged = !v2Merged;
+        const svg = document.getElementById('venn2-svg');
+        const btn = document.getElementById('btn-v2');
+        
+        if (v2Merged) {
+            document.getElementById('v2-c-a').setAttribute('cx', '200');
+            document.getElementById('v2-c-b').setAttribute('cx', '300');
+            document.getElementById('v2-t-oa').setAttribute('x', '140');
+            document.getElementById('v2-t-ob').setAttribute('x', '360');
+            svg.classList.add('merged');
+            btn.innerText = "Pull Totals Apart";
+        } else {
+            document.getElementById('v2-c-a').setAttribute('cx', '130');
+            document.getElementById('v2-c-b').setAttribute('cx', '370');
+            document.getElementById('v2-t-oa').setAttribute('x', '130');
+            document.getElementById('v2-t-ob').setAttribute('x', '370');
+            svg.classList.remove('merged');
+            btn.innerText = "Activate Intersection";
+        }
+        updateV2();
+    }
+
+    window.onload = updateV2;
+</script>
+
+</body>
+</html>

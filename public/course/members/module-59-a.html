@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 59: Tense Consistency | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '⏳'; }
+
+        /* INTRO: TIME STAMP */
+        .timestamp-dial { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--cognis-blue); position: relative; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .dial-hand { position: absolute; top: 50%; left: 50%; width: 4px; height: 60px; background: var(--cognis-gold); transform-origin: top center; transition: transform 0.6s; }
+        .era-label { position: absolute; font-weight: 900; font-size: 0.7rem; color: var(--cognis-blue); }
+
+        /* PROGRESSING: TIMELINE SYNC */
+        .timeline-track { width: 100%; max-width: 400px; height: 4px; background: #cbd5e0; position: relative; margin: 40px 0; }
+        .verb-marker { position: absolute; top: -30px; background: white; border: 2px solid var(--cognis-blue); padding: 5px 10px; border-radius: 4px; font-weight: 800; font-size: 0.8rem; transition: all 0.5s; }
+        .glitch-marker { border-color: var(--trap-red); color: var(--trap-red); animation: shake-verb 0.5s infinite; }
+        @keyframes shake-verb { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+
+        /* SUPPLEMENTAL: INTERRUPTION */
+        .timeline-viz-s { height: 100px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 500px; position: relative; }
+        .time-node-s { background: white; border: 3px solid var(--cognis-blue); padding: 10px; border-radius: 8px; font-weight: 900; font-size: 0.65rem; color: var(--cognis-blue); z-index: 2; transition: 0.3s; }
+        .node-trigger { border-color: var(--cognis-gold); color: var(--cognis-gold); transform: translateY(-20px); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-load-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; }
+        .btn-load-s.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 59: Tense Consistency</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Time Stamp</h2>
+            <p>Every story has a "Time Stamp." If the first action happens in the <b>Past</b>, the whole sentence needs to stay in the Past. Tense consistency is just making sure all your verbs are living in the same era.</p>
+            
+            <div class="parent-script">
+                "We are writing about yesterday. Our Time Stamp is **PAST**. Click 'Add Verbs' to see them appear. Notice how they both end in '-ed'. They are both in the Past, so the sentence flows perfectly. If one verb jumped to the Present, the timeline would break!"
+            </div>
+
+            <div class="viz-container">
+                <div class="timestamp-dial" id="intro-dial">
+                    <div class="era-label" style="top: 10px; left: 50%; transform: translateX(-50%);">PRESENT</div>
+                    <div class="era-label" style="bottom: 10px; left: 50%; transform: translateX(-50%);">PAST</div>
+                    <div class="dial-hand" id="intro-hand"></div>
+                </div>
+                <div id="intro-sentence" style="margin-top: 30px; font-weight: 800; font-size: 1.2rem; color: #4a5568;">
+                    He <span id="v1-f" style="color:var(--cognis-gold);">______</span> and <span id="v2-f" style="color:var(--cognis-gold);">______</span>.
+                </div>
+                <button class="btn-action" onclick="runIntroSync()">Sync Timeline (Past)</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for the Time Stamp to lock...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Timeline Glitch</h2>
+            <p>In the 11+, examiners love to hide one "Present" verb inside a "Past" sentence. To find it, you must audit the timeline. If a verb is standing in the wrong spot, it is a **Glitch**.</p>
+            
+            <div class="parent-script">
+                "Read this: 'She **played** tag and then **eats** a snack.' One verb is in the Past, but the other is in the Present. Click 'Audit Timeline' to see the Glitch. We must move 'eats' back to the Past to fix the sentence!"
+            </div>
+
+            <div class="viz-container">
+                <div class="timeline-track">
+                    <div class="verb-marker" style="left: 10%;">Played</div>
+                    <div id="glitch-verb" class="verb-marker" style="left: 70%; top: -80px;">Eats</div>
+                </div>
+                <div style="margin-top: 40px; font-weight: 800; color: var(--cognis-blue);">"She played tag and then eats a snack."</div>
+                <button class="btn-action" onclick="runProgAudit()">Audit Timeline</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Verbs: Played (Past) vs Eats (Present).</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Tense is <b>The Logic of Time</b>. Every sentence requires a consistent timestamp. Most errors occur when a writer "slips" mid-sentence. We only shift tenses when the timeline intentionally moves—such as when a background action is interrupted (e.g., "I <i>was sleeping</i> when the alarm <i>rang</i>").</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Story Slip</b> "She <u>played</u> tag and then <u>eats</u> a snack." (Jumped Past to Present).</div>
+                <div class="tier-card"><b>Fact Clash</b> "The burner <u>is</u> hot and the fan <u>blew</u> air." (Facts remain in Present).</div>
+                <div class="tier-card"><b>Interruption</b> "While we <u>were winning</u>, the rain <u>stops</u> the match." (Interruption must match background).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Interruption Timeline</b>. Background actions (Long) set the scene, while Trigger actions (Short) break in. Both belong to the past, but they occupy different layers of the timeline. Audit the hierarchy to ensure they are synchronized.</p>
+            <div class="anatomy-display" style="background:#f8fafc;">
+                <div class="timeline-viz-s">
+                    <div style="position:absolute; top:50%; width:100%; height:2px; background:#cbd5e0;"></div>
+                    <div class="time-node-s">Background: "I was eating"</div>
+                    <div class="time-node-s node-trigger">Trigger: "Phone Rang"</div>
+                    <div class="time-node-s">Result: "I stopped"</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Audit the diagnostic passages. Click the word that creates a "Timeline Glitch" (an inconsistent tense) and then repair the logic to synchronize the sequence.</p>
+            <div class="simulation-area" style="background:#1a202c; padding:30px; border-radius:12px;">
+                <div id="s-well" style="color:white; font-size:1.3rem; text-align:center; min-height:80px; margin-bottom:20px; line-height:1.8;"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <button class="btn-load-s active" onclick="loadSuppCase(0, this)">Scenario: The Story Slip</button>
+                        <button class="btn-load-s" onclick="loadSuppCase(1, this)">Scenario: The Fact Slip</button>
+                        <button class="btn-load-s" onclick="loadSuppCase(2, this)">Scenario: The Interruption</button>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Quotation" Trap:</b> Children often "fix" tense inside speech marks. (e.g. *The boy said, "I am happy"*). This is correct! The speaker is in their own "now" even if the story is Past.</p>
+                <p><b>The Fix: The "Anchor Verb Test."</b> <i>"Find the first verb."</i> Identify the first descriptive verb (outside speech). This is the Anchor. Every other action in the narrative must match its time-stamp. **Anchor is Past = Story is Past.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(59)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: DIAL --- */
+    function runIntroSync() {
+        document.getElementById('intro-hand').style.transform = "rotate(180deg)";
+        document.getElementById('v1-f').textContent = "walked";
+        document.getElementById('v2-f').textContent = "talked";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Timeline Locked! Both verbs are now in the <b>Past Era</b>.</div>`;
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: AUDIT --- */
+    function runProgAudit() {
+        const glitch = document.getElementById('glitch-verb');
+        glitch.classList.add('glitch-marker');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Glitch Detected! 'Eats' is in the Present. It must be <b>Ate</b> to match 'Played'.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sCases = [
+        { t: "The explorer climbed the peak and <span class='v-s' data-err='true'>sits</span> down.", c: "sat", type: "Story Slip", log: "Story is Past (climbed); all actions must stay Past." },
+        { t: "Ice melts when the sun <span class='v-s' data-err='true'>shined</span> brightly.", c: "shines", type: "Fact Slip", log: "Scientific facts use the 'Constant' Present tense." },
+        { t: "They were studying when the bell <span class='v-s' data-err='true'>rings</span>.", c: "rang", type: "Interruption", log: "Background is Past; the trigger must be Past too." }
+    ];
+    let sIdx = 0;
+    function loadSuppCase(idx, btn) {
+        sIdx = idx; document.querySelectorAll('.btn-load-s').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        const well = document.getElementById('s-well'); well.innerHTML = sCases[idx].t;
+        document.getElementById('supp-log').innerHTML = `→ Pattern: <b>${sCases[idx].type}</b><br>→ Scan for time-slips...`;
+        
+        well.querySelector('.v-s').onclick = function() {
+            this.style.color = "var(--pass-green)"; this.style.fontWeight = "800";
+            this.textContent = sCases[sIdx].c;
+            document.getElementById('supp-log').innerHTML = `→ <b>Success: Timeline Synchronized ✅</b><br><small>${sCases[sIdx].log}</small>`;
+        };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSuppCase(0, document.querySelector('.btn-load-s'));
+        if(typeof initModule === "function") initModule(59);
+    });
+</script>
+</body>
+</html>

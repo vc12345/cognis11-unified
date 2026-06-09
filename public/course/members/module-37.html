@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 37: Missing Letters | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR RADIAL TRIANGULATION */
+        .anatomy-display { 
+            background: #1a202c; 
+            border-radius: 12px; 
+            padding: 60px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 420px; 
+            position: relative; 
+            border: 2px solid #2d3748;
+        }
+
+        .radial-container { position: relative; width: 320px; height: 320px; }
+        
+        .word-path { 
+            position: absolute; 
+            font-family: 'Consolas', monospace; 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            color: rgba(255,255,255,0.4); 
+            letter-spacing: 6px; 
+            white-space: nowrap; 
+            transition: all 0.3s; 
+        }
+        .word-path b { color: var(--cognis-gold); text-decoration: underline; font-size: 2.2rem; }
+        
+        #w1 { top: -10%; left: 50%; transform: translateX(-50%); }
+        #w2 { bottom: 10%; left: -20%; transform: rotate(-60deg); }
+        #w3 { bottom: 10%; right: -20%; transform: rotate(60deg); }
+
+        .keyhole { 
+            position: absolute; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 100px; height: 100px; 
+            background: white; 
+            border: 6px solid var(--cognis-gold); 
+            border-radius: 50%; 
+            box-shadow: 0 0 40px rgba(197, 160, 89, 0.4); 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 20; 
+        }
+        .keyhole input { 
+            width: 100%; background: transparent; border: none; 
+            text-align: center; font-size: 3.5rem; font-weight: 900; 
+            color: var(--cognis-blue); text-transform: uppercase; outline: none; 
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        .btn-preset { 
+            width: 100%; background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; 
+            text-align: left; font-weight: 800; transition: 0.2s;
+        }
+        .btn-preset:hover { background: #4a5568; color: white; }
+        .btn-preset.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(37));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 37: Missing Letters</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"The Keyhole Rule."</b> In the 11+, your child will find puzzles where three different words are all missing the exact same letter. The secret weapon is <b>Linguistic Triangulation</b>. They aren't looking for three separate answers; they are looking for the <i>only</i> letter in the alphabet that is powerful enough to complete three different spelling rules at the same time. If it doesn't work for all three, it's a decoy.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Middle Vowel</b>
+                "Find the letter that completes: <i>B_RD</i>, <i>C_RD</i>, <i>H_RD</i>."
+            </div>
+            <div class="tier-card">
+                <b>The Consonant Blend</b>
+                "Find the letter that completes: <i>S_AMP</i>, <i>S_ICK</i>, <i>S_OP</i>."
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Prefix</b>
+                "Find the letter that completes: <i>_RAIN</i>, <i>_RACK</i>, <i>_RICK</i>."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Master Key</b>. Type a single letter into the central gold keyhole. Point out to your child how the paths light up. If they type a letter that only completes one word, the other two paths remain broken. The answer is only correct when the whole system is "unlocked" and readable.</p>
+        
+        <div class="anatomy-display">
+            <div class="radial-container">
+                <div id="w1" class="word-path">B<b id="k1">_</b>RD</div>
+                <div id="w2" class="word-path">C<b id="k2">_</b>RD</div>
+                <div id="w3" class="word-path">H<b id="k3">_</b>RD</div>
+                <div class="keyhole">
+                    <input type="text" id="master-key" maxlength="1" oninput="update37()" placeholder="?">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Choose a word set below and try different "Keys" in the keyhole above. Watch the <b>Trace Log</b> as it validates each word. Help your child notice how some letters are "Almost Right"—they work for two words but fail on the third. This is where the examiner tries to steal their points.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Select Word Challenge</label>
+                <button class="btn-preset active" onclick="setRadial('B_RD', 'C_RD', 'H_RD', this)">Set A: Middle Vowels (Try 'A')</button>
+                <button class="btn-preset" onclick="setRadial('S_AMP', 'S_ICK', 'S_OP', this)">Set B: Consonant Blend (Try 'T')</button>
+                <button class="btn-preset" onclick="setRadial('_RAIN', '_RACK', '_RICK', this)">Set C: Word Prefix (Try 'T')</button>
+                <button class="btn-preset" onclick="setRadial('HOU_E', 'MOU_E', 'ROU_E', this)">Set D: Suffix Sibilant (Try 'S')</button>
+            </div>
+            <div class="trace-log" id="trace-37">Awaiting the Master Key...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "First Word" Trap:</strong> Most children find a letter that works for the very first word and immediately circle it. For example, in <i>RA_N</i>, they see "RAN" and stop. They don't realize that the letter 'N' will make gibberish out of the other two words in the set.</p>
+            
+            <p><strong>The Insider Fix: The "Total Validation" Rule.</strong> Tell your child: <i>"Test the whole set or the Saboteur wins."</i> A letter is just a <b>guess</b> until it has been physically checked against all three words. If word number 3 doesn't make sense, they must throw that letter away and try the next one. <b>The answer must be a triple-threat.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(37)">Complete Module & Update Lattice</button>
+
+<script>
+    let templates = ['B_RD', 'C_RD', 'H_RD'];
+
+    function setRadial(w1, w2, w3, btn) {
+        document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        
+        templates = [w1, w2, w3];
+        document.getElementById('master-key').value = '';
+        update37();
+    }
+
+    function update37() {
+        const key = document.getElementById('master-key').value.toUpperCase();
+        const displayKey = key || "_";
+        
+        document.getElementById('w1').innerHTML = templates[0].replace('_', `<b>${displayKey}</b>`);
+        document.getElementById('w2').innerHTML = templates[1].replace('_', `<b>${displayKey}</b>`);
+        document.getElementById('w3').innerHTML = templates[2].replace('_', `<b>${displayKey}</b>`);
+
+        const words = [document.getElementById('w1'), document.getElementById('w2'), document.getElementById('w3')];
+        words.forEach(w => {
+            w.style.color = key ? "white" : "rgba(255,255,255,0.4)";
+        });
+
+        let trace = `<div class="trace-step">→ 1. Word Set: [${templates.join(', ')}]</div>`;
+        trace += `<div class="trace-step">→ 2. Testing Key: <b style="color:var(--cognis-gold)">${key || '?'}</b></div>`;
+        
+        const results = templates.map(t => t.replace('_', key || '_'));
+        
+        trace += `
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → TRIPLE CHECK: ${results.join(' | ')}
+            </div>
+        `;
+        
+        document.getElementById('trace-37').innerHTML = trace;
+    }
+
+    window.onload = update37;
+</script>
+
+</body>
+</html>

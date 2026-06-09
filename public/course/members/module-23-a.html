@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 23: The Average Family | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📊'; }
+
+        /* INTRO: CANDY PILES */
+        .candy-pile { display: flex; flex-direction: column-reverse; gap: 4px; align-items: center; width: 40px; }
+        .candy-piece { width: 30px; height: 15px; background: var(--cognis-gold); border-radius: 4px; border: 1px solid #b45309; transition: all 0.5s; }
+
+        /* PROGRESSING: PARADE */
+        .person-f { width: 40px; background: var(--cognis-blue); border-radius: 4px 4px 0 0; position: relative; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .person-f.median { background: var(--cognis-gold); box-shadow: 0 0 15px rgba(197,160,89,0.5); }
+        .height-label { position: absolute; top: -20px; width: 100%; text-align: center; font-size: 0.7rem; font-weight: 900; }
+
+        /* SUPPLEMENTAL: DATA BARS */
+        .chart-area-s { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 180px; width: 100%; border-bottom: 2px solid var(--cognis-blue); padding-bottom: 5px; }
+        .bar-s { background: var(--cognis-blue); border-radius: 4px 4px 0 0; position: relative; transition: all 0.5s; }
+        .bar-s span { position: absolute; top: -22px; width: 100%; text-align: center; font-size: 0.7rem; font-weight: 800; color: var(--cognis-blue); }
+        .bar-s.is-median { background: var(--cognis-gold); }
+        .bar-s.is-mean { background: #10b981; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .result-grid-s { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .res-box-s { background: #2d3748; padding: 10px; border-radius: 8px; text-align: center; color: white; }
+        .res-box-s small { display: block; font-size: 0.5rem; opacity: 0.7; margin-bottom: 2px; }
+        .res-box-s b { color: var(--cognis-gold); font-size: 1.1rem; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 23: The Average Family</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Fair Share (Mean)</h2>
+            <p>Imagine three friends have different amounts of candy. The <b>Mean</b> is the number everyone gets if they put all their candy in one big pile and share it back out perfectly fairly.</p>
+            
+            <div class="parent-script">
+                "Look at the piles: 5, 1, and 6. That's 12 candies in total. Click 'Fair Share' and watch the candies move. Since we have 3 friends, we shared the 12 candies so everyone has 4. That 4 is the Mean!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:30px; align-items:flex-end; height:150px;">
+                    <div id="pile-1" class="candy-pile"></div>
+                    <div id="pile-2" class="candy-pile"></div>
+                    <div id="pile-3" class="candy-pile"></div>
+                </div>
+                <button class="btn-action" onclick="makeFairShare()">Make it Fair!</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Piles: 5, 1, and 6. Not fair yet!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Height Parade (Median)</h2>
+            <p>The <b>Median</b> is simply the person in the middle of a line. But there's a rule: they must be standing in height order! If the numbers are jumbled, the person in the middle isn't the true Median.</p>
+            
+            <div class="parent-script">
+                "Look at these heights: 8, 2, 5, 9, 3. Who is in the middle? It looks like 5. But wait! Click 'Height Order'. Now that they are lined up correctly, you can see the true middle person is actually 5. Sometimes jumbled lists trick you!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; align-items:flex-end; gap:15px; height:180px;" id="parade-container"></div>
+                <button class="btn-action" onclick="sortParade()">Line Up in Order!</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Heights: 8, 2, 5, 9, 3. Stand in order to find the middle!</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of averages as finding the <b>"Center of Gravity"</b> for a group. In the 11+, there are three siblings in the family: the <b>Mean</b> (the fair sharer), the <b>Median</b> (the middle of the queue), and the <b>Mode</b> (the popularity winner). Success depends on knowing which tool to use for the story provided.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Mean</b> "Find the mean of 3, 5, and 7. If shared equally, what is the score?"</div>
+                <div class="tier-card"><b>The Median</b> "Find the median of 15, 4, 9, 15, 2. Who is in the exact middle?"</div>
+                <div class="tier-card"><b>The Missing</b> "Mean age of four kids is 12. Three are 10, 11, 14. How old is the fourth?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Averages are visual. Use the buttons below to see how the numbers behave. <b>Sorting</b> reveals the Median—the physical middle. <b>Leveling</b> reveals the Mean—where every bar is cut and filled to be identical.</p>
+            <div class="anatomy-display">
+                <div class="chart-area-s" id="s-chart"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" style="font-size:0.6rem; padding:8px;" onclick="sSort()">Sort (Median)</button>
+                    <button class="btn-action" style="font-size:0.6rem; padding:8px;" onclick="sLevel()">Level (Mean)</button>
+                    <button class="btn-action" style="font-size:0.6rem; padding:8px; background:#94a3b8;" onclick="sReset()">Reset</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Type a list of numbers (separated by commas). Watch the <b>Average Family</b> analyze the data. Help your child see that the <b>Range</b> describes the width, while the others seek the center.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Data Set (Comma separated)</label><input type="text" id="in-data-s" value="8, 12, 4, 8, 18" oninput="runSupp()"></div>
+                    <div class="result-grid-s">
+                        <div class="res-box-s"><small>MEAN</small><b id="s-out-mean">0</b></div>
+                        <div class="res-box-s"><small>MEDIAN</small><b id="s-out-median">0</b></div>
+                        <div class="res-box-s"><small>MODE</small><b id="s-out-mode">0</b></div>
+                        <div class="res-box-s"><small>RANGE</small><b id="s-out-range">0</b></div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Jumbled Median" Trap:</b> Children look at a list like "8, 2, 5" and pick 2 because it's in the middle of the sentence. <b>Disaster!</b> The Median only counts if the list is sorted.</p>
+                <p><b>The Fix: The "Parade" Rule.</b> <i>"Numbers must stand in height order."</i> Never find a Median until the numbers are Smallest to Largest. If there is an even number of items, find the tiny mean between the two central people.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(23)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Statistics Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: CANDY --- */
+    function resetIntro() {
+        renderCandy('pile-1', 5); renderCandy('pile-2', 1); renderCandy('pile-3', 6);
+        document.getElementById('intro-log').innerHTML = "Piles: 5, 1, and 6. Ready to share!";
+    }
+    function renderCandy(id, count) {
+        const el = document.getElementById(id); el.innerHTML = '';
+        for(let i=0; i<count; i++) el.innerHTML += '<div class="candy-piece"></div>';
+    }
+    function makeFairShare() {
+        renderCandy('pile-1', 4); renderCandy('pile-2', 4); renderCandy('pile-3', 4);
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Total candies: 12. Friends: 3. Every pile now has <b>4</b>!</div>`;
+    }
+
+    /* --- PROGRESSING: PARADE --- */
+    let paradeData = [8, 2, 5, 9, 3];
+    function resetParade() {
+        const cont = document.getElementById('parade-container'); cont.innerHTML = '';
+        paradeData.forEach(h => {
+            cont.innerHTML += `<div class="person-f" style="height:${h*15}px"><div class="height-label">${h}</div></div>`;
+        });
+    }
+    function sortParade() {
+        const sorted = [...paradeData].sort((a,b)=>a-b);
+        const cont = document.getElementById('parade-container'); cont.innerHTML = '';
+        sorted.forEach((h, i) => {
+            const isMedian = (i === 2);
+            cont.innerHTML += `<div class="person-f ${isMedian?'median':''}" style="height:${h*15}px"><div class="height-label">${h}</div></div>`;
+        });
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Ordered: 2, 3, <b>5</b>, 8, 9. The middle is 5!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sData = [];
+    function runSupp() {
+        const val = document.getElementById('in-data-s').value;
+        sData = val.split(',').map(n=>parseFloat(n.trim())).filter(n=>!isNaN(n));
+        if(sData.length === 0) return;
+
+        const sum = sData.reduce((a,b)=>a+b,0);
+        const mean = sum/sData.length;
+        const sorted = [...sData].sort((a,b)=>a-b);
+        const median = sData.length%2===0 ? (sorted[sData.length/2-1]+sorted[sData.length/2])/2 : sorted[Math.floor(sData.length/2)];
+        
+        document.getElementById('s-out-mean').innerText = mean.toFixed(1);
+        document.getElementById('s-out-median').innerText = median.toFixed(1);
+        document.getElementById('s-out-range').innerText = (sorted[sorted.length-1]-sorted[0]);
+
+        document.getElementById('supp-log').innerHTML = `→ Sorted: [${sorted.join(', ')}]<br>→ Mean: ${sum} ÷ ${sData.length} = <b>${mean.toFixed(1)}</b>`;
+        sRender(sData);
+    }
+    function sRender(data, highlightMedian=false, forceMean=false) {
+        const chart = document.getElementById('s-chart'); chart.innerHTML = '';
+        const max = Math.max(...data, 1);
+        data.forEach((v, i) => {
+            const b = document.createElement('div'); b.className = 'bar-s';
+            if(highlightMedian && i === Math.floor(data.length/2)) b.classList.add('is-median');
+            if(forceMean) b.classList.add('is-mean');
+            b.style.height = (v/max*100) + "%"; b.style.width = "30px";
+            b.innerHTML = `<span>${v.toFixed(0)}</span>`;
+            chart.appendChild(b);
+        });
+    }
+    function sSort() { sRender([...sData].sort((a,b)=>a-b), true); }
+    function sLevel() { const mean = sData.reduce((a,b)=>a+b,0)/sData.length; sRender(sData.map(()=>mean), false, true); }
+    function sReset() { runSupp(); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); resetParade();
+        if(document.getElementById('in-data-s')) runSupp();
+        if(typeof initModule === "function") initModule(23);
+    });
+</script>
+</body>
+</html>

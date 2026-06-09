@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 22: 3-Circle Venn Logic | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 450px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🧅'; }
+
+        /* INTRO: TOPPING SORT */
+        .topping-zone { fill: rgba(0, 45, 91, 0.03); stroke: #cbd5e0; stroke-width: 2; stroke-dasharray: 4; transition: all 0.5s; }
+        .topping-zone.active { stroke: var(--cognis-blue); fill: rgba(0, 45, 91, 0.08); stroke-dasharray: 0; }
+        .sundae { cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* PROGRESSING: ONION PEELER */
+        .layer-circle { fill: white; stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.6s; }
+        .peel-active { fill: #fef3c7; stroke: var(--cognis-gold); transform: scale(1.05); }
+        .math-text { font-family: monospace; font-weight: 800; font-size: 14px; fill: var(--cognis-blue); }
+
+        /* SUPPLEMENTAL: MERGER VIZ */
+        #v3-svg-s circle { fill: rgba(0, 45, 91, 0.04); stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        #v3-svg-s text { font-weight: 900; transition: all 0.8s ease; text-anchor: middle; dominant-baseline: middle; }
+        .label-overlap-s { fill: var(--cognis-gold); font-size: 14px; opacity: 0; }
+        .label-core-s { fill: var(--trap-red); font-size: 20px; opacity: 0; }
+        .merged .label-overlap-s, .merged .label-core-s { opacity: 1; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .input-grid-s { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 22: 3-Circle Venn Logic</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Triple Topping</h2>
+            <p>A 3-circle Venn is just a more complex sorting puzzle. Some people want <b>Sprinkles</b>, some want <b>Flakes</b>, and some want <b>Sauce</b>. But look at the center—that's for the person who wants <b>ALL THREE</b>. They are one person, but they live in three lists at once!</p>
+            
+            <div class="parent-script">
+                "We have a 'Mega Sundae' with Sprinkles, a Flake, and Sauce. Where does it go? It satisfies all three rules. Click 'Place Sundae' to see it find the only spot on the map where all three circles overlap."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="320" viewBox="0 0 400 320">
+                    <circle cx="150" cy="120" r="90" class="topping-zone" id="z-1" />
+                    <circle cx="250" cy="120" r="90" class="topping-zone" id="z-2" />
+                    <circle cx="200" cy="200" r="90" class="topping-zone" id="z-3" />
+                    <text x="100" y="50" font-size="10" font-weight="800" fill="#94a3b8">SPRINKLES</text>
+                    <text x="300" y="50" font-size="10" font-weight="800" fill="#94a3b8">FLAKE</text>
+                    <text x="200" y="300" font-size="10" font-weight="800" fill="#94a3b8">SAUCE</text>
+                    
+                    <g id="intro-sundae" class="sundae" transform="translate(200, 350)">
+                        <text x="0" y="0" font-size="40" text-anchor="middle">🍨</text>
+                    </g>
+                </svg>
+                <button class="btn-action" onclick="placeSundae()">Place Mega Sundae!</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Find the home for the triple-topping treat.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Onion Peeler</h2>
+            <p>To solve a 3-circle puzzle, you must <b>Peel the Onion</b>. You start at the very center (the Core) and work your way out. If 5 people are in the center, you must subtract those 5 from every other overlapping section before you can find the final total.</p>
+            
+            <div class="parent-script">
+                "Look at the 'A & B' overlap. It says 10. But we know 4 of those people are in the 'All 3' core. Click 'Peel Layer' to subtract the core. Now we see there are only 6 people who like <b>ONLY</b> A & B. We always start from the middle and move out!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="300" viewBox="0 0 400 300">
+                    <path d="M150,100 Q200,50 250,100 Q200,150 150,100" class="layer-circle" id="petal-ab" />
+                    <circle cx="200" cy="115" r="30" class="layer-circle" id="core-f" style="fill:var(--trap-red); stroke:white;" />
+                    <text x="200" y="120" text-anchor="middle" fill="white" font-weight="900">4</text>
+                    <text x="200" y="85" text-anchor="middle" class="math-text" id="petal-text">10</text>
+                    <text x="200" y="25" text-anchor="middle" font-weight="800" font-size="12" fill="var(--cognis-blue)">OVERLAP A & B</text>
+                </svg>
+                <button class="btn-action" onclick="peelOnion()">Peel the Core Layer</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">The overlap looks like 10... but is it "Clean"?</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of the 3-circle Venn as the <b>"Onion Challenge."</b> In the 11+, you are usually given the "skin" (the big group totals) and asked to find a specific layer inside. The secret is <b>Inside-Out Deduction</b>. Ignore the big numbers at first and find the <b>Core</b> (All 3). Once you anchor that center point, you peel back the overlaps one by one.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Ice Cream</b> "5 children like all 3 flavors. 12 like Vanilla and Choc. How many like Vanilla/Choc but <b>NOT</b> Strawberry?"</div>
+                <div class="tier-card"><b>The Sports</b> "15 Football, 15 Rugby, 15 Cricket. 4 play all three. Each pair-overlap is 7. Total unique students?"</div>
+                <div class="tier-card"><b>The Logic</b> "Find the population where every intersection is known. Use the logic of 'Cleaning' the numbers from the center."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Shared Core</b>. Click <b>"Commence Merger"</b> to see the groups collide. The red number in the center is the "Boss"—it has been subtracted from every other section to ensure no one is cloned. The center is the only number that starts out honest.</p>
+            <div class="anatomy-display">
+                <svg id="v3-svg-s" width="460" height="380" viewBox="0 0 460 380">
+                    <circle id="s-c-a" cx="120" cy="120" r="100" />
+                    <circle id="s-c-b" cx="340" cy="120" r="100" />
+                    <circle id="s-c-c" cx="230" cy="260" r="100" />
+                    <text id="s-t-oa" x="120" y="120" class="label-main">25</text>
+                    <text id="s-t-ob" x="340" y="120" class="label-main">25</text>
+                    <text id="s-t-oc" x="230" y="260" class="label-main">25</text>
+                    <text id="s-t-ab" x="230" y="120" class="label-overlap-s">5</text>
+                    <text id="s-t-ac" x="175" y="210" class="label-overlap-s">5</text>
+                    <text id="s-t-bc" x="285" y="210" class="label-overlap-s">5</text>
+                    <text id="s-t-all" x="230" y="170" class="label-core-s">5</text>
+                </svg>
+                <div style="text-align:center;"><button class="btn-action" style="background:var(--cognis-gold);" id="btn-s-merge" onclick="toggleSuppV3()">Commence Merger</button></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Set your group sizes. Watch the <b>Trace Log</b> to see the sequence of subtractions. Notice how the **Center Core** is used first for every calculation.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="input-grid-s">
+                        <div class="control-group"><label>Total A</label><input type="number" id="in-ta" value="25"></div>
+                        <div class="control-group"><label>Total B</label><input type="number" id="in-tb" value="25"></div>
+                        <div class="control-group"><label>Total C</label><input type="number" id="in-tc" value="25"></div>
+                        <div class="control-group"><label>The Core (All 3)</label><input type="number" id="in-all" value="5" style="border-color:var(--trap-red);"></div>
+                        <div class="control-group"><label>Overlap A&B</label><input type="number" id="in-ab" value="10"></div>
+                        <div class="control-group"><label>Overlap B&C</label><input type="number" id="in-bc" value="10"></div>
+                        <div class="control-group"><label>Overlap A&C</label><input type="number" id="in-ac" value="10"></div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Triple-Counting" Trap:</b> If you add the group totals (25+25+25), the people in the Core are counted <b>three times</b>! You've accidentally invented ghost students.</p>
+                <p><b>The Fix: The "Onion Peel" Rule.</b> <i>"Clean from the middle out."</i> Subtract the Core from the pair-overlaps first. Then subtract those <i>and</i> the core from the main totals. **The center is your anchor.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(22)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SUNDAE --- */
+    function resetIntro() {
+        document.getElementById('intro-sundae').style.transform = "translate(200px, 350px)";
+        document.querySelectorAll('.topping-zone').forEach(z => z.classList.remove('active'));
+        document.getElementById('intro-log').innerHTML = "Ready to sort...";
+    }
+    function placeSundae() {
+        document.getElementById('intro-sundae').style.transform = "translate(200px, 140px)";
+        document.querySelectorAll('.topping-zone').forEach(z => z.classList.add('active'));
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The Sundae belongs to ALL 3 circles. It sits right in the middle!</div>`;
+    }
+
+    /* --- PROGRESSING: PEELER --- */
+    function peelOnion() {
+        document.getElementById('petal-ab').classList.add('peel-active');
+        document.getElementById('petal-text').textContent = "10 - 4 = 6";
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">We removed the 4 people who are in 'All 3'.</div>
+            <div class="discovery-step">Now we know only <b>6</b> people like ONLY A and B.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: MERGER --- */
+    let sMerged = false;
+    function toggleSuppV3() {
+        sMerged = !sMerged;
+        const svg = document.getElementById('v3-svg-s');
+        const btn = document.getElementById('btn-s-merge');
+        const pos = sMerged ? 
+            { a:[170,140], b:[290,140], c:[230,230], ta:[120,100], tb:[340,100], tc:[230,310] } :
+            { a:[120,120], b:[340,120], c:[230,260], ta:[120,120], tb:[340,120], tc:[230,260] };
+
+        ['a','b','c'].forEach(id => {
+            document.getElementById('s-c-'+id).setAttribute('cx', pos[id][0]);
+            document.getElementById('s-c-'+id).setAttribute('cy', pos[id][1]);
+            document.getElementById('s-t-o'+id).setAttribute('x', pos['t'+id][0]);
+            document.getElementById('s-t-o'+id).setAttribute('y', pos['t'+id][1]);
+        });
+
+        if(sMerged) svg.classList.add('merged'); else svg.classList.remove('merged');
+        btn.innerText = sMerged ? "Separate Sets" : "Commence Merger";
+        runSupp();
+    }
+
+    function runSupp() {
+        const ids = ['in-ta','in-tb','in-tc','in-ab','in-bc','in-ac','in-all'];
+        const [ta, tb, tc, ab, bc, ac, all] = ids.map(id => parseFloat(document.getElementById(id).value) || 0);
+
+        const pAB = ab - all; const pBC = bc - all; const pAC = ac - all;
+        const oA = ta - pAB - pAC - all; const oB = tb - pAB - pBC - all; const oC = tc - pAC - pBC - all;
+
+        document.getElementById('s-t-oa').textContent = sMerged ? oA : ta;
+        document.getElementById('s-t-ob').textContent = sMerged ? oB : tb;
+        document.getElementById('s-t-oc').textContent = sMerged ? oC : tc;
+        document.getElementById('s-t-ab').textContent = pAB;
+        document.getElementById('s-t-bc').textContent = pBC;
+        document.getElementById('s-t-ac').textContent = pAC;
+        document.getElementById('s-t-all').textContent = all;
+
+        document.getElementById('supp-log').innerHTML = `→ 1. Anchor Core: <b>${all}</b><br>→ 2. Clean Overlaps (e.g. AB): ${ab}-${all}=<b>${pAB}</b><br>→ 3. Clean 'Only' A: ${ta}-${pAB}-${pAC}-${all}=<b>${oA}</b><br>→ <b>Total Unique: ${oA+oB+oC+pAB+pBC+pAC+all}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro();
+        ['in-ta','in-tb','in-tc','in-ab','in-bc','in-ac','in-all'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.oninput = runSupp;
+        });
+        if(document.getElementById('in-ta')) runSupp();
+        if(typeof initModule === "function") initModule(22);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 22: 3-Circle Venn Logic | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR VENN ANIMATION */
+        .anatomy-display { padding: 30px; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; }
+        
+        svg { background: white; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); display: block; margin: 0 auto; }
+        circle { fill: rgba(0, 45, 91, 0.04); stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        text { font-family: 'DM Sans', sans-serif; font-weight: 800; pointer-events: none; transition: all 0.8s ease-in-out; text-anchor: middle; dominant-baseline: middle; }
+        
+        .label-main { fill: var(--cognis-blue); font-size: 18px; }
+        .label-overlap { fill: var(--cognis-gold); font-size: 16px; opacity: 0; }
+        .label-core { fill: var(--trap-red); font-size: 22px; opacity: 0; }
+        
+        .merged .label-overlap, .merged .label-core { opacity: 1; }
+
+        .sim-btn-wrapper { text-align: center; margin-top: 20px; }
+        .btn-merge { 
+            background: var(--cognis-gold); color: white; border: none; 
+            padding: 12px 30px; border-radius: 8px; font-weight: 800; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+        }
+        .btn-merge:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        /* Engine Layout Customization */
+        .engine-container { grid-template-columns: 1.2fr 1fr; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .control-group input { width: 100% !important; text-align: center; background: #2d3748; color: white; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(22));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header"><h1>Module 22: 3-Circle Venn Logic</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of the 3-circle Venn as the <b>"Onion Challenge."</b> In the 11+, you are usually given the "skin" (the big group totals) and asked to find a specific "layer" inside. The secret is <b>Inside-Out Deduction</b>. To solve these, you must ignore the big numbers at first and find the <b>Core</b> (the items that fit all three rules). If your child can anchor that center point, they can peel back the layers one by one to find the truth.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Ice Cream Shop</b>
+                "5 children like all 3 flavors. 12 like Vanilla and Choc. How many like Vanilla and Choc but <b>NOT</b> Strawberry?"
+            </div>
+            <div class="tier-card">
+                <b>The Sports Day</b>
+                "15 play Football, 15 Rugby, 15 Cricket. 4 play all three. Each pair-overlap is 7. How many unique students are there?"
+            </div>
+            <div class="tier-card">
+                <b>The Logic Master</b>
+                "Find the population of a 3-set universe where every intersection is known. Use the logic of 'Cleaning' the numbers."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Shared Core</b>. Point to the three circles below. At first, they are just separate buckets of people. Click <b>"Commence Merger"</b> to see them collide. Notice how the numbers <b>change</b>. The red number in the very center is the most powerful—it has been subtracted from every other section to make sure no one is counted twice.</p>
+        
+        <div class="anatomy-display">
+            <svg id="v3-svg" width="500" height="420" viewBox="0 0 500 420">
+                <circle id="v3-c-a" cx="130" cy="130" r="110" />
+                <circle id="v3-c-b" cx="370" cy="130" r="110" />
+                <circle id="v3-c-c" cx="250" cy="310" r="110" />
+                
+                <text id="v3-t-oa" x="130" y="130" class="label-main">25</text>
+                <text id="v3-t-ob" x="370" y="130" class="label-main">25</text>
+                <text id="v3-t-oc" x="250" y="310" class="label-main">25</text>
+                
+                <text id="v3-t-ab" x="250" y="130" class="label-overlap">5</text>
+                <text id="v3-t-ac" x="190" y="240" class="label-overlap">5</text>
+                <text id="v3-t-bc" x="310" y="240" class="label-overlap">5</text>
+                
+                <text id="v3-t-all" x="250" y="200" class="label-core">5</text>
+            </svg>
+            
+            <div class="sim-btn-wrapper">
+                <button class="btn-merge" onclick="toggleV3()" id="btn-v3">Commence Merger</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the input boxes to set your group sizes. The <b>Trace Log</b> will show you the exact sequence of subtractions needed to "clean" the diagram. Help your child notice that the <b>Center Core</b> is the first number we use for every calculation.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="input-grid">
+                    <div class="control-group"><label>Total Group A</label><input type="number" id="v3-ta" value="25"></div>
+                    <div class="control-group"><label>Total Group B</label><input type="number" id="v3-tb" value="25"></div>
+                    <div class="control-group"><label>Total Group C</label><input type="number" id="v3-tc" value="25"></div>
+                    <div class="control-group"><label>Overlap A & B</label><input type="number" id="v3-ab" value="10"></div>
+                    <div class="control-group"><label>Overlap B & C</label><input type="number" id="v3-bc" value="10"></div>
+                    <div class="control-group"><label>Overlap A & C</label><input type="number" id="v3-ac" value="10"></div>
+                    <div class="control-group" style="grid-column: span 2;">
+                        <label>The Core (All 3)</label>
+                        <input type="number" id="v3-all" value="5" style="border: 2px solid var(--cognis-gold);">
+                    </div>
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">Reveal the disjoint logic...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Triple-Counting" Trap:</strong> If your child adds the group totals together (e.g., $25 + 25 + 25 = 75$), they have just accidentally cloned the people in the middle. The people in the "Core" are currently living in all three circles at once—they are being counted <b>three times</b>!</p>
+            
+            <p><strong>The Fix: The "Onion Peel" Rule.</strong> Tell your child: <i>"Clean from the middle out."</i> They must subtract the Core from the pair-overlaps first. Then, they must subtract those new results <i>and</i> the core from the main circles. Only when every section is "cleaned" can they safely add them up. <b>The center is the only number that starts out honest.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(22)">Complete Module & Update Lattice</button>
+
+<script>
+    let v3Merged = false;
+    const inputIds = ['v3-ta', 'v3-tb', 'v3-tc', 'v3-ab', 'v3-bc', 'v3-ac', 'v3-all'];
+
+    function updateCalculations() {
+        const [ta, tb, tc, ab, bc, ac, all] = inputIds.map(id => parseFloat(document.getElementById(id).value) || 0);
+        
+        const pAB = ab - all; 
+        const pBC = bc - all; 
+        const pAC = ac - all;
+        
+        const oA = ta - pAB - pAC - all; 
+        const oB = tb - pAB - pBC - all; 
+        const oC = tc - pAC - pBC - all;
+
+        document.getElementById('v3-t-oa').textContent = v3Merged ? Math.max(0, oA) : ta;
+        document.getElementById('v3-t-ob').textContent = v3Merged ? Math.max(0, oB) : tb;
+        document.getElementById('v3-t-oc').textContent = v3Merged ? Math.max(0, oC) : tc;
+        
+        document.getElementById('v3-t-ab').textContent = Math.max(0, pAB);
+        document.getElementById('v3-t-bc').textContent = Math.max(0, pBC);
+        document.getElementById('v3-t-ac').textContent = Math.max(0, pAC);
+        document.getElementById('v3-t-all').textContent = all;
+
+        document.getElementById('engine-trace').innerHTML = `
+            <div class="trace-step">→ 1. Anchor Core: <b>${all}</b></div>
+            <div class="trace-step">→ 2. Clean A & B: ${ab} - ${all} = <b>${pAB}</b></div>
+            <div class="trace-step">→ 3. Clean Only A: ${ta} - ${pAB} - ${pAC} - ${all} = <b>${oA}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → TOTAL UNIQUE POPULATION: ${oA + oB + oC + pAB + pBC + pAC + all}
+            </div>
+        `;
+    }
+
+    function toggleV3() {
+        v3Merged = !v3Merged;
+        const svg = document.getElementById('v3-svg');
+        const btn = document.getElementById('btn-v3');
+        
+        const pos = v3Merged ? 
+            { a:[190,140], b:[310,140], c:[250,250], oa:[130,100], ob:[370,100], oc:[250,360] } : 
+            { a:[130,130], b:[370,130], c:[250,310], oa:[130,130], ob:[370,130], oc:[250,310] };
+        
+        document.getElementById('v3-c-a').setAttribute('cx', pos.a[0]); 
+        document.getElementById('v3-c-a').setAttribute('cy', pos.a[1]);
+        document.getElementById('v3-c-b').setAttribute('cx', pos.b[0]); 
+        document.getElementById('v3-c-b').setAttribute('cy', pos.b[1]);
+        document.getElementById('v3-c-c').setAttribute('cx', pos.c[0]); 
+        document.getElementById('v3-c-c').setAttribute('cy', pos.c[1]);
+        
+        document.getElementById('v3-t-oa').setAttribute('x', pos.oa[0]); 
+        document.getElementById('v3-t-oa').setAttribute('y', pos.oa[1]);
+        document.getElementById('v3-t-ob').setAttribute('x', pos.ob[0]); 
+        document.getElementById('v3-t-ob').setAttribute('y', pos.ob[1]);
+        document.getElementById('v3-t-oc').setAttribute('x', pos.oc[0]); 
+        document.getElementById('v3-t-oc').setAttribute('y', pos.oc[1]);
+
+        if (v3Merged) svg.classList.add('merged'); else svg.classList.remove('merged');
+        btn.innerText = v3Merged ? "Separate Sets" : "Commence Merger";
+        updateCalculations();
+    }
+
+    inputIds.forEach(id => document.getElementById(id).addEventListener('input', updateCalculations));
+    window.onload = updateCalculations;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 39: Relationship Analogies | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR ANALOGY BRIDGE */
+        .anatomy-display { padding: 50px 20px; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; }
+        
+        .bridge-stage { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px; 
+            margin: 10px 0;
+        }
+
+        .node { 
+            width: 130px; 
+            height: 55px; 
+            background: white; 
+            border: 3px solid var(--cognis-blue); 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            color: var(--cognis-blue); 
+            font-size: 1rem;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .verb-slot { 
+            font-size: 0.8rem; 
+            color: var(--cognis-gold); 
+            font-weight: 800; 
+            border-bottom: 2px dashed var(--cognis-gold); 
+            padding: 5px 10px; 
+            min-width: 110px; 
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .exactly-like {
+            margin: 15px 0;
+            color: #cbd5e0;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        
+        .btn-logic { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800;
+            text-align: left; transition: 0.2s;
+        }
+        .btn-logic:hover { background: #4a5568; color: white; }
+        .btn-logic.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(39));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 39: Relationship Analogies</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of an analogy as a <b>"Logic Ratio"</b>: $A : B :: C : D$. In the 11+, your child isn't just matching words; they are matching <i>relationships</i>. The secret weapon is the <b>Bridge Sentence</b>. If the connection between the first pair is "A is a part of B," then the second pair must follow that exact rule without exception. If the bridge doesn't hold both pairs, the logic is broken.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Simple Connection</b>
+                <i>Finger : Hand :: Toe : [?]</i>
+            </div>
+            <div class="tier-card">
+                <b>The "Made Of" Rule</b>
+                <i>Scale : Fish :: Feather : [?]</i>
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Environment</b>
+                <i>Arid : Desert :: Humid : [?]</i>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Logic Mirror</b>. Notice how the central "Bridge Sentence" (the gold dashed line) acts as a rigid template. Point out to your child that if they change the words, they <b>cannot</b> change the bridge. The rules of the top floor must be obeyed by the bottom floor perfectly.</p>
+        
+        <div class="anatomy-display">
+            <div class="bridge-stage">
+                <div class="node" id="p1-1">HAND</div>
+                <div class="verb-slot" id="v1">HAS A</div>
+                <div class="node" id="p1-2">FINGER</div>
+            </div>
+            
+            <div class="exactly-like">▼ MUST BE MIRRORED ▼</div>
+            
+            <div class="bridge-stage">
+                <div class="node" id="p2-1" style="border-color:var(--cognis-gold)">FOOT</div>
+                <div class="verb-slot" id="v2" style="color:var(--cognis-blue); border-color:var(--cognis-blue)">HAS A</div>
+                <div class="node" id="p2-2" style="border-color:var(--cognis-gold)">TOE</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Select a logic type below to see how the <b>Bridge Sentence</b> connects the word sets. Ask your child to read the bridge out loud for both pairs. If it sounds natural for both, they've cracked the logic.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Choose a Logic Type</label>
+                <div class="preset-grid">
+                    <button class="btn-logic active" onclick="setLogic('HAND','HAS A','FINGER','FOOT','TOE', this)">Part-to-Whole</button>
+                    <button class="btn-logic" onclick="setLogic('FISH','HAS','SCALES','BIRD','FEATHERS', this)">Protective Covering</button>
+                    <button class="btn-logic" onclick="setLogic('PUPPY','BECOMES','DOG','KITTEN','CAT', this)">Age Progression</button>
+                    <button class="btn-logic" onclick="setLogic('DESERT','IS','ARID','RAINFOREST','HUMID', this)">Defining Property</button>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-39">Construction logic active...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Inversion" Trap:</strong> This is the most common mistake. Your child might correctly identify that a finger is part of a hand, but then they pick "Toe : Foot" in the wrong order. If the first pair is <i>Large : Small</i>, the second pair <b>must</b> be <i>Large : Small</i>.</p>
+            
+            <p><strong>The Insider Fix: The "Direction Test."</strong> Tell your child: <i>"The bridge is a one-way street."</i> They should physically draw an arrow between the words. If the arrow goes from left to right for the first pair, it must go left to right for the second. If they say "A Finger is in a Hand," but then "A Foot is in a Toe," the logic has crashed. <b>Order is everything.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(39)">Complete Module & Update Lattice</button>
+
+<script>
+    function setLogic(w1, verb, w2, w3, w4, btn) {
+        document.querySelectorAll('.btn-logic').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        
+        document.getElementById('p1-1').innerText = w1;
+        document.getElementById('v1').innerText = verb;
+        document.getElementById('p1-2').innerText = w2;
+        
+        document.getElementById('p2-1').innerText = w3;
+        document.getElementById('v2').innerText = verb;
+        document.getElementById('p2-2').innerText = w4;
+
+        document.getElementById('trace-39').innerHTML = `
+            <div class="trace-step">→ 1. Building Bridge: <b>${w1}</b> ${verb} <b>${w2}</b></div>
+            <div class="trace-step">→ 2. Testing Symmetry: Does <b>${w3}</b> ${verb} <b>${w4}</b>?</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → STATUS: ANALOGY MIRRORED
+            </div>
+        `;
+    }
+
+    window.onload = () => setLogic('HAND','HAS A','FINGER','FOOT','TOE');
+</script>
+
+</body>
+</html>

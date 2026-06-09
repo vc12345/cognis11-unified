@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 29: Alpha-Numeric Decoder | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR CIPHER DIAL */
+        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
+        
+        #cipher-svg { 
+            background: #0f172a; 
+            border-radius: 50%; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .ring-text { 
+            font-family: 'Consolas', monospace; 
+            font-weight: 900; 
+            font-size: 13px; 
+            fill: #4a5568; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: default; 
+        }
+
+        .letter-text { fill: #a0aec0; }
+        .number-text { fill: var(--cognis-gold); font-size: 11px; opacity: 0.6; }
+        
+        .active-char { 
+            fill: white; 
+            font-size: 18px; 
+            filter: drop-shadow(0 0 8px var(--cognis-gold)); 
+            opacity: 1;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        .input-text { 
+            width: 100%; padding: 12px; border-radius: 8px; border: none; 
+            background: #2d3748; color: white; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 4px; font-size: 1.1rem;
+        }
+        
+        .btn-toggle { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 10px 15px; border-radius: 6px; font-size: 0.7rem; 
+            cursor: pointer; text-transform: uppercase; font-weight: 800;
+            width: 100%; transition: 0.3s;
+        }
+        .btn-toggle.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(29));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 29: Alpha-Numeric Decoder</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as the <b>"Secret Agent Rule."</b> In the 11+, examiners love to hide messages by swapping letters for numbers. Whether they use a simple count ($A=1$), a reverse countdown ($A=26$), or a shifted code ($A=3$), the secret weapon is <b>Mapping Consistency</b>. Once your child identifies the "Key" (which letter equals which number), they must apply that exact same logic to every letter in the word without breaking the pattern.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Direct Code</b>
+                "If $A=1$ and $B=2$, what is the numerical code for the word 'FISH'?"
+            </div>
+            <div class="tier-card">
+                <b>The Reverse Riddle</b>
+                "If the alphabet is flipped so $A=26$ and $Z=1$, what is the code for 'CAT'?"
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Shift</b>
+                "A secret code uses a $+3$ offset ($A=4$). Decode the numbers '4-18-21-13' to find the word."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Cipher Dial</b>. Point to the outer ring of letters and the inner ring of numbers. The gold line at the top indicates our <b>Master Key</b>. When the dial rotates, the relationship between every letter and number changes instantly. Help your child notice how the whole alphabet moves together like a locked gears—if you know one pair, you know them all.</p>
+        
+        <div class="anatomy-display">
+            <svg id="cipher-svg" width="100%" height="400" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet">
+                <circle cx="210" cy="210" r="165" fill="none" stroke="#2d3748" stroke-width="40" />
+                <circle cx="210" cy="210" r="120" fill="none" stroke="#1e293b" stroke-width="40" />
+                
+                <g id="letters-group"></g>
+                <g id="numbers-group"></g>
+                
+                <line x1="210" y1="25" x2="210" y2="65" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
+            </svg>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the slider to rotate the dial and type a word into the box. Watch the <b>Trace Log</b> as it translates each letter using the active key. Ask your child to predict the number for the next letter before the engine reveals it. Notice how the "Mapping Direction" button flips the logic from a standard count to a reverse countdown.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Set the Key (Rotation)</label>
+                    <input type="range" id="shift-dial" min="0" max="25" value="0" oninput="run29()">
+                </div>
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Dial Direction</label>
+                    <button id="btn-reverse" class="btn-toggle" onclick="toggleReverse()">Standard (A=1)</button>
+                </div>
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Your Message</label>
+                    <input type="text" id="word-in" class="input-text" value="CODE" maxlength="10" oninput="run29()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-29">Adjust the dial to decode...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Alphabet Wall" Trap:</strong> When a shift moves past Z or before A, children often freeze. If the code is $A=24$, and they need to find the value of $C$, they think the alphabet has "run out" of room.</p>
+            
+            <p><strong>The Insider Fix: The "Alphabet Clock" Rule.</strong> Tell your child: <i>"The alphabet is a circle, not a line."</i> Just like a clock goes from 12 back to 1, the alphabet goes from Z back to A. If they hit the "Wall" at Z, they just keep counting from 1 again at A. <b>There is no end to the loop.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(29)">Complete Module & Update Lattice</button>
+
+<script>
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let isReversed = false;
+
+    function toggleReverse() {
+        isReversed = !isReversed;
+        const btn = document.getElementById('btn-reverse');
+        btn.innerText = isReversed ? "Reverse (Z=1)" : "Standard (A=1)";
+        btn.classList.toggle('active', isReversed);
+        run29();
+    }
+
+    function run29() {
+        const offset = parseInt(document.getElementById('shift-dial').value);
+        const word = document.getElementById('word-in').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const lGroup = document.getElementById('letters-group');
+        const nGroup = document.getElementById('numbers-group');
+        
+        lGroup.innerHTML = '';
+        nGroup.innerHTML = '';
+
+        for (let i = 0; i < 26; i++) {
+            let alphaIdx;
+            if (!isReversed) {
+                alphaIdx = (i + offset) % 26;
+            } else {
+                alphaIdx = (26 - (i + offset) % 26) % 26;
+            }
+            
+            const char = alphabet[alphaIdx];
+            const isActive = word.includes(char);
+            
+            const angle = (i / 26) * 2 * Math.PI - Math.PI / 2;
+            const lx = 210 + 165 * Math.cos(angle);
+            const ly = 210 + 165 * Math.sin(angle);
+            const nx = 210 + 120 * Math.cos(angle);
+            const ny = 210 + 120 * Math.sin(angle);
+
+            lGroup.innerHTML += `<text x="${lx}" y="${ly}" class="ring-text letter-text ${isActive ? 'active-char' : ''}" text-anchor="middle" dominant-baseline="middle">${char}</text>`;
+            nGroup.innerHTML += `<text x="${nx}" y="${ny}" class="ring-text number-text ${isActive ? 'active-char' : ''}" text-anchor="middle" dominant-baseline="middle">${i+1}</text>`;
+        }
+
+        const keyChar = alphabet[isReversed ? (26-offset)%26 : offset];
+        let trace = `<div class="trace-step">→ 1. Active Key: <b>${keyChar} = 1</b></div>`;
+        let results = [];
+        
+        for (let c of word) {
+            const charIdx = alphabet.indexOf(c);
+            let num;
+            if (!isReversed) {
+                num = ((charIdx - offset + 26) % 26) + 1;
+            } else {
+                num = ((offset - charIdx + 26) % 26) + 1;
+            }
+            results.push(num);
+            trace += `<div class="trace-step" style="font-size:0.75rem;">Decoding letter <b>${c}</b> using Key → <b>${num}</b></div>`;
+        }
+
+        trace += `
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → NUMERICAL CODE: ${results.join('-') || '...'}
+            </div>
+        `;
+        document.getElementById('trace-29').innerHTML = trace;
+    }
+
+    window.onload = run29;
+</script>
+
+</body>
+</html>

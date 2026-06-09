@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 35: Word Morphing | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR WORD MORPHING */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 60px 20px; 
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #2d3748;
+        }
+
+        .word-box { 
+            display: inline-flex; 
+            gap: 10px; 
+            background: rgba(255,255,255,0.05); 
+            padding: 20px; 
+            border-radius: 16px; 
+            border: 2px dashed #4a5568; 
+            margin-bottom: 40px; 
+        }
+
+        .letter-node { 
+            width: 50px; 
+            height: 65px; 
+            background: white; 
+            color: var(--cognis-blue); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 2rem; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            user-select: none;
+        }
+        .letter-node:hover { transform: scale(1.1); background: var(--cognis-light); }
+        .letter-node.selected { 
+            background: var(--cognis-gold); 
+            color: white; 
+            transform: translateY(-15px); 
+            box-shadow: 0 10px 25px rgba(197, 160, 89, 0.4); 
+        }
+
+        .target-display { 
+            font-family: 'Consolas', monospace; 
+            font-size: 3.5rem; 
+            color: white; 
+            margin-top: 20px; 
+            letter-spacing: 10px; 
+            font-weight: 900;
+            min-height: 80px;
+        }
+        .insertion-point { 
+            color: var(--cognis-gold); 
+            text-decoration: underline; 
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .btn-example-row { margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .btn-example { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 10px 18px; border-radius: 8px; font-size: 0.75rem; 
+            cursor: pointer; text-transform: uppercase; font-weight: 800; 
+            transition: 0.2s;
+        }
+        .btn-example:hover { background: #4a5568; color: white; }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(35));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 35: Word Morphing</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as the <b>"Stolen Letter"</b> mystery. In the 11+, your child will be shown two words and told that exactly one letter has moved from the first word into the second. The goal is to create two entirely new, valid words. The secret weapon is recognizing that the letter you move must be "expendable"—it must leave a perfect word behind while creating a perfect word at its destination.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Easy Swap</b>
+                "Move one letter from <i>CHART</i> to <i>EAT</i> to make two new words."
+            </div>
+            <div class="tier-card">
+                <b>The Hidden Slot</b>
+                "One letter can be moved from <i>STEAM</i> to <i>BIT</i>. Where does it land?"
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Challenge</b>
+                "Find the letter that migrates from <i>POUND</i> to <i>EACH</i>. Both results must be real words."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Morph Lab</b>. 1. Click a letter in the top row to "stipple" it. 2. Use the slider to find its new home in the bottom word. Point out to your child that as the letter moves, both words change their meaning instantly. If one side looks like gibberish, the "stolen" letter is the wrong one.</p>
+        
+        <div class="anatomy-display">
+            <div id="word-a-box" class="word-box">
+                </div>
+            <div id="word-b-display" class="target-display">
+                </div>
+            
+            <div style="max-width: 400px; margin: 50px auto 0;">
+                <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:800; text-transform:uppercase;">Front of word</span>
+                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:800; text-transform:uppercase;">Back of word</span>
+                </div>
+                <input type="range" id="slot-slider" min="0" max="4" value="0" oninput="updateMorph()">
+            </div>
+        </div>
+        
+        <div class="btn-example-row">
+            <button class="btn-example" onclick="loadPair('CHART', 'EAT')">CHART &rarr; EAT</button>
+            <button class="btn-example" onclick="loadPair('STEAM', 'BIT')">STEAM &rarr; BIT</button>
+            <button class="btn-example" onclick="loadPair('POUND', 'EACH')">POUND &rarr; EACH</button>
+            <button class="btn-example" onclick="loadPair('SMILE', 'PORT')">SMILE &rarr; PORT</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Experiment with the presets above. Watch the <b>Trace Log</b> to see the "Dictionary Check" in action. Help your child notice that we aren't just adding letters to the end of a word; the stolen letter often likes to hide right in the middle.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <p style="font-size: 0.75rem; color: #a0aec0;">
+                    Verification Rule: You are looking for the only letter whose migration leaves the first word intact.
+                </p>
+                <div style="margin-top: 20px; color: var(--cognis-gold); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+                    Morphing Engine: <span id="mig-status">Online</span>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-35">Click a letter above to start the morph...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "One-Sided" Trap:</strong> Most children find a letter that makes a great new word in the second box (e.g., taking the 'H' from CHART to make HEAT) and stop there. They forget to check if the word they left behind (CART) is actually a real word!</p>
+            
+            <p><strong>The Insider Fix: The "Dual Dictionary" Rule.</strong> Tell your child: <i>"The letter is a bridge—if one side collapses, the answer is wrong."</i> They must perform two separate checks: 1. Is the first word still alive? 2. Is the second word newly born? If they don't see two real words, they must put the letter back and try another one. <b>Both words must pass the test.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(35)">Complete Module & Update Lattice</button>
+
+<script>
+    let wordA = "CHART";
+    let wordB = "EAT";
+    let activeIdx = 0;
+
+    function loadPair(a, b) {
+        wordA = a;
+        wordB = b;
+        activeIdx = 0;
+        document.getElementById('slot-slider').max = b.length;
+        document.getElementById('slot-slider').value = 0;
+        updateMorph();
+    }
+
+    function selectLetter(i) {
+        activeIdx = i;
+        updateMorph();
+    }
+
+    function updateMorph() {
+        const boxA = document.getElementById('word-a-box');
+        const displayB = document.getElementById('word-b-display');
+        const slider = document.getElementById('slot-slider');
+        const insPos = parseInt(slider.value);
+
+        boxA.innerHTML = wordA.split('').map((l, i) => 
+            `<div class="letter-node ${i === activeIdx ? 'selected' : ''}" onclick="selectLetter(${i})">${l}</div>`
+        ).join('');
+
+        const stolen = wordA[activeIdx];
+        const newBMarkup = wordB.slice(0, insPos) + `<span class="insertion-point">${stolen}</span>` + wordB.slice(insPos);
+        displayB.innerHTML = newBMarkup;
+
+        const remainA = wordA.slice(0, activeIdx) + wordA.slice(activeIdx + 1);
+        const morphedB = wordB.slice(0, insPos) + stolen + wordB.slice(insPos);
+
+        document.getElementById('trace-35').innerHTML = `
+            <div class="trace-step">→ 1. Selected Letter: <b style="color:var(--cognis-gold)">${stolen}</b></div>
+            <div class="trace-step">→ 2. Remainder Word: <b>${remainA}</b></div>
+            <div class="trace-step">→ 3. New Target Word: <b>${morphedB}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → RESULT: ${remainA} and ${morphedB}
+            </div>
+        `;
+    }
+
+    window.onload = () => loadPair('CHART', 'EAT');
+</script>
+
+</body>
+</html>

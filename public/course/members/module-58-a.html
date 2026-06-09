@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 58: Punctuation Junctions | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚦'; }
+
+        /* INTRO: TRAFFIC SIGNAL */
+        .light-pole { width: 60px; background: #334155; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .light { width: 40px; height: 40px; border-radius: 50%; background: #1e293b; transition: 0.3s; }
+        .light.red.active { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
+        .light.yellow.active { background: #fbbf24; box-shadow: 0 0 15px #fbbf24; }
+        .light.green.active { background: #10b981; box-shadow: 0 0 15px #10b981; }
+
+        /* PROGRESSING: THOUGHT SCALE */
+        .scale-base { width: 100%; max-width: 300px; height: 10px; background: #cbd5e0; border-radius: 5px; position: relative; transition: transform 0.5s; }
+        .clause-weight { width: 120px; padding: 10px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; font-weight: 800; font-size: 0.7rem; text-align: center; position: absolute; top: -50px; transition: all 0.5s; }
+
+        /* SUPPLEMENTAL: JUNCTION ENGINE */
+        .junction-map-s { display: flex; align-items: center; gap: 15px; margin: 20px 0; }
+        .clause-box-s { background: white; border: 2px solid var(--cognis-blue); padding: 15px; border-radius: 8px; font-weight: 900; font-size: 0.75rem; color: var(--cognis-blue); width: 140px; text-align: center; }
+        .punct-symbol-s { font-size: 2.5rem; color: var(--cognis-gold); font-weight: 900; min-width: 30px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 58: Punctuation Junctions</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Traffic Signals</h2>
+            <p>Punctuation marks are road signs for your eyes. They tell you when to <b>Keep Going</b>, when to <b>Pause for Breath</b>, and when to <b>Stop Completely</b> so ideas don't crash into each other.</p>
+            
+            <div class="parent-script">
+                "Look at these three lights. A **Full Stop** is a Red Light (Stop!). A **Comma** is a Green Light (Keep sliding, just a quick breath). A **Semicolon** is a Yellow Light (Slow down, these two thoughts are related). Click the lights to hear the rhythm!"
+            </div>
+
+            <div class="viz-container">
+                <div class="light-pole">
+                    <div id="l-red" class="light red"></div>
+                    <div id="l-yellow" class="light yellow"></div>
+                    <div id="l-green" class="light green"></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:30px;">
+                    <button class="btn-action" onclick="setLight('red')">Full Stop (.)</button>
+                    <button class="btn-action" style="background:var(--cognis-gold)" onclick="setLight('yellow')">Semicolon (;)</button>
+                    <button class="btn-action" style="background:#10b981" onclick="setLight('green')">Comma (,)</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for a signal selection...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Thought Scale</h2>
+            <p>To pick the right punctuation, you must weigh the thoughts. If a thought can stand all by itself, it is <b>Heavy</b>. If it needs help to make sense, it is <b>Light</b>. Semicolons join two Heavy thoughts together.</p>
+            
+            <div class="parent-script">
+                "Look at these clauses. 'The sun came out' is a Heavy thought. 'It was warm' is also Heavy. Because both are equal, they balance the scale perfectly. Click 'Balance' to see the Semicolon act as the perfect hinge for two equal weights."
+            </div>
+
+            <div class="viz-container">
+                <div id="scale-pivot" style="margin-bottom: 50px; text-align: center;">⚖️</div>
+                <div class="scale-base" id="scale-beam">
+                    <div class="clause-weight" style="left: -130px;">"The sun rose" (HEAVY)</div>
+                    <div class="clause-weight" style="right: -130px;">"Birds sang" (HEAVY)</div>
+                </div>
+                <button class="btn-action" style="margin-top:80px;" onclick="balanceScale()">Balance with Semicolon</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Equal thoughts need an equal link.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Punctuation defines the <b>Mechanical Relationship</b> between clauses. A <b>Semicolon (;)</b> glues independent thoughts; a <b>Colon (:)</b> introduces a reveal or list; a <b>Comma (,)</b> manages a brief pause for extra info. Mastering these is the secret to hearing the author's intended rhythm.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Equality</b> "Rain stopped; sun came out." (Two heavy, independent thoughts).</div>
+                <div class="tier-card"><b>Reveal</b> "One thing remained: victory." (Introducing the main event).</div>
+                <div class="tier-card"><b>Intro</b> "Although it was late, he worked on." (Short pause after a fragment).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Junction Map</b>. Observe how the central mark defines the bond. If thoughts are equal partners, they lean on each other via a semicolon. If one thought sets up the other, a colon acts as the introducing drumroll.</p>
+            <div class="anatomy-display" style="background:#f8fafc;">
+                <div class="junction-map-s">
+                    <div class="clause-box-s">THOUGHT A<br><small>The Setup</small></div>
+                    <div class="punct-symbol-s">;</div>
+                    <div class="clause-box-s">THOUGHT B<br><small>The Partner</small></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Load a syntax case. Use the <b>Full Stop Test</b>: if both sides work as independent sentences, you need a stronger link than a comma.</p>
+            <div class="simulation-area" style="background:#1a202c; padding:30px; border-radius:12px;">
+                <div id="s-well" class="sentence-well" style="color:white; font-size:1.3rem;"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <button class="btn-action" style="width:100%; font-size:0.65rem;" onclick="loadSuppCase(0, this)">Case: Two Heavy Thoughts</button>
+                        <button class="btn-action" style="width:100%; font-size:0.65rem;" onclick="loadSuppCase(1, this)">Case: The Drumroll Reveal</button>
+                        <div style="display:flex; gap:5px; margin-top:15px;">
+                            <button class="btn-action" style="flex:1;" onclick="testSuppPunct(',')">,</button>
+                            <button class="btn-action" style="flex:1; background:var(--cognis-gold);" onclick="testSuppPunct(';')">;</button>
+                            <button class="btn-action" style="flex:1; background:#4a5568;" onclick="testSuppPunct(':')">:</button>
+                        </div>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Lazy Comma" Trap:</b> Using a comma to join full sentences because you "take a breath." (e.g. "I'm hungry, I want pizza"). This is a crash!</p>
+                <p><b>The Fix: The "Full Stop Test."</b> <i>"Could we put a full stop here?"</i> If yes, and both sides stand alone, you MUST use a **Semicolon (;)**. Commas are for fragments only.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(58)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Writing Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: LIGHTS --- */
+    function setLight(type) {
+        document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+        document.getElementById('l-' + type).classList.add('active');
+        const msgs = {
+            red: "STOP! The sentence is finished.",
+            yellow: "PAUSE. These two thoughts are distinct but equal.",
+            green: "BREATH. Keep sliding into the next detail."
+        };
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">${msgs[type]}</div>`;
+    }
+
+    /* --- PROGRESSING: SCALE --- */
+    function balanceScale() {
+        document.getElementById('scale-beam').style.transform = "rotate(0deg)";
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Balanced! A <b>Semicolon (;)</b> acts as the perfect hinge for equal thoughts.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sCases = [
+        { t: "The storm was fierce <span id='sg' style='color:var(--cognis-gold)'>?</span> the sailors lowered the sails.", c: ";", log: "Both are independent. Semicolon required." },
+        { t: "He packed three things <span id='sg' style='color:var(--cognis-gold)'>?</span> a map, a snack, and water.", c: ":", log: "Introduction of a list. Colon required." }
+    ];
+    let sIdx = 0;
+    function loadSuppCase(idx, btn) {
+        sIdx = idx;
+        document.getElementById('s-well').innerHTML = sCases[idx].t;
+        document.getElementById('supp-log').innerHTML = "Analyzing clause weights...";
+    }
+    function testSuppPunct(val) {
+        const correct = val === sCases[sIdx].c;
+        document.getElementById('sg').textContent = val;
+        document.getElementById('supp-log').innerHTML = `→ Tool: [ <b>${val}</b> ]<br>→ <b>Result: ${correct?'VALID JUNCTION ✅':'COLLISION ❌'}</b><br><small>${sCases[sIdx].log}</small>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSuppCase(0);
+        if(typeof initModule === "function") initModule(58);
+    });
+</script>
+</body>
+</html>

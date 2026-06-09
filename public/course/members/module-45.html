@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 45: Attribute Matrices | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR MATRIX GRID */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .matrix-container {
+            display: grid;
+            grid-template-columns: repeat(3, 85px);
+            grid-template-rows: repeat(3, 85px);
+            gap: 12px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .matrix-cell {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: #1a202c;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .matrix-cell.target {
+            background: #fffaf0;
+            border: 2px dashed var(--cognis-gold);
+            color: var(--cognis-gold);
+            font-weight: 900;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .btn-rule {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            width: 100%;
+            margin-bottom: 8px;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .btn-rule:hover { color: white; border-color: var(--cognis-gold); }
+        .btn-rule.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: white; }
+
+        .btn-reset {
+            background: transparent;
+            color: #f87171;
+            border: 1px solid #f87171;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            width: 100%;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(45));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 45: Attribute Matrices</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a matrix as <b>"The Logic Intersection."</b> In the 11+, your child will see a 3x3 grid where shapes evolve like a puzzle. The secret weapon is realizing that every cell is governed by two separate laws: the <b>Row Rule</b> (what changes left-to-right) and the <b>Column Rule</b> (what changes top-to-bottom). The missing piece is simply the "fusion" of these two rules. If Row 3 says "Circles" and Column 3 says "Green," then the answer <i>must</i> be a green circle.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Pattern Match</b>
+                Row 1: Red Sq, Blue Sq, Green Sq. <br>Row 2: Red Tr, Blue Tr, [?].
+            </div>
+            <div class="tier-card">
+                <b>The Rotation Grid</b>
+                A 3x3 grid where elements spin 90° clockwise in every successive cell.
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Fusion</b>
+                Size increases down every column, while color alternates across every row.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Attribute Intersection</b>. Point to the rows below—notice that the shape is constant for each horizontal line (Triangles, then Squares, then Circles). The target cell is the blank space at the bottom right. It needs a shape that fits Row 3 <i>and</i> whatever color/rotation rule we set in the engine. Help your child see that the answer is "pinned" by both the row and the column.</p>
+
+        <div class="anatomy-display">
+            <div class="matrix-container" id="matrix-grid">
+                <div class="matrix-cell">▲</div><div class="matrix-cell">▲</div><div class="matrix-cell">▲</div>
+                <div class="matrix-cell">■</div><div class="matrix-cell">■</div><div class="matrix-cell">■</div>
+                <div class="matrix-cell">●</div><div class="matrix-cell">●</div><div class="matrix-cell target">?</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Apply different "Layers" of logic below. Watch the <b>Trace Log</b> to see how the matrix updates. Notice that when both rules are active, the grid becomes much more complex. This is the exact environment your child will face in a Non-Verbal Reasoning paper.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Layer the Logic</label>
+                <button class="btn-rule" id="btn-col" onclick="applyRule('color')">Rule A: Column Color Shift</button>
+                <button class="btn-rule" id="btn-rot" onclick="applyRule('rotate')">Rule B: Row Rotation</button>
+                <button class="btn-reset" onclick="resetMatrix()">Reset Grid</button>
+            </div>
+            <div class="trace-log" id="trace-45">Awaiting rule input...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "One-Track" Trap:</strong> Most children find a single pattern (e.g., "all the shapes in the bottom row are circles") and immediately pick the first circle they see in the options. <b>This is a trap.</b> The examiner will put three different circles in the options, each with a different color or tilt.</p>
+            
+            <p><strong>The Insider Fix: The "Cross-Hair" Method.</strong> Tell your child: <i>"Split the evidence."</i> Have them isolate Attribute 1 (Shape) by looking <b>only</b> at the rows. Then, isolate Attribute 2 (Color or Rotation) by looking <b>only</b> at the columns. They should write these two facts down separately. The correct answer must be the perfect "sum" of both facts. <b>Never guess until both patterns are found.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(45)">Complete Module & Update Lattice</button>
+
+<script>
+    const colPalette = ['#ef4444', '#3b82f6', '#22c55e'];
+    let activeRules = { color: false, rotate: false };
+
+    function applyRule(type) {
+        activeRules[type] = true;
+        document.getElementById('btn-' + (type === 'color' ? 'col' : 'rot')).classList.add('active');
+        updateMatrix();
+    }
+
+    function updateMatrix() {
+        const cells = document.querySelectorAll('.matrix-cell:not(.target)');
+        cells.forEach((cell, i) => {
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+
+            if (activeRules.color) {
+                cell.style.color = colPalette[col];
+            }
+            if (activeRules.rotate) {
+                cell.style.transform = `rotate(${row * 90}deg)`;
+            }
+        });
+
+        const log = document.getElementById('trace-45');
+        let html = `<div class="trace-step">→ 1. Rule Layer: ${activeRules.color ? 'Col-Color' : ''} ${activeRules.rotate ? '& Row-Rotation' : ''}</div>`;
+        
+        if (activeRules.color && activeRules.rotate) {
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → STATUS: ATTRIBUTE FUSION COMPLETE
+                </div>
+                <div class="trace-step" style="font-size:0.7rem; opacity:0.7;">The target must be Row-Shape (Circle) + Col-Color (Green) + Row-Rotation (180°).</div>
+            `;
+        } else {
+            html += `<div class="trace-step">→ 2. Scan: Searching for the second logic layer...</div>`;
+        }
+        log.innerHTML = html;
+    }
+
+    function resetMatrix() {
+        activeRules = { color: false, rotate: false };
+        document.querySelectorAll('.btn-rule').forEach(b => b.classList.remove('active'));
+        const cells = document.querySelectorAll('.matrix-cell');
+        cells.forEach(cell => {
+            cell.style.color = '#1a202c';
+            cell.style.transform = 'rotate(0deg)';
+        });
+        document.getElementById('trace-45').innerHTML = "Ready for new logic scan.";
+    }
+
+    window.onload = () => resetMatrix();
+</script>
+
+</body>
+</html>

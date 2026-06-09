@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 13: Train & Tunnel | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🐛'; }
+
+        /* INTRO: CATERPILLAR VIZ */
+        #caterpillar { transition: transform 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95); }
+        .leaf { fill: #22c55e; stroke: #166534; stroke-width: 2; }
+
+        /* PROGRESSING: MEASURING TAPE */
+        .ruler-line { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 4; }
+        .train-body-f { fill: var(--cognis-gold); stroke: #92400e; stroke-width: 2; rx: 4; transition: all 0.5s; }
+        .tunnel-body-f { fill: #1e293b; opacity: 0.8; }
+        .dist-bracket { stroke: var(--trap-red); stroke-width: 3; fill: none; }
+
+        /* SUPPLEMENTAL: SIMULATION AREA */
+        .simulation-area { background: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 12px; padding: 60px 0; margin: 20px 0; position: relative; overflow: hidden; width: 100%; }
+        .track-line { height: 4px; background: #cbd5e0; width: 100%; position: absolute; top: 60%; left: 0; }
+        .tunnel-block { position: absolute; left: 60%; top: 60%; transform: translate(-50%, -50%); height: 60px; background: rgba(30, 41, 59, 0.9); border: 2px solid #0f172a; z-index: 2; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; }
+        .train-sprite { position: absolute; left: -200px; top: 60%; transform: translateY(-50%); height: 20px; background: var(--cognis-gold); z-index: 3; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; font-weight: 800; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 4px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-interact { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 13: Train & Tunnel</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Caterpillar's Tail</h2>
+            <p>In the 11+, a train isn't a tiny dot. It’s long! Imagine a caterpillar crawling under a leaf. To be "completely through," its nose has to come out, but its **tail** has to follow. The journey isn't finished until the very last bit clears the exit.</p>
+            
+            <div class="parent-script">
+                "Look at our caterpillar. He's 4 segments long. Click 'Crawl' and watch his nose reach the end of the leaf. Is he through yet? No! He has to keep crawling until his tail is out. That 'extra crawl' is the length of his own body."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150">
+                    <path d="M150,75 Q200,30 250,75 Q200,120 150,75" class="leaf" />
+                    <g id="caterpillar" transform="translate(20, 75)">
+                        <circle cx="0" cy="0" r="10" fill="#a3e635" stroke="#4d7c0f" />
+                        <circle cx="-15" cy="0" r="10" fill="#a3e635" stroke="#4d7c0f" />
+                        <circle cx="-30" cy="0" r="10" fill="#a3e635" stroke="#4d7c0f" />
+                        <circle cx="-45" cy="0" r="10" fill="#bef264" stroke="#4d7c0f" />
+                        <text x="2" y="3" font-size="8">👀</text>
+                    </g>
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-bottom: 10px;" id="cat-status">Position: STARTING</div>
+                <button class="btn-interact" onclick="moveCaterpillar()">Crawl Forward!</button>
+                <button class="btn-interact" style="background:#94a3b8; font-size:0.7rem; padding: 5px 10px; margin-top:10px;" onclick="resetCaterpillar()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Help the caterpillar get all the way through!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Measuring Tape</h2>
+            <p>To find the <b>True Distance</b>, we use a simple rule: **Add the Train to the Tunnel**. We don't just measure the tunnel; we measure from where the nose starts to where the tail finishes. This "Stretched Distance" is the secret to getting the math right.</p>
+            
+            <div class="parent-script">
+                "Adjust the sliders. Watch the red measuring bracket at the top. It doesn't just cover the tunnel; it covers the tunnel **plus** the extra space the train needs to pull its tail out. That’s our 'True Distance'."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200" id="prog-svg">
+                    <rect id="prog-tunnel" x="150" y="80" width="150" height="40" class="tunnel-body-f" />
+                    <rect id="prog-train" x="50" y="85" width="80" height="30" class="train-body-f" />
+                    <path id="prog-bracket" d="M50 40 L50 30 L300 30 L300 40" class="dist-bracket" />
+                    <text x="175" y="20" text-anchor="middle" font-weight="900" font-size="12" fill="var(--trap-red)">TRUE DISTANCE</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Train Length</label>
+                        <input type="range" min="40" max="120" value="80" id="prog-train-val" oninput="updateProg()">
+                    </div>
+                    <div class="control-group">
+                        <label>Tunnel Length</label>
+                        <input type="range" min="100" max="200" value="150" id="prog-tun-val" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('13-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>In the 11+, a train isn't a point—it’s a long object. For a train to pass a tunnel or platform, the nose has to enter, but the <b>tail</b> has to clear the exit. This means the total distance is the length of the obstacle <b>plus</b> the length of the train itself.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Signal Post</b> "A 50m train passes a signal post. How far does the front travel before the back clears?"</div>
+                <div class="tier-card"><b>The Mountain Tunnel</b> "A 100m train goes through a 300m tunnel. Find the total distance covered."</div>
+                <div class="tier-card"><b>Speed Challenge</b> "A 200m train passes a 400m platform in 30s. What is the speed in m/s?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Notice the <b>Total Journey</b>. The distance isn't just the dark tunnel box. It’s the entire path from the moment the "nose" touches the entrance to the moment the "tail" disappears. The train travels its own length just to get its bottom out of the door.</p>
+            <div class="simulation-area" id="sim-area-s">
+                <div class="track-line"></div>
+                <div id="s-tunnel" class="tunnel-block">TUNNEL</div>
+                <div id="s-train" class="train-sprite">TRAIN</div>
+                <div id="s-status" style="position:absolute; top:10px; width:100%; text-align:center; font-weight:800; font-size:0.7rem; color:var(--cognis-blue);">READY</div>
+            </div>
+            <div style="text-align:center;"><button class="btn-interact" style="background:var(--cognis-gold);" onclick="runSuppSim()">Watch Clearance</button></div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the lengths. Watch how the <b>True Distance</b> is always the sum of both. The math is only finished when the status says "TAIL CLEARED."</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Train Length (m)</label><input type="number" id="in-t" value="180" oninput="updateSupp()"></div>
+                    <div class="control-group"><label>Tunnel Length (m)</label><input type="number" id="in-l" value="400" oninput="updateSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Front-Door" Trap:</b> Children often use only the tunnel length (e.g. 400m). At 400m, the nose is out, but the body is still stuck inside!</p>
+                <p><b>The Fix: The "String and Tube" Rule.</b> Imagine pulling a 2m string through a 4m tube. To get it all out, you pull 6m. **Always add the Train + Tunnel.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(13)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Motion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: CATERPILLAR --- */
+    let catStep = 0;
+    function resetCaterpillar() { catStep = 0; renderCat(); }
+    function moveCaterpillar() { if(catStep < 2) catStep++; renderCat(); }
+    function renderCat() {
+        const cat = document.getElementById('caterpillar');
+        const status = document.getElementById('cat-status');
+        const log = document.getElementById('intro-log');
+        if(catStep === 0) {
+            cat.style.transform = "translate(140px, 75px)";
+            status.innerText = "Position: AT THE START";
+            log.innerHTML = "Ready! The leaf is ahead.";
+        } else if(catStep === 1) {
+            cat.style.transform = "translate(250px, 75px)";
+            status.innerText = "Position: NOSE AT EXIT";
+            log.innerHTML = "Wait! His nose is out, but look at the tail. He's still under the leaf!";
+        } else {
+            cat.style.transform = "translate(310px, 75px)";
+            status.innerText = "Position: TAIL CLEARED";
+            log.innerHTML = "Success! He had to move his **own length** extra to get his tail out.";
+        }
+    }
+
+    /* --- PROGRESSING: MEASURING TAPE --- */
+    function updateProg() {
+        const trainL = parseInt(document.getElementById('prog-train-val').value);
+        const tunL = parseInt(document.getElementById('prog-tun-val').value);
+        const total = trainL + tunL;
+
+        document.getElementById('prog-train').setAttribute("width", trainL / 1.5);
+        document.getElementById('prog-tunnel').setAttribute("width", tunL / 1.5);
+        document.getElementById('prog-tunnel').setAttribute("x", 100 + (trainL / 1.5));
+        
+        const startX = 100;
+        const endX = 100 + (trainL / 1.5) + (tunL / 1.5);
+        document.getElementById('prog-bracket').setAttribute("d", `M${startX} 40 L${startX} 30 L${endX} 30 L${endX} 40`);
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">Train (${trainL}m) + Tunnel (${tunL}m)</div>
+            <div class="discovery-step">True Distance = <b>${total}m</b>.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: SIM --- */
+    function updateSupp() {
+        const t = parseInt(document.getElementById('in-t').value) || 100;
+        const l = parseInt(document.getElementById('in-l').value) || 100;
+        document.getElementById('s-train').style.width = (t/2) + "px";
+        document.getElementById('s-tunnel').style.width = (l/2) + "px";
+        document.getElementById('s-train').style.left = "-200px";
+        document.getElementById('s-status').innerText = "READY";
+        document.getElementById('supp-log').innerHTML = `→ Train: ${t}m | Tunnel: ${l}m<br>→ <b>Total: ${t+l}m</b>`;
+    }
+
+    async function runSuppSim() {
+        const tr = document.getElementById('s-train');
+        const tu = document.getElementById('s-tunnel');
+        const st = document.getElementById('s-status');
+        const area = document.getElementById('sim-area-s').getBoundingClientRect();
+        const tuRect = tu.getBoundingClientRect();
+        const startX = tuRect.left - area.left;
+        const exitX = tuRect.right - area.left;
+
+        tr.style.transition = 'none'; tr.style.left = "-200px";
+        await new Promise(r => setTimeout(r, 50));
+        
+        st.innerText = "NOSE ENTERING...";
+        tr.style.transition = "left 1s linear";
+        tr.style.left = (startX - tr.offsetWidth) + "px";
+        await new Promise(r => setTimeout(r, 1100));
+
+        st.innerText = "BODY INSIDE...";
+        tr.style.transition = "left 1.5s linear";
+        tr.style.left = exitX + "px";
+        await new Promise(r => setTimeout(r, 1600));
+
+        st.innerText = "TAIL CLEARED! ✅";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetCaterpillar(); updateProg();
+        if(document.getElementById('in-t')) updateSupp();
+        if(typeof initModule === "function") initModule(13);
+    });
+</script>
+</body>
+</html>

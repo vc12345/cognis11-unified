@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 57: Cloze (Grammatical) | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🏗️'; }
+
+        /* INTRO: SHAPE SORTER */
+        .slot-f { width: 100px; height: 100px; border: 4px dashed var(--cognis-blue); display: flex; align-items: center; justify-content: center; position: relative; margin: 10px; }
+        .shape-noun { width: 60px; height: 60px; background: var(--cognis-blue); }
+        .shape-verb { width: 0; height: 0; border-left: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 60px solid var(--cognis-gold); }
+        .draggable-word { padding: 10px 15px; background: white; border: 2px solid #cbd5e0; border-radius: 6px; font-weight: 800; cursor: grab; position: absolute; bottom: 40px; }
+
+        /* PROGRESSING: ROBOT PROXY */
+        .proxy-card { background: white; border: 2px solid var(--cognis-blue); padding: 20px; border-radius: 12px; text-align: center; width: 100%; max-width: 350px; }
+        .proxy-btn { background: #f1f5f9; border: 1px solid #cbd5e0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; margin: 5px; }
+        .proxy-btn.active { background: var(--cognis-gold); color: white; border-color: var(--cognis-gold); }
+
+        /* SUPPLEMENTAL: BLUEPRINT */
+        .anatomy-display-s { background: #f8fafc; padding: 30px; border-radius: 12px; }
+        .syntax-map-s { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .blueprint-slot-s { padding: 10px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; font-size: 0.6rem; font-weight: 900; text-align: center; }
+        .blueprint-slot-s.ext { border-color: var(--cognis-gold); border-style: dashed; }
+        .grammar-well-s { background: #1a202c; color: white; padding: 25px; border-radius: 12px; margin-top: 20px; text-align: center; font-size: 1.2rem; }
+        .syntax-gap-s { border-bottom: 2px solid var(--cognis-gold); color: var(--cognis-gold); font-weight: 800; padding: 0 10px; min-width: 100px; display: inline-block; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 57: Cloze (Grammatical)</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Word Sorter</h2>
+            <p>A sentence is like a machine with different shaped holes. A **Noun** (Person/Place/Thing) is a square. A **Verb** (Action) is a triangle. You can't put a triangle in a square hole! Grammatical Cloze is just finding the right shape for the gap.</p>
+            
+            <div class="parent-script">
+                "Look at our sentence: 'The ______ ran.' The hole is triangular—it needs an action! Click 'Jump' to see if it fits the Verb slot. Notice that 'Table' (a square noun) just won't work there because it's the wrong part of speech."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:30px; align-items:center; margin-bottom:40px;">
+                    <div class="slot-f" id="slot-sq"><div class="logic-label" style="position:absolute; top:-20px;">NOUN</div></div>
+                    <div class="slot-f" id="slot-tri"><div class="logic-label" style="position:absolute; top:-20px;">VERB</div></div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="testIntroShape('noun')">Snap 'Apple' (Noun)</button>
+                    <button class="btn-action" style="background:var(--cognis-gold)" onclick="testIntroShape('verb')">Snap 'Run' (Verb)</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Only the matching shape will lock in.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Robot Proxy</h2>
+            <p>If you don't know which word fits a gap, use a **Robot Proxy**. Try saying "Thingy" (for Nouns) or "Doing-it" (for Verbs). If "Thingy" sounds right in the sentence, you are looking for a Noun in your word bank!</p>
+            
+            <div class="parent-script">
+                "Sentence: 'The ______ was very tall.' Let's try our proxies. 'The **Doing-it** was very tall'? No! 'The **Thingy** was very tall'? Yes! That sounds correct. Now we know for sure the missing word is a Noun."
+            </div>
+
+            <div class="viz-container">
+                <div class="proxy-card">
+                    <p style="font-size:1.1rem; margin-bottom:20px;">"The <span id="proxy-gap" style="color:var(--cognis-gold); font-weight:800;">______</span> was very tall."</p>
+                    <button class="proxy-btn" onclick="setProxy('Doing-it', 'Verb')">Proxy: Doing-it</button>
+                    <button class="proxy-btn" onclick="setProxy('Thingy', 'Noun')">Proxy: Thingy</button>
+                </div>
+                <button class="btn-action" style="margin-top:30px;" onclick="runProgProxy()">Run Logic Check</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Use proxies to identify the word's job.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"Sentence Engineering."</b> Grammatical cloze isn't about the story—it's about the <b>Syntactic Skeleton</b>. Identify the "Job" the missing word is hired to do. Core pillars (Nouns/Verbs) hold the weight, while expansion modules (Adjectives/Adverbs) add data.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Noun Detailer</b> "The ______ cat slept." Slot: Adjective (Info about cat).</div>
+                <div class="tier-card"><b>Action Engine</b> "He ______ through the park." Slot: Verb (Primary action).</div>
+                <div class="tier-card"><b>Verb Detailer</b> "The plane landed ______." Slot: Adverb (Info about landing).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Skeleton Map</b>. The Noun and Verb are the Pillars. Adjectives and Adverbs are "snap-on" modules. If you identify which part is missing, you can eliminate 75% of the word bank instantly.</p>
+            <div class="anatomy-display-s">
+                <div class="syntax-map-s">
+                    <div class="blueprint-slot-s ext">ADJECTIVE<br><small>Modifies Noun</small></div>
+                    <div class="blueprint-slot-s">NOUN<br><small>The Subject</small></div>
+                    <div class="blueprint-slot-s">VERB<br><small>The Action</small></div>
+                    <div class="blueprint-slot-s ext">ADVERB<br><small>Modifies Verb</small></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Load a blueprint. Identify the missing "Word Class." Remember: if a word ends in <i>-ly</i>, it's usually an Adverb; if it ends in <i>-ed</i>, it's likely a Verb.</p>
+            <div class="simulation-area-s">
+                <div id="s-well" class="grammar-well-s"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <button class="btn-load-s active" onclick="loadSuppCase(0, this)">Case: Adjective Slot</button>
+                        <button class="btn-load-s" onclick="loadSuppCase(1, this)">Case: Verb Slot</button>
+                        <button class="btn-load-s" onclick="loadSuppCase(2, this)">Case: Adverb Slot</button>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Cool Story" Trap:</b> Picking a word that sounds exciting but is grammatically broken. (e.g. "The *Bravely* explorer").</p>
+                <p><b>The Fix: The "Substitution Test."</b> <i>"Look at the neighbors."</i> If the gap is between 'The' and a 'Noun', it **must** be an Adjective. Try swapping in "Big" or "Red." If they fit, the grammar is set.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(57)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SHAPES --- */
+    function testIntroShape(type) {
+        const sq = document.getElementById('slot-sq');
+        const tri = document.getElementById('slot-tri');
+        sq.innerHTML = ''; tri.innerHTML = '';
+        if(type === 'noun') {
+            sq.innerHTML = '<div class="shape-noun"></div>';
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Success! <b>Apple</b> is a Noun (Square) and fits the Subject slot.</div>`;
+        } else {
+            tri.innerHTML = '<div class="shape-verb"></div>';
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Success! <b>Run</b> is a Verb (Triangle) and fits the Action slot.</div>`;
+        }
+    }
+
+    /* --- PROGRESSING: PROXY --- */
+    let currentProxy = '';
+    function setProxy(val, type) {
+        currentProxy = type;
+        document.getElementById('proxy-gap').textContent = val;
+        document.querySelectorAll('.proxy-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+    function runProgProxy() {
+        if(currentProxy === 'Noun') {
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Correct! 'The <b>Thingy</b> was tall' works perfectly. We need a Noun.</div>`;
+        } else {
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Mismatched. 'The <b>Doing-it</b> was tall' sounds broken. It's not a Verb.</div>`;
+        }
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sCases = [
+        { t: "The <span class='syntax-gap-s' id='sg'>________</span> explorer found a cave.", target: "ADJECTIVE", log: "Describes a Noun (Explorer)." },
+        { t: "The giant <span class='syntax-gap-s' id='sg'>________</span> across the field.", target: "VERB", log: "Misses the central Action." },
+        { t: "The scientist watched the test <span class='syntax-gap-s' id='sg'>________</span>.", target: "ADVERB", log: "Describes the Action (Watched)." }
+    ];
+    let sIdx = 0;
+    function loadSuppCase(idx, btn) {
+        sIdx = idx;
+        document.querySelectorAll('.btn-load-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('s-well').innerHTML = sCases[idx].t;
+        document.getElementById('supp-log').innerHTML = `→ Skeleton: <b>${sCases[idx].target} Slot</b><br>→ Analysis: ${sCases[idx].log}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSuppCase(0, document.querySelector('.btn-load-s'));
+        if(typeof initModule === "function") initModule(57);
+    });
+</script>
+</body>
+</html>

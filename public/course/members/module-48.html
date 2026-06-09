@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 48: Non-Standard Nets | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR NET BLUEPRINTS */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 40px; 
+            border-radius: 12px; 
+            margin: 20px 0; 
+            text-align: center;
+            border: 2px solid #2d3748;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #net-svg { 
+            width: 100%; 
+            max-width: 550px; 
+            height: 400px; 
+            stroke: var(--cognis-gold); 
+            stroke-width: 2.5; 
+            fill: rgba(197, 160, 89, 0.1);
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.5));
+        }
+
+        .engine-container { grid-template-columns: 1.1fr 1fr; }
+        
+        .type-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .btn-logic { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
+            width: 100%; text-align: left; transition: 0.2s;
+            margin-bottom: 8px;
+        }
+        .btn-logic:hover { background: #4a5568; color: white; }
+        .btn-logic.active { 
+            background: var(--cognis-gold); 
+            color: white; 
+            border-color: white;
+            box-shadow: 0 4px 12px rgba(197, 160, 89, 0.3);
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #4a5568;
+            color: white;
+            font-weight: 900;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-btn.active { background: var(--cognis-blue); color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(48));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 48: Non-Standard Nets</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a net as the <b>"Unfolded Cardboard Skeleton"</b> of a 3D shape. While cubes are common, the 11+ often throws weird shapes like pyramids and prisms at your child. The secret weapon is identifying the <b>Base Shape</b> first. Once you know the "Floor," you know exactly how many "Walls" the shape needs to close. <b>Pyramids</b> have one floor and a star of triangles; <b>Prisms</b> have two identical floors connected by a belt of rectangles.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Pyramid Point</b>
+                "Count the triangles on a square-based pyramid. Why must there be exactly four?"
+            </div>
+            <div class="tier-card">
+                <b>The Prism Belt</b>
+                "A pentagonal prism is unfolded. How many rectangular panels are needed to wrap it?"
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Gap Test</b>
+                "Look at an octagonal solid net. How many side-flaps are missing if there are only six rectangles?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Blueprint Generator</b>. Toggle between a Pyramid and a Prism below. Notice that as you add more sides to the <b>Floor</b> (the shaded gold area), the number of <b>Walls</b> attached to it must increase perfectly to match. If a floor has 5 sides, but the net only has 4 walls, that shape will always have a "leak" when folded.</p>
+        
+        <div class="anatomy-display">
+            <svg id="net-svg" viewBox="0 0 400 400"></svg>
+            <p style="margin-top: 20px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
+                Structural Audit: Floor edges must match Wall counts
+            </p>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the controls to build different blueprints. Ask your child: <i>"If this floor has 6 sides, how many rectangles do we need to make the walls?"</i> Watch the <b>Trace Log</b> to confirm the mathematical relationship between the base and the faces.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 10px;">1. Select Shape Type</label>
+                <div class="type-toggle">
+                    <button class="toggle-btn active" id="type-pyramid" onclick="setType('pyramid')">Pyramid</button>
+                    <button class="toggle-btn" id="type-prism" onclick="setType('prism')">Prism</button>
+                </div>
+
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 10px;">2. Expand the Floor</label>
+                <button class="btn-logic active" id="side-3" onclick="setSides(3)">Triangle Base</button>
+                <button class="btn-logic" id="side-4" onclick="setSides(4)">Square Base</button>
+                <button class="btn-logic" id="side-5" onclick="setSides(5)">Pentagon Base</button>
+                <button class="btn-logic" id="side-6" onclick="setSides(6)">Hexagon Base</button>
+            </div>
+            <div class="trace-log" id="trace-48">Select a geometry to calculate the blueprint...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Inventory Only" Trap:</strong> Most children assume a net is correct just because it has the right number of shapes. For example, they see a pentagon and 5 triangles and click "Correct." <b>Stop!</b> If those triangles are all clumped on one side of the pentagon, they can't fold up to meet at the top.</p>
+            
+            <p><strong>The Insider Fix: The "Edge-to-Wall" Rule.</strong> Tell your child: <i>"Every side of the floor needs a wall."</i> They should physically count the edges of the base shape. Then, they must check that there is a face ready to fold up from <b>each</b> of those edges. If any side of the floor is "empty," the net is an impostor. <b>Connection beats counting every time.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(48)">Complete Module & Update Lattice</button>
+
+<script>
+    let currentType = 'pyramid';
+    let currentSides = 3;
+
+    function setType(t) {
+        currentType = t;
+        document.getElementById('type-pyramid').classList.toggle('active', t === 'pyramid');
+        document.getElementById('type-prism').classList.toggle('active', t === 'prism');
+        draw();
+    }
+
+    function setSides(s) {
+        currentSides = s;
+        [3, 4, 5, 6].forEach(n => {
+            const btn = document.getElementById('side-' + n);
+            if (btn) btn.classList.toggle('active', n === s);
+        });
+        draw();
+    }
+
+    function draw() {
+        const svg = document.getElementById('net-svg');
+        svg.innerHTML = '';
+        const cx = 200, cy = 200;
+        const edgeLength = 50; 
+
+        if (currentType === 'pyramid') {
+            const r = edgeLength / (2 * Math.sin(Math.PI / currentSides));
+            const angleOffset = -Math.PI / 2 - (Math.PI / currentSides);
+            
+            let basePts = [];
+            for (let i = 0; i < currentSides; i++) {
+                let a = angleOffset + (i * 2 * Math.PI / currentSides);
+                basePts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+            }
+            
+            svg.innerHTML += `<polygon points="${basePts.map(p => p.join(',')).join(' ')}" style="fill:rgba(197, 160, 89, 0.3); stroke-width:3;"/>`;
+
+            const triHeight = 80;
+            for (let i = 0; i < currentSides; i++) {
+                let p1 = basePts[i], p2 = basePts[(i + 1) % currentSides];
+                let midX = (p1[0] + p2[0]) / 2, midY = (p1[1] + p2[1]) / 2;
+                let dx = midX - cx, dy = midY - cy;
+                let mag = Math.sqrt(dx * dx + dy * dy);
+                let tipX = midX + (dx / mag) * triHeight, tipY = midY + (dy / mag) * triHeight;
+                svg.innerHTML += `<polygon points="${p1[0]},${p1[1]} ${p2[0]},${p2[1]} ${tipX},${tipY}" />`;
+            }
+        } else {
+            const rectH = 80;
+            const totalWidth = currentSides * edgeLength;
+            const startX = cx - (totalWidth / 2);
+            const startY = cy - (rectH / 2);
+
+            for (let i = 0; i < currentSides; i++) {
+                svg.innerHTML += `<rect x="${startX + i * edgeLength}" y="${startY}" width="${edgeLength}" height="${rectH}" />`;
+            }
+
+            const apothem = edgeLength / (2 * Math.tan(Math.PI / currentSides));
+            const r = edgeLength / (2 * Math.sin(Math.PI / currentSides));
+            
+            const drawBase = (isTop) => {
+                let pts = [];
+                const centerY = isTop ? (startY - apothem) : (startY + rectH + apothem);
+                const centerX = startX + (edgeLength / 2);
+                const offset = isTop ? (Math.PI / 2 - Math.PI / currentSides) : (-Math.PI / 2 - Math.PI / currentSides);
+
+                for (let i = 0; i < currentSides; i++) {
+                    let a = offset + (i * 2 * Math.PI / currentSides);
+                    pts.push(`${centerX + r * Math.cos(a)},${centerY + r * Math.sin(a)}`);
+                }
+                svg.innerHTML += `<polygon points="${pts.join(' ')}" style="fill:rgba(197, 160, 89, 0.3); stroke-width:3;"/>`;
+            };
+
+            drawBase(true);
+            drawBase(false);
+        }
+
+        document.getElementById('trace-48').innerHTML = `
+            <div class="trace-step">→ 1. Object: <b>${currentSides}-Sided ${currentType.charAt(0).toUpperCase() + currentType.slice(1)}</b></div>
+            <div class="trace-step">→ 2. Wall Count: <b>${currentSides} faces</b></div>
+            <div class="trace-step">→ 3. Floor Verification: Correct base symmetry.</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → BLUEPRINT VALIDATED
+            </div>
+        `;
+    }
+
+    window.onload = draw;
+</script>
+
+</body>
+</html>

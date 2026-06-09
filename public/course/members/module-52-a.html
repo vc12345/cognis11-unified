@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 52: Explicit Retrieval | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🎯'; }
+
+        /* INTRO: HIGHLIGHTER HUNT */
+        .sentence-strip { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 1.2rem; font-weight: 700; color: #4a5568; line-height: 1.6; }
+        .highlighter-pen { width: 40px; height: 100px; background: #fbbf24; border-radius: 4px 4px 20px 20px; position: absolute; transition: all 0.5s; cursor: grab; }
+        .highlight-target { background: #fef3c7; border-bottom: 3px solid #fbbf24; }
+
+        /* PROGRESSING: NOUN MAGNET */
+        .question-bubble { background: var(--cognis-blue); color: white; padding: 15px; border-radius: 12px; font-weight: 800; margin-bottom: 20px; position: relative; }
+        .hook-tag { background: var(--cognis-gold); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px; }
+        .text-passage-f { background: white; border: 1px solid #cbd5e0; padding: 20px; border-radius: 8px; color: #64748b; line-height: 1.8; }
+        .text-passage-f b { color: var(--cognis-blue); text-decoration: underline; cursor: pointer; transition: 0.2s; }
+        .text-passage-f b:hover { background: #eff6ff; }
+
+        /* SUPPLEMENTAL: RETRIEVAL HUD */
+        .hud-container-s { background: #0f172a; border: 1px solid var(--cognis-gold); padding: 25px; border-radius: 8px; color: #94a3b8; font-family: 'Consolas', monospace; position: relative; overflow: hidden; width: 100%; }
+        .scan-line-s { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--cognis-gold); opacity: 0.3; animation: scan-s 3s linear infinite; box-shadow: 0 0 15px var(--cognis-gold); }
+        @keyframes scan-s { 0% { top: 0% } 100% { top: 100% } }
+        .fact-node-s { cursor: pointer; padding: 0 2px; border-bottom: 1px solid transparent; transition: 0.2s; font-weight: 700; color: #cbd5e0; }
+        .fact-node-s:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
+        .fact-node-s.hit { background: var(--pass-green); color: white; }
+        .fact-node-s.miss { background: #ef4444; color: white; text-decoration: line-through; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-scan-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 6px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; }
+        .btn-scan-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 52: Explicit Retrieval</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Highlighter Hunt</h2>
+            <p>Explicit Retrieval is like a "Find the Detail" game. The answer isn't a secret—it's written right there on the paper. To find it, you have to ignore all the other words and hunt for the one thing the question asks for.</p>
+            
+            <div class="parent-script">
+                "Question: **What color was the cat's collar?** Let's look at the sentence. Click 'Highlight' to sweep the yellow pen across. Notice how our eyes stop the moment we see the color word 'Green'!"
+            </div>
+
+            <div class="viz-container">
+                <div class="sentence-strip" id="intro-sentence">
+                    The fluffy cat sat on the mat wearing a <span id="intro-target">green</span> collar.
+                </div>
+                <button class="btn-action" onclick="runIntroHighlight()">Highlight the Answer</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Hunt</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting to scan the sentence...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Noun Magnet</h2>
+            <p>To find an answer fast, don't read the whole story. Read the question first and find the **Hook** (the special name or object). Then, use your eyes like a magnet to find that same word in the text!</p>
+            
+            <div class="parent-script">
+                "Question: **What did Professor Snape find?** The Hook is 'Professor Snape'. Click the 'Hook' in the question, then click where Snape is hiding in the text. See how the Hook leads you straight to the answer?"
+            </div>
+
+            <div class="viz-container">
+                <div class="question-bubble">
+                    What did Professor Snape find? <span class="hook-tag" onclick="markHook()">HOOK: PROFESSOR SNAPE</span>
+                </div>
+                <div class="text-passage-f">
+                    The hall was empty. <b id="hook-match" onclick="matchHook()">Professor Snape</b> walked slowly toward the desk. He reached down and picked up a <span id="prog-ans" style="color:var(--cognis-gold); font-weight:800; opacity:0;">silver key</span>.
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Identify the "Hook" noun to save time.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of Explicit Retrieval as <b>"Data Mining."</b> Some answers aren't hidden behind clues—they are literally printed on the page. The secret weapon is the <b>"Hook and Type"</b> system. Program your brain with a specific **Noun** (the Hook) and a **Question Word** (the Type, like "Who" or "When") to filter the noise.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Catcher</b> "The cat wore a <i>blue</i> collar." Q: What color? (Target: Adjective)</div>
+                <div class="tier-card"><b>The Runner</b> "Snape left at <i>midnight</i>." Q: When? (Target: Time/Date)</div>
+                <div class="tier-card"><b>The Link</b> "Signed in <i>Berlin</i>." Q: Where? (Target: Place Name)</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Fact HUD</b>. Program your query before looking at the text. Narrowing your vision tells the eyes to ignore filler words and hunt for specific data types (digits for "When", Capitals for "Who"). Extraction speed is the goal.</p>
+            <div class="anatomy-display-s" style="background:#0f172a;">
+                <div class="hud-container-s">
+                    <div class="scan-line-s"></div>
+                    <div style="font-size:0.8rem; margin-bottom:10px;">QUERY: "When was the base built?"</div>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div style="border:1px solid #3b82f6; padding:5px 10px; font-size:0.6rem; color:white;">TYPE: WHEN (Numbers)</div>
+                        <div style="border:1px solid var(--cognis-gold); padding:5px 10px; font-size:0.6rem; color:white;">HOOK: BASE (Target)</div>
+                    </div>
+                    <div style="color:var(--pass-green); font-size:0.7rem; font-weight:800;">SCAN STATUS: FILTERING FOR TEMPORAL DATA</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Choose a retrieval type to set the "Filter." Then, click the correct word in the passage to retrieve the data point.</p>
+            <div class="anatomy-display-s" style="text-align:left; background:#1a202c; border:1px solid #2d3748;">
+                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; line-height:1.8; color:#cbd5e0; margin-bottom:20px;">
+                    In <span class="fact-node-s" data-type="when">1924</span>, the <span class="fact-node-s" data-type="who">Explorer Finch</span> discovered the <span class="fact-node-s" data-type="what">Emerald Idol</span> inside a <span class="fact-node-s" data-type="where">hidden cave</span>.
+                </div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <button class="btn-scan-s active" onclick="setSuppScan('when', this)">WHEN <span>(Digits)</span></button>
+                        <button class="btn-scan-s" onclick="setSuppScan('who', this)">WHO <span>(Name)</span></button>
+                        <button class="btn-scan-s" onclick="setSuppScan('where', this)">WHERE <span>(Place)</span></button>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Enjoyment" Trap:</b> Most children read the entire story first because they find it interesting. This burns 3 minutes of clock time before they even see a question!</p>
+                <p><b>The Fix: The "Sacrificial Scan."</b> <i>"Don't read the story, solve the mystery."</i> Read the question **first**. Identify the Hook and the Type. Use a finger to scan in a fast 'Z' shape, ignoring every word that doesn't match the target type.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(52)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: HIGHLIGHT --- */
+    function runIntroHighlight() {
+        document.getElementById('intro-target').classList.add('highlight-target');
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Data Located! The answer was <b>Green</b>. We skipped all other words.</div>`;
+    }
+    function resetIntro() { 
+        document.getElementById('intro-target').classList.remove('highlight-target');
+        document.getElementById('intro-log').innerHTML = "Hunt reset.";
+    }
+
+    /* --- PROGRESSING: MAGNET --- */
+    function markHook() {
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Hook Set: <b>Professor Snape</b>. Now find that name in the text!</div>`;
+    }
+    function matchHook() {
+        document.getElementById('hook-match').style.background = '#fef3c7';
+        document.getElementById('prog-ans').style.opacity = '1';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Match Found! Looking right after the hook, we found the answer: <b>Silver Key</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sActiveType = 'when';
+    function setSuppScan(type, btn) {
+        sActiveType = type;
+        document.querySelectorAll('.btn-scan-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.fact-node-s').forEach(n => n.classList.remove('hit', 'miss'));
+        document.getElementById('supp-log').innerHTML = `→ Scan: Tracking <b>${type.toUpperCase()}</b><br>→ Filter active.`;
+    }
+
+    document.querySelectorAll('.fact-node-s').forEach(node => {
+        node.addEventListener('click', function() {
+            if(this.dataset.type === sActiveType) {
+                this.classList.add('hit');
+                document.getElementById('supp-log').innerHTML = `→ Detect: <b>"${this.innerText}"</b><br>→ <b>Result: DATA RETRIEVED ✅</b>`;
+            } else {
+                this.classList.add('miss');
+                document.getElementById('supp-log').innerHTML = `→ Detect: <b>"${this.innerText}"</b><br>→ <b>Result: TYPE MISMATCH ❌</b>`;
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('supp-log')) setSuppScan('when', document.querySelector('.btn-scan-s'));
+        if(typeof initModule === "function") initModule(52);
+    });
+</script>
+</body>
+</html>

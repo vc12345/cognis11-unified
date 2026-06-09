@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 8: Fractions of Amounts | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR DYNAMIC FRACTION BAR */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .fraction-bar-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bar-frame {
+            width: 100%;
+            height: 60px;
+            background: white;
+            border: 3px solid var(--cognis-blue);
+            border-radius: 10px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .slice {
+            flex: 1;
+            height: 100%;
+            border-right: 1px solid #cbd5e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+        }
+        .slice:last-child { border-right: none; }
+
+        .slice.active {
+            background: var(--cognis-gold);
+            color: white;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 900;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--cognis-blue);
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        input[type=number], input[type=range] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a5568;
+            background: #2d3748;
+            color: white;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+
+        input[type=range] { accent-color: var(--cognis-gold); cursor: pointer; }
+
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+        .val-display { color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(8));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 8: Fractions of Amounts</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of a fraction as two simple instructions: <b>Slice and Collect</b>. The bottom number tells you how many equal slices to cut your total into. The top number tells you how many of those slices to put on your plate. To solve any 11+ fraction problem, we always find the "weight" of <b>just one slice</b> first.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Sweet Shop</b>
+                "Find 1/2 of 12 sweets. How many go into each of the two groups?"
+            </div>
+            <div class="tier-card">
+                <b>The Birthday Cake</b>
+                "A cake weighs 500g and is cut into 5 slices. If 3 are eaten, how much did they weigh?"
+            </div>
+            <div class="tier-card">
+                <b>The Long Run</b>
+                "A 40km race is 5/8 complete. How many km are left? (Hint: Find the 3/8 left over)."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>The <b>Cutter and the Plate</b>. Point to the bar below. The lines show where the "Cutter" (the bottom number) has sliced the total into equal boxes. Each box—our <b>Golden Unit</b>—holds the same value. To find that value, we divide the grand total by the number of boxes.</p>
+        
+        <div class="anatomy-display">
+            <div class="fraction-bar-container">
+                <div class="bar-frame" id="viz-bar">
+                    </div>
+                <div class="label-row">
+                    <span>Value of 1 Box: <span id="unit-label">£25</span></span>
+                    <span style="color:var(--cognis-gold)">Total Collected: <span id="total-label">£75</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Move the sliders with your child and watch the "Cutter" (Denominator) change the size of the boxes. Then, use the "Collector" (Numerator) to grab the boxes you want. Notice we always <b>divide</b> to find one box before we <b>multiply</b> to get the total.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Grand Total (£):</label>
+                    <input type="number" id="amt-in" value="100" oninput="run8()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>The Cutter (Bottom): <span class="val-display" id="d-disp">4</span></label>
+                    <input type="range" id="d-in" min="2" max="12" value="4" oninput="run8()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>The Collector (Top): <span class="val-display" id="n-disp">3</span></label>
+                    <input type="range" id="n-in" min="1" max="12" value="3" oninput="run8()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-8">Awaiting instructions...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Upside-Down" Mistake:</strong> Children often try to divide the total by the top number because it's usually the first one they see in the sentence. This leads to massive, confusing numbers.</p>
+            
+            <p><strong>The Fix: The "Knife and Hand" Rule.</strong> Remind your child: "The bottom number is the <b>Knife</b>; it cuts the total into pieces. The top number is the <b>Hand</b>; it picks them up." We always <b>Divide by the Bottom</b> and <b>Multiply by the Top</b>. If the answer looks bigger than the starting total, the fraction has gone upside down!</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(8)">Complete Module & Update Lattice</button>
+
+<script>
+    function run8() {
+        const total = parseFloat(document.getElementById('amt-in').value) || 0;
+        const den = parseInt(document.getElementById('d-in').value);
+        let num = parseInt(document.getElementById('n-in').value);
+
+        // Cap numerator to denominator for visual sanity
+        if (num > den) {
+            num = den;
+            document.getElementById('n-in').value = num;
+        }
+
+        // Update Labels
+        document.getElementById('d-disp').innerText = den;
+        document.getElementById('n-disp').innerText = num;
+
+        // Logic
+        const unitVal = total / den;
+        const finalVal = unitVal * num;
+
+        // Update Anatomy
+        const bar = document.getElementById('viz-bar');
+        bar.innerHTML = '';
+        for(let i=0; i < den; i++) {
+            const slice = document.createElement('div');
+            slice.className = i < num ? 'slice active' : 'slice';
+            slice.innerText = "£" + unitVal.toFixed(0);
+            bar.appendChild(slice);
+        }
+
+        document.getElementById('unit-label').innerText = "£" + unitVal.toFixed(2);
+        document.getElementById('total-label').innerText = "£" + finalVal.toFixed(2);
+
+        // Trace Output
+        document.getElementById('trace-8').innerHTML = `
+            <div class="trace-step">→ 1. The Cut: Divide £${total} by the bottom number (${den})</div>
+            <div class="trace-step">→ 2. One Box Found: <b>£${unitVal.toFixed(2)}</b></div>
+            <div class="trace-step">→ 3. The Collection: Multiply by the top number (${num})</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → FINAL RESULT: £${finalVal.toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run8;
+</script>
+
+</body>
+</html>

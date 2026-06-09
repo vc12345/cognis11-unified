@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 33: Hidden Words | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔍'; }
+
+        /* INTRO: WORD TRAIN */
+        .train-carriage { width: 120px; height: 60px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; color: var(--cognis-blue); transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; }
+        .train-wheels { position: absolute; bottom: -10px; width: 100%; display: flex; justify-content: space-around; }
+        .wheel { width: 15px; height: 15px; background: #4a5568; border-radius: 50%; }
+
+        /* PROGRESSING: SPACE ERASER */
+        .eraser-word { font-family: 'Consolas', monospace; font-size: 2.5rem; font-weight: 900; color: var(--cognis-blue); transition: all 0.4s; }
+        .letter-box { display: inline-block; transition: all 0.4s; }
+        .highlight-bridge { color: var(--cognis-gold); transform: scale(1.1); }
+
+        /* SUPPLEMENTAL: SEAM SCANNER */
+        .anatomy-display-s { background: #1a202c; padding: 60px 20px; border-radius: 12px; position: relative; width: 100%; overflow: hidden; }
+        .word-display-s { font-family: 'Consolas', monospace; font-size: 3rem; letter-spacing: 10px; font-weight: 900; color: rgba(255,255,255,0.1); }
+        .scanner-beam-s { position: absolute; height: 120%; top: -10%; background: rgba(197, 160, 89, 0.1); border-left: 2px solid var(--cognis-gold); border-right: 2px solid var(--cognis-gold); pointer-events: none; transition: all 0.2s; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
+        .overlay-s { position: absolute; top: 50%; left: 0; transform: translateY(-50%); width: 100%; color: white; font-family: 'Consolas', monospace; font-size: 3rem; letter-spacing: 10px; font-weight: 900; pointer-events: none; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 33: Hidden Words</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Word Train</h2>
+            <p>Hidden words are like secret messages that appear when two word-carriages join together. When "FISH" and "ARE" couple up, a new word is born where they touch.</p>
+            
+            <div class="parent-script">
+                "Look at these two carriages: FISH and ARE. Right now, they are separate. Click 'Couple the Train' to move them together. Look closely at the middle where they touch. Can you see a new animal hiding there?"
+            </div>
+
+            <div class="viz-container" style="height: 250px;">
+                <div id="carriage-1" class="train-carriage" style="left: 20px; top: 80px;">
+                    FISH <div class="train-wheels"><div class="wheel"></div><div class="wheel"></div></div>
+                </div>
+                <div id="carriage-2" class="train-carriage" style="left: 240px; top: 80px;">
+                    ARE <div class="train-wheels"><div class="wheel"></div><div class="wheel"></div></div>
+                </div>
+                <div id="intro-reveal" style="position: absolute; bottom: 30px; font-size: 2rem; font-weight: 900; color: var(--cognis-gold); opacity: 0; transition: 0.5s;">HARE</div>
+                <button class="btn-action" style="margin-top: 160px;" onclick="coupleTrain()">Couple the Train!</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Carriages are separate. No secret words yet.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Space Eraser</h2>
+            <p>In your head, you must learn to <b>erase the gaps</b>. When the spaces vanish, your brain stops reading for meaning and starts seeing the "Seams"—the hot zones where hidden words live.</p>
+            
+            <div class="parent-script">
+                "Look at 'MADE A FOUL'. It tells a story. But if we click 'Erase Spaces', the story disappears and it becomes a stream of letters. Look at the seam between MADE and A. The word DEAF was hiding there all along!"
+            </div>
+
+            <div class="viz-container">
+                <div id="eraser-display" class="eraser-word">
+                    <span class="letter-box">M</span><span class="letter-box">A</span><span class="letter-box">D</span><span class="letter-box">E</span>
+                    <span id="gap-1" style="display:inline-block; width:20px;"> </span>
+                    <span class="letter-box">A</span>
+                    <span id="gap-2" style="display:inline-block; width:20px;"> </span>
+                    <span class="letter-box">F</span><span class="letter-box">O</span><span class="letter-box">U</span><span class="letter-box">L</span>
+                </div>
+                <button class="btn-action" style="margin-top:40px;" onclick="eraseSpaces()">Erase the Spaces</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">"MADE A FOUL" has 10 characters.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Seam Secret."</b> We usually see spaces as walls. In the 11+, secret words are "glued" across those gaps. These are <b>Bridge Words</b>—they steal letters from the end of one word and the start of the next. To find them, treat the whole sentence as a continuous character stream.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Level 1</b> "Find the 3-letter word hidden in: 'THE ATOM'."</div>
+                <div class="tier-card"><b>Level 2</b> "Find the 4-letter word hidden in: 'FISH ARE DEEP'."</div>
+                <div class="tier-card"><b>Level 3</b> "Find the 4-letter word hidden in: 'MADE A FOUL'."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Seam Scanner</b>. Move the beam across the character stream. Notice that the "ghost word" doesn't care about the original meaning. It only cares about the sequence of letters at the junction.</p>
+            <div class="anatomy-display-s">
+                <div id="s-scanner-beam" class="scanner-beam-s"></div>
+                <div id="s-bg" class="word-display-s" style="text-align:center;">THEATOM</div>
+                <div id="s-fg" class="overlay-s" style="text-align:center;">THEATOM</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Type a phrase and use the <b>Scanner Position</b> to hunt for bridges. Adjust the window width for longer words. Watch for the moment a real word illuminates in the gold beam.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Phrase</label><input type="text" id="si-phrase" value="FISH ARE DEEP" class="input-dark" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Beam Position</label><input type="range" id="si-pos" min="0" max="100" value="40" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Window Width</label><input type="range" id="si-width" min="2" max="5" value="4" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Inside Job" Trap:</b> Most children look for a word *inside* a single big word (like CAT in SCATTER). In the 11+, the hidden word is almost <b>never</b> inside a single word.</p>
+                <p><b>The Fix: The "Pinch" Method.</b> <i>"The answer lives in the cracks."</i> Put a finger over the space. Look at the 2 letters before and the 2 letters after. That junction is the 90% Hot Zone. **Ignore the centers, scan the seams.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(33)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: TRAIN --- */
+    function coupleTrain() {
+        const c1 = document.getElementById('carriage-1');
+        const c2 = document.getElementById('carriage-2');
+        const reveal = document.getElementById('intro-reveal');
+        
+        c1.style.left = "90px";
+        c2.style.left = "185px";
+        
+        setTimeout(() => {
+            reveal.style.opacity = "1";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Look! At the junction of FISH and ARE, we find <b>HARE</b>!</div>`;
+        }, 600);
+    }
+
+    function resetIntro() {
+        location.reload();
+    }
+
+    /* --- PROGRESSING: ERASER --- */
+    function eraseSpaces() {
+        document.getElementById('gap-1').style.width = "0px";
+        document.getElementById('gap-2').style.width = "0px";
+        const letters = document.querySelectorAll('.letter-box');
+        
+        setTimeout(() => {
+            // Highlight 'DEAF' (indices 2,3,4,5 in the collapsed stream MADEAFOUL)
+            letters[2].classList.add('highlight-bridge');
+            letters[3].classList.add('highlight-bridge');
+            letters[4].classList.add('highlight-bridge');
+            letters[5].classList.add('highlight-bridge');
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Spaces gone! Now we see <b>DEAF</b> bridging the gap.</div>`;
+        }, 500);
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const phrase = document.getElementById('si-phrase').value.toUpperCase();
+        const collapsed = phrase.replace(/\s/g, '');
+        const pos = parseInt(document.getElementById('si-pos').value);
+        const width = parseInt(document.getElementById('si-width').value);
+
+        const bg = document.getElementById('s-bg');
+        const fg = document.getElementById('s-fg');
+        const beam = document.getElementById('s-scanner-beam');
+
+        bg.textContent = collapsed;
+        fg.textContent = collapsed;
+
+        const totalChars = collapsed.length;
+        const leftPct = Math.max(0, pos - (width/totalChars * 50));
+        const rightPct = Math.min(100, pos + (width/totalChars * 50));
+
+        fg.style.clipPath = `inset(0 ${100 - rightPct}% 0 ${leftPct}%)`;
+        beam.style.left = pos + "%";
+        beam.style.width = (width / totalChars * 100) + "%";
+
+        const startIdx = Math.floor(leftPct/100 * totalChars);
+        const scanWord = collapsed.substring(startIdx, startIdx + width);
+
+        document.getElementById('supp-log').innerHTML = `→ Stream: ${collapsed}<br>→ Scanned Word: <b style="color:var(--cognis-gold)">${scanWord}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-phrase')) runSupp();
+        if(typeof initModule === "function") initModule(33);
+    });
+</script>
+</body>
+</html>

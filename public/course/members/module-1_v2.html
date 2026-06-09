@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: The Unitary Method | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR UNITARY SCALING */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .bridge-viz { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .unit-square { 
+            width: 50px; 
+            height: 50px; 
+            background: white; 
+            border: 3px solid var(--cognis-blue); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            color: var(--cognis-blue);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-size: 0.9rem;
+        }
+
+        .unit-square.is-one { 
+            background: var(--cognis-gold); 
+            border-color: var(--cognis-gold); 
+            color: white; 
+            transform: scale(1.2); 
+            box-shadow: 0 10px 20px rgba(197, 160, 89, 0.4); 
+            z-index: 5;
+        }
+
+        .label-bridge { 
+            font-weight: 900; 
+            color: var(--cognis-blue); 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .control-group label { 
+            display: flex; 
+            justify-content: space-between; 
+            font-weight: 800 !important; 
+        }
+        .val-display { color: var(--cognis-gold); }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(1));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 1: The Unitary Method</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>This is the "GPS" for scaling problems. Instead of guessing how two groups of numbers relate, we always travel through a single point: <b>The Value of One.</b> Help your child master the two-step journey: <b>Shrink</b> the known total to find exactly one unit, then <b>Grow</b> that unit to hit your target. This "Unit Bridge" makes even the messiest numbers feel manageable.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Shopping Trip</b>
+                "If 4 apples cost 80p, how much do 6 apples cost?"
+            </div>
+            <div class="tier-card">
+                <b>The Road Trip</b>
+                "A car travels 150 miles on 5 gallons. How far on 8 gallons?"
+            </div>
+            <div class="tier-card">
+                <b>The Heavy Lifting</b>
+                "9 identical crates weigh 108kg. What is the mass of 13 crates?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Look at the <b>Unit Bridge</b> below. We take the "Known Group" and slice it into equal pieces. By finding the <b>Golden Unit</b> (the value of just one), we find the "key" that unlocks any other quantity. Point to the gold square—this is the only number that matters.</p>
+        
+        <div class="anatomy-display">
+            <div class="bridge-viz" id="bridge-viz">
+                </div>
+            <div class="label-bridge" id="label-bridge">1 Unit = £0.00</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the sliders with your child to see the logic in action. Watch how the <b>Golden Unit</b> stays the same, even as we "stretch" or "shrink" the pile.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Known Quantity: <span class="val-display" id="q-disp">5</span></label>
+                    <input type="range" id="in-q" min="2" max="10" value="5" oninput="run1()">
+                </div>
+                <div class="control-group" style="margin-top:15px;">
+                    <label>Known Total (£): <span class="val-display" id="v-disp">£20</span></label>
+                    <input type="range" id="in-v" min="5" max="100" step="5" value="20" oninput="run1()">
+                </div>
+                <div class="control-group" style="margin-top:30px; border-top: 1px solid #e2e8f0; padding-top:20px;">
+                    <label>Target Quantity: <span class="val-display" id="t-disp">8</span></label>
+                    <input type="range" id="in-t" min="1" max="15" value="8" oninput="run1()">
+                </div>
+            </div>
+            <div class="trace-log" id="trace-1">Awaiting scaling logic...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Backwards Divide":</strong> Bright children often try to divide the smaller number by the bigger one (e.g., $5 \div 20$) simply because it feels "easier" to fit them together. This leads to a messy decimal that makes no sense.</p>
+            
+            <p><strong>The Fix:</strong> Use the <b>"Money is Boss"</b> rule. Tell your child: "In 99% of these problems, the total value (like money or weight) goes into the calculation first." Always divide the <b>Total Value</b> by the <b>Quantity</b> to find your unit cost.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(1)">Complete Module & Update Lattice</button>
+
+<script>
+    function run1() {
+        const q = parseInt(document.getElementById('in-q').value);
+        const v = parseInt(document.getElementById('in-v').value);
+        const t = parseInt(document.getElementById('in-t').value);
+        
+        // Update Labels
+        document.getElementById('q-disp').innerText = q;
+        document.getElementById('v-disp').innerText = '£' + v;
+        document.getElementById('t-disp').innerText = t;
+
+        // Math Logic
+        const unitValue = v / q;
+        const finalResult = unitValue * t;
+
+        // Visual Anatomy
+        const viz = document.getElementById('bridge-viz');
+        viz.innerHTML = '';
+        for(let i=0; i<q; i++) {
+            const sq = document.createElement('div');
+            sq.className = 'unit-square' + (i === 0 ? ' is-one' : '');
+            sq.innerText = i === 0 ? '£' + unitValue.toFixed(2) : '?';
+            viz.appendChild(sq);
+        }
+        document.getElementById('label-bridge').innerText = `1 UNIT = £${unitValue.toFixed(2)}`;
+
+        // Trace Output
+        document.getElementById('trace-1').innerHTML = `
+            <div class="trace-step">→ 1. The Start: We have ${q} items worth £${v}</div>
+            <div class="trace-step">→ 2. The Shrink: Divide £${v} by ${q} pieces</div>
+            <div class="trace-step">→ 3. The Key Found: <b>£${unitValue.toFixed(2)}</b> for one item</div>
+            <div class="trace-step">→ 4. The Grow: Multiply £${unitValue.toFixed(2)} by ${t} items</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → NEW TOTAL: £${finalResult.toFixed(2)}
+            </div>
+        `;
+    }
+
+    window.onload = run1;
+</script>
+
+</body>
+</html>

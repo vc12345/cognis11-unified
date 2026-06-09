@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 15: Time Conversions | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '⏰'; }
+
+        /* INTRO: THE EGG CARTON */
+        .carton-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; padding: 10px; background: #e2e8f0; border-radius: 8px; }
+        .slot { width: 18px; height: 18px; background: white; border-radius: 50%; border: 1px solid #cbd5e0; transition: background 0.2s; }
+        .slot.filled { background: var(--cognis-gold); border-color: #b45309; }
+        .hour-jar { width: 60px; height: 80px; border: 3px solid var(--cognis-blue); border-top: none; border-radius: 0 0 10px 10px; position: relative; margin-top: 20px; display: flex; flex-direction: column-reverse; gap: 2px; padding: 4px; }
+        .hour-block { height: 15px; background: var(--cognis-blue); border-radius: 2px; width: 100%; }
+
+        /* PROGRESSING: DECIMAL CLOCK */
+        .clock-face { width: 180px; height: 180px; border: 6px solid var(--cognis-blue); border-radius: 50%; position: relative; background: white; }
+        .clock-hand { position: absolute; bottom: 50%; left: 50%; width: 4px; height: 70px; background: var(--cognis-gold); transform-origin: bottom center; border-radius: 4px; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .clock-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: var(--cognis-blue); border-radius: 50%; }
+
+        /* SUPPLEMENTAL: TIME TANKS */
+        .tank-system { display: flex; justify-content: center; align-items: flex-end; gap: 20px; height: 180px; }
+        .tank { width: 80px; height: 150px; border: 4px solid var(--cognis-blue); border-top: none; position: relative; display: flex; align-items: flex-end; background: white; border-radius: 0 0 10px 10px; }
+        .water { width: 100%; background: var(--cognis-gold); transition: height 0.5s; position: relative; }
+        .water-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: 900; font-size: 1.2rem; }
+        .overflow-pipe { font-size: 1.5rem; color: var(--trap-red); opacity: 0; transition: 0.3s; margin-bottom: 60px; }
+        .overflow-active { opacity: 1; animation: pipe-pulse 0.8s infinite; }
+        @keyframes pipe-pulse { 50% { transform: translateX(-10px); } }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-pump { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .digital-box { background: #1a202c; color: var(--cognis-gold); padding: 10px 20px; border-radius: 6px; font-family: monospace; font-size: 1.5rem; margin-top: 20px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 15: Time Conversions</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Hour Container</h2>
+            <p>In most math, we count to 100. But time is different—it lives in <b>Base-60</b>. Think of an hour as a container with 60 slots. Once you fill all 60, they vanish and turn into one "Hour Unit."</p>
+            
+            <div class="parent-script">
+                "Look at our carton. It has 60 slots for minutes. Click '+10' a few times. Watch what happens when we hit the 60 mark—the carton empties and we get a full Hour in our jar. We never, ever hit 100 minutes!"
+            </div>
+
+            <div class="viz-container">
+                <div class="carton-grid" id="intro-grid"></div>
+                <div class="hour-jar" id="intro-jar"></div>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top: 10px;">Hours: <span id="intro-h-count">0</span></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-pump" onclick="addIntroTime(1)">+1 Min</button>
+                    <button class="btn-pump" onclick="addIntroTime(10)">+10 Mins</button>
+                    <button class="btn-pump" style="background:#94a3b8;" onclick="resetIntro()">Reset</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Fill the carton to create an hour!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Decimal Mirage</h2>
+            <p>The biggest trick in the 11+ is <b>1.5 hours</b>. Your brain wants to say "1 hour and 50 minutes." But look at the clock! $.5$ means "Half a tank." In a 60-minute tank, half is 30 minutes, not 50.</p>
+            
+            <div class="parent-script">
+                "Move the slider to 0.5. Look at the gold hand on the clock. It’s pointing straight down at 30 minutes. $.5$ is just a fancy way of saying 'Half an Hour'. Don't let the decimal point trick you into thinking of 100!"
+            </div>
+
+            <div class="viz-container">
+                <div class="clock-face">
+                    <div id="clock-hand" class="clock-hand"></div>
+                    <div class="clock-center"></div>
+                </div>
+                <div style="font-size: 2rem; font-weight: 800; color: var(--cognis-blue); margin-top: 20px;">
+                    <span id="prog-dec-val">0.0</span> Hours = <span id="prog-min-val">0</span> Mins
+                </div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Decimal Part (0.1 to 0.9)</label>
+                        <input type="range" min="0" max="1" step="0.1" value="0" id="prog-slider" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('15-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>In the 11+, time is where the decimal system fails. We live in <b>Base-60</b>. The secret is managing the <b>"Overflow Point."</b> Once a group of minutes hits 60, it must be packaged into a single hour unit. Success comes from knowing how to "Rewind" or "Fast-Forward" through these 60-minute blocks.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Baker</b> "A cake is in for 85 minutes. How many hours and minutes is that?"</div>
+                <div class="tier-card"><b>The Traveler</b> "A flight takes 1 hour and 45 minutes. Find the total minutes."</div>
+                <div class="tier-card"><b>The Marathon</b> "A runner finishes in 215 minutes. Convert to Hours and Minutes."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Think of time as a <b>Leaking Tank</b>. The Minute Tank has a ceiling at 60. As soon as it hits 60, the pressure forces the excess through the pipe into the Hour Tank. Notice that 0.5 of a tank is 30, not 50!</p>
+            <div class="anatomy-display">
+                <div class="tank-system">
+                    <div class="tank"><div id="s-h-fill" class="water" style="height:10%"><span class="water-label" id="s-h-val">0</span></div><div style="position:absolute; top:-25px; width:100%; text-align:center; font-size:0.6rem; font-weight:800;">HOURS</div></div>
+                    <div id="s-pipe" class="overflow-pipe">←</div>
+                    <div class="tank" id="s-m-tank"><div id="s-m-fill" class="water" style="height:0%"><span class="water-label" id="s-m-val">0</span></div><div style="position:absolute; top:-25px; width:100%; text-align:center; font-size:0.6rem; font-weight:800;">MINS (MAX 60)</div></div>
+                </div>
+                <div class="digital-box" id="s-digital">00:00</div>
+                <div style="display:flex; gap:10px; margin-top:20px;"><button class="btn-pump" onclick="pumpSupp(1)">+1 MIN</button><button class="btn-pump" onclick="pumpSupp(10)">+10 MINS</button></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Input minutes to see the **Base-60 Logic**. We use division ($\div 60$) to find whole hours and the remainder for the leftover minutes.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Total Minutes</label><input type="number" id="in-m" value="145" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Decimal Mirage":</b> Children see 1.5 hours and think 1h 50m. They are using the metric system on a clock!</p>
+                <p><b>The Fix: The "Half-Tank" Rule.</b> Time doesn't speak metric. Since the container is 60 minutes wide, 0.5 (half) is always <b>30 minutes</b>. If they use 100 as the base, the Saboteur wins.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(15)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Motion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: EGG CARTON --- */
+    let introM = 0; let introH = 0;
+    function resetIntro() { introM = 0; introH = 0; renderIntro(); }
+    function addIntroTime(n) {
+        introM += n;
+        while(introM >= 60) { introM -= 60; introH++; }
+        renderIntro();
+    }
+    function renderIntro() {
+        const grid = document.getElementById('intro-grid');
+        grid.innerHTML = '';
+        for(let i=1; i<=60; i++) {
+            const slot = document.createElement('div');
+            slot.className = `slot ${i <= introM ? 'filled' : ''}`;
+            grid.appendChild(slot);
+        }
+        const jar = document.getElementById('intro-jar');
+        jar.innerHTML = '';
+        for(let i=0; i<introH; i++) jar.innerHTML += '<div class="hour-block"></div>';
+        document.getElementById('intro-h-count').innerText = introH;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Current: <b>${introH}h ${introM}m</b>.</div>`;
+    }
+
+    /* --- PROGRESSING: CLOCK --- */
+    function updateProg() {
+        const dec = parseFloat(document.getElementById('prog-slider').value);
+        const mins = Math.round(dec * 60);
+        document.getElementById('clock-hand').style.transform = `translateX(-50%) rotate(${mins * 6}deg)`;
+        document.getElementById('prog-dec-val').innerText = dec.toFixed(1);
+        document.getElementById('prog-min-val').innerText = mins;
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">Decimal <b>${dec.toFixed(1)}</b> of an hour is <b>${mins}</b> minutes.</div>
+            <div class="discovery-step">Calculation: ${dec.toFixed(1)} × 60 = ${mins}.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sH = 0; let sM = 0;
+    function pumpSupp(n) {
+        sM += n;
+        while(sM >= 60) { 
+            sM -= 60; sH++; 
+            const p = document.getElementById('s-pipe');
+            p.classList.add('overflow-active');
+            setTimeout(() => p.classList.remove('overflow-active'), 500);
+        }
+        updateSuppViz();
+    }
+    function updateSuppViz() {
+        document.getElementById('s-h-val').innerText = sH;
+        document.getElementById('s-m-val').innerText = sM;
+        document.getElementById('s-h-fill').style.height = Math.min(sH*10, 100) + "%";
+        document.getElementById('s-m-fill').style.height = (sM/60*100) + "%";
+        document.getElementById('s-digital').innerText = `${String(sH).padStart(2,'0')}:${String(sM).padStart(2,'0')}`;
+    }
+    function runSupp() {
+        const total = parseInt(document.getElementById('in-m').value) || 0;
+        const h = Math.floor(total / 60);
+        const m = total % 60;
+        document.getElementById('supp-log').innerHTML = `→ ${total} mins ÷ 60 = <b>${h} hours</b><br>→ Remainder: <b>${m} mins</b><br>→ Result: <b>${h}h ${m}m</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        if(document.getElementById('in-m')) runSupp();
+        if(typeof initModule === "function") initModule(15);
+    });
+</script>
+</body>
+</html>

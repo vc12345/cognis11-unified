@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 25: Combinatorics | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR COMBINATORIC MATRIX */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #2d3748;
+        }
+
+        .matrix-grid { 
+            display: grid; 
+            gap: 6px; 
+            background: rgba(255,255,255,0.03); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-bottom: 25px; 
+            border: 1px solid #4a5568;
+        }
+
+        .cell { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 4px; 
+            background: #4a5568; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.65rem; 
+            color: rgba(255,255,255,0.3); 
+            font-weight: 900;
+        }
+
+        .cell.active { background: var(--cognis-gold); color: white; box-shadow: 0 0 12px rgba(197, 160, 89, 0.4); }
+        .cell.self { background: transparent; border: 1px dashed #718096; color: #718096; }
+        .cell.mirror { opacity: 0.1; background: #2d3748; border: none; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .formula-card {
+            background: rgba(197, 160, 89, 0.1);
+            border: 1px solid var(--cognis-gold);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn-filter {
+            background: var(--cognis-gold);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+        }
+        .btn-filter:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(25));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 25: Combinatorics (Handshakes)</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as the <b>"Party Puzzle."</b> In the 11+, you’ll often see problems about people shaking hands, teams playing matches, or friends exchanging gifts. The secret weapon is realizing that a handshake is a <b>two-way street</b>. If your child can visualize the "Grid of Everyone," they’ll see that most handshakes are just mirror images of each other. To find the unique interactions, we simply need to "clean" the grid of duplicates.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The High-Five</b>
+                "4 friends high-five each other once. How many high-fives happen total?"
+            </div>
+            <div class="tier-card">
+                <b>The Tournament</b>
+                "8 teams play in a tournament. If every team plays every other team once, how many games are played?"
+            </div>
+            <div class="tier-card">
+                <b>The Reverse Riddle</b>
+                "45 handshakes happened at a meeting. How many people were in the room?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Matrix of Possibility</b>. Each row and column represents a person. Point to the diagonal line of dots—those are <b>Self-Shakes</b> (which don't happen!). When you click <b>"Filter Grid,"</b> watch exactly half of the remaining squares vanish. Those are the <b>Mirror Handshakes</b>. We only keep one side of the diagonal because shaking hands with Person B is the same event as Person B shaking hands with you.</p>
+        
+        <div class="anatomy-display">
+            <div id="matrix-display" class="matrix-grid"></div>
+            <button class="btn-filter" id="filter-trigger" onclick="toggleLogic()">Filter Grid (÷ 2)</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the slider to add people to the room. Click the <b>Filter</b> button above to see the logic applied. Help your child notice the formula in the gold box: we multiply the people by $(n - 1)$ to remove themselves, then divide by 2 to remove the mirrors.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Number of People (n)</label>
+                    <input type="range" id="n-slider" min="2" max="10" value="5" oninput="run25()">
+                </div>
+                
+                <div class="formula-card">
+                    <div style="font-size: 0.6rem; text-transform: uppercase; color: var(--cognis-gold); font-weight: 900; margin-bottom: 5px;">The Handshake Rule</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; font-family: 'Consolas', monospace; color: white;">n(n - 1) / 2</div>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-25">Awaiting matrix...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Reflection" Trap:</strong> If there are 10 people, most children calculate $10 \times 9 = 90$ and stop there. They are counting every handshake twice—once for Person A and once for Person B!</p>
+            
+            <p><strong>The Insider Fix: The "Two-to-One" Rule.</strong> Remind your child: <i>"It takes two people to make one handshake."</i> Whenever they calculate pairings, they must always divide the total grid by 2 to get rid of the mirror images. If they don't divide, they aren't counting handshakes; they are counting hands! <b>Always divide the group pairings by 2.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(25)">Complete Module & Update Lattice</button>
+
+<script>
+    let filtered = false;
+
+    function run25() {
+        const n = parseInt(document.getElementById('n-slider').value);
+        const matrix = document.getElementById('matrix-display');
+        const trace = document.getElementById('trace-25');
+        
+        matrix.style.gridTemplateColumns = `repeat(${n}, 32px)`;
+        matrix.innerHTML = '';
+
+        const raw = n * n;
+        const minusSelf = n * (n - 1);
+        const unique = minusSelf / 2;
+
+        for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                
+                if (r === c) {
+                    cell.classList.add('self');
+                    cell.innerText = '•';
+                } else if (filtered && r > c) {
+                    cell.classList.add('mirror');
+                    cell.innerText = '';
+                } else {
+                    cell.classList.add('active');
+                    cell.innerText = 'P' + (r+1);
+                }
+                matrix.appendChild(cell);
+            }
+        }
+
+        let html = `<div class="trace-step">→ 1. Potential Pairs: ${n} people × ${n-1} others = ${minusSelf}</div>`;
+        if (filtered) {
+            html += `<div class="trace-step">→ 2. Remove Mirror Pairs: ${minusSelf} ÷ 2 = <b>${unique}</b></div>`;
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → UNIQUE HANDSHAKES: ${unique}
+                </div>
+            `;
+        } else {
+            html += `<div class="trace-step">→ 2. Status: Duplicates still in the grid.</div>`;
+            html += `<div class="trace-step" style="color:#718096; font-style:italic;">Click 'Filter' to remove the mirror images...</div>`;
+        }
+        trace.innerHTML = html;
+    }
+
+    function toggleLogic() {
+        filtered = !filtered;
+        document.getElementById('filter-trigger').innerText = filtered ? "Reset Grid" : "Filter Grid (÷ 2)";
+        run25();
+    }
+
+    window.onload = run25;
+</script>
+
+</body>
+</html>

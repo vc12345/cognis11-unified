@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 41: Logical Ordering | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🕵️'; }
+
+        /* INTRO: HEIGHT CHECK */
+        .block-f { width: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .block-red { background: #e53e3e; height: 140px; }
+        .block-blue { background: #3182ce; height: 80px; }
+        .clue-tag { background: var(--cognis-gold); color: white; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; margin-bottom: 20px; }
+
+        /* PROGRESSING: CHAIN LINKER */
+        .chain-node { width: 50px; height: 50px; border: 3px solid var(--cognis-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; background: white; }
+        .chain-arrow { font-size: 1.5rem; color: var(--cognis-gold); font-weight: 900; }
+
+        /* SUPPLEMENTAL: LOGIC SIEVE */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; }
+        .tab-group-s { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        .tab-btn-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 800; }
+        .tab-btn-s.active { background: var(--cognis-gold); color: white; border-color: white; }
+        #s-perm-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding: 10px; }
+        .perm-row-s { display: flex; gap: 5px; justify-content: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #4a5568; position: relative; transition: 0.3s; }
+        .token-s { width: 25px; height: 25px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.7rem; }
+        .perm-row-s.eliminated { opacity: 0.2; filter: grayscale(1); }
+        .perm-row-s.winner { background: rgba(197,160,89,0.15); border: 2px solid var(--cognis-gold); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .rule-btn-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .rule-btn-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 41: Logical Ordering</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Line-Up</h2>
+            <p>Logical ordering is just like lining up for a photo. You are given a rule, and you have to move the items until that rule is happy. It’s not about guessing; it’s about checking the evidence.</p>
+            
+            <div class="parent-script">
+                "Look at these two blocks. Our clue says: **Red is taller than Blue**. Right now, they are in the wrong spots! Click 'Swap Positions' to follow the clue and see the logic satisfy the evidence."
+            </div>
+
+            <div class="viz-container">
+                <div class="clue-tag">CLUE: RED > BLUE</div>
+                <div style="display:flex; gap:30px; align-items:flex-end; height:150px;" id="intro-lineup">
+                    <div class="block-f block-blue" id="b-1">B</div>
+                    <div class="block-f block-red" id="b-2">R</div>
+                </div>
+                <button class="btn-action" onclick="swapIntro()">Swap Positions</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Clue: Red must be taller. Current: Blue is on the left.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Chain Link</h2>
+            <p>To solve harder puzzles, you must link your clues together like a chain. If A is taller than B, and B is taller than C, then B is the bridge that connects A to C!</p>
+            
+            <div class="parent-script">
+                "We have two separate clues: **A > B** and **B > C**. See how B appears in both? That means B is our 'Anchor'. Click 'Snap Chain' to see them join into one long logic chain: A > B > C."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; flex-direction:column; gap:20px; align-items:center;" id="chain-area">
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="chain-node">A</div><div class="chain-arrow">→</div><div class="chain-node">B</div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="chain-node" style="border-color:var(--cognis-gold)">B</div><div class="chain-arrow">→</div><div class="chain-node">C</div>
+                    </div>
+                </div>
+                <button class="btn-action" style="margin-top:40px;" onclick="snapChain()">Snap Chain Together</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Two clues, one shared person (B).</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of logical ordering as the <b>"Detective's Filter."</b> The secret weapon isn't guessing the order—it's <b>eliminating the impossible</b>. Treat every clue like a screen that blocks out the wrong answers. By the time you've used every filter, only one truth remains.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Pairs</b> "A is taller than B. There are only two friends. Who is shortest?"</div>
+                <div class="tier-card"><b>Trio Chain</b> "B is taller than A, and C is taller than B. Arrange them shortest to tallest."</div>
+                <div class="tier-card"><b>11+ Master</b> "D is tallest. B is taller than A but shorter than C. Find the sequence."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Possibility Matrix</b>. Below is every possible way the items could be arranged. As you toggle clues, watch the "impossible" rows vanish. We are narrowing the search to the only surviving truth.</p>
+            <div class="anatomy-display-s">
+                <div class="tab-group-s">
+                    <button class="tab-btn-s active" onclick="setupSupp(2, this)">2 Items</button>
+                    <button class="tab-btn-s" onclick="setupSupp(3, this)">3 Items</button>
+                    <button class="tab-btn-s" onclick="setupSupp(4, this)">4 Items</button>
+                </div>
+                <div id="s-perm-container"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Toggle clues to filter the matrix. The goal is to apply clues until only <b>one surviving row</b> remains.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div id="s-rule-box"></div>
+                    <button class="btn-action" style="background:#94a3b8; width:100%; font-size:0.6rem;" onclick="resetSuppRules()">Reset Matrix</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "First Clue" Trap:</b> Children see "A is taller than B" and put A in the first position immediately. **Disaster!** A > B doesn't mean A is the overall tallest.</p>
+                <p><b>The Fix: The "Chain Link" Rule.</b> <i>"Don't build until you have all bricks."</i> Link clues into a chain (A>B + B>C = A>B>C) first. **Link clues, then label spots.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(41)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: LINEUP --- */
+    let introSwapped = false;
+    function swapIntro() {
+        const line = document.getElementById('intro-lineup');
+        if(!introSwapped) {
+            line.style.flexDirection = 'row-reverse';
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Logic Satisfied! Red is now to the left of Blue.</div>`;
+        } else {
+            line.style.flexDirection = 'row';
+        }
+        introSwapped = !introSwapped;
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: CHAIN --- */
+    function snapChain() {
+        const area = document.getElementById('chain-area');
+        area.innerHTML = `
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="chain-node">A</div><div class="chain-arrow">→</div>
+                <div class="chain-node" style="border-color:var(--cognis-gold)">B</div><div class="chain-arrow">→</div>
+                <div class="chain-node">C</div>
+            </div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Chain Built! Now we know the order is <b>A → B → C</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sSize = 2; let sRules = []; let sActiveRules = [];
+    const sColors = { A: '#e53e3e', B: '#ecc94b', C: '#48bb78', D: '#3182ce' };
+
+    function setupSupp(size, btn) {
+        sSize = size; sActiveRules = [];
+        if(btn) { document.querySelectorAll('.tab-btn-s').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        
+        const rBox = document.getElementById('s-rule-box'); rBox.innerHTML = '';
+        const clues = (size===2) ? [{t:"A > B", a:"A", b:"B"}] :
+                      (size===3) ? [{t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}] :
+                      [{t:"D > A", a:"D", b:"A"}, {t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}, {t:"D > C", a:"D", b:"C"}];
+        sRules = clues;
+        clues.forEach((r, i) => {
+            rBox.innerHTML += `<button class="rule-btn-s" id="sr-${i}" onclick="toggleSuppRule(${i})">Clue: ${r.t}</button>`;
+        });
+        updateSuppSim();
+    }
+
+    function toggleSuppRule(idx) {
+        const r = sRules[idx];
+        const activeIdx = sActiveRules.findIndex(x => x.t === r.t);
+        if(activeIdx > -1) sActiveRules.splice(activeIdx, 1);
+        else sActiveRules.push(r);
+        document.getElementById('sr-'+idx).classList.toggle('active');
+        updateSuppSim();
+    }
+
+    function resetSuppRules() { sActiveRules = []; document.querySelectorAll('.rule-btn-s').forEach(b=>b.classList.remove('active')); updateSuppSim(); }
+
+    function getPerms(arr) {
+        if(arr.length<=1) return [arr];
+        let p = [];
+        for(let i=0; i<arr.length; i++) {
+            let rest = getPerms(arr.slice(0,i).concat(arr.slice(i+1)));
+            for(let r of rest) p.push([arr[i]].concat(r));
+        }
+        return p;
+    }
+
+    function updateSuppSim() {
+        const cont = document.getElementById('s-perm-container'); cont.innerHTML = '';
+        const items = ['A','B','C','D'].slice(0, sSize);
+        const all = getPerms(items);
+        let validCount = 0;
+
+        all.forEach(p => {
+            const isValid = sActiveRules.every(r => p.indexOf(r.a) < p.indexOf(r.b));
+            if(isValid) validCount++;
+            let rowHtml = `<div class="perm-row-s ${isValid?'':'eliminated'}">`;
+            p.forEach(l => rowHtml += `<div class="token-s" style="background:${sColors[l]}">${l}</div>`);
+            rowHtml += `</div>`;
+            cont.innerHTML += rowHtml;
+        });
+
+        document.getElementById('supp-log').innerHTML = `→ Possible: ${all.length} | Active Clues: ${sActiveRules.length}<br>→ <b>Surviving: ${validCount}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); setupSupp(2);
+        if(typeof initModule === "function") initModule(41);
+    });
+</script>
+</body>
+</html>

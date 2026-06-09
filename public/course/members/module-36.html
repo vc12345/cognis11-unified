@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 36: Anagram Scrambler | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR BOGGLE CHAMBER */
+        .anatomy-display { padding: 40px; background: #1a202c; text-align: center; border: none; border-radius: 12px; }
+        
+        .chamber { 
+            background: #2d3748; 
+            border: 4px inset #4a5568; 
+            border-radius: 20px; 
+            padding: 30px; 
+            display: inline-flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+            justify-content: center; 
+            min-width: 320px; 
+            min-height: 100px;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .tile { 
+            width: 55px; height: 55px; 
+            background: #fefefe; border-radius: 12px; 
+            border-bottom: 5px solid #cbd5e0; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.8rem; font-weight: 900; color: #1a202c; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        
+        @keyframes rumble {
+            0% { transform: translate(0,0) rotate(0); }
+            25% { transform: translate(-3px, 3px) rotate(-3deg); }
+            50% { transform: translate(3px, -3px) rotate(3deg); }
+            75% { transform: translate(-3px, -3px) rotate(-3deg); }
+            100% { transform: translate(0,0) rotate(0); }
+        }
+        .rumbling .tile { animation: rumble 0.15s infinite; }
+
+        .btn-action-wrapper { margin-top: 25px; }
+        .shake-btn { 
+            background: var(--cognis-gold); color: white; border: none; 
+            padding: 14px 40px; border-radius: 10px; font-weight: 800; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: transform 0.1s, background 0.2s; 
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+        }
+        .shake-btn:hover { background: #b08d4b; transform: translateY(-2px); }
+        .shake-btn:active { transform: scale(0.95); }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        
+        .btn-choice { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px 15px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.2s;
+        }
+        .btn-choice:hover { background: #4a5568; color: white; }
+        .btn-choice.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
+        .btn-choice span { opacity: 0.5; font-size: 0.6rem; }
+
+        .tally-row { display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding: 6px 0; font-size: 0.75rem; }
+        .tally-char { color: var(--cognis-gold); font-weight: 900; font-size: 1rem; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(36));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 36: Anagram Scrambler</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of an anagram as a <b>"Re-boxed Recipe."</b> In the 11+, examiners love to hide synonyms or antonyms by scrambling their letters. The secret weapon is realizing that an anagram is just a different arrangement of the exact same "stock." To find the truth, your child must look past the <i>sound</i> of the word and perform a <b>Character Inventory</b>. Two words are only valid anagrams if their "Digital Fingerprint"—their list of letters—is identical.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Direct Check</b>
+                "Are 'ACT' and 'CAT' anagrams? Count the ingredients in both to find out."
+            </div>
+            <div class="tier-card">
+                <b>The Scrambled Synonym</b>
+                "Rearrange the letters in 'LISTEN' to find a synonym for 'QUIET'."
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Impostor</b>
+                "Identify the outlier that is NOT an anagram of the others: 'RETAIN', 'REINA', 'TERNIA'."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Scramble Chamber</b>. No matter how much you shake these tiles, the "Stock" (the letters available) never changes. Anagrams are simply different ways to display the same pile of letters. Click <b>"Shake & Scramble"</b> to see the pattern change while the inventory stays exactly the same.</p>
+        
+        <div class="anatomy-display" id="sim-area">
+            <div id="chamber" class="chamber">
+                </div>
+            <div class="btn-action-wrapper">
+                <button class="shake-btn" onclick="shakeChamber()">Shake & Scramble</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Select a word pair below. The <b>Trace Log</b> will perform a diagnostic scan, checking every single letter in both words. Help your child notice how the "Digital Fingerprint" must match letter-for-letter to be a valid anagram.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 15px;">Word Pair Analysis</label>
+                <div class="preset-grid">
+                    <button class="btn-choice active" onclick="loadPair('LISTEN', 'SILENT', this)">LISTEN / SILENT <span>Match</span></button>
+                    <button class="btn-choice" onclick="loadPair('HEART', 'EARTH', this)">HEART / EARTH <span>Match</span></button>
+                    <button class="btn-choice" onclick="loadPair('DESSERT', 'DESERT', this)">DESSERT / DESERT <span style="color:#f87171">Fail</span></button>
+                    <button class="btn-choice" onclick="loadPair('MELON', 'LEMON', this)">MELON / LEMON <span>Match</span></button>
+                    <button class="btn-choice" onclick="loadPair('BREAD', 'BEARD', this)">BREAD / BEARD <span>Match</span></button>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-36">Awaiting stock-take...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "One Letter Off" Trap:</strong> Most children see <b>DESSERT</b> and <b>DESERT</b> and assume they are anagrams because they "look" identical. The examiner is banking on their brain being lazy. They see the same types of letters and stop counting.</p>
+            
+            <p><strong>The Insider Fix: The "Alphabetical Stock-Take."</strong> Tell your child: <i>"Don't trust your eyes; trust the count."</i> Have them mentally (or physically) sort the letters into A-Z order. Word A: [D-E-S-S-E-R-T] becomes [D-E-E-R-S-S-T]. Word B: [D-E-S-E-R-T] becomes [D-E-E-R-S-T]. The mismatch jumps out instantly. <b>If the counts don't match, the bridge is broken.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(36)">Complete Module & Update Lattice</button>
+
+<script>
+    let currentLetters = [];
+    let w1Raw = "LISTEN";
+    let w2Raw = "SILENT";
+
+    function loadPair(w1, w2, btn) {
+        document.querySelectorAll('.btn-choice').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+
+        w1Raw = w1;
+        w2Raw = w2;
+        currentLetters = w1.split('');
+        renderTiles();
+        updateInventory();
+    }
+
+    function renderTiles() {
+        const chamber = document.getElementById('chamber');
+        chamber.innerHTML = currentLetters.map(l => `<div class="tile">${l}</div>`).join('');
+    }
+
+    function shakeChamber() {
+        const area = document.getElementById('sim-area');
+        area.classList.add('rumbling');
+        
+        setTimeout(() => {
+            for (let i = currentLetters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentLetters[i], currentLetters[j]] = [currentLetters[j], currentLetters[i]];
+            }
+            renderTiles();
+            area.classList.remove('rumbling');
+        }, 600);
+    }
+
+    function updateInventory() {
+        const getTally = (str) => {
+            const counts = {};
+            [...str].forEach(c => counts[c] = (counts[c] || 0) + 1);
+            return counts;
+        };
+
+        const t1 = getTally(w1Raw);
+        const t2 = getTally(w2Raw);
+        const allChars = [...new Set([...w1Raw, ...w2Raw])].sort();
+
+        let trace = `<div class="trace-step">→ Comparing: <b>${w1Raw}</b> vs <b>${w2Raw}</b></div>`;
+        trace += `<div style="margin: 15px 0; border: 1px solid #334155; border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.2);">`;
+        
+        let match = true;
+        allChars.forEach(char => {
+            const count1 = t1[char] || 0;
+            const count2 = t2[char] || 0;
+            const rowMatch = count1 === count2;
+            if(!rowMatch) match = false;
+
+            trace += `
+                <div class="tally-row">
+                    <span class="tally-char">${char}</span>
+                    <span>Counts: ${count1} | ${count2}</span>
+                    <span style="color:${rowMatch ? '#10b981' : '#f87171'}">${rowMatch ? 'MATCH ✓' : 'FAIL ✗'}</span>
+                </div>
+            `;
+        });
+        trace += `</div>`;
+
+        trace += `
+            <div class="trace-step" style="color:${match ? 'var(--cognis-gold)' : '#f87171'}; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → RESULT: ${match ? 'VALID ANAGRAM FOUND' : 'INVALID (LETTER MISMATCH)'}
+            </div>
+        `;
+
+        document.getElementById('trace-36').innerHTML = trace;
+    }
+
+    window.onload = () => loadPair('LISTEN', 'SILENT');
+</script>
+
+</body>
+</html>

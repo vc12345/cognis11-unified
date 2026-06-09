@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 24: The Mean Bridge | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR THE MEAN BRIDGE (LIGHT SCHEME) */
+        .anatomy-display { padding: 40px; background: #f0f4f8; border: 2px solid #e2e8f0; border-radius: 12px; }
+        
+        #bridge-svg { background: white; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
+        
+        .stick { fill: var(--cognis-blue); transition: all 0.6s ease; }
+        .target-stick { fill: var(--cognis-blue); opacity: 0.15; stroke: var(--cognis-blue); stroke-dasharray: 4; }
+        
+        .missing-stick { 
+            fill: var(--cognis-gold); 
+            stroke: #fff; 
+            transform: translateY(-350px); 
+            opacity: 0; 
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .merged .missing-stick { transform: translateY(0); opacity: 1; }
+        
+        .stat-text { fill: #94a3b8; font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        .stat-val { fill: var(--cognis-blue); font-size: 18px; font-weight: 900; }
+        .stat-val.gold { fill: var(--cognis-gold); }
+
+        .btn-action-wrapper { text-align: center; margin-top: 25px; }
+        .btn-bridge { 
+            background: var(--cognis-gold); color: white; border: none; 
+            padding: 14px 30px; border-radius: 8px; font-weight: 800; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+            transition: 0.3s;
+        }
+        .btn-bridge:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(24));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 24: The Mean Bridge</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of the Mean as the <b>"Fair Share"</b> height. In the 11+, examiners love to give you a group of scores and ask: <i>"What must the next person score to change the average?"</i> The secret is ignoring the average for a moment and looking at the <b>Total Pile</b>. To find the missing person, you just compare the pile you have now against the pile you <b>need</b> to hit that target. The "Bridge" is the number that fills the gap.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Mystery Number</b>
+                "The mean of 3 numbers is 5. Two of the numbers are 4 and 6. What is the 3rd number?"
+            </div>
+            <div class="tier-card">
+                <b>The Test Scorer</b>
+                "Sarah scored 12, 15, and 10. What must she score next to have a mean of 13?"
+            </div>
+            <div class="tier-card">
+                <b>The Weight Shift</b>
+                "5 children weigh 40kg on average. A 6th child joins and the mean becomes 41kg. How heavy is the new child?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Equality Bridge</b>. On the right, you see the "Ghost Set"—this is what the group would look like if everyone scored exactly the target mean. On the left is your real group. Notice the empty space at the end. When you click <b>"Add Missing Data,"</b> the missing score drops in to perfectly level the two sides. The value of that gold bar is the answer to your problem.</p>
+        
+        <div class="anatomy-display" id="stage">
+            <svg id="bridge-svg" width="100%" height="320" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
+                <g id="left-group"></g>
+                <g id="right-group"></g>
+
+                <text x="150" y="275" class="stat-text" text-anchor="middle">Current Total Pile</text>
+                <text id="l-sum" x="150" y="300" class="stat-val" text-anchor="middle">0</text>
+                
+                <text x="550" y="275" class="stat-text" text-anchor="middle">Target Total Pile</text>
+                <text id="r-sum" x="550" y="300" class="stat-val gold" text-anchor="middle">0</text>
+            </svg>
+            
+            <div class="btn-action-wrapper">
+                <button class="btn-bridge" onclick="toggleBridge()" id="btn-bridge">Add Missing Data</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the inputs to build a scenario. Help your child notice Step 3 in the log: we multiply the <b>New Count</b> by the <b>New Mean</b> to find the big "Target Total." This is the master key to every mean problem.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Current Scores (e.g. 12, 15, 10)</label>
+                    <input type="text" id="in-vals" value="12, 15, 10" oninput="updateLogic()">
+                </div>
+                <div class="control-group" style="margin-top: 20px;">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Target Average Required</label>
+                    <input type="number" id="in-mean" value="13" oninput="updateLogic()">
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">Calculating the bridge...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Average of Averages" Trap:</strong> Most children try to solve this by looking only at the averages. If their current mean is 10 and they want 13, they think: <i>"I just need to add 3 more than the average."</i> <b>Stop!</b> This logic breaks because the group is getting bigger. You aren't just adding 3; you are responsible for lifting the average of the <i>entire</i> new group.</p>
+            
+            <p><strong>The Fix: The "Total Volume" Rule.</strong> Remind your child: <i>"Mean is a mask; Total is the truth."</i> Always find the New Total ($New\ Count \times New\ Mean$) and the Old Total ($Old\ Count \times Old\ Mean$). The difference between those two big piles is always the missing value. <b>Find the big totals first.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(24)">Complete Module & Update Lattice</button>
+
+<script>
+    let isApplied = false;
+
+    function updateLogic() {
+        const valStr = document.getElementById('in-vals').value;
+        const targetMean = parseFloat(document.getElementById('in-mean').value) || 0;
+        const knowns = valStr.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+
+        if (knowns.length === 0) return;
+
+        const knownSum = knowns.reduce((a, b) => a + b, 0);
+        const targetCount = knowns.length + 1;
+        const targetSum = targetMean * targetCount;
+        const missing = targetSum - knownSum;
+
+        const lGroup = document.getElementById('left-group');
+        const rGroup = document.getElementById('right-group');
+        lGroup.innerHTML = ''; rGroup.innerHTML = '';
+
+        const maxVal = Math.max(targetMean, ...knowns, Math.abs(missing), 1);
+        const scale = 180 / maxVal;
+
+        knowns.forEach((v, i) => {
+            const h = v * scale;
+            lGroup.innerHTML += `<rect x="${40 + i*35}" y="${230-h}" width="25" height="${h}" class="stick" />`;
+        });
+
+        const missH = Math.max(0, missing * scale);
+        lGroup.innerHTML += `
+            <g class="missing-stick">
+                <rect x="${40 + knowns.length*35}" y="${230-missH}" width="25" height="${missH}" />
+                <text x="${40 + knowns.length*35 + 12}" y="${230-missH-12}" fill="#C5A059" font-weight="900" font-size="13" text-anchor="middle">${missing.toFixed(1)}</text>
+            </g>`;
+
+        for(let i=0; i < targetCount; i++) {
+            const h = targetMean * scale;
+            rGroup.innerHTML += `<rect x="${420 + i*35}" y="${230-h}" width="25" height="${h}" class="stick target-stick" />`;
+        }
+
+        document.getElementById('l-sum').textContent = isApplied ? (knownSum + missing).toFixed(1) : knownSum.toFixed(1);
+        document.getElementById('r-sum').textContent = targetSum.toFixed(1);
+
+        document.getElementById('engine-trace').innerHTML = `
+            <div class="trace-step">→ 1. Pile You Have: ${knowns.join(' + ')} = <b>${knownSum.toFixed(1)}</b></div>
+            <div class="trace-step">→ 2. New Group Size: <b>${targetCount}</b></div>
+            <div class="trace-step">→ 3. Pile You Need: ${targetCount} × ${targetMean} = <b>${targetSum.toFixed(1)}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → THE BRIDGE (MISSING VALUE): ${targetSum.toFixed(1)} - ${knownSum.toFixed(1)} = ${missing.toFixed(2)}
+            </div>
+        `;
+    }
+
+    function toggleBridge() {
+        isApplied = !isApplied;
+        document.getElementById('stage').classList.toggle('merged', isApplied);
+        document.getElementById('btn-bridge').innerText = isApplied ? "Reset Bridge" : "Add Missing Data";
+        updateLogic();
+    }
+
+    window.onload = updateLogic;
+</script>
+
+</body>
+</html>

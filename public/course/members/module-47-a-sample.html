@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample: Valid Cube Nets | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* GUEST VISIBILITY OVERRIDES */
+        .foundational-only, .supplemental-only { display: block !important; }
+        .btn-complete, .cognis-m-nav, .module-footer-nav { display: none !important; }
+
+        /* CENTERED LAYOUT FIX */
+        body { 
+            background: transparent !important; 
+            margin: 0; padding: 0; 
+            display: flex; justify-content: center; 
+            overflow: hidden;
+        }
+        .module-card { 
+            max-width: 850px !important; width: 100%; 
+            margin: 0 auto !important; border: none; 
+            box-shadow: none; background: transparent; padding: 0; 
+        }
+        .header { text-align: center; padding: 30px 0 40px; }
+
+        /* CLEAN ACCORDION STYLING */
+        details.sample-acc {
+            background: #fff; border: 1px solid var(--lgrey);
+            border-radius: 12px; margin-bottom: 15px; overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        details.sample-acc summary {
+            font-weight: 700; color: var(--navy); background: #fff;
+            cursor: pointer; padding: 24px 30px; outline: none; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s;
+        }
+        details.sample-acc summary::-webkit-details-marker { display: none; }
+        details.sample-acc[open] summary { border-bottom: 1px solid var(--lgrey); background: var(--off); }
+        
+        /* Prominent Down Arrow Prompt */
+        details.sample-acc summary::after { 
+            content: '↓'; 
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--gold);
+            transition: 0.3s;
+        }
+        details.sample-acc[open] summary::after { transform: rotate(180deg); }
+        
+        .acc-inner { padding: 40px 30px; background: #fff; }
+
+        /* UP-ARROW CLOSE BUTTON AT BOTTOM */
+        .acc-close-footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--lgrey);
+            text-align: center;
+        }
+        .btn-close-acc {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--grey);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+            padding: 10px 20px;
+        }
+        .btn-close-acc:hover { color: var(--navy); }
+        .btn-close-acc b { font-size: 1.1rem; line-height: 1; }
+
+        /* ORIGINAL COMPONENT STYLES RESTORED */
+        .viz-container { background: #f8fafc; border: 2px dashed #cbd5e0; border-radius: 12px; padding: 20px; margin: 25px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; position: relative; overflow: hidden; }
+        .discovery-log { background: #fdfbf7; padding: 20px; border-radius: 12px; border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5; width: 100%; }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📦'; }
+        
+        .net-face-f { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.6s; }
+        .tape-indicator { stroke: var(--cognis-gold); stroke-width: 4; stroke-linecap: round; opacity: 0; transition: opacity 0.3s; }
+        .leap-path { stroke: var(--cognis-gold); stroke-width: 3; fill: none; stroke-dasharray: 6; opacity: 0; transition: opacity 0.5s; }
+        
+        /* SUPPLEMENTAL LOGIC ENGINE STYLES */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; text-align: center; width: 100%; }
+        .net-grid-s { display: grid; grid-template-columns: repeat(4, 55px); grid-template-rows: repeat(3, 55px); gap: 10px; justify-content: center; }
+        .face-s { width: 55px; height: 55px; background: #2d3748; border: 2px solid #4a5568; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        .face-s.active { background: var(--cognis-gold); border-color: white; transform: scale(1.1); box-shadow: 0 0 15px rgba(197,160,89,0.5); }
+        .face-s.opposite { background: #ef4444; border-color: white; box-shadow: 0 0 15px rgba(239,68,68,0.3); }
+
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .phase { border: 1px solid var(--border-light); margin-bottom: 30px !important; padding: 30px; border-radius: 12px; }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body>
+
+<div class="module-card">
+    <div class="header"><h1>Module 47: Valid Cube Nets</h1></div>
+
+    <details class="sample-acc" id="acc-foundational">
+        <summary>Preview Stage 1: Foundational Phase (Years 2–4)</summary>
+        <div class="acc-inner">
+            <section class="phase" id="sub-intro">
+                <span class="section-tag">Foundation Intro</span>
+                <h2>The Sticky Tape Test</h2>
+                <p>Imagine you have a flattened cardboard box. To make it a cube, you have to fold the edges until they touch. If two edges can be taped together without overlapping or leaving a gap, the net is <b>Valid</b>.</p>
+                
+                <div class="parent-script">
+                    "Look at these two faces on the net. They look far apart, but when the box folds, they become neighbors! Click 'Apply Sticky Tape' to see the gold tape join them together."
+                </div>
+
+                <div class="viz-container">
+                    <svg width="240" height="240" viewBox="0 0 240 240">
+                        <rect x="80" y="20" width="60" height="60" class="net-face-f" />
+                        <rect x="20" y="80" width="60" height="60" class="net-face-f" />
+                        <rect x="80" y="80" width="60" height="60" class="net-face-f" />
+                        <rect x="140" y="80" width="60" height="60" class="net-face-f" />
+                        <rect x="200" y="80" width="60" height="60" class="net-face-f" />
+                        <rect x="80" y="140" width="60" height="60" class="net-face-f" />
+                        <line id="tape-line" x1="80" y1="50" x2="50" y2="80" class="tape-indicator" />
+                    </svg>
+                    <button class="btn-action" onclick="runIntroTape()">Apply Sticky Tape</button>
+                </div>
+
+                <div class="discovery-log" id="intro-log">Edges are separate in 2D. Ready to tape!</div>
+            </section>
+
+            <section class="phase" id="sub-progressing" style="margin-bottom:0 !important;">
+                <span class="section-tag">Foundation Progressing</span>
+                <h2>The Leapfrog Bridge</h2>
+                <p>The fastest way to solve cube nets is to find <b>Opposite Pairs</b>. In any straight line of three or more squares, the faces separated by exactly <b>one jump</b> will be opposites. They can never touch in 3D!</p>
+                
+                <div class="parent-script">
+                    "Look at the long row of four squares. If we start at Face A, we 'leapfrog' over Face B to find Face C. A and C are opposites. Click 'Bridge the Opposites' to see the partners."
+                </div>
+
+                <div class="viz-container">
+                    <svg width="300" height="150" viewBox="0 0 300 150">
+                        <rect x="20" y="45" width="60" height="60" class="net-face-f" id="node-a" /><text x="50" y="80" text-anchor="middle" font-weight="800">A</text>
+                        <rect x="80" y="45" width="60" height="60" class="net-face-f" /><text x="110" y="80" text-anchor="middle" font-weight="800">B</text>
+                        <rect x="140" y="45" width="60" height="60" class="net-face-f" id="node-c" /><text x="170" y="80" text-anchor="middle" font-weight="800">C</text>
+                        <rect x="200" y="45" width="60" height="60" class="net-face-f" /><text x="230" y="80" text-anchor="middle" font-weight="800">D</text>
+                        
+                        <path d="M50,45 Q110,-10 170,45" class="leap-path" id="lp-1" />
+                    </svg>
+                    <button class="btn-action" onclick="runLeapfrog()">Bridge the Opposites</button>
+                </div>
+
+                <div class="discovery-log" id="prog-log">Straight lines hide the best clues.</div>
+            </section>
+
+            <div class="acc-close-footer">
+                <div class="btn-close-acc" onclick="closeStage('acc-foundational')">Close Preview <b>↑</b></div>
+            </div>
+        </div>
+    </details>
+
+    <details class="sample-acc" id="acc-supplemental">
+        <summary>Preview Stage 2: Supplemental Mastery (Years 4–6)</summary>
+        <div class="acc-inner">
+            <section class="phase">
+                <h2>Phase 1: The X-Ray</h2>
+                <p>A cube net is a <b>"Flattened Cardboard Box."</b> Success depends on identifying <b>Opposite Pairs</b>. Since opposites can never touch and can never be seen together, finding them is the fastest way to eliminate decoy answers.</p>
+                
+                <div class="question-tiers">
+                    <div class="tier-card"><b>Standard Cross</b> Identify the "Base" if "Top" is selected in a 1-4-1 net.</div>
+                    <div class="tier-card"><b>The T-Shape</b> Find all three opposite pairs in a T-style layout.</div>
+                    <div class="tier-card"><b>Advanced "Z"</b> Solve a "Z-Net" where squares are staggered.</div>
+                </div>
+            </section>
+
+            <section class="phase">
+                <h2>Phase 2: The Anatomy</h2>
+                <p>Click any numbered face below. The engine highlights its partner in Red. They <b>jump over exactly one face</b>. If two numbers are highlighted as opposites, they can <u>never</u> share an edge.</p>
+                <div class="viz-container">
+                    <div class="anatomy-display-s">
+                        <div class="net-grid-s" id="s-net-container"></div>
+                        <div style="margin-top:20px; font-weight:800; color:#94a3b8; font-size:0.6rem; text-transform:uppercase;">Click a face to find its partner</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="phase">
+                <h2>Phase 3: The Engine</h2>
+                <p style="margin-bottom: 20px;">Swap layouts to build mental muscle. Challenge your child to predict the parallel partner before clicking.</p>
+                <div class="engine-container">
+                    <div class="inputs" style="display: flex; gap: 10px; flex-direction: column;">
+                        <button class="btn-variant-s btn-action active" onclick="loadSuppNet('cross', this)">1-4-1 (Cross)</button>
+                        <button class="btn-variant-s btn-action" onclick="loadSuppNet('t-aligned', this)">1-4-1 (T-Style)</button>
+                        <button class="btn-variant-s btn-action" onclick="loadSuppNet('z-shape', this)">2-3-1 (Z-Net)</button>
+                    </div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 20px;">Select a layout and click a face...</div>
+                </div>
+            </section>
+
+            <section class="phase" style="margin-bottom:0 !important;">
+                <div class="trap-box">
+                    <h3>Phase 4: The Saboteur</h3>
+                    <p><b>The "Touching Corner" Trap:</b> Children assume squares sharing a corner on flat paper must touch on the cube. **Illusion!** Many distant faces meet at the same edge in 3D.</p>
+                    <p><b>The Fix: The "Opposite Shield."</b> Find the three opposite pairs. If an answer shows two opposites sharing a line, cross it out immediately.</p>
+                </div>
+            </section>
+
+            <div class="acc-close-footer">
+                <div class="btn-close-acc" onclick="closeStage('acc-supplemental')">Close Preview <b>↑</b></div>
+            </div>
+        </div>
+    </details>
+</div>
+
+<script>
+    // --- UI HELPERS & RESIZER ---
+    function sendHeight() {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({ type: 'resize', height: height }, '*');
+    }
+
+    function closeStage(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.open = false;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            sendHeight();
+        }
+    }
+
+    // --- MODULE 47 ENGINE LOGIC ---
+
+    /* INTRO: TAPE */
+    function runIntroTape() {
+        document.getElementById('tape-line').style.opacity = '1';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Edges Joined! These two faces will touch in the 3D cube.</div>`;
+        sendHeight();
+    }
+
+    /* PROGRESSING: LEAPFROG */
+    function runLeapfrog() {
+        document.getElementById('lp-1').style.opacity = '1';
+        document.getElementById('node-a').classList.add('face-s', 'active');
+        document.getElementById('node-c').classList.add('face-s', 'opposite');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Leapfrog Success! <b>A and C</b> are opposites and can never touch.</div>`;
+        sendHeight();
+    }
+
+    /* SUPPLEMENTAL: LOGIC ENGINE */
+    const sNets = {
+        'cross': { layout:[0,1,0,0, 2,3,4,5, 0,6,0,0], opps:{1:6, 6:1, 2:4, 4:2, 3:5, 5:3} },
+        't-aligned': { layout:[1,0,0,0, 2,3,4,5, 6,0,0,0], opps:{1:6, 6:1, 2:4, 4:2, 3:5, 5:3} },
+        'z-shape': { layout:[1,2,0,0, 0,3,4,0, 0,0,5,6], opps:{1:4, 4:1, 2:5, 5:2, 3:6, 6:3} }
+    };
+
+    function loadSuppNet(id, btn) {
+        const cont = document.getElementById('s-net-container');
+        if(!cont) return;
+        cont.innerHTML = '';
+        document.querySelectorAll('.btn-variant-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        sNets[id].layout.forEach(val => {
+            const div = document.createElement('div');
+            div.className = 'face-s';
+            if(val === 0) div.style.visibility = 'hidden';
+            div.textContent = val || '';
+            div.id = 'sf-' + val;
+            div.onclick = () => {
+                document.querySelectorAll('.face-s').forEach(f => f.classList.remove('active', 'opposite'));
+                div.classList.add('active');
+                const opp = sNets[id].opps[val];
+                if(opp) {
+                    const oppEl = document.getElementById('sf-' + opp);
+                    if(oppEl) oppEl.classList.add('opposite');
+                    document.getElementById('supp-log').innerHTML = `→ Face ${val} + Face ${opp} = <b>Opposite Pair</b><br>→ These can never share an edge on the cube.`;
+                }
+            };
+            cont.appendChild(div);
+        });
+        sendHeight();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Init Engine
+        if(document.getElementById('s-net-container')) loadSuppNet('cross', document.querySelector('.btn-variant-s'));
+
+        // Accordion Resizer
+        document.querySelectorAll('details').forEach(det => {
+            det.addEventListener('toggle', sendHeight);
+        });
+
+        if(typeof initModule === "function") initModule(47);
+        setTimeout(sendHeight, 300);
+    });
+</script>
+</body>
+</html>

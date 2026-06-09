@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 25: Combinatorics | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 420px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🤝'; }
+
+        /* INTRO: STRING WEB */
+        .friend-node { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
+        .connection-line { stroke: var(--cognis-gold); stroke-width: 2; stroke-dasharray: 4; opacity: 0.3; transition: all 0.5s; }
+        .connection-active { stroke-dasharray: 0; opacity: 1; stroke-width: 3; }
+
+        /* PROGRESSING: STAIRCASE */
+        .stair-step { fill: var(--cognis-blue); stroke: #fff; stroke-width: 1; transition: all 0.5s; }
+        .stair-label { font-size: 10px; font-weight: 800; fill: #94a3b8; }
+
+        /* SUPPLEMENTAL: MATRIX */
+        .matrix-grid-s { display: grid; gap: 4px; background: #1a202c; padding: 15px; border-radius: 10px; }
+        .cell-s { width: 30px; height: 30px; border-radius: 4px; background: #4a5568; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: rgba(255,255,255,0.3); font-weight: 900; transition: all 0.4s; }
+        .cell-s.active { background: var(--cognis-gold); color: white; box-shadow: 0 0 10px rgba(197, 160, 89, 0.4); }
+        .cell-s.self { background: transparent; border: 1px dashed #718096; }
+        .cell-s.mirror { opacity: 0.1; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 25: Combinatorics</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Friendship Web</h2>
+            <p>Imagine 4 friends standing in a circle. To make sure everyone says hello to everyone else, we draw a "String Web" between them. Each string represents <b>one handshake</b>. We have to be careful not to count the same string twice!</p>
+            
+            <div class="parent-script">
+                "We have 4 friends. Let's draw the connections. Person 1 shakes hands with 3 people. Person 2 only needs to shake hands with 2 new people, because they already met Person 1! Click 'Connect' to build the web and count the strings."
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="300" viewBox="0 0 300 300" id="web-svg">
+                    <g id="web-lines"></g>
+                    <g id="web-nodes"></g>
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top: 10px;">Unique Handshakes: <span id="intro-count">0</span></div>
+                <button class="btn-action" onclick="addWebConnection()">Connect Next Friend</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Web</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Ready to start the party?</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Handshake Staircase</h2>
+            <p>The easiest way to count handshakes is to build a <b>Staircase</b>. The first person meets everyone else. The next person meets everyone who is <i>left</i>. The number of new handshakes goes down by one every time until the last person has already met everyone!</p>
+            
+            <div class="parent-script">
+                "Look at the staircase for 5 people. Person A makes 4 handshakes. Person B makes 3. Person C makes 2. Person D makes 1. And Person E? They've already met everyone! To find the total, we just add the stairs: 4 + 3 + 2 + 1 = 10."
+            </div>
+
+            <div class="viz-container">
+                <svg width="350" height="250" viewBox="0 0 350 250" id="stair-svg"></svg>
+                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">
+                    Calculation: <span id="prog-calc-text">4 + 3 + 2 + 1 = 10</span>
+                </div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Number of People</label>
+                        <input type="range" min="3" max="7" value="5" id="prog-n" oninput="updateProg()">
+                        <div class="val-out" id="prog-n-val">5 People</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('25-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as the <b>"Party Puzzle."</b> A handshake is a <b>two-way street</b>. If you visualize a grid of everyone in the room, you'll see that most handshakes are just mirror images. To find the unique interactions, we must "clean" the grid of self-shaking and duplicates.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The High-Five</b> "4 friends high-five each other once. How many happen in total?"</div>
+                <div class="tier-card"><b>The Tournament</b> "8 teams. Every team plays every other team once. How many games?"</div>
+                <div class="tier-card"><b>The Riddle</b> "45 handshakes happened at a meeting. How many people were there?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Matrix of Possibility</b>. The diagonal dots are <b>Self-Shakes</b> (impossible). When you filter the grid, exactly half of the squares vanish. Those are the <b>Mirror Images</b>. Shaking hands with Person B is the same event as Person B shaking hands with you.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div id="s-matrix" class="matrix-grid-s"></div>
+                <button class="btn-action" style="background:var(--cognis-gold);" id="s-filter-btn" onclick="toggleSuppFilter()">Filter Grid (÷ 2)</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the number of people. Watch the formula: we multiply people by $(n-1)$ to remove themselves, then divide by 2 to remove mirrors.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Number of People (n)</label><input type="range" id="in-n" min="2" max="10" value="5" oninput="runSupp()"></div>
+                    <div style="background:rgba(197,160,89,0.1); border:1px solid var(--cognis-gold); padding:15px; border-radius:8px; text-align:center;">
+                        <small style="color:var(--cognis-gold); font-weight:800; display:block; margin-bottom:5px;">THE FORMULA</small>
+                        <code style="color:white; font-weight:900; font-size:1.2rem;">n(n - 1) / 2</code>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Reflection" Trap:</b> For 10 people, many kids calculate $10 \times 9 = 90$ and stop. They are counting every handshake twice!</p>
+                <p><b>The Fix: The "Two-to-One" Rule.</b> <i>"It takes two people to make one handshake."</i> Always divide the group pairings by 2. If you don't divide, you are counting hands, not handshakes.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(25)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Logic Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: WEB --- */
+    let webStep = 0;
+    const nodes = [{x:150, y:50}, {x:250, y:150}, {x:150, y:250}, {x:50, y:150}];
+    function resetIntro() {
+        webStep = 0;
+        document.getElementById('web-lines').innerHTML = '';
+        document.getElementById('web-nodes').innerHTML = '';
+        document.getElementById('intro-count').innerText = "0";
+        document.getElementById('intro-log').innerHTML = "Ready! Place the first friend.";
+        nodes.forEach((n, i) => {
+            const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            c.setAttribute("cx", n.x); c.setAttribute("cy", n.y); c.setAttribute("r", 15);
+            c.setAttribute("class", "friend-node");
+            document.getElementById('web-nodes').appendChild(c);
+        });
+    }
+    function addWebConnection() {
+        if(webStep >= 4) return;
+        const lines = document.getElementById('web-lines');
+        const startNode = nodes[webStep];
+        for(let i = webStep + 1; i < 4; i++) {
+            const endNode = nodes[i];
+            const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            l.setAttribute("x1", startNode.x); l.setAttribute("y1", startNode.y);
+            l.setAttribute("x2", endNode.x); l.setAttribute("y2", endNode.y);
+            l.setAttribute("class", "connection-line connection-active");
+            lines.appendChild(l);
+        }
+        webStep++;
+        const total = [0, 3, 5, 6, 6][webStep];
+        document.getElementById('intro-count').innerText = total;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Friend ${webStep} has connected with all remaining friends!</div>`;
+    }
+
+    /* --- PROGRESSING: STAIRCASE --- */
+    function updateProg() {
+        const n = parseInt(document.getElementById('prog-n').value);
+        document.getElementById('prog-n-val').innerText = n + " People";
+        const svg = document.getElementById('stair-svg');
+        svg.innerHTML = '';
+        
+        let sum = 0;
+        let labels = [];
+        for(let i=0; i < n-1; i++) {
+            const count = (n - 1) - i;
+            sum += count;
+            labels.push(count);
+            for(let j=0; j < count; j++) {
+                svg.innerHTML += `<rect x="${30 + i*45}" y="${200 - j*30}" width="35" height="25" class="stair-step" />`;
+            }
+            svg.innerHTML += `<text x="${47 + i*45}" y="240" text-anchor="middle" class="stair-label">Person ${String.fromCharCode(65+i)}</text>`;
+        }
+        document.getElementById('prog-calc-text').innerText = labels.join(' + ') + " = " + sum;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">A <b>${n}-person</b> party needs <b>${sum}</b> handshakes.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: MATRIX --- */
+    let sFiltered = false;
+    function toggleSuppFilter() { sFiltered = !sFiltered; runSupp(); }
+    function runSupp() {
+        const n = parseInt(document.getElementById('in-n').value);
+        const matrix = document.getElementById('s-matrix');
+        matrix.style.gridTemplateColumns = `repeat(${n}, 30px)`;
+        matrix.innerHTML = '';
+
+        for(let r=0; r<n; r++) {
+            for(let c=0; c<n; c++) {
+                const div = document.createElement('div');
+                div.className = 'cell-s';
+                if(r === c) div.classList.add('self');
+                else if(sFiltered && r > c) div.classList.add('mirror');
+                else div.classList.add('active');
+                matrix.appendChild(div);
+            }
+        }
+        
+        const total = n * (n-1) / 2;
+        document.getElementById('supp-log').innerHTML = `→ Grid: ${n} x ${n-1} neighbors = ${n*(n-1)}<br>→ <b>Unique Handshakes: ${total}</b>`;
+        document.getElementById('s-filter-btn').innerText = sFiltered ? "Reset Grid" : "Filter Grid (÷ 2)";
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        if(document.getElementById('in-n')) runSupp();
+        if(typeof initModule === "function") initModule(25);
+    });
+</script>
+</body>
+</html>

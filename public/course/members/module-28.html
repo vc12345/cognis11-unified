@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 28: Net Topology | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR NET SIMULATION */
+        .anatomy-display { padding: 40px; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; }
+        
+        .net-svg-container {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .face { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.3s; }
+        .face-base { fill: rgba(197, 160, 89, 0.2); stroke: var(--cognis-gold); stroke-width: 3; }
+        .face-lid { fill: rgba(49, 130, 206, 0.2); stroke: #3182ce; stroke-width: 3; }
+
+        .face-text {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 900;
+            font-size: 10px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .btn-preset { 
+            background: #2d3748; color: #a0aec0; border: none; 
+            padding: 10px; border-radius: 6px; font-size: 0.7rem; 
+            cursor: pointer; text-transform: uppercase; font-weight: 800;
+            transition: 0.2s; 
+        }
+        .btn-preset:hover { background: #4a5568; color: white; }
+        .btn-preset.active { background: var(--cognis-gold); color: white; box-shadow: 0 4px 10px rgba(197,160,89,0.3); }
+
+        .dim-inputs { display: flex; gap: 10px; margin-top: 20px; }
+        .dim-inputs div { flex: 1; }
+        .dim-inputs input { width: 100% !important; text-align: center; background: #2d3748; color: white; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(28));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 28: Net Topology & Volume</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Mental Origami."</b> In the 11+, your child will be shown flat paper shapes (nets) and asked to turn them into 3D boxes in their mind. The secret is that boxes have rules about <b>opposites</b>. A Lid and a Base can never touch; in a flat net, they must always be separated by exactly one "buffer" face. If your child can spot these gaps, they can "fold" any box without ever picking up a pair of scissors.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Cube Core</b>
+                "A cube net has a side of 4cm. What is the total volume when folded?"
+            </div>
+            <div class="tier-card">
+                <b>The Cuboid Capacity</b>
+                "A net has a 5x3 base and a flap height of 2. How much space is inside the box?"
+            </div>
+            <div class="tier-card">
+                <b>The Pattern Spotter</b>
+                "Look at this non-standard Z-pattern. Which face will be directly opposite the Base?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Select a layout below to see how the <b>Base</b> (gold) and <b>Lid</b> (blue) behave. Point out to your child that no matter how weird the pattern looks, the Lid and Base are <b>never neighbors</b>. They always have one face standing between them, acting as the "bridge."</p>
+        
+        <div class="anatomy-display">
+            <div class="net-svg-container">
+                <svg id="net-svg" width="100%" height="320" viewBox="0 0 450 320" preserveAspectRatio="xMidYMid meet"></svg>
+            </div>
+            <p id="net-desc" style="text-align: center; margin-top: 20px; font-weight: 800; color: var(--cognis-blue); text-transform: uppercase; letter-spacing: 1px;">Layout: Standard Cross</p>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Toggle through the <b>Net Patterns</b>. Ask your child to predict which face is the "Lid" before you click. Then, use the <b>Dimensions</b> boxes to see how the total volume is calculated by multiplying the Base area by the "flap" height.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">1. Choose your Fold</label>
+                <div class="preset-grid">
+                    <button class="btn-preset active" onclick="setNet('cross', this)">Standard Cross</button>
+                    <button class="btn-preset" onclick="setNet('z-pattern', this)">Z-Pattern</button>
+                    <button class="btn-preset" onclick="setNet('long-row', this)">Long Row</button>
+                    <button class="btn-preset" onclick="setNet('t-shape', this)">T-Shape</button>
+                </div>
+
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; margin-top: 25px; display: block;">2. Box Dimensions</label>
+                <div class="dim-inputs">
+                    <div><small style="color:#a0aec0; font-size:0.6rem;">LENGTH</small><input type="number" id="in-l" value="5" oninput="run28()"></div>
+                    <div><small style="color:#a0aec0; font-size:0.6rem;">WIDTH</small><input type="number" id="in-w" value="4" oninput="run28()"></div>
+                    <div><small style="color:#a0aec0; font-size:0.6rem;">HEIGHT</small><input type="number" id="in-h" value="3" oninput="run28()"></div>
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">Toggle layouts to see the "Bridge" rule in action.</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Friendly Neighbor" Trap:</strong> Most children assume that if two squares touch (share an edge) on the flat paper, they will be opposite each other in 3D. <b>This is the opposite of the truth!</b> If they touch on paper, they are neighbors in the box.</p>
+            
+            <p><strong>The Fix: The "Leapfrog" Rule.</strong> Tell your child: <i>"Opposites never touch."</i> To find a face's partner, you have to jump over exactly one face. If you pick a square and "leapfrog" over the next one, you’ve found its opposite. If they touch on the net, they are <b>perpendicular</b>, not opposite. <b>One jump = One opposite.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(28)">Complete Module & Update Lattice</button>
+
+<script>
+    const S = 50; 
+    let currentLayout = 'cross';
+
+    const nets = {
+        'cross': [{x:2,y:0,t:'lid'},{x:2,y:1,t:'f'},{x:2,y:2,t:'base'},{x:2,y:3,t:'f'},{x:1,y:2,t:'f'},{x:3,y:2,t:'f'}],
+        'z-pattern': [{x:1,y:0,t:'lid'},{x:2,y:0,t:'f'},{x:2,y:1,t:'base'},{x:3,y:1,t:'f'},{x:3,y:2,t:'f'},{x:4,y:2,t:'f'}],
+        'long-row': [{x:0,y:1,t:'lid'},{x:1,y:1,t:'f'},{x:2,y:1,t:'base'},{x:3,y:1,t:'f'},{x:2,y:0,t:'f'},{x:2,y:2,t:'f'}],
+        't-shape': [{x:1,y:0,t:'f'},{x:2,y:0,t:'lid'},{x:3,y:0,t:'f'},{x:2,y:1,t:'f'},{x:2,y:2,t:'base'},{x:2,y:3,t:'f'}]
+    };
+
+    function setNet(type, btn) {
+        document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLayout = type;
+        run28();
+    }
+
+    function run28() {
+        const svg = document.getElementById('net-svg');
+        svg.innerHTML = '';
+        
+        nets[currentLayout].forEach(f => {
+            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            rect.setAttribute('x', f.x * S + 80); 
+            rect.setAttribute('y', f.y * S + 40);
+            rect.setAttribute('width', S); 
+            rect.setAttribute('height', S);
+            rect.setAttribute('class', f.t === 'base' ? 'face face-base' : f.t === 'lid' ? 'face face-lid' : 'face');
+            svg.appendChild(rect);
+            
+            if(f.t !== 'f') {
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute('x', f.x * S + S/2 + 80); 
+                text.setAttribute('y', f.y * S + S/2 + 40);
+                text.setAttribute('class', 'face-text');
+                text.setAttribute('fill', f.t === 'base' ? 'var(--cognis-gold)' : '#3182ce');
+                text.textContent = f.t.toUpperCase();
+                svg.appendChild(text);
+            }
+        });
+
+        const l = parseFloat(document.getElementById('in-l').value) || 0;
+        const w = parseFloat(document.getElementById('in-w').value) || 0;
+        const h = parseFloat(document.getElementById('in-h').value) || 0;
+        const vol = l * w * h;
+
+        document.getElementById('net-desc').innerText = `Layout: ${currentLayout.replace('-', ' ')}`;
+        
+        document.getElementById('engine-trace').innerHTML = `
+            <div class="trace-step">→ 1. Floor Space: ${l} × ${w} = <b>${l*w} units²</b></div>
+            <div class="trace-step">→ 2. Stack Height: <b>${h} layers</b></div>
+            <div class="trace-step">→ 3. The Squeeze: ${l*w} × ${h}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → TOTAL VOLUME: ${vol.toFixed(2)} units³
+            </div>
+            <div style="font-size:0.7rem; color:#a0aec0; margin-top:15px; font-style:italic;">
+                * Leapfrog Rule: In any valid net, opposites like the Lid and Base are separated by exactly one buffer face.
+            </div>
+        `;
+    }
+
+    window.onload = run28;
+</script>
+
+</body>
+</html>

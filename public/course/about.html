@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About · Cognis11</title>
+<meta name="description" content="Cognis11 applies the principles of Schema-Based Instruction to 11+ preparation, offering a structural alternative to rote drilling.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --navy:#1B3A5C; --steel:#2E6DA4; --gold:#c5a059;
+        --cream:#FAFAF6; --off:#F4F2ED; --lgrey:#E2E8F0;
+        --dgrey:#334155; --grey:#64748b; --white:#fff;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'DM Sans', sans-serif; background:var(--cream); color:var(--dgrey); line-height:1.6; }
+
+    /* NAV */
+    nav { border-bottom:1px solid var(--lgrey); padding:18px 32px; display:flex; align-items:center; justify-content:space-between; background:#fff; position:sticky; top:0; z-index:100; }
+    .brand { font-family:'Playfair Display', serif; font-size:1.1rem; color:var(--navy); font-weight:700; text-decoration:none; }
+    .nav-links { display:flex; align-items:center; gap:24px; }
+    .nav-links a { font-size:.85rem; color:var(--navy); text-decoration:none; font-weight:600; text-transform: uppercase; letter-spacing: 1px; }
+    .nav-cta { background:var(--navy); color:var(--white)!important; padding:10px 22px; border-radius:5px; transition: background 0.2s; }
+
+    /* HERO */
+    .hero { max-width:900px; margin:0 auto; padding:100px 32px 60px; text-align: center; }
+    .hero-tag { font-size:.75rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--gold); margin-bottom:20px; }
+    .hero h1 { font-family:'Playfair Display', serif; font-size:clamp(2.2rem, 5vw, 3.5rem); line-height:1.1; color:var(--navy); margin-bottom:24px; }
+    .hero h1 em { font-style:italic; font-weight: 400; color:var(--steel); }
+    .hero p { font-size:1.2rem; color:var(--grey); max-width:700px; margin:0 auto; }
+
+    /* CONTENT SECTIONS */
+    section { padding:80px 0; border-top:1px solid var(--lgrey); }
+    .container { max-width:850px; margin:0 auto; padding:0 32px; }
+    
+    h2 { font-family:'Playfair Display', serif; font-size:2rem; color:var(--navy); margin-bottom:24px; }
+    p { margin-bottom:20px; font-size:1.05rem; color:var(--dgrey); }
+
+    .pullquote { 
+        border-left:4px solid var(--gold); 
+        padding:30px 40px; 
+        margin:50px 0; 
+        font-family:'Playfair Display', serif; 
+        font-style:italic; 
+        font-size:1.45rem; 
+        color:var(--navy); 
+        line-height:1.5; 
+        background:var(--white); 
+        border-radius:0 12px 12px 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+    }
+
+    /* UNIFIED FOUNDING SECTION */
+    .founding-team { background: var(--white); border: 1px solid var(--lgrey); border-radius: 16px; padding: 50px; margin: 40px 0; }
+    .founding-team h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gold); margin-bottom: 20px; font-weight: 800; }
+    .founding-team p { font-size: 1.1rem; color: var(--navy); line-height: 1.7; margin-bottom: 30px; font-weight: 400; }
+    .expertise-list { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px; }
+    .expertise-tag { background: var(--off); padding: 6px 14px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: var(--steel); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* SBI PIVOT */
+    .sbi-pivot { background: var(--navy); color: white; border-radius: 20px; padding: 70px 60px; margin: 60px 0; position: relative; overflow: hidden; }
+    .sbi-pivot::before { content: "SBI"; position: absolute; right: -20px; bottom: -20px; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.03); }
+    .sbi-pivot h2 { color: white; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 25px; }
+    .sbi-pivot p { color: rgba(255,255,255,0.8); font-size: 1.1rem; }
+    .pivot-highlight { color: var(--gold); font-weight: 700; }
+
+    /* CTA */
+    .cta { padding:100px 32px; text-align:center; }
+    .btn-navy { background:var(--navy); color:var(--white); padding:18px 40px; border-radius:8px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; transition: 0.2s; box-shadow: 0 4px 14px rgba(27, 58, 92, 0.2); }
+
+    footer { border-top:1px solid var(--lgrey); padding:60px 32px; text-align:center; font-size:.85rem; color:var(--grey); }
+    footer a { color: var(--navy); text-decoration: none; font-weight: 500; margin: 0 10px; }
+</style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="brand">Cognis11</a>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="subscribe.html">Subscribe</a>
+        <a href="diagnostic.html" class="nav-cta">Free diagnostic →</a>
+    </div>
+</nav>
+
+<div class="hero">
+    <div class="hero-tag">Our Methodology</div>
+    <h1>For the child who asks <em>"Why?"</em></h1>
+    <p>Preparation designed for students who prioritise understanding over memorisation, and for parents who want a more structured way to help.</p>
+</div>
+
+<div class="container">
+    <section style="border-top:none; padding-top:0;">
+        <p>The 11+ industry is largely built on a single assumption: that volume creates results. For many children, this works. But for a specific type of learner—the "Deep Understander"—high-volume drilling often leads to frustration and diminishing returns.</p>
+        <p>These children don't lack ability; they lack an entry point that respects their need for logic. Cognis11 was founded to provide that entry point, adapting principles from cognitive science to create a more efficient, structure-led way to learn.</p>
+        
+        <div class="founding-team">
+            <h3>The Founding Team</h3>
+            <p>Our team brings together a spread of backgrounds: academia (cognitive neuroscience), analysis (financial and research), and digital product building.</p>
+            <p>Our motivation lies in the hope that more children can develop a genuine, structural understanding of how problems work, and that preparation can be a moment of shared insight rather than just a high-stakes drill.</p>
+            <div class="expertise-list">
+                <span class="expertise-tag">Cognitive Research</span>
+                <span class="expertise-tag">Data Strategy</span>
+                <span class="expertise-tag">Product Design</span>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<div class="container">
+    <section class="sbi-pivot">
+        <h2>The Adaptation of SBI</h2>
+        <p>Schema-Based Instruction (SBI) is a well-documented pillar of cognitive psychology. For decades, it has been used as a remedial framework to help children who struggle with mathematics by teaching them to classify problem types.</p>
+        <p style="margin-top: 25px;"><strong>Cognis11 takes a novel path.</strong></p>
+        <p style="margin-top: 15px;">We are exploring whether this same structural logic can be used for <span class="pivot-highlight">Performance Optimization</span>. We’ve adapted the core mechanism of SBI—identifying the "schema" or logical skeleton of a question—and pointed it at the competitive 11+ curriculum. Our hypothesis is simple: by giving reasoners a way to classify problem structures in seconds, we can reduce the cognitive load that causes them to slow down, allowing their natural ability to take over.</p>
+    </section>
+</div>
+
+<div class="cta">
+    <div class="container">
+        <h2>Explore the method.</h2>
+        <p style="margin-bottom: 40px; color: var(--grey);">The best way to understand Cognis11 is to experience it. Try three of our modules for free to see if our structural approach resonates with your child.</p>
+        <a href="sample.html" class="btn-navy">Try Sample Modules →</a>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 Cognis11 · Reasoning-First Preparation. <a href="mailto:hello@cognis11.com">hello@cognis11.com</a></p>
+</footer>
+
+</body>
+</html>

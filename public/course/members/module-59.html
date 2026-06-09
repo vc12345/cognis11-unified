@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 59: Tense Consistency | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR TIMELINE VISUALS */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .timeline-viz {
+            position: relative;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 4px;
+            background: #cbd5e0;
+            z-index: 1;
+        }
+
+        .time-node {
+            position: relative;
+            z-index: 2;
+            background: white;
+            border: 3px solid var(--cognis-blue);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 0.7rem;
+            color: var(--cognis-blue);
+            text-transform: uppercase;
+        }
+
+        .time-node.interruption {
+            border-color: var(--cognis-gold);
+            color: var(--cognis-gold);
+            transform: translateY(-20px);
+        }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; }
+        
+        .passage-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .verb-node {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-bottom: 2px dashed #4a5568;
+            transition: 0.2s;
+            margin: 0 4px;
+        }
+        .verb-node:hover { background: rgba(197, 160, 89, 0.2); }
+        .verb-node.flagged { color: #f87171; border-color: #f87171; border-bottom-style: solid; font-weight: bold; }
+        .verb-node.fixed { color: var(--pass-green); border-color: var(--pass-green); border-bottom-style: solid; font-weight: bold; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-load { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
+            text-align: left; transition: 0.2s;
+        }
+        .btn-load:hover { background: #4a5568; color: white; }
+        .btn-load.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
+
+        .btn-fix {
+            background: var(--cognis-gold);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(59));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 59: The Timekeeper (Tense Consistency)</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Tense is simply <b>The Logic of Time</b>. Every sentence has a "time-stamp." If a story starts in the <b>Past</b>, it usually needs to stay there. Most mistakes happen when a writer accidentally "slips" into the <b>Present</b> mid-sentence. You only switch tenses when the timeline actually shifts—like when a long background action is interrupted by a quick event (e.g., "I <i>was sleeping</i> when the alarm <i>rang</i>").</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Common Slip</b>
+                "She <u>played</u> tag and then <u>eats</u> a snack." <br>
+                <b>The Glitch:</b> Jumped from Past to Present.
+            </div>
+            <div class="tier-card">
+                <b>The Logical Clash</b>
+                "They <u>arrived</u> late, so they <u>miss</u> the start." <br>
+                <b>The Glitch:</b> The timeline is broken.
+            </div>
+            <div class="tier-card">
+                <b>The Interruption Error</b>
+                "While we <u>were winning</u>, the rain <u>stops</u> the match." <br>
+                <b>The Glitch:</b> The interruption doesn't match the background.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is an <b>Interruption Timeline</b>. When two things happen at once, they follow a hierarchy. The "Long Action" (Background) sets the scene, and the "Short Action" (The Trigger) breaks in. Point this out to your child: both actions are in the past, but they look different on the timeline.</p>
+        
+        <div class="anatomy-display">
+            <div class="timeline-viz">
+                <div class="timeline-line"></div>
+                <div class="time-node">Background: "I was eating"</div>
+                <div class="time-node interruption">Trigger: "Phone Rang"</div>
+                <div class="time-node">Result: "I stopped"</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <div class="simulation-area">
+            <div class="passage-well" id="logic-well">
+                </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Load a Timeline Scenario</label>
+                    <div class="preset-grid">
+                        <button class="btn-load active" onclick="loadCase(0, this)">Scenario: The Story Slip</button>
+                        <button class="btn-load" onclick="loadCase(1, this)">Scenario: The Fact Slip</button>
+                        <button class="btn-load" onclick="loadCase(2, this)">Scenario: The Interruption</button>
+                    </div>
+                    <button class="btn-fix" id="btn-fix" onclick="fixTimeline()">Repair the Timeline</button>
+                </div>
+                <div class="trace-log" id="trace-59">Click the word that breaks the timeline...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Quotation" Trap:</strong> Many children try to "fix" the tense inside speech marks. For example: <i>The boy <u>said</u>, "I <u>am</u> happy."</i> This is actually correct! Even if the story is in the past, the person talking is in their own "now." </p>
+            
+            <p><strong>The Fix:</strong> Use the <b>Anchor Verb Test</b>. Find the very first verb in the description (not the speech). This is your "Anchor." Every other action in the story must match that Anchor’s time-stamp. If the Anchor is past, the rest of the story must bow to the past.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(59)">Complete Module & Update Lattice</button>
+
+<script>
+    const cases = [
+        {
+            text: "The explorer <span>climbed</span> the peak, <span>surveyed</span> the view, and <span class='verb-node' onclick='flag(this)'>sits</span> down.",
+            error: "sits",
+            correction: "sat",
+            type: "Story Timeline",
+            logic: "The first verbs are Past; the last one must stay in the Past too."
+        },
+        {
+            text: "The liquid <span>evaporates</span> quickly because the burner <span>is</span> hot and the fan <span class='verb-node' onclick='flag(this)'>blew</span> air.",
+            error: "blew",
+            correction: "blows",
+            type: "Fact Timeline",
+            logic: "Scientific facts are 'always' true, so we use the Present tense."
+        },
+        {
+            text: "The students <span>were studying</span> quietly when the alarm <span class='verb-node' onclick='flag(this)'>sounds</span> a warning.",
+            error: "sounds",
+            correction: "sounded",
+            type: "Interruption Logic",
+            logic: "The background is Past (were studying), so the trigger must be Past too."
+        }
+    ];
+
+    let currentCase = cases[0];
+
+    function loadCase(idx, btn) {
+        document.querySelectorAll('.btn-load').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCase = cases[idx];
+        document.getElementById('btn-fix').style.display = 'none';
+        
+        document.getElementById('logic-well').innerHTML = currentCase.text;
+        updateTrace();
+    }
+
+    function flag(el) {
+        el.classList.add('flagged');
+        document.getElementById('btn-fix').style.display = 'block';
+        updateTrace(el.innerText, true);
+    }
+
+    function fixTimeline() {
+        const node = document.querySelector('.verb-node');
+        node.classList.remove('flagged');
+        node.classList.add('fixed');
+        node.innerText = currentCase.correction;
+        document.getElementById('btn-fix').style.display = 'none';
+        updateTrace(currentCase.correction, false, true);
+    }
+
+    function updateTrace(val, isError, isFixed) {
+        const log = document.getElementById('trace-59');
+        let html = `<div class="trace-step">→ 1. Pattern: <b>${currentCase.type}</b></div>`;
+        
+        if(!val) {
+            html += `<div class="trace-step">→ 2. Status: Scanning for time-slips...</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        if(isError) {
+            html += `<div class="trace-step">→ 2. Caught: "<b>${val}</b>"</div>`;
+            html += `
+                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → ERROR: Timeline Glitch Detected
+                </div>
+            `;
+        }
+
+        if(isFixed) {
+            html += `<div class="trace-step">→ 2. Corrected to: "<b>${val}</b>"</div>`;
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → SUCCESS: Timeline Synchronized
+                </div>
+                <div class="trace-step" style="font-size:0.7rem; opacity:0.8;">${currentCase.logic}</div>
+            `;
+        }
+
+        log.innerHTML = html;
+    }
+
+    window.onload = () => loadCase(0, document.querySelector('.btn-load'));
+</script>
+
+</body>
+</html>

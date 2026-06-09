@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 38: Synonym Precision | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🌡️'; }
+
+        /* INTRO: VOLUME KNOB */
+        .knob-container { position: relative; width: 150px; height: 150px; }
+        .knob { width: 100%; height: 100%; border-radius: 50%; background: #e2e8f0; border: 4px solid var(--cognis-blue); transition: transform 0.3s; position: relative; }
+        .knob-indicator { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 8px; height: 25px; background: var(--cognis-gold); border-radius: 4px; }
+        .volume-word { margin-top: 30px; font-weight: 900; font-size: 1.5rem; transition: all 0.3s; text-transform: uppercase; }
+
+        /* PROGRESSING: SPEEDOMETER */
+        .meter-arc { fill: none; stroke: #cbd5e0; stroke-width: 15; stroke-linecap: round; }
+        .meter-needle { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: 150px 150px; }
+
+        /* SUPPLEMENTAL: THERMAL SPECTRUM */
+        .anatomy-display-s { background: #1a202c; padding: 60px 40px; border-radius: 12px; text-align: center; }
+        .spectrum-container-s { width: 100%; max-width: 400px; height: 12px; background: #2d3748; border-radius: 10px; margin: 40px auto; position: relative; overflow: hidden; }
+        .spectrum-fill-s { height: 100%; background: linear-gradient(to right, #ecc94b, #ed8936, #e53e3e); transition: width 0.2s; }
+        .intensity-word-s { font-family: 'Consolas', monospace; font-weight: 900; letter-spacing: 4px; transition: all 0.3s; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .preset-grid-s { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-set-s { background: #2d3748; color: #a0aec0; border: none; padding: 8px; border-radius: 6px; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; font-weight: 800; }
+        .btn-set-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 38: Synonym Precision</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Volume Knob</h2>
+            <p>Synonyms aren't always equal. Some words are "whispers" (weak) and some are "shouts" (intense). Choosing the right word is like turning up a volume dial until it matches the drama of the story.</p>
+            
+            <div class="parent-script">
+                "We are describing a slight wind. A 'Gentle' breeze is a low volume. But a 'Violent' hurricane is high volume! Click the buttons to turn the dial. Notice how the word grows and changes color as it gets louder."
+            </div>
+
+            <div class="viz-container">
+                <div class="knob-container">
+                    <div id="intro-knob" class="knob"><div class="knob-indicator"></div></div>
+                </div>
+                <div id="intro-word" class="volume-word" style="color:var(--cognis-blue)">Gentle</div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="setVolume(0, 'Gentle', '#3182ce')">Whisper</button>
+                    <button class="btn-action" style="background:var(--cognis-gold)" onclick="setVolume(120, 'Strong', '#c5a059')">Speak</button>
+                    <button class="btn-action" style="background:var(--trap-red)" onclick="setVolume(240, 'Violent', '#e53e3e')">Shout!</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The word 'Gentle' is low intensity.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Emotion Meter</h2>
+            <p>To win at the 11+, you must learn to rank words from 1 to 100. If a character is crying, the word "sad" (level 20) might be too weak. You might need "distraught" (level 90) to match the speed of the drama.</p>
+            
+            <div class="parent-script">
+                "Look at these synonyms for 'Happy'. **Glad**, **Joyful**, and **Ecstatic**. Move the slider to see where they sit on the meter. See how 'Ecstatic' pushes the needle all the way into the red zone?"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <path d="M50,150 A100,100 0 0,1 250,150" class="meter-arc" />
+                    <line id="meter-needle" x1="150" y1="150" x2="150" y2="70" stroke="var(--cognis-blue)" stroke-width="4" class="meter-needle" />
+                    <circle cx="150" cy="150" r="10" fill="var(--cognis-blue)" />
+                </svg>
+                <div id="prog-word" style="font-weight:900; font-size:2rem; color:var(--cognis-gold);">Glad</div>
+                <input type="range" id="prog-slider" min="1" max="3" value="1" style="width:200px; margin-top:20px; accent-color:var(--cognis-gold);" oninput="updateProgMeter()">
+            </div>
+
+            <div class="discovery-log" id="prog-log">Glad is a mild intensity emotion.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"Vocabulary Volume."</b> Synonyms carry different <b>Levels of Intensity</b>. The secret is matching the "Magnitude" of the word to the drama of the sentence. Dodge decoys that are technically correct but "too weak" for the context.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Heat Check</b> "Which word is 'louder': <i>Warm</i> or <i>Scorching</i>?"</div>
+                <div class="tier-card"><b>Light Scale</b> "Rank from weakest to strongest: <i>Bright</i>, <i>Dim</i>, <i>Dazzling</i>."</div>
+                <div class="tier-card"><b>11+ Nuance</b> "Contrast the shades of <i>Thrifty</i> (Careful) vs. <i>Stingy</i> (Extreme)."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Semantic Spectrum</b>. As the intensity increases, the color shifts to red and the size grows. This visual "Heat Signature" represents the semantic impact of your choice.</p>
+            <div class="anatomy-display-s">
+                <div id="s-word" class="intensity-word-s" style="color:#ecc94b; font-size:1.8rem;">WARM</div>
+                <div class="spectrum-container-s">
+                    <div id="s-fill" class="spectrum-fill-s" style="width:10%;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Choose a set and "Crank the Intensity." Identify the difference between a mild word and its extreme counterpart to build <b>Magnitude Sensitivity</b>.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="preset-grid-s">
+                        <button class="btn-set-s active" onclick="setSuppScale(['WARM','HOT','SCORCHING'], this)">Heat</button>
+                        <button class="btn-set-s" onclick="setSuppScale(['HAPPY','JOYFUL','ECSTATIC'], this)">Emotion</button>
+                        <button class="btn-set-s" onclick="setSuppScale(['LARGE','HUGE','GARGANTUAN'], this)">Size</button>
+                        <button class="btn-set-s" onclick="setSuppScale(['SCARED','AFRAID','TERRIFIED'], this)">Fear</button>
+                    </div>
+                    <input type="range" id="si-slider" min="0" max="100" value="10" style="width:100%; margin-top:20px;" oninput="runSupp()">
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Volume Mismatch" Trap:</b> Choosing a synonym that is accurate but "underpowered" (e.g., describing an explosion as "noisy" instead of "cataclysmic").</p>
+                <p><b>The Fix: The "Drama Test."</b> <i>"Check the neighbors."</i> If the sentence uses high-drama words like *shattered* or *instantly*, choose the synonym from the extreme red end of the spectrum.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(38)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: KNOB --- */
+    function setVolume(deg, word, color) {
+        document.getElementById('intro-knob').style.transform = `rotate(${deg}deg)`;
+        const w = document.getElementById('intro-word');
+        w.textContent = word;
+        w.style.color = color;
+        w.style.fontSize = (1.5 + deg/200) + "rem";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Intensity set to <b>${word}</b>. The dial is at ${deg}°.</div>`;
+    }
+
+    /* --- PROGRESSING: METER --- */
+    function updateProgMeter() {
+        const val = parseInt(document.getElementById('prog-slider').value);
+        const words = ["Glad", "Joyful", "Ecstatic"];
+        const degs = [-60, 0, 60];
+        document.getElementById('meter-needle').style.transform = `rotate(${degs[val-1]}deg)`;
+        document.getElementById('prog-word').textContent = words[val-1];
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>${words[val-1]}</b> is level ${val*33} on the meter.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sScale = ['WARM','HOT','SCORCHING'];
+    function setSuppScale(scale, btn) {
+        document.querySelectorAll('.btn-set-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); sScale = scale; runSupp();
+    }
+    function runSupp() {
+        const val = parseInt(document.getElementById('si-slider').value);
+        const fill = document.getElementById('s-fill');
+        const wordEl = document.getElementById('s-word');
+        
+        fill.style.width = val + "%";
+        let idx = val < 33 ? 0 : val < 66 ? 1 : 2;
+        let color = val < 33 ? "#ecc94b" : val < 66 ? "#ed8936" : "#e53e3e";
+        
+        wordEl.textContent = sScale[idx];
+        wordEl.style.color = color;
+        wordEl.style.fontSize = (1.8 + val/50) + "rem";
+
+        document.getElementById('supp-log').innerHTML = `→ Impact: <b>${val}%</b><br>→ Selected: <b style="color:${color}">${sScale[idx]}</b><br>→ <b>Drama Match: ${val > 60 ? 'HIGH' : 'MODERATE'}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        updateProgMeter();
+        if(document.getElementById('si-slider')) runSupp();
+        if(typeof initModule === "function") initModule(38);
+    });
+</script>
+</body>
+</html>

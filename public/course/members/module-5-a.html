@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 5: Direct Proportion | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 350px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚀'; }
+
+        /* INTRO: STICKER MACHINE */
+        .machine-body { fill: #e2e8f0; stroke: var(--cognis-blue); stroke-width: 4; }
+        .sticker { fill: var(--cognis-gold); stroke: #a38241; stroke-width: 1; transition: all 0.3s; }
+        .coin { fill: #facc15; stroke: #ca8a04; stroke-width: 1; }
+
+        /* PROGRESSING: RECIPE SCALER */
+        .bowl { fill: none; stroke: #94a3b8; stroke-width: 3; }
+        .ingredient-flour { fill: #fff; stroke: #e2e8f0; transition: all 0.5s; }
+        .ingredient-sugar { fill: #fef3c7; stroke: #fde68a; transition: all 0.5s; }
+
+        /* SUPPLEMENTAL: PHOTOCOPIER VIZ */
+        .shape-box {
+            border: 3px solid var(--cognis-blue);
+            background: rgba(0, 45, 91, 0.05);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: var(--cognis-blue);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px;
+        }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .val-display { color: var(--cognis-gold); font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 5: Direct Proportion</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Sticker Machine</h2>
+            <p>Direct Proportion is a <b>"Copycat" Rule</b>. If the number of stickers doubles, the number of coins we need must double too. They are locked together. If one goes up, the other follows in perfect lockstep.</p>
+            
+            <div class="parent-script">
+                "We want to buy some stickers. Each sticker costs exactly 2 coins. Watch what happens to our 'Coin Pile' as we add more stickers to the machine. They grow together, don't they?"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250" id="intro-svg">
+                    <rect x="150" y="20" width="100" height="150" rx="10" class="machine-body" />
+                    <rect x="165" y="140" width="70" height="10" fill="#94a3b8" /> <g id="sticker-strip"></g>
+                    
+                    <g id="coin-pile"></g>
+                    <text x="50" y="230" font-size="10" font-weight="800" fill="#64748b">COINS NEEDED</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>How many stickers?</label>
+                        <input type="range" min="1" max="8" value="3" id="intro-q" oninput="updateIntro()">
+                        <div class="val-out" id="intro-q-val">3 stickers</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log"></div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Recipe Scaler</h2>
+            <p>To cook for a bigger group, we find the <b>"Unit Share"</b> (how much 1 person gets). Once we know that, we can multiply it to feed 10 people or 100 people! It's like having a magic zoom button for your kitchen.</p>
+            
+            <div class="parent-script">
+                "This bowl holds a recipe for 2 people. If we want to cook for 8 people, the bowl needs to be 4 times fuller. Watch the ingredients grow as we change the 'Target Group'."
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="250" viewBox="0 0 300 250">
+                    <path d="M50,50 L250,50 L220,200 L80,200 Z" class="bowl" />
+                    <rect id="flour-level" x="85" y="150" width="130" height="50" class="ingredient-flour" />
+                    <rect id="sugar-level" x="85" y="130" width="130" height="20" class="ingredient-sugar" />
+                    <text x="150" y="40" text-anchor="middle" font-weight="800" fill="#94a3b8" font-size="10">RECIPE BOWL</text>
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Cooking for how many?</label>
+                        <input type="range" min="1" max="10" value="2" id="prog-target" oninput="updateProg()">
+                        <div class="val-out" id="prog-target-val">2 People</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('5-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Direct Proportion is <b>"Perfect Lockstep."</b> If you buy twice as many stickers, you pay twice as much. The secret weapon is finding the <b>Value of One</b> first. If your child can find the "unit price," they can scale up to any number with total confidence.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sticker Shop</b> "If 2 stickers cost 10p, how much do 6 stickers cost?"</div>
+                <div class="tier-card"><b>The Kitchen Scale</b> "A recipe for 4 people uses 300g of sugar. How much for 10 people?"</div>
+                <div class="tier-card"><b>The Map</b> "On a 1:25,000 scale map, an 8cm road represents a massive real distance. Find it."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Think of this as a <b>Photocopier</b>. The "Multiplier" is the zoom setting. Watch the Output grow. It doesn't just get bigger; it follows the exact same "times table" rule every single time. Direct proportion never adds; it only multiplies.</p>
+            <div class="anatomy-display" style="gap:30px; border: 2px solid #e2e8f0; border-radius:12px; padding:40px; background:#f8fafc;">
+                <div style="text-align:center;"><div class="label-sm">INPUT</div><div class="shape-box" id="supp-box-in" style="width:50px; height:50px;">4</div></div>
+                <div style="text-align:center; color:var(--cognis-gold);">
+                    <div style="font-weight:900; font-size:1.2rem;" id="supp-factor-val">x2.5</div>
+                    <div style="font-size:0.6rem; font-weight:800;">MULTIPLIER</div>
+                </div>
+                <div style="text-align:center;"><div class="label-sm">OUTPUT</div><div class="shape-box" id="supp-box-out" style="width:125px; height:125px; border-color:var(--cognis-gold); color:var(--cognis-gold);">10</div></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Adjust the quantities and watch the <b>Value of One</b>. Help your child see that the "Weight per Person" stays exactly the same, no matter the group size.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Initial Group</label><input type="range" id="in-q1" min="1" max="20" value="4" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Initial Weight (g)</label><input type="range" id="in-v1" min="10" max="1000" step="10" value="300" oninput="runSupp()"></div>
+                    <div class="control-group" style="margin-top:20px; border-top:1px solid #4a5568; padding-top:20px;"><label>New Target Group</label><input type="range" id="in-q2" min="1" max="50" value="10" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Just Add a Bit" Trap:</b> If 4 people need 10g of salt, and we scale to 6, children often think: "That's 2 more people, so I'll add 2g salt." They are treating a recipe like a pile of blocks.</p>
+                <p><b>The Fix: The "Taste Test."</b> Ask: "If we only add a tiny bit, will it still taste the same?" Proportion is a <b>Multiplication Game</b>. If the quantity doubles, the ingredient MUST double to keep the taste perfect.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(5)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: STICKER MACHINE --- */
+    function updateIntro() {
+        const q = parseInt(document.getElementById('intro-q').value);
+        const costPer = 2;
+        const totalCost = q * costPer;
+        document.getElementById('intro-q-val').innerText = q + " stickers";
+
+        const stickers = document.getElementById('sticker-strip');
+        const coins = document.getElementById('coin-pile');
+        stickers.innerHTML = ''; coins.innerHTML = '';
+
+        for(let i=0; i<q; i++) {
+            stickers.innerHTML += `<rect x="${175}" y="${150 + i*15}" width="50" height="12" rx="2" class="sticker" />`;
+            coins.innerHTML += `<circle cx="${30 + (i%3)*15}" cy="${180 + Math.floor(i/3)*15}" r="6" class="coin" />`;
+            coins.innerHTML += `<circle cx="${50 + (i%3)*15}" cy="${180 + Math.floor(i/3)*15}" r="6" class="coin" />`;
+        }
+
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">Every sticker costs <b>${costPer}</b> coins.</div>
+            <div class="discovery-step">For <b>${q}</b> stickers, we need <b>${totalCost}</b> coins.</div>
+        `;
+    }
+
+    /* --- PROGRESSING: RECIPE --- */
+    function updateProg() {
+        const q = parseInt(document.getElementById('prog-target').value);
+        const unitF = 20; // flour per person
+        const unitS = 5;  // sugar per person
+        
+        document.getElementById('prog-target-val').innerText = q + " People";
+        
+        const flourH = q * unitF;
+        const sugarH = q * unitS;
+
+        const fRect = document.getElementById('flour-level');
+        const sRect = document.getElementById('sugar-level');
+
+        fRect.setAttribute("height", flourH);
+        fRect.setAttribute("y", 200 - flourH);
+        
+        sRect.setAttribute("height", sugarH);
+        sRect.setAttribute("y", 200 - flourH - sugarH);
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">The recipe for 1 person is fixed.</div>
+            <div class="discovery-step">Now we multiply those fixed amounts by <b>${q}</b>!</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const q1 = parseFloat(document.getElementById('in-q1').value);
+        const v1 = parseFloat(document.getElementById('in-v1').value);
+        const q2 = parseFloat(document.getElementById('in-q2').value);
+
+        const unit = v1 / q1;
+        const multiplier = q2 / q1;
+        const res = v1 * multiplier;
+
+        document.getElementById('supp-box-in').innerText = q1;
+        document.getElementById('supp-box-out').innerText = q2;
+        document.getElementById('supp-factor-val').innerText = "x" + multiplier.toFixed(1);
+
+        const size = Math.max(40, Math.min(180, 50 * multiplier));
+        document.getElementById('supp-box-out').style.width = size + "px";
+        document.getElementById('supp-box-out').style.height = size + "px";
+
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Value of One: ${v1} ÷ ${q1} = <b>${unit.toFixed(2)}</b><br>
+            → 2. Multiplier: ${q2} ÷ ${q1} = <b>x${multiplier.toFixed(2)}</b><br>
+            → 3. Final Result: <b>${res.toFixed(1)} Units</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro(); updateProg();
+        if(document.getElementById('in-q1')) runSupp();
+        if(typeof initModule === "function") initModule(5);
+    });
+</script>
+</body>
+</html>

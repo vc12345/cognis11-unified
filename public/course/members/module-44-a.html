@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 44: Layering Logic | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🥞'; }
+
+        /* INTRO: PAPER PILE */
+        .paper-layer { width: 150px; height: 150px; position: absolute; border: 3px solid rgba(0,0,0,0.1); transition: all 0.5s; cursor: grab; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 2rem; }
+        #paper-red { background: #ef4444; transform: translate(-30px, -30px); }
+        #paper-blue { background: #3b82f6; transform: translate(30px, 30px); }
+
+        /* PROGRESSING: T-JUNCTIONS */
+        .junction-path { fill: none; stroke: #cbd5e0; stroke-width: 4; }
+        .junction-highlight { stroke: var(--cognis-gold); stroke-width: 8; opacity: 0; transition: opacity 0.3s; }
+        .t-point { fill: #ef4444; opacity: 0; transition: opacity 0.3s; }
+
+        /* SUPPLEMENTAL: 3D SCANNER */
+        .anatomy-display-s { background: #0f172a; padding: 60px 20px; perspective: 1200px; border-radius: 12px; }
+        .stack-stage-s { width: 300px; height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.8s; }
+        .view-3d-s .stack-stage-s { transform: rotateX(50deg) rotateZ(-30deg); }
+        .shape-layer-s { position: absolute; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 44: Layering (Z-Order)</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Paper Pile</h2>
+            <p>Imagine you have two sheets of colored paper. The one you drop on the desk last will cover up part of the one that was already there. To see which is on top, we look for which shape is <b>Complete</b> and which is <b>Hidden</b>.</p>
+            
+            <div class="parent-script">
+                "We have a Red square and a Blue square. Right now, Blue is on top because we can see its whole border. Click 'Swap Layers'. Notice how Red now covers Blue. In the 11+, the 'Winner' is the shape that doesn't have any of its edges cut off."
+            </div>
+
+            <div class="viz-container">
+                <div style="position:relative; width:250px; height:250px;">
+                    <div id="paper-red" class="paper-layer" style="z-index:10;">RED</div>
+                    <div id="paper-blue" class="paper-layer" style="z-index:11;">BLUE</div>
+                </div>
+                <button class="btn-action" onclick="swapIntroLayers()">Swap Layers</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The Blue square is currently on top.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The T-Junction Secret</h2>
+            <p>When two shapes overlap, their lines meet to form a letter **T**. The top of the **T** always belongs to the shape that is <b>On Top</b>. The "stem" of the **T** belongs to the shape hiding underneath.</p>
+            
+            <div class="parent-script">
+                "Look at where the circle meets the square. Click 'Find the Junctions'. See the red dots? Notice how the square's lines stop suddenly when they hit the circle. The square is the 'loser'—it is at the back!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="250" height="250" viewBox="0 0 200 200">
+                    <rect x="40" y="40" width="120" height="120" class="junction-path" />
+                    <circle cx="100" cy="100" r="50" fill="white" stroke="#cbd5e0" stroke-width="4" />
+                    
+                    <circle cx="50" cy="100" r="5" class="t-point" id="tp-1" />
+                    <circle cx="150" cy="100" r="5" class="t-point" id="tp-2" />
+                    <path d="M100,50 L100,60" class="junction-highlight" id="th-1" />
+                </svg>
+                <button class="btn-action" onclick="showJunctions()">Find the Junctions</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">The shape that "breaks" its lines is at the back.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"The Pancake Rule."</b> Examiners overlap shapes to test if you can identify the "last dropped" object. The secret is <b>Perimeter Continuity</b>. If a shape has an unbroken border, it is on top. If the border is interrupted, it is underneath. Peel back the layers mentally by scanning for line breaks.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Simple</b> "Red circle on blue square. Circle is whole, square is cut. Which is on top?"</div>
+                <div class="tier-card"><b>3-Layer</b> "Overlapping Trio. Rank from 'Bottom of Pile' to 'Top of Pile'."</div>
+                <div class="tier-card"><b>Fragment</b> "Identify the middle shape—partially covered by two others, leaving only a sliver."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>3D Depth Scanner</b>. Move the slider to "explode" the pile. Notice how they separate. The shape marked **1** (the winner) is the only one whose edges are never crossed. This is the <b>Unbroken Border</b> rule in action.</p>
+            <div class="anatomy-display-s" id="s-stage">
+                <div class="stack-stage-s" id="s-container">
+                    <div class="shape-layer-s" id="s-circle" style="background:#ef4444; border-radius:50%; top:20px; left:20px;" onclick="reorderSupp('circle')">1</div>
+                    <div class="shape-layer-s" id="s-square" style="background:#3b82f6; border-radius:12px; top:80px; left:80px;" onclick="reorderSupp('square')">2</div>
+                    <div class="shape-layer-s" id="s-tri" style="background:#eab308; clip-path:polygon(50% 0%, 0% 100%, 100% 100%); top:50px; left:120px;" onclick="reorderSupp('tri')">3</div>
+                </div>
+                <div style="margin-top:60px; width:100%; text-align:center;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#94a3b8; font-size:0.6rem; font-weight:800;">
+                        <span>2D VIEW</span><span>3D EXPLOSION</span>
+                    </div>
+                    <input type="range" id="si-depth" min="0" max="1" step="1" value="0" style="width:100%;" oninput="renderSuppStack()">
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Manipulate the stack. Click any shape above to move it to the front. Observe the <b>Trace Log</b> to see how occlusion logic updates in real-time.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('circle')">Bring Red to Front</button>
+                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('square')">Bring Blue to Front</button>
+                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('tri')">Bring Gold to Front</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Same Color" Trap:</b> If two shapes share a color, the brain merges them. You miss the fact that one is hiding behind the other.</p>
+                <p><b>The Fix: The "T-Junction" Hunt.</b> <i>"Look for the Ts."</i> Ignore the color; look at where lines meet. If Shape A's line stops at Shape B's edge (a 'T'), Shape A is at the back. **Top shapes never stop their lines.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(44)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: LAYERS --- */
+    let redOnTop = false;
+    function swapIntroLayers() {
+        redOnTop = !redOnTop;
+        document.getElementById('paper-red').style.zIndex = redOnTop ? 12 : 10;
+        document.getElementById('paper-blue').style.zIndex = redOnTop ? 10 : 12;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Swapped! The <b>${redOnTop?'Red':'Blue'}</b> square now has a complete border.</div>`;
+    }
+
+    /* --- PROGRESSING: JUNCTIONS --- */
+    function showJunctions() {
+        document.querySelectorAll('.t-point').forEach(p => p.style.opacity = '1');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look at the Red dots! The square's lines hit a wall and stop. The circle is <b>On Top</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sOrder = ['tri', 'square', 'circle'];
+    const sNames = { circle: 'Red Circle', square: 'Blue Square', tri: 'Gold Triangle' };
+    
+    function reorderSupp(key) {
+        sOrder = sOrder.filter(k => k !== key);
+        sOrder.push(key);
+        renderSuppStack();
+    }
+
+    function renderSuppStack() {
+        const is3D = document.getElementById('si-depth').value === "1";
+        document.getElementById('s-stage').classList.toggle('view-3d-s', is3D);
+        
+        sOrder.forEach((k, i) => {
+            const el = document.getElementById('s-'+k);
+            el.style.zIndex = i + 10;
+            el.textContent = 3 - i;
+            el.style.transform = is3D ? `translateZ(${(i-1)*80}px)` : `translateZ(0px)`;
+        });
+
+        document.getElementById('supp-log').innerHTML = `
+            → Top: <b>${sNames[sOrder[2]]}</b><br>
+            → Middle: <b>${sNames[sOrder[1]]}</b><br>
+            → Bottom: <b>${sNames[sOrder[0]]}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-depth')) renderSuppStack();
+        if(typeof initModule === "function") initModule(44);
+    });
+</script>
+</body>
+</html>

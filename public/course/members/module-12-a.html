@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 12: Relative Speed | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🤝'; }
+
+        /* INTRO: THE HANDSHAKE GRID */
+        .grid-line { stroke: #e2e8f0; stroke-width: 1; }
+        .person-icon { font-size: 1.5rem; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* PROGRESSING: TEAMWORK BARS */
+        .team-bar-wrap { width: 100%; max-width: 400px; height: 30px; display: flex; border-radius: 15px; overflow: hidden; border: 2px solid #cbd5e0; margin-bottom: 10px; }
+        .speed-a-fill { background: var(--cognis-blue); transition: width 0.4s; }
+        .speed-b-fill { background: var(--cognis-gold); transition: width 0.4s; }
+
+        /* SUPPLEMENTAL: TRACK VIZ */
+        .track-blueprint { height: 12px; background: #e2e8f0; border-radius: 10px; position: relative; margin: 50px 0; border: 1px solid #cbd5e0; width: 100%; max-width: 600px; }
+        .vehicle { position: absolute; top: -18px; width: 40px; height: 40px; background: white; border: 4px solid var(--cognis-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; z-index: 5; transition: all 2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .impact-marker { position: absolute; top: -45px; height: 100px; width: 4px; background: #ef4444; opacity: 0; transition: opacity 0.3s; z-index: 2; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .val-display { color: var(--cognis-gold); font-weight: 800; }
+        .btn-interact { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 12: Relative Speed</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Handshake</h2>
+            <p>When two people walk toward each other, they are working as a <b>Team</b>. If I take 2 steps and you take 3 steps, the distance between us closes by 5 steps total. We add our speeds together to find the "Closing Rate."</p>
+            
+            <div class="parent-script">
+                "Look at the grid. I’m on one side, you’re on the other. Every time we click 'Walk', we both take our steps. Even though we are walking separately, our steps work together to delete the gap!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150" id="intro-svg">
+                    <g id="grid-lines"></g>
+                    <text id="char-a" x="20" y="85" class="person-icon">👦</text>
+                    <text id="char-b" x="350" y="85" class="person-icon">👧</text>
+                </svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin: 10px 0;">Gap remaining: <span id="intro-gap">14</span> steps</div>
+                <button class="btn-interact" onclick="walkIntro()">Take a Step!</button>
+                <button class="btn-interact" style="background:#94a3b8; font-size: 0.7rem; padding: 5px 10px; margin-top:10px;" onclick="resetIntro()">Back to Start</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Ready to meet? Click to walk.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Teamwork Speed</h2>
+            <p>In the 11+, we combine the two speeds into one <b>Super Speed</b>. If Car A goes at 40mph and Car B goes at 60mph, the gap between them vanishes at 100mph. We treat the whole journey as one car traveling at the Super Speed.</p>
+            
+            <div class="parent-script">
+                "Look at the bars. Blue is speed A, Gold is speed B. When we put them end-to-end, we get our Teamwork Speed. This is the only speed we need to use in our Magic Triangle!"
+            </div>
+
+            <div class="viz-container">
+                <div class="team-bar-wrap">
+                    <div id="bar-a" class="speed-a-fill" style="width: 40%;"></div>
+                    <div id="bar-b" class="speed-b-fill" style="width: 60%;"></div>
+                </div>
+                <div style="font-weight: 800; color: var(--cognis-blue);">Teamwork Speed: <span id="prog-total-s">100</span> mph</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Speed A (mph)</label>
+                        <input type="range" min="10" max="100" step="10" value="40" id="prog-s1" oninput="updateProg()">
+                    </div>
+                    <div class="control-group">
+                        <label>Speed B (mph)</label>
+                        <input type="range" min="10" max="100" step="10" value="60" id="prog-s2" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('12-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of relative speed as <b>"Teamwork Speed."</b> When two objects move toward each other, they work together to delete the gap. To solve these, don't look at them as two journeys. Add their speeds together to find the <b>Closing Rate</b>. If A moves at 10mph and B moves at 15mph, the gap shrinks at 25mph.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Level 1</b> "Two cyclists 10 miles apart travel at 5mph toward each other. When do they meet?"</div>
+                <div class="tier-card"><b>Level 2</b> "Runner A is at 10km/h. Walker B is 50km away at 15km/h. Find the meeting time."</div>
+                <div class="tier-card"><b>Level 3</b> "Trains 300 miles apart. Train A is 60mph; Train B is 90mph. When do they pass?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Look at the <b>Track Blueprint</b>. The meeting point isn't always the middle! The faster object will cover more ground. Even though they travel for the same <b>Time</b>, the <b>Speed Ratio</b> decides who wins more of the track.</p>
+            <div class="anatomy-display">
+                <div style="font-weight:900; color:#94a3b8; letter-spacing:2px; margin-bottom:10px;" id="supp-gap-txt">GAP: 100 KM</div>
+                <div class="track-blueprint">
+                    <div id="s-veh-a" class="vehicle" style="left:0;">A</div>
+                    <div id="s-veh-b" class="vehicle" style="right:0; border-color:var(--cognis-gold); color:var(--cognis-gold);">B</div>
+                    <div id="s-impact" class="impact-marker">
+                        <div style="position:absolute; top:-25px; color:#ef4444; font-weight:800; font-size:0.6rem; white-space:nowrap; transform:translateX(-50%);">MEETING POINT</div>
+                    </div>
+                </div>
+                <button class="btn-interact" style="background:var(--cognis-gold);" onclick="runSuppSim()">Execute Simulation</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Set the distance and speeds. Notice how the **Closing Rate** (A + B) determines the timer. Watch the log to see the gap vanish.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Distance Gap (KM)</label><input type="number" id="in-d" value="100" oninput="updateSupp()"></div>
+                    <div class="control-group"><label>Speed A (KM/H)</label><input type="number" id="in-s1" value="60" oninput="updateSupp()"></div>
+                    <div class="control-group"><label>Speed B (KM/H)</label><input type="number" id="in-s2" value="40" oninput="updateSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Halfway" Trap:</b> Children often assume they meet at exactly 50/50. They forget that if one train is faster, it will cover more ground.</p>
+                <p><b>The Fix: "Speed is Greedy."</b> The faster object eats more track. The meeting point is always closer to the <b>slower</b> object's start. If A is twice as fast as B, it takes 2/3 of the track.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(12)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED SYSTEM --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Motion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: HANDSHAKE --- */
+    let posA = 0, posB = 14;
+    function resetIntro() {
+        posA = 0; posB = 14;
+        const grid = document.getElementById('grid-lines');
+        grid.innerHTML = '';
+        for(let i=0; i<=14; i++) grid.innerHTML += `<line x1="${20 + i*25.7}" y1="50" x2="${20 + i*25.7}" y2="120" class="grid-line" />`;
+        renderIntro();
+    }
+    function walkIntro() {
+        if(posB - posA <= 1) return;
+        posA += 1; posB -= 1;
+        renderIntro();
+    }
+    function renderIntro() {
+        document.getElementById('char-a').setAttribute("x", 20 + (posA * 25.7));
+        document.getElementById('char-b').setAttribute("x", 20 + (posB * 25.7));
+        document.getElementById('intro-gap').innerText = posB - posA;
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">Each click, A moves 1 and B moves 1.</div>
+            <div class="discovery-step">The gap shrinks by <b>2 steps</b> every time!</div>
+        `;
+    }
+
+    /* --- PROGRESSING: BARS --- */
+    function updateProg() {
+        const s1 = parseInt(document.getElementById('prog-s1').value);
+        const s2 = parseInt(document.getElementById('prog-s2').value);
+        const total = s1 + s2;
+        
+        document.getElementById('bar-a').style.width = (s1 / 200 * 100) + "%";
+        document.getElementById('bar-b').style.width = (s2 / 200 * 100) + "%";
+        document.getElementById('prog-total-s').innerText = total;
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">Speed A: <b>${s1}</b> | Speed B: <b>${s2}</b></div>
+            <div class="discovery-step">Closing Speed: <b>${s1} + ${s2} = ${total} mph</b>.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: SIM --- */
+    let suppData = { pct: 50 };
+    function updateSupp() {
+        const d = parseFloat(document.getElementById('in-d').value) || 0;
+        const s1 = parseFloat(document.getElementById('in-s1').value) || 0;
+        const s2 = parseFloat(document.getElementById('in-s2').value) || 0;
+        
+        const rate = s1 + s2;
+        const time = rate ? d / rate : 0;
+        const distA = s1 * time;
+        suppData.pct = d ? (distA / d) * 100 : 50;
+
+        document.getElementById('supp-gap-txt').innerText = `GAP: ${d} KM`;
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Teamwork Speed: ${s1} + ${s2} = <b>${rate} KM/H</b><br>
+            → 2. Time: ${d} ÷ ${rate} = <b>${time.toFixed(2)} Hrs</b><br>
+            → 3. Collision: <b>${distA.toFixed(1)} KM</b> from Start A
+        `;
+        resetSuppVehicles();
+    }
+
+    function resetSuppVehicles() {
+        const a = document.getElementById('s-veh-a'), b = document.getElementById('s-veh-b'), m = document.getElementById('s-impact');
+        a.style.transition = 'none'; b.style.transition = 'none';
+        a.style.left = '0'; b.style.right = '0'; m.style.opacity = '0';
+        void a.offsetWidth;
+    }
+
+    function runSuppSim() {
+        const a = document.getElementById('s-veh-a'), b = document.getElementById('s-veh-b'), m = document.getElementById('s-impact');
+        a.style.transition = 'all 2s ease-in-out'; b.style.transition = 'all 2s ease-in-out';
+        a.style.left = `calc(${suppData.pct}% - 20px)`;
+        b.style.right = `calc(${100 - suppData.pct}% - 20px)`;
+        setTimeout(() => { m.style.left = suppData.pct + "%"; m.style.opacity = '1'; }, 1800);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        if(document.getElementById('in-d')) updateSupp();
+        if(typeof initModule === "function") initModule(12);
+    });
+</script>
+</body>
+</html>

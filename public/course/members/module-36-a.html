@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 36: Anagram Scrambler | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📦'; }
+
+        /* INTRO: INGREDIENT JARS */
+        .jar { width: 100px; height: 140px; border: 4px solid var(--cognis-blue); border-top: none; border-radius: 0 0 30px 30px; position: relative; display: flex; flex-direction: column-reverse; padding: 10px; gap: 5px; background: white; }
+        .jar::before { content: ''; position: absolute; top: -10px; left: -4px; width: 108px; height: 10px; background: var(--cognis-blue); border-radius: 5px; }
+        .ingredient { height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; }
+
+        /* PROGRESSING: TALLY CHART */
+        .tally-table { width: 100%; max-width: 300px; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .tally-table th { background: var(--cognis-blue); color: white; padding: 10px; font-size: 0.7rem; }
+        .tally-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: center; font-weight: 800; }
+        .tally-mark { color: var(--cognis-gold); letter-spacing: 2px; }
+
+        /* SUPPLEMENTAL: CHAMBER */
+        .chamber-s { background: #2d3748; border: 4px inset #4a5568; border-radius: 20px; padding: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; box-shadow: inset 0 5px 15px rgba(0,0,0,0.5); }
+        .tile-s { width: 45px; height: 45px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; transition: 0.3s; }
+        .rumbling-s .tile-s { animation: rumble-s 0.15s infinite; }
+        @keyframes rumble-s { 0% { transform: translate(0,0); } 50% { transform: translate(2px, -2px); } 100% { transform: translate(0,0); } }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 36: Anagram Scrambler</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Ingredient Jar</h2>
+            <p>An Anagram is like a recipe. If you have the letters <b>C, A, T</b>, you have the "stock" to make the word CAT or ACT. Even if you shake the jar, the ingredients don't change!</p>
+            
+            <div class="parent-script">
+                "Look at these two jars. One says <b>ACT</b> and the other says <b>CAT</b>. Click 'Stock Check' to see inside. Notice that both jars contain exactly one 'A', one 'C', and one 'T'. They are different words, but they share the exact same ingredients!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:50px;">
+                    <div style="text-align:center;">
+                        <div id="jar-1" class="jar"></div>
+                        <b style="color:var(--cognis-blue); display:block; margin-top:10px;">ACT</b>
+                    </div>
+                    <div style="text-align:center;">
+                        <div id="jar-2" class="jar"></div>
+                        <b style="color:var(--cognis-blue); display:block; margin-top:10px;">CAT</b>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runIntroJars()">Perform Stock Check</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Two jars, one recipe.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Tally Stock-Take</h2>
+            <p>To solve tricky 11+ anagrams, don't try to read the words. Instead, count the letters like a shopkeeper. If the tallies match perfectly, they are anagrams. If even one letter is missing, the bridge is broken.</p>
+            
+            <div class="parent-script">
+                "Compare <b>DESSERT</b> and <b>DESERT</b>. They look almost the same! But click 'Start Tally'. Look at the letter 'S'. DESSERT has two, but DESERT only has one. They aren't anagrams! Counting is safer than looking."
+            </div>
+
+            <div class="viz-container">
+                <table class="tally-table">
+                    <thead><tr><th>Letter</th><th>DESSERT</th><th>DESERT</th></tr></thead>
+                    <tbody id="tally-body"></tbody>
+                </table>
+                <button class="btn-action" onclick="runTally()">Start Tally Check</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Is it a match or an impostor?</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of an anagram as a <b>"Re-boxed Recipe."</b> An anagram is just a different arrangement of the exact same "stock." To find the truth, look past the <i>sound</i> of the word and perform a <b>Character Inventory</b>. Two words are only anagrams if their "Digital Fingerprints" match letter-for-letter.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Direct Check</b> "Are 'ACT' and 'CAT' anagrams? Count the stock in both."</div>
+                <div class="tier-card"><b>Scrambled Synonym</b> "Rearrange 'LISTEN' to find a synonym for 'QUIET'."</div>
+                <div class="tier-card"><b>The Impostor</b> "Which is NOT an anagram of the others: RETAIN, REINA, TERNIA?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Scramble Chamber</b>. No matter how much you shake these tiles, the "Stock" never changes. Anagrams are simply different ways to display the same pile of letters. Shake the chamber to see the arrangement shift.</p>
+            <div class="anatomy-display" style="background:#1a202c;" id="s-chamber-area">
+                <div id="s-chamber" class="chamber-s"></div>
+                <button class="btn-action" style="background:var(--cognis-gold); margin-top:20px;" onclick="shakeSupp()">Shake & Scramble</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">The <b>Diagnostic Scan</b> checks every single letter. Notice how the "Digital Fingerprint" must match perfectly for a valid result. Try the DESSERT vs DESERT test!</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <select id="si-pair" class="input-dark" style="width:100%;" onchange="runSupp()">
+                        <option value="LISTEN,SILENT">LISTEN / SILENT (Match)</option>
+                        <option value="HEART,EARTH">HEART / EARTH (Match)</option>
+                        <option value="DESSERT,DESERT">DESSERT / DESERT (Fail)</option>
+                        <option value="BREAD,BEARD">BREAD / BEARD (Match)</option>
+                    </select>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "One Letter Off" Trap:</b> Most children see DESSERT and DESERT and assume they match because they "look" identical. The brain gets lazy!</p>
+                <p><b>The Fix: The "Alphabetical Stock-Take."</b> <i>"Don't trust your eyes; trust the count."</i> Mentally sort the letters. [D-E-E-R-S-S-T] vs [D-E-E-R-S-T]. The missing 'S' becomes obvious.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(36)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: JARS --- */
+    function runIntroJars() {
+        const j1 = document.getElementById('jar-1'), j2 = document.getElementById('jar-2');
+        j1.innerHTML = '<div class="ingredient" style="background:#3182ce">A</div><div class="ingredient" style="background:#e53e3e">C</div><div class="ingredient" style="background:var(--cognis-gold)">T</div>';
+        j2.innerHTML = '<div class="ingredient" style="background:#e53e3e">C</div><div class="ingredient" style="background:#3182ce">A</div><div class="ingredient" style="background:var(--cognis-gold)">T</div>';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Jar 1: {A,C,T}. Jar 2: {A,C,T}. <b>Match Found!</b></div>`;
+    }
+
+    /* --- PROGRESSING: TALLY --- */
+    function runTally() {
+        const letters = ['D','E','S','R','T'];
+        const w1 = {D:1,E:2,S:2,R:1,T:1}, w2 = {D:1,E:2,S:1,R:1,T:1};
+        const body = document.getElementById('tally-body'); body.innerHTML = '';
+        letters.forEach(l => {
+            const match = w1[l] === w2[l];
+            body.innerHTML += `<tr><td>${l}</td><td>${"|".repeat(w1[l])}</td><td style="${match?'':'color:var(--trap-red)'}">${"|".repeat(w2[l])} ${match?'':'X'}</td></tr>`;
+        });
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">The tallies for 'S' don't match! 2 vs 1. <b>Impostor detected.</b></div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sLetters = [];
+    function shakeSupp() {
+        const area = document.getElementById('s-chamber-area'); area.classList.add('rumbling-s');
+        setTimeout(() => {
+            for (let i = sLetters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [sLetters[i], sLetters[j]] = [sLetters[j], sLetters[i]];
+            }
+            renderSuppTiles(); area.classList.remove('rumbling-s');
+        }, 600);
+    }
+    function renderSuppTiles() {
+        document.getElementById('s-chamber').innerHTML = sLetters.map(l => `<div class="tile-s">${l}</div>`).join('');
+    }
+    function runSupp() {
+        const [w1, w2] = document.getElementById('si-pair').value.split(',');
+        sLetters = w1.split(''); renderSuppTiles();
+
+        const tally = (s) => { const c = {}; [...s].forEach(x => c[x] = (c[x]||0)+1); return c; };
+        const t1 = tally(w1), t2 = tally(w2);
+        const chars = [...new Set([...w1, ...w2])].sort();
+        let match = true, log = `→ Scan: <b>${w1}</b> vs <b>${w2}</b><br>`;
+        chars.forEach(c => {
+            const rowMatch = (t1[c]||0) === (t2[c]||0);
+            if(!rowMatch) match = false;
+            log += `<small>${c}: ${t1[c]||0} vs ${t2[c]||0} ${rowMatch?'✓':'✗'}</small><br>`;
+        });
+        document.getElementById('supp-log').innerHTML = log + `<br><b>Result: ${match?'VALID':'INVALID'}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-pair')) runSupp();
+        if(typeof initModule === "function") initModule(36);
+    });
+</script>
+</body>
+</html>

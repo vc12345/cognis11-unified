@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 9: Sequential Fractions | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🍎'; }
+
+        /* INTRO: THE VANISHING PIE */
+        .pie-slice { transition: all 0.5s ease; stroke: #fff; stroke-width: 2; }
+        .pie-remainder { fill: var(--cognis-blue); opacity: 0.1; stroke: #cbd5e0; stroke-width: 1; stroke-dasharray: 4; }
+
+        /* PROGRESSING: THE ZOOM BAR */
+        .zoom-bar-frame { width: 100%; max-width: 450px; height: 30px; background: #e2e8f0; border-radius: 6px; overflow: hidden; display: flex; margin-bottom: 20px; border: 1px solid #cbd5e0; }
+        .zoom-segment { height: 100%; transition: width 0.6s ease; }
+        .zoom-connector { stroke: var(--cognis-gold); stroke-width: 2; stroke-dasharray: 4; fill: none; }
+
+        /* SUPPLEMENTAL BARS */
+        .bar-visual-s { height: 50px; display: flex; border: 2px solid var(--cognis-blue); border-radius: 8px; overflow: hidden; background: #e2e8f0; width: 100%; }
+        .seg-s { height: 100%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.8rem; overflow: hidden; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .val-display { color: var(--cognis-gold); font-weight: 800; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 9: Sequential Fractions</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Vanishing Pie</h2>
+            <p>In these puzzles, the total "shrinks" halfway through. Once the first slice is gone, the next person only looks at what is **actually left** on the plate. It's like having two separate snacks in a row.</p>
+            
+            <div class="parent-script">
+                "We start with a whole pie. First, we take 1/2 of it. Now, look at what’s left. If we take 1/2 again, we aren't taking another big half; we are taking a half of that **small** leftover piece. Watch the pie get smaller and smaller!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="250" height="250" viewBox="0 0 250 250" id="intro-svg">
+                    <circle cx="125" cy="125" r="100" class="pie-remainder" />
+                    <g id="intro-pie-group"></g>
+                </svg>
+                <button class="btn-complete" style="width:auto; padding:10px 20px; margin-top:20px;" onclick="advanceIntro()">Take Next Slice</button>
+                <button class="btn-complete" style="width:auto; padding:5px 15px; margin-top:10px; background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Pie</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log"></div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Zoom-In Bar</h2>
+            <p>To solve these in your head, you must draw a "Stop Sign" after the first step. Once you subtract the first amount, that <b>remainder</b> becomes your brand new "Full Bar" for the second fraction.</p>
+            
+            <div class="parent-script">
+                "Look at the first bar. We spent some money. See those dotted lines? They zoom in on the remainder. The second bar only cares about that leftover space. We never go back to the original total!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="450" height="220" viewBox="0 0 450 220">
+                    <text x="0" y="20" font-size="10" font-weight="800" fill="var(--cognis-blue)">Original Total (£120)</text>
+                    <rect x="0" y="30" width="450" height="30" rx="4" fill="#e2e8f0" stroke="#cbd5e0" />
+                    <rect id="prog-bar-1" x="0" y="30" width="150" height="30" rx="4" fill="var(--cognis-blue)" />
+                    
+                    <path id="conn-left" d="M150 60 L150 120" class="zoom-connector" />
+                    <path id="conn-right" d="M450 60 L450 120" class="zoom-connector" />
+                    
+                    <text x="150" y="110" font-size="10" font-weight="800" fill="var(--cognis-gold)">The Remainder (£80)</text>
+                    <rect x="150" y="120" width="300" height="30" rx="4" fill="#fffbeb" stroke="var(--cognis-gold)" />
+                    <rect id="prog-bar-2" x="150" y="120" width="100" height="30" rx="4" fill="var(--cognis-gold)" />
+                </svg>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>First Cut (1/X)</label>
+                        <input type="range" min="2" max="6" value="3" id="prog-d1" oninput="updateProg()">
+                        <div class="val-out" id="prog-d1-val">1/3</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Second Cut (1/X of remainder)</label>
+                        <input type="range" min="2" max="6" value="3" id="prog-d2" oninput="updateProg()">
+                        <div class="val-out" id="prog-d2-val">1/3</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('9-p')">Complete Progressing Step</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>This is the <b>"Remainder Trap."</b> The "Total" changes halfway through. Once the first slice is gone, the next fraction only cares about what is left. If your child can focus strictly on the <b>Remainder</b>, they’ll dodge the most common 11+ mistake.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sweets</b> "Sam has 20 sweets. He eats 4. He gives 1/2 of <b>what is left</b> to Sue. How many left?"</div>
+                <div class="tier-card"><b>The Book</b> "A 120-page book. Read 1/3 Monday, then 1/4 <b>of the remainder</b> Tuesday. Pages left?"</div>
+                <div class="tier-card"><b>The Budget</b> "£400. Spend 2/5 on a hotel and 1/3 <b>of the remainder</b> on travel. Final balance?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Watch the "pie" shrink. The <b>First Cut</b> finds the first amount. Then, the <b>Remainder</b> becomes the "new 100%" for Stage 2. We aren't cutting the original bar anymore; we are only cutting the piece that survived.</p>
+            <div class="anatomy-display" style="padding:30px;">
+                <div class="bar-container">
+                    <span class="bar-label" style="font-size:0.6rem;">Stage 1: The First Slice</span>
+                    <div class="bar-visual-s">
+                        <div id="s-seg-1" class="seg-s" style="background:#3182ce;">Spent</div>
+                        <div id="s-seg-rem" class="seg-s" style="background:#cbd5e0; color:var(--cognis-blue);">Remainder</div>
+                    </div>
+                </div>
+                <div style="color:var(--cognis-gold); font-size:1.2rem; margin:10px 0;">↓</div>
+                <div class="bar-container">
+                    <span class="bar-label" style="font-size:0.6rem;">Stage 2: Slicing the Remainder</span>
+                    <div class="bar-visual-s">
+                        <div id="s-seg-2" class="seg-s" style="background:#c53030;">Spent</div>
+                        <div id="s-seg-final" class="seg-s" style="background:#48bb78;">Final Left</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Move the inputs to see how the **Stage 2 bar** immediately changes size. Notice the "Spent" amount in Stage 2 is a fraction of the remainder, not the original total.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Starting Bank (£)</label><input type="number" id="supp-total" value="600"></div>
+                    <div class="control-group"><label>First Cut (e.g. 1/4)</label>
+                        <div style="display:flex; gap:10px;"><input type="number" id="supp-n1" value="1" style="width:40px;"> / <input type="number" id="supp-d1" value="4" style="width:40px;"></div>
+                    </div>
+                    <div class="control-group"><label>Second Cut (of remainder)</label>
+                        <div style="display:flex; gap:10px;"><input type="number" id="supp-n2" value="2" style="width:40px;"> / <input type="number" id="supp-d2" value="5" style="width:40px;"></div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-trace"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Original Total" Trap:</b> Most kids try to calculate the second fraction using the original total (e.g., 2/5 of £600 instead of 2/5 of the leftover £450).</p>
+                <p><b>The Fix: Circle the Keyword.</b> Look for <b>"Remainder"</b> or <b>"Left"</b>. If they see it, they must draw a "Stop Sign" after Stage 1. They have to subtract to find the new pile before they touch the second fraction.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(9)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- LAYOUT ENGINE --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: VANISHING PIE --- */
+    let introStep = 0;
+    function resetIntro() { introStep = 0; renderIntro(); }
+    function advanceIntro() { if(introStep < 2) introStep++; renderIntro(); }
+    
+    function renderIntro() {
+        const g = document.getElementById('intro-pie-group');
+        g.innerHTML = '';
+        const centerX = 125, centerY = 125, radius = 90;
+        
+        if(introStep === 0) {
+            g.innerHTML = `<circle cx="125" cy="125" r="90" fill="var(--cognis-blue)" />`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">We have the whole pie (100%). Ready to cut!</div>`;
+        } else if(introStep === 1) {
+            g.innerHTML = `<path d="M 125 125 L 125 35 A 90 90 0 0 1 215 125 Z" fill="#cbd5e0" />`;
+            g.innerHTML += `<path d="M 125 125 L 215 125 A 90 90 0 1 1 125 35 Z" fill="var(--cognis-blue)" />`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Stage 1: We ate 1/4. Look at the blue part—that's the <b>Remainder</b>.</div>`;
+        } else {
+            g.innerHTML = `<path d="M 125 125 L 125 35 A 90 90 0 0 1 215 125 Z" fill="#cbd5e0" />`;
+            g.innerHTML += `<path d="M 125 125 L 215 125 A 90 90 0 0 1 125 215 Z" fill="#c53030" />`; // Cut of remainder
+            g.innerHTML += `<path d="M 125 125 L 125 215 A 90 90 0 0 1 35 125 A 90 90 0 0 1 125 35 Z" fill="var(--cognis-blue)" />`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Stage 2: We took 1/3 of the <b>Remainder</b> (Red). See how it only slices the blue part?</div>`;
+        }
+    }
+
+    /* --- PROGRESSING: ZOOM BAR --- */
+    function updateProg() {
+        const d1 = parseInt(document.getElementById('prog-d1').value);
+        const d2 = parseInt(document.getElementById('prog-d2').value);
+        document.getElementById('prog-d1-val').innerText = `1/${d1}`;
+        document.getElementById('prog-d2-val').innerText = `1/${d2}`;
+
+        const bar1Width = (1/d1) * 450;
+        const remainderWidth = 450 - bar1Width;
+        document.getElementById('prog-bar-1').setAttribute("width", bar1Width);
+        
+        document.getElementById('conn-left').setAttribute("d", `M${bar1Width} 60 L150 120`);
+        document.getElementById('conn-right').setAttribute("d", `M450 60 L450 120`);
+        
+        const bar2Width = (1/d2) * 300;
+        document.getElementById('prog-bar-2').setAttribute("width", bar2Width);
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">1. First, we remove <b>1/${d1}</b> of the big bar.</div>
+            <div class="discovery-step">2. The leftover becomes our <b>new</b> starting point below.</div>
+            <div class="discovery-step">3. We remove <b>1/${d2}</b> of that smaller remainder.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const total = parseFloat(document.getElementById('supp-total').value) || 0;
+        const n1 = parseInt(document.getElementById('supp-n1').value) || 0;
+        const d1 = parseInt(document.getElementById('supp-d1').value) || 1;
+        const n2 = parseInt(document.getElementById('supp-n2').value) || 0;
+        const d2 = parseInt(document.getElementById('supp-d2').value) || 1;
+
+        const amt1 = (total / d1) * n1;
+        const rem = total - amt1;
+        const amt2 = (rem / d2) * n2;
+        const final = rem - amt2;
+
+        const p1 = (amt1 / total) * 100;
+        document.getElementById('s-seg-1').style.width = p1 + "%";
+        document.getElementById('s-seg-rem').style.width = (100-p1) + "%";
+        document.getElementById('s-seg-rem').innerText = `Left: £${rem.toFixed(0)}`;
+
+        const p2 = (amt2 / rem) * 100;
+        document.getElementById('s-seg-2').style.width = p2 + "%";
+        document.getElementById('s-seg-final').style.width = (100-p2) + "%";
+        document.getElementById('s-seg-final').innerText = `Final: £${final.toFixed(0)}`;
+
+        document.getElementById('supp-trace').innerHTML = `
+            → 1. First Cut (${n1}/${d1}): £${amt1.toFixed(2)}<br>
+            → 2. Remainder: £${total.toFixed(2)} - £${amt1.toFixed(2)} = <b>£${rem.toFixed(2)}</b><br>
+            → 3. Second Cut (${n2}/${d2} of remainder): £${amt2.toFixed(2)}<br>
+            → 4. Result: <b>£${final.toFixed(2)}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        ['supp-total', 'supp-n1', 'supp-d1', 'supp-n2', 'supp-d2'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.oninput = runSupp;
+        });
+        if(document.getElementById('supp-total')) runSupp();
+        if(typeof initModule === "function") initModule(9);
+    });
+</script>
+</body>
+</html>

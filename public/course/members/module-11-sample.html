@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 11: Average Speed | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR JOURNEY MAP */
+        .anatomy-display { padding: 60px 40px; }
+        
+        .journey-line {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            margin: 40px 0;
+        }
+
+        .leg {
+            height: 100%;
+            position: relative;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .leg-1 { background: var(--cognis-blue); border-radius: 4px 0 0 4px; }
+        .leg-2 { background: var(--cognis-gold); border-radius: 0 4px 4px 0; }
+
+        /* Markers */
+        .marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 4px solid white;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+        .marker-start { left: 0; background: var(--cognis-blue); }
+        .marker-mid { left: 100%; background: #fff; border-color: var(--cognis-blue); }
+        .marker-end { right: -24px; background: var(--cognis-gold); transform: translateY(-50%); }
+
+        /* Labels */
+        .leg-label {
+            position: absolute;
+            top: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            text-align: center;
+        }
+        .leg-label b { display: block; color: var(--cognis-blue); font-size: 0.9rem; }
+        .leg-label span { font-size: 0.75rem; color: #718096; font-weight: 600; }
+
+        .summary-banner {
+            background: var(--cognis-light);
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 800;
+            color: var(--cognis-blue);
+            font-size: 1.1rem;
+            border: 1px solid var(--border-light);
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule("11_sample"));</script>
+</head>
+<body>
+
+<div class="module-card">
+    <div class="header"><h1>Module 11: Average Speed</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Average speed is your <b>Big Picture Journey</b>. In the 11+, examiners love to show you two different speeds to tempt your child into a quick guess. The secret weapon is to ignore those middle speeds and zoom out. Success isn't about averaging numbers; it's about squashing the whole trip into one "Total Distance" and one "Total Time." If your child can collapse the journey into these two grand totals, the points are theirs.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Road Trip</b>
+                "A car travels 15 miles in the morning and 25 miles in the afternoon. The trip took 2 hours. What was the average speed?"
+            </div>
+            <div class="tier-card">
+                <b>The Morning Cycle</b>
+                "A cyclist travels 20km at 10km/h, then another 20km at 20km/h. What is the average speed for the whole trip?"
+            </div>
+            <div class="tier-card">
+                <b>The Flight Path</b>
+                "A plane flies 600 miles at 300mph, then 400 miles at 200mph. Calculate the speed for the 1000-mile flight."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Look at the <b>Journey Line</b> below. Point to the blue leg and the gold leg. We aren't interested in them as separate trips; we are watching them merge into one long road. Notice how the <b>Meeting Point</b> shifts. No matter where that point sits, the rule is the same: add the distances to get the "Road" and add the hours to get the "Time."</p>
+        <div class="anatomy-display">
+            <div class="journey-line">
+                <div class="marker marker-start"></div>
+                
+                <div id="visual-leg-1" class="leg leg-1">
+                    <div class="leg-label">
+                        <b id="label-d1">30 km</b>
+                        <span id="label-t1">1.00 hrs</span>
+                    </div>
+                    <div class="marker marker-mid"></div>
+                </div>
+
+                <div id="visual-leg-2" class="leg leg-2">
+                    <div class="leg-label">
+                        <b id="label-d2">60 km</b>
+                        <span id="label-t2">2.00 hrs</span>
+                    </div>
+                    <div class="marker marker-end"></div>
+                </div>
+            </div>
+            <div class="summary-banner" id="total-summary">
+                TOTAL: 90.00 km in 3.00 hours
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Adjust the sliders for each leg of the journey. Ask your child: <i>"If we travel for longer, what happens to our average speed?"</i> Watch the <b>Trace Log</b>—it shows you the logic of 'collapsing' the journey into one final calculation. Point out that the "Final Speed" only appears once we have both grand totals ready.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Leg 1 Distance (km)</label>
+                    <input type="number" id="d1-in" value="30" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Leg 1 Time (hrs)</label>
+                    <input type="number" id="t1-in" value="1" step="0.5">
+                </div>
+                <div class="control-group" style="border-top: 1px solid #4a5568; padding-top: 20px; margin-top: 10px;">
+                    <label>Leg 2 Distance (km)</label>
+                    <input type="number" id="d2-in" value="60" step="1">
+                </div>
+                <div class="control-group">
+                    <label>Leg 2 Time (hrs)</label>
+                    <input type="number" id="t2-in" value="2" step="0.5">
+                </div>
+            </div>
+            <div class="trace-log" id="logic-trace"></div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Speed Splitter" Trap:</strong> If a car travels at 40mph then 60mph, bright children will often confidently shout "50mph!" It feels logical because 50 is right in the middle. This is a classic 11+ trap. 
+            <br><br>
+            <strong>The Insider Fix:</strong> Tell your child: <i>"Speeds don't matter until the very last step."</i> You only find the average by dividing the <b>Grand Totals</b>. Unless the time spent at each speed is exactly the same (which it almost never is in exams), adding the speeds together will lead to a confident wrong answer.</p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(11)">Complete Module & Update Lattice</button>
+
+<script src="js/logic-provider.js"></script>
+<script>
+    const inputs = ['d1-in', 't1-in', 'd2-in', 't2-in'].map(id => document.getElementById(id));
+    const traceBox = document.getElementById('logic-trace');
+    const summary = document.getElementById('total-summary');
+
+    function refresh() {
+        const [d1, t1, d2, t2] = inputs.map(i => parseFloat(i.value) || 0);
+        
+        const totalDist = d1 + d2;
+        const totalTime = t1 + t2;
+        const avgSpeed = totalTime > 0 ? (totalDist / totalTime) : 0;
+
+        const p1 = totalDist > 0 ? (d1 / totalDist) * 100 : 50;
+        const p2 = 100 - p1;
+
+        document.getElementById('visual-leg-1').style.width = `${p1}%`;
+        document.getElementById('visual-leg-2').style.width = `${p2}%`;
+
+        document.getElementById('label-d1').innerText = `${d1.toFixed(2)} km`;
+        document.getElementById('label-t1').innerText = `${t1.toFixed(2)} hrs`;
+        document.getElementById('label-d2').innerText = `${d2.toFixed(2)} km`;
+        document.getElementById('label-t2').innerText = `${t2.toFixed(2)} hrs`;
+
+        summary.innerText = `TOTAL: ${totalDist.toFixed(2)} km in ${totalTime.toFixed(2)} hours`;
+
+        traceBox.innerHTML = `
+            <div class="trace-step">→ 1. Grand Distance: ${d1} + ${d2} = <b>${totalDist.toFixed(2)} km</b></div>
+            <div class="trace-step">→ 2. Grand Time: ${t1} + ${t2} = <b>${totalTime.toFixed(2)} hrs</b></div>
+            <div class="trace-step">→ 3. The Big Calculation: Total Distance ÷ Total Time</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → AVERAGE SPEED: ${avgSpeed.toFixed(2)} km/h
+            </div>
+        `;
+    }
+
+    inputs.forEach(i => i.addEventListener('input', refresh));
+    window.onload = refresh;
+</script>
+
+</body>
+</html>```

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 54: Tone & Purpose | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR SEMANTIC TEMPERATURE */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .voice-mapping {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .component-pill {
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .pill-purpose { background: white; border: 2px solid var(--cognis-blue); color: var(--cognis-blue); }
+        .pill-tone { background: white; border: 2px solid var(--cognis-gold); color: var(--cognis-gold); }
+        .logic-connector { color: #cbd5e0; font-weight: bold; font-size: 1.2rem; }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
+        
+        .output-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+            font-style: italic;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .slider-box {
+            background: rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px dashed #4a5568;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(54));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 54: Tone & Purpose</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"The Author's Intent."</b> In the 11+ Comprehension paper, your child must distinguish between the <b>Voice</b> (Tone) and the <b>Goal</b> (Purpose). Tone is the emotional temperature—how the author feels. Purpose is the mechanical job the text is doing—why it was written. By looking at verbs and adjectives separately, we can figure out if the writer is trying to help us, trick us, or just make us laugh.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Rule-Maker</b>
+                "Clean your room right now!"<br>
+                <b>Tone:</b> Stern. <b>Purpose:</b> To Command.
+            </div>
+            <div class="tier-card">
+                <b>The Story-Teller</b>
+                "The golden sun dipped below the velvet clouds."<br>
+                <b>Tone:</b> Serene. <b>Purpose:</b> To Describe.
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Critic</b>
+                "This 'miracle' cure is as useful as a chocolate teapot."<br>
+                <b>Tone:</b> Sarcastic. <b>Purpose:</b> To Ridicule.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Semantic Ratio</b>. Help your child see that Purpose is usually hidden in the <b>Verbs</b> (the action parts), while Tone is painted on with <b>Adjectives</b> (the feeling parts). If you change the adjectives but keep the verbs, the purpose stays the same, but the vibe shifts completely.</p>
+        
+        
+
+        <div class="anatomy-display">
+            <div class="voice-mapping">
+                <div class="component-pill pill-purpose">Verbs &rarr; Mechanical Purpose</div>
+                <div class="logic-connector">+</div>
+                <div class="component-pill pill-tone">Adjectives &rarr; Emotional Tone</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the <b>Tone-Shifter</b> below. Notice how we are describing the exact same event (the weather), but as you slide from "Clinical" to "Aggressive," the author's voice transforms. Ask your child: <i>"What words changed to make it sound meaner?"</i></p>
+        <div class="simulation-area">
+            <div class="output-well" id="sentence-output">
+                The rainfall is currently recorded at 5mm per hour.
+            </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="slider-box">
+                        <div class="slider-labels">
+                            <span>Clinical</span>
+                            <span>Sarcastic</span>
+                            <span>Angry</span>
+                        </div>
+                        <input type="range" id="tone-slider" min="0" max="2" value="0" step="1" oninput="shiftTone()">
+                    </div>
+                </div>
+                <div class="trace-log" id="trace-54">Awaiting voice calibration...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Topic" Trap:</strong> Most children mistake the <i>topic</i> of a story for the <i>tone</i>. For example, if a story is about a rainy day, they assume the tone is "sad." They are reacting to the rain, not the author's actual words.</p>
+            
+            <p><strong>The Insider Fix: The "Adjective Audit."</strong> Tell your child: <i>"Ignore the story, look at the paint."</i> They should list only the descriptive words. If a sad event is described with words like "accurate," "standard," and "noted," the tone is <b>Clinical</b>, not sad. <b>Tone lives in the word choice, not the plot.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(54)">Complete Module & Update Lattice</button>
+
+<script>
+    const tones = [
+        { 
+            text: "The rainfall is currently recorded at 5mm per hour.", 
+            tone: "Clinical", 
+            purpose: "To Inform", 
+            key: "recorded / recorded",
+            color: "white" 
+        },
+        { 
+            text: "Oh, what a 'delightful' day for a stroll in this soaking downpour.", 
+            tone: "Sarcastic", 
+            purpose: "To Mock", 
+            key: "'delightful' / soaking",
+            color: "var(--cognis-gold)" 
+        },
+        { 
+            text: "This miserable rain has completely ruined our entire afternoon!", 
+            tone: "Aggressive", 
+            purpose: "To Complain", 
+            key: "miserable / ruined",
+            color: "#f87171" 
+        }
+    ];
+
+    function shiftTone() {
+        const val = document.getElementById('tone-slider').value;
+        const data = tones[val];
+        const output = document.getElementById('sentence-output');
+        
+        output.innerText = data.text;
+        output.style.color = data.color;
+
+        document.getElementById('trace-54').innerHTML = `
+            <div class="trace-step">→ 1. Voice Detected: <b>${data.tone.toUpperCase()}</b></div>
+            <div class="trace-step">→ 2. Painted with: [${data.key}]</div>
+            <div class="trace-step">→ 3. Author's Goal: <b>${data.purpose}</b></div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → STATUS: INTENT IDENTIFIED
+            </div>
+        `;
+    }
+
+    window.onload = () => shiftTone();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 19: Missing Signs | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR PHYSICS SCALE */
+        .anatomy-display { padding: 40px; background: #f0f4f8; position: relative; height: 420px; overflow: hidden; border-radius: 12px; border: 2px solid #e2e8f0; }
+        
+        .scale-pivot { 
+            width: 0; height: 0; 
+            border-left: 30px solid transparent; 
+            border-right: 30px solid transparent; 
+            border-bottom: 60px solid #cbd5e0; 
+            position: absolute; bottom: 40px; left: 50%; 
+            transform: translateX(-50%); z-index: 1; 
+        }
+
+        .scale-beam { 
+            width: 480px; height: 12px; 
+            background: var(--cognis-blue); border-radius: 6px; 
+            position: absolute; top: 180px; left: 50%; 
+            margin-left: -240px;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform-origin: center center; 
+            display: flex; justify-content: space-between; 
+            z-index: 2;
+        }
+        
+        .pan { 
+            width: 160px; position: absolute; top: 10px; 
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+
+        .pan-string { 
+            width: 100%; height: 80px; 
+            border-left: 2px solid #94a3b8; border-right: 2px solid #94a3b8; 
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%); 
+        }
+
+        .pan-bowl { 
+            width: 100%; background: white; 
+            border: 3px solid var(--cognis-blue); 
+            border-radius: 0 0 80px 80px; padding: 15px 5px; 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); text-align: center; 
+        }
+        
+        #left-pan { left: -80px; }
+        #right-pan { right: -80px; }
+        
+        .eq-text { font-size: 1.1rem; font-weight: 800; color: var(--cognis-blue); }
+        .weight-badge { 
+            font-size: 0.6rem; font-weight: 800; color: #94a3b8; 
+            text-transform: uppercase; margin-top: 4px; display: block; 
+        }
+
+        .q-box { 
+            display: inline-block; width: 16px; height: 16px; 
+            border: 2px solid var(--cognis-gold); border-radius: 3px; 
+            vertical-align: middle; background: #fff; margin: 0 2px; 
+        }
+
+        .engine-container { grid-template-columns: 1.2fr 1fr; }
+        .input-row { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+        .input-row input, .input-row select { 
+            background: #2d3748; color: white; border: 1px solid #4a5568; 
+            padding: 8px; border-radius: 6px; font-size: 0.9rem; font-weight: 700; 
+        }
+        .input-row select { border-color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(19));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header"><h1>Module 19: Missing Signs</h1></div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Mathematical Search and Rescue."</b> You have the numbers and the destination, but the bridges (the signs) have vanished. In the 11+, solving these is not about guessing; it's about identifying <b>"Heavy" Operators</b>. If the target is very high or very low, you know a multiplication or division must be lurking somewhere. Your job is to find the operational path that creates a perfect balance.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Single Bridge</b>
+                "Which sign makes this balance?"<br>
+                10 <div class="q-box"></div> 2 = 5
+            </div>
+            <div class="tier-card">
+                <b>The Double Jump</b>
+                "Find the two missing signs:"<br>
+                12 <div class="q-box"></div> 3 <div class="q-box"></div> 2 = 18
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Powerplay</b>
+                "Solve using square roots:"<br>
+                $\sqrt{16}$ <div class="q-box"></div> 2 <div class="q-box"></div> 3 = 12
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>An equation is a <b>Physical Scale</b>. If the calculation on the left is "heavier" than the target on the right, the scale will tilt. Balance is only achieved when the math is perfect. Watch the pans below—they will only level out when you find the correct "weight" for your signs.</p>
+        
+        <div class="anatomy-display">
+            <div class="scale-beam" id="beam">
+                <div class="pan" id="left-pan">
+                    <div class="pan-string"></div>
+                    <div class="pan-bowl">
+                        <div class="eq-text">
+                            <span id="v-pre"></span><span id="v-a">16</span> 
+                            <span id="v-op1" style="color:var(--cognis-gold)">?</span> 
+                            <span id="v-b">2</span> 
+                            <span id="v-op2" style="color:var(--cognis-gold)">?</span> 
+                            <span id="v-c">4</span>
+                        </div>
+                        <span class="weight-badge">Calculated Weight: <span id="v-calc">0</span></span>
+                    </div>
+                </div>
+
+                <div class="pan" id="right-pan">
+                    <div class="pan-string"></div>
+                    <div class="pan-bowl">
+                        <div class="eq-text" id="v-target">12</div>
+                        <span class="weight-badge">Target Weight</span>
+                    </div>
+                </div>
+            </div>
+            <div class="scale-pivot"></div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the controls below to build a "Weight Challenge." Try to balance the scale by selecting the right operators. Help your child notice how <b>Multiplication (x)</b> and <b>Powers (^)</b> add massive weight, while <b>Division (÷)</b> slims it down instantly.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Value A / First Sign</label>
+                    <div class="input-row">
+                        <select id="in-pre" style="width: 70px;"><option value="none">A</option><option value="sqrt">√A</option></select>
+                        <input type="number" id="in-a" value="16" style="width: 60px;">
+                        <select id="in-op1" style="width: 80px;"><option value="">— Op —</option><option value="+">+</option><option value="-">-</option><option value="x">x</option><option value="/">÷</option><option value="^">^</option></select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label>Value B / Second Sign / Value C</label>
+                    <div class="input-row">
+                        <input type="number" id="in-b" value="2" style="width: 60px;">
+                        <select id="in-op2" style="width: 80px;"><option value="">— Op —</option><option value="+">+</option><option value="-">-</option><option value="x">x</option><option value="/">÷</option><option value="^">^</option></select>
+                        <input type="number" id="in-c" value="4" style="width: 60px;">
+                    </div>
+                </div>
+                <div class="control-group" style="border-top:1px solid #4a5568; padding-top:15px; margin-top:10px;">
+                    <label>The Target Weight</label>
+                    <input type="number" id="in-target" value="12" style="width: 100%; border: 2px solid var(--cognis-gold);">
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">Test the balance...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Linear Story" Trap:</strong> Most children read missing sign problems like a book—left to right. If they see $2 + 3^2$, they often do $2 + 3 = 5$, then $5^2 = 25$. This "storytelling" math will fail every single time in the 11+.</p>
+            
+            <p><strong>The Fix: The "Heavyweight" First Rule.</strong> Tell your child: <i>"BODMAS is a gravity rule."</i> Roots and Powers are the heaviest; they must be solved before addition or subtraction can even move. In the example above, the power happens first ($3^2 = 9$), making the true weight $2 + 9 = 11$. <b>Find the heaviest sign first, then balance the rest.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(19)">Complete Module & Update Lattice</button>
+
+<script>
+    const inputs = ['in-pre', 'in-a', 'in-op1', 'in-b', 'in-op2', 'in-c', 'in-target'].map(id => document.getElementById(id));
+    const beam = document.getElementById('beam');
+    const lPan = document.getElementById('left-pan');
+    const rPan = document.getElementById('right-pan');
+    const engineTrace = document.getElementById('engine-trace');
+
+    function refresh() {
+        const pre = document.getElementById('in-pre').value;
+        const a = parseFloat(document.getElementById('in-a').value) || 0;
+        const op1 = document.getElementById('in-op1').value;
+        const b = parseFloat(document.getElementById('in-b').value) || 0;
+        const op2 = document.getElementById('in-op2').value;
+        const c = parseFloat(document.getElementById('in-c').value) || 0;
+        const target = parseFloat(document.getElementById('in-target').value) || 0;
+
+        document.getElementById('v-pre').innerText = pre === 'sqrt' ? '√' : '';
+        document.getElementById('v-a').innerText = a;
+        document.getElementById('v-op1').innerText = op1 || '?';
+        document.getElementById('v-b').innerText = b;
+        document.getElementById('v-op2').innerText = op2 || '?';
+        document.getElementById('v-c').innerText = c;
+        document.getElementById('v-target').innerText = target;
+
+        if (!op1 || !op2) {
+            engineTrace.innerHTML = "Select both operators to see if the scale balances.";
+            resetScale();
+            return;
+        }
+
+        let valA = pre === 'sqrt' ? Math.sqrt(a) : a;
+        let current = 0;
+        let steps = [];
+        steps.push(`Starting with Value A: ${valA.toFixed(1)}`);
+
+        const weight = { '+':1, '-':1, 'x':2, '/':2, '^':3 };
+        
+        if (weight[op2] > weight[op1]) {
+            steps.push(`<b>BODMAS Alert:</b> Sign 2 (${op2}) is heavier than Sign 1 (${op1}).`);
+            let temp = calc(b, op2, c);
+            steps.push(`Solving heavy part: ${b} ${op2} ${c} = ${temp}`);
+            current = calc(valA, op1, temp);
+            steps.push(`Final Calculation: ${valA.toFixed(1)} ${op1} ${temp} = ${current.toFixed(1)}`);
+        } else {
+            steps.push(`<b>BODMAS Alert:</b> Sign 1 (${op1}) is heavier or equal to Sign 2.`);
+            let temp = calc(valA, op1, b);
+            steps.push(`Solving first part: ${valA.toFixed(1)} ${op1} ${b} = ${temp}`);
+            current = calc(temp, op2, c);
+            steps.push(`Final Calculation: ${temp} ${op2} ${c} = ${current.toFixed(1)}`);
+        }
+
+        function calc(n1, op, n2) {
+            if (op === '+') return n1 + n2;
+            if (op === '-') return n1 - n2;
+            if (op === 'x') return n1 * n2;
+            if (op === '/') return n2 !== 0 ? n1 / n2 : 0;
+            if (op === '^') return Math.pow(n1, n2);
+            return 0;
+        }
+
+        document.getElementById('v-calc').innerText = current.toFixed(1);
+        
+        const diff = current - target;
+        const tilt = Math.max(-25, Math.min(25, diff * -2.5));
+        
+        beam.style.transform = `rotate(${tilt}deg)`;
+        lPan.style.transform = `rotate(${-tilt}deg)`;
+        rPan.style.transform = `rotate(${-tilt}deg)`;
+
+        engineTrace.innerHTML = steps.map(s => `<div class="trace-step">→ ${s}</div>`).join('');
+        if (Math.abs(current - target) < 0.01) {
+            engineTrace.innerHTML += `<div style="color:#10b981; font-weight:bold; margin-top:10px; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">★ SCALE BALANCED ★</div>`;
+        } else {
+            const direction = current > target ? "too heavy" : "too light";
+            engineTrace.innerHTML += `<div style="color:#ef4444; font-weight:bold; margin-top:10px;">The calculation is ${direction}!</div>`;
+        }
+    }
+
+    function resetScale() {
+        beam.style.transform = `rotate(0deg)`;
+        lPan.style.transform = `rotate(0deg)`;
+        rPan.style.transform = `rotate(0deg)`;
+        document.getElementById('v-calc').innerText = "0";
+    }
+
+    inputs.forEach(i => i.addEventListener('input', refresh));
+    window.onload = refresh;
+</script>
+
+</body>
+</html>

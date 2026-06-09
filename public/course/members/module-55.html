@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 55: Fact vs. Opinion | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR VERIFICATION LAB */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .filter-viz {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .logic-gate {
+            background: white;
+            border: 2px solid var(--cognis-blue);
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--cognis-blue);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .gate-arrow { color: var(--cognis-gold); font-size: 1.5rem; font-weight: bold; }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
+        
+        .logic-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: white;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .token {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border-bottom: 2px dashed #4a5568;
+            transition: 0.2s;
+        }
+        .token:hover { background: rgba(197, 160, 89, 0.2); }
+        .token.fact-hit { color: var(--pass-green); border-color: var(--pass-green); border-bottom-style: solid; font-weight: bold; }
+        .token.opinion-hit { color: var(--cognis-gold); border-color: var(--cognis-gold); border-bottom-style: solid; font-style: italic; }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-load { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
+            text-align: left; transition: 0.2s;
+        }
+        .btn-load:hover { background: #4a5568; color: white; }
+        .btn-load.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(55));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 55: Fact vs. Opinion</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"The Truth Filter."</b> In Reading Comprehension, your child must learn to separate <b>Facts</b> (things that can be proven with a clock, a ruler, or a camera) from <b>Opinions</b> (personal feelings or value judgments). The secret weapon is ignoring the "fancy language." Authors often dress up their opinions in very authoritative words to make them sound like facts. To find the truth, your child must ask: <i>"Could a machine prove this?"</i></p>
+        
+        
+
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Direct Proof</b>
+                "The sun is a star." (Fact) vs. "The sun is beautiful." (Opinion). Can we measure beauty?
+            </div>
+            <div class="tier-card">
+                <b>The Number Trap</b>
+                "The report was 42 pages long and was far too tedious." (Contrast the factual count with the subjective feeling).
+            </div>
+            <div class="tier-card">
+                <b>The Authority Filter</b>
+                "The world's greatest scientist argued that the policy was a failure." (Is 'failure' a fact just because an expert said it?)
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Measurement Machine</b>. Before your child marks an answer, they should put the statement through this filter. If the output can be recorded as a piece of data, it’s a fact. If the output depends on who is looking at it, it’s an opinion. Help your child see that "stunning" and "difficult" are words that change depending on the person.</p>
+        
+        <div class="anatomy-display">
+            <div class="filter-viz">
+                <div class="logic-gate">A Sentence</div>
+                <div class="gate-arrow">&rarr;</div>
+                <div class="logic-gate" style="border-color:var(--cognis-gold); color:var(--cognis-gold);">Machine Audit</div>
+                <div class="gate-arrow">&rarr;</div>
+                <div class="logic-gate" style="border-color:var(--pass-green); color:var(--pass-green);">Provable Data</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Load a diagnostic passage below. Click on the underlined words to "Audit" them. Watch the <b>Trace Log</b> to see why the engine classifies them as facts (measurable) or opinions (subjective). This builds the **Critical Eye** needed for advanced inference questions.</p>
+        <div class="simulation-area">
+            <div class="logic-well" id="logic-well">
+                </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Select Topic</label>
+                    <div class="preset-grid">
+                        <button class="btn-load active" onclick="loadPassage(0, this)">Hotel Description</button>
+                        <button class="btn-load" onclick="loadPassage(1, this)">Scientific Experiment</button>
+                        <button class="btn-load" onclick="loadPassage(2, this)">Historical Record</button>
+                    </div>
+                </div>
+                <div class="trace-log" id="trace-55">Click words to verify their status...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Expert Fallacy" Trap:</strong> This is the sneakiest trap in the 11+. Children often believe a statement is a fact just because a "Professor" or "Doctor" said it. For example: <i>"The Doctor said the medicine tasted horrible."</i> Because the Doctor is real, they assume "horrible" is a fact.</p>
+            
+            <p><strong>The Insider Fix: The "Value Word" Audit.</strong> Tell your child: <i>"Adjectives are often opinions in disguise."</i> If a word describes a <i>feeling</i> (good, bad, scary, boring) or a <i>value</i> (best, worst, important), it is an opinion—no matter who says it. If you can't prove it with a tool, it remains a belief. <b>Factual people can still have opinions.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(55)">Complete Module & Update Lattice</button>
+
+<script>
+    const passages = [
+        {
+            tokens: [
+                { text: "The", type: "x" }, { text: "stunning", type: "o" }, 
+                { text: "5-star hotel", type: "f" }, { text: "has", type: "x" }, 
+                { text: "exactly", type: "x" }, { text: "42 rooms", type: "f" }
+            ],
+            context: "Property Inspection"
+        },
+        {
+            tokens: [
+                { text: "The", type: "x" }, { text: "brilliant", type: "o" }, 
+                { text: "scientist", type: "f" }, { text: "conducted", type: "x" }, 
+                { text: "three", type: "f" }, { text: "difficult", type: "o" }, 
+                { text: "tests", type: "f" }
+            ],
+            context: "Lab Report"
+        },
+        {
+            tokens: [
+                { text: "The", type: "x" }, { text: "1920", type: "f" }, 
+                { text: "treaty", type: "f" }, { text: "was", type: "x" }, 
+                { text: "a", type: "x" }, { text: "disastrous", type: "o" }, 
+                { text: "mistake", type: "o" }
+            ],
+            context: "History Archive"
+        }
+    ];
+
+    let currentPassage = passages[0];
+
+    function loadPassage(idx, btn) {
+        document.querySelectorAll('.btn-load').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPassage = passages[idx];
+        renderWell();
+        updateTrace();
+    }
+
+    function renderWell() {
+        const well = document.getElementById('logic-well');
+        well.innerHTML = '';
+        currentPassage.tokens.forEach((t, i) => {
+            if(t.type === 'x') {
+                well.innerHTML += `<span>${t.text}</span> `;
+            } else {
+                well.innerHTML += `<span class="token" onclick="classify(this, '${t.type}', ${i})">${t.text}</span> `;
+            }
+        });
+    }
+
+    function classify(el, type, idx) {
+        if(type === 'f') el.classList.add('fact-hit');
+        else el.classList.add('opinion-hit');
+        updateTrace(el.innerText, type);
+    }
+
+    function updateTrace(val, type) {
+        const log = document.getElementById('trace-55');
+        let html = `<div class="trace-step">→ 1. Scanning: <b>${currentPassage.context}</b></div>`;
+        
+        if(!val) {
+            html += `<div class="trace-step">→ 2. Status: Ready for verification.</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        const typeLabel = type === 'f' ? 'FACT (Provable)' : 'OPINION (Personal)';
+        const reason = type === 'f' ? 'This can be counted or recorded objectively.' : 'This depends on a person’s own judgment.';
+
+        html += `
+            <div class="trace-step">→ 2. Auditing: "<b>${val}</b>"</div>
+            <div class="trace-step">→ 3. Category: ${typeLabel}</div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → AUDIT RESULT: ${reason}
+            </div>
+        `;
+        log.innerHTML = html;
+    }
+
+    window.onload = () => loadPassage(0, document.querySelector('.btn-load'));
+</script>
+
+</body>
+</html>

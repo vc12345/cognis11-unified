@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 40: Odd One Out | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR SEQUENTIAL LOGIC SIEVE */
+        .anatomy-display { 
+            background: #1a202c; 
+            padding: 60px 40px; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 2px solid #2d3748;
+        }
+
+        .word-row {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .word-box {
+            flex: 1;
+            height: 70px;
+            background: #2d3748;
+            border: 2px dashed #4a5568;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent;
+            font-weight: 900;
+            font-size: 0.9rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .word-box.revealed {
+            color: #e2e8f0;
+            border-style: solid;
+            background: #3d495d;
+        }
+
+        .word-box.majority {
+            border: 3px solid var(--pass-green);
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--pass-green);
+        }
+
+        .word-box.outlier {
+            border: 3px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .btn-unmask {
+            background: var(--cognis-gold);
+            color: white;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+        }
+        .btn-unmask:hover { background: #b08d4b; transform: translateY(-2px); }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-scenario {
+            background: #2d3748;
+            border: 1px solid #4a5568;
+            color: #a0aec0;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+        }
+        .btn-scenario.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(40));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 40: Odd One Out</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as the <b>"Group Gatekeeper."</b> In the 11+, you are looking for a common bond that connects four of the words, leaving one "intruder" behind. The secret weapon isn't reading—it's <b>speed-sorting</b>. If your child can find a shared property between just the first few words, they’ve already found the rule. The first word that snaps that pattern is the target. They don't need to process the whole line to get the points.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Kitchen Cabinet</b>
+                "Apple, Banana, Carrot, Grape, Pear." (Finding the vegetable among the fruits).
+            </div>
+            <div class="tier-card">
+                <b>The Metal Mine</b>
+                "Silver, Gold, Copper, Iron, Wood." (Spotting the non-metal).
+            </div>
+            <div class="tier-card">
+                <b>The 11+ Nuance</b>
+                "Brave, Bold, Fearless, Reckless, Courageous." (Comparing positive traits vs. a negative one).
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Logic Sieve</b>. Watch how we establish a "Majority Rule" one word at a time. Notice that the moment we hit the <b>2 vs. 1</b> threshold, the answer is mathematically locked. Any words remaining behind the "?" masks are just distractions that cost time. Click "Scan Next Word" to see the sieve in action.</p>
+        
+        <div class="anatomy-display">
+            <div class="word-row" id="sieve-row">
+                </div>
+            <button class="btn-unmask" id="unmask-btn" onclick="unmaskNext()">Scan Next Word</button>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Move the outlier to different positions. Help your child notice that no matter where the "intruder" is hiding, we can usually stop thinking before we reach the fifth box. This <b>Stop-Point Logic</b> is the difference between finishing the paper and running out of time.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">1. Hide the Outlier</label>
+                <div class="scenario-grid">
+                    <button class="btn-scenario active" onclick="loadScenario(0, this)">Pos 1</button>
+                    <button class="btn-scenario" onclick="loadScenario(1, this)">Pos 2</button>
+                    <button class="btn-scenario" onclick="loadScenario(2, this)">Pos 3</button>
+                    <button class="btn-scenario" onclick="loadScenario(3, this)">Pos 4</button>
+                    <button class="btn-scenario" onclick="loadScenario(4, this)">Pos 5</button>
+                </div>
+            </div>
+            <div class="trace-log" id="trace-40">Ready to begin the scan...</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Linear Scan" Trap:</strong> Most children read all 5 words as a single list before they even start thinking about categories. This "storytime" approach wastes 5 to 10 seconds per question on information that doesn't change the outcome.</p>
+            
+            <p><strong>The Insider Fix: The "2 + 1" Rule.</strong> Tell your child: <i>"The answer is revealed at word three."</i> If Word 1 and 2 match, the rule is set. If Word 3 is different, that's the answer—stop reading! If Word 1 and 2 are different, Word 3 is the tie-breaker. <b>The moment you have two of a kind and one oddity, the logic is closed.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(40)">Complete Module & Update Lattice</button>
+
+<script>
+    const scenarios = [
+        {words: ["OVEN", "SPOON", "FORK", "KNIFE", "TONGS"], out: 0, reason: "Appliance vs. Utensils"},
+        {words: ["IRON", "WOOD", "GOLD", "SILVER", "COPPER"], out: 1, reason: "Metals vs. Organic"},
+        {words: ["LION", "TIGER", "EAGLE", "BEAR", "WOLF"], out: 2, reason: "Mammals vs. Birds"},
+        {words: ["BRAVE", "BOLD", "VALIANT", "CRUEL", "NOBLE"], out: 3, reason: "Positive vs. Negative"},
+        {words: ["APPLE", "PEAR", "PEACH", "PLUM", "ONION"], out: 4, reason: "Fruits vs. Vegetables"}
+    ];
+
+    let currentS = 0;
+    let revealed = 0;
+    let mCount = 0;
+    let oCount = 0;
+    let logicLocked = false;
+
+    function loadScenario(idx, btn) {
+        currentS = idx;
+        revealed = 0;
+        mCount = 0;
+        oCount = 0;
+        logicLocked = false;
+        
+        document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const row = document.getElementById('sieve-row');
+        row.innerHTML = scenarios[idx].words.map(() => `<div class="word-box">?</div>`).join('');
+        
+        document.getElementById('trace-40').innerHTML = `<div class="trace-step">→ 1. Rule Type: ${scenarios[idx].reason}</div><div class="trace-step">→ 2. Status: Ready to scan...</div>`;
+    }
+
+    function unmaskNext() {
+        if (logicLocked) return;
+
+        const boxes = document.querySelectorAll('.word-box');
+        if (revealed >= boxes.length) return;
+        
+        const box = boxes[revealed];
+        const word = scenarios[currentS].words[revealed];
+        box.innerText = word;
+        box.classList.add('revealed');
+
+        if (revealed === scenarios[currentS].out) oCount++;
+        else mCount++;
+
+        const trace = document.getElementById('trace-40');
+        let html = `<div class="trace-step">→ 1. Ratio: ${mCount} Majority vs ${oCount} Outlier</div>`;
+
+        if ((mCount >= 2 && oCount >= 1) || (mCount >= 3 && revealed >= 2)) {
+            logicLocked = true;
+            const outlierIdx = scenarios[currentS].out;
+            for (let i = 0; i <= revealed; i++) {
+                if (i === outlierIdx) boxes[i].classList.add('outlier');
+                else boxes[i].classList.add('majority');
+            }
+            
+            const resultWord = scenarios[currentS].words[outlierIdx];
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → RESULT: LOGIC CLOSED (${resultWord} is the outlier)
+                </div>
+                <div class="trace-step" style="font-size:0.7rem; opacity:0.7;">Time Saved: Scanned only ${revealed+1}/5 words. Stop now!</div>
+            `;
+        } else {
+            html += `<div class="trace-step">→ 2. Status: Evidence inconclusive. Scanning...</div>`;
+        }
+
+        trace.innerHTML = html;
+        revealed++;
+    }
+
+    window.onload = () => loadScenario(0, document.querySelector('.btn-scenario'));
+</script>
+
+</body>
+</html>

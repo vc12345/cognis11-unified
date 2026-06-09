@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 18: BODMAS Hierarchy | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR THE PRIORITY SIEVE */
+        .anatomy-display { padding: 40px; }
+        .equation-bar { 
+            font-size: 2rem; 
+            font-weight: 800; 
+            margin-bottom: 30px; 
+            color: var(--cognis-blue); 
+            background: white; 
+            padding: 15px 40px; 
+            border-radius: 50px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid var(--cognis-light);
+            text-align: center;
+        }
+        
+        .sieve { width: 100%; max-width: 500px; border: 2px solid #cbd5e0; border-radius: 12px; background: white; overflow: hidden; margin: 0 auto; }
+        .sieve-layer { height: 65px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px dashed #cbd5e0; position: relative; transition: background 0.3s; }
+        .sieve-layer:last-child { border-bottom: none; }
+        .sieve-layer.active { background: #fffbeb; }
+        
+        .layer-label { width: 140px; font-size: 0.65rem; font-weight: 800; color: #a0aec0; text-transform: uppercase; letter-spacing: 1px; }
+        .token-bin { flex-grow: 1; display: flex; gap: 8px; }
+        
+        .token { padding: 4px 10px; border-radius: 6px; font-weight: 800; color: white; font-size: 0.8rem; animation: dropIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes dropIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .token.b { background: #6366f1; } 
+        .token.o { background: #ec4899; } 
+        .token.dm { background: var(--cognis-gold); } 
+        .token.as { background: var(--cognis-blue); } 
+
+        /* Builder Grid */
+        .builder-grid { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .builder-item { background: var(--engine-input); padding: 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
+        .builder-item small { color: #a0aec0; font-size: 0.6rem; text-transform: uppercase; font-weight: 700; }
+        .builder-item input, .builder-item select { background: #1a202c; color: white; border: 1px solid #4a5568; padding: 5px; border-radius: 4px; font-size: 0.9rem; font-weight: 700; }
+        
+        .engine-btn-row { display: flex; gap: 15px; margin-top: 20px; align-items: center; }
+        .add-btn { background: #4a5568; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: 800; font-size: 1.2rem; transition: background 0.2s; }
+        .add-btn:hover { background: var(--cognis-gold); }
+        .solve-btn { background: var(--cognis-gold); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(18));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 18: BODMAS Hierarchy</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>This is the <b>"Hierarchy of Power."</b> In the 11+, examiners love to set traps by putting addition at the start of a sentence and multiplication at the end. Your child's brain will want to solve it like a book—left to right. But in math, symbols have "energy levels." High-energy operations (Multiplication, Powers) will always "crush" low-energy ones (Addition, Subtraction) into waiting their turn.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Left-Right Trap</b>
+                "Find the value of $5 + 3 \times 2$. Does the addition or the multiplication happen first?"
+            </div>
+            <div class="tier-card">
+                <b>The Shielded Math</b>
+                "Solve $(15 - 5) \div 2 + 4$. Remember the brackets create a 'shield' around the subtraction."
+            </div>
+            <div class="tier-card">
+                <b>The Energy Path</b>
+                "Calculate $10 + 2^3 \div (6 - 2)$. Trace the path from the 'Power' down to the 'Plus'."
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>Think of this as the <b>Priority Sieve</b>. When you throw an equation into the machine, the symbols get caught in different layers. The top layers are the "Heavyweights"—they must be dealt with before anything can fall through to the layers below. Point to the sieve: the symbols at the top have all the power.</p>
+        
+        <div class="anatomy-display">
+            <div class="equation-bar" id="eq-display">2 + 3 x 10</div>
+            
+            <div class="sieve">
+                <div class="sieve-layer" id="layer-b"><div class="layer-label">1. Brackets ()</div><div class="token-bin" id="bin-b"></div></div>
+                <div class="sieve-layer" id="layer-o"><div class="layer-label">2. Orders (^)</div><div class="token-bin" id="bin-o"></div></div>
+                <div class="sieve-layer" id="layer-dm"><div class="layer-label">3. Div / Mult</div><div class="token-bin" id="bin-dm"></div></div>
+                <div class="sieve-layer" id="layer-as"><div class="layer-label">4. Add / Sub</div><div class="token-bin" id="bin-as"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the builder below to create your own messy equation. Click <b>"Filter Equation"</b> to watch the symbols get caught in their correct priority layers. Help your child notice that no matter where a 'x' is placed, it always lands in Layer 3, above the '+' in Layer 4.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="builder-grid" id="builder">
+                    </div>
+                <div class="engine-btn-row">
+                    <button class="add-btn" onclick="addTerm()">+</button>
+                    <button class="solve-btn" onclick="runBODMAS()">Filter Equation</button>
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace">
+                Build an equation and click "Filter" to see the hierarchy in action.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Bookworm" Trap:</strong> Most children read an equation from left to right, just like a storybook. If they see $10 - 2 \times 3$, they will confidently do $10 - 2 = 8$ first, then $8 \times 3 = 24$. <b>This is a disaster.</b></p>
+            
+            <p><strong>The Fix: The "Priority Scan."</strong> Tell your child: <i>"The pen doesn't move until the eyes scan the line."</i> They must hunt for the 'Heavyweights' first. In $10 - 2 \times 3$, the multiplication is heavier. It happens first: $2 \times 3 = 6$. Then, and only then, does the subtraction happen: $10 - 6 = 4$. <b>Eyes first, pen second.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(18)">Complete Module & Update Lattice</button>
+
+<script>
+    const builder = document.getElementById('builder');
+    let terms = [
+        {val: 2, op: '+'},
+        {val: 3, op: 'x'},
+        {val: 10}
+    ];
+
+    function renderBuilder() {
+        builder.innerHTML = '';
+        terms.forEach((t, i) => {
+            let html = `<div class="builder-item">
+                <small>Number</small>
+                <input type="number" value="${t.val}" onchange="updateTerm(${i}, 'val', this.value)">`;
+            
+            if (i < terms.length - 1) {
+                html += `<small>Next Op</small>
+                <select onchange="updateTerm(${i}, 'op', this.value)">
+                    <option value="+" ${t.op==='+'?'selected':''}>+</option>
+                    <option value="-" ${t.op==='-'?'selected':''}>-</option>
+                    <option value="x" ${t.op==='x'?'selected':''}>x</option>
+                    <option value="/" ${t.op==='/'?'selected':''}>÷</option>
+                    <option value="^" ${t.op==='^'?'selected':''}>^ (Power)</option>
+                </select>`;
+            }
+            html += `</div>`;
+            builder.innerHTML += html;
+        });
+        updateDisplay();
+    }
+
+    function addTerm() {
+        if(terms.length >= 6) return; 
+        terms[terms.length-1].op = '+';
+        terms.push({val: 5});
+        renderBuilder();
+    }
+
+    function updateTerm(index, key, value) {
+        terms[index][key] = (key === 'val') ? parseFloat(value) : value;
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        let str = terms.map(t => t.op ? `${t.val} ${t.op === '/' ? '÷' : t.op}` : t.val).join(' ');
+        document.getElementById('eq-display').innerText = str;
+    }
+
+    function runBODMAS() {
+        const bins = { b:[], o:[], dm:[], as:[] };
+        const priority = { '^':'o', 'x':'dm', '/':'dm', '+': 'as', '-': 'as' };
+
+        terms.forEach(t => {
+            if(t.op) bins[priority[t.op]].push(t.op === '/' ? '÷' : t.op);
+        });
+
+        ['o','dm','as'].forEach(cat => {
+            const container = document.getElementById('bin-'+cat);
+            container.innerHTML = bins[cat].map(op => `<div class="token ${cat}">${op}</div>`).join('');
+            document.getElementById('layer-'+cat).classList.toggle('active', bins[cat].length > 0);
+        });
+
+        let currentExpr = terms.map(t => t.op ? `${t.val} ${t.op === '/' ? '÷' : t.op}` : t.val).join(' ');
+        let log = `<div class="trace-step">→ Equation: <b>${currentExpr}</b></div>`;
+        
+        if(bins.o.length > 0) log += `<div class="trace-step">→ Layer 2: Solving <b>Powers</b> (Orders) first.</div>`;
+        if(bins.dm.length > 0) log += `<div class="trace-step">→ Layer 3: Solving <b>Division / Multiplication</b>.</div>`;
+        if(bins.as.length > 0) log += `<div class="trace-step">→ Layer 4: Finally <b>Addition / Subtraction</b>.</div>`;
+        
+        log += `<div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">→ Scan Complete. Hierarchy locked.</div>`;
+
+        document.getElementById('engine-trace').innerHTML = log;
+    }
+
+    renderBuilder();
+</script>
+
+</body>
+</html>

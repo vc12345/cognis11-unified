@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 40: Odd One Out | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🧐'; }
+
+        /* INTRO: SORTING HAT */
+        .item-f { width: 60px; height: 60px; background: var(--cognis-blue); border-radius: 12px; transition: all 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .item-odd { background: var(--cognis-gold); border-radius: 50%; }
+
+        /* PROGRESSING: PROPERTY TAG */
+        .subject-f { width: 100px; padding: 15px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; text-align: center; position: relative; transition: all 0.3s; }
+        .property-tag { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--cognis-gold); color: white; font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; opacity: 0; transition: opacity 0.3s; }
+        .tag-active { opacity: 1; }
+        .fail-border { border-color: var(--trap-red); border-style: dashed; }
+
+        /* SUPPLEMENTAL: LOGIC SIEVE */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; text-align: center; }
+        .word-box-s { width: 70px; height: 70px; background: #2d3748; border: 2px dashed #4a5568; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: transparent; font-weight: 900; margin: 0 5px; transition: 0.4s; }
+        .word-box-s.revealed { color: #e2e8f0; border-style: solid; background: #3d495d; }
+        .word-box-s.majority { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .word-box-s.outlier { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-scenario-s { background: #2d3748; border: 1px solid #4a5568; color: #a0aec0; padding: 8px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; font-weight: 800; }
+        .btn-scenario-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 40: Odd One Out</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Impostor Search</h2>
+            <p>An "Odd One Out" puzzle is like looking at a group of friends where one person is wearing a different uniform. To find them, you don't look for what is "special"—you look for the <b>Rule</b> that everyone else is following.</p>
+            
+            <div class="parent-script">
+                "Look at these shapes. Three are Blue Squares. One is a Gold Circle. The rule is 'Blue Square'. Click the Gold Circle to unmask the impostor! Notice that you didn't have to study every square to know that the circle didn't belong."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:20px;">
+                    <div class="item-f"></div>
+                    <div class="item-f item-odd" onclick="revealIntroOdd()"></div>
+                    <div class="item-f"></div>
+                    <div class="item-f"></div>
+                </div>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem; margin-top:40px;" onclick="resetIntro()">Reset Shapes</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Find the shape that breaks the pattern.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Property Audit</h2>
+            <p>In the 11+, words belong to "Clubs." If 3 words belong to the <b>Fruit Club</b> and 1 belongs to the <b>Vegetable Club</b>, the vegetable is the odd one out. You only need to check the first 3 items to find the club's name!</p>
+            
+            <div class="parent-script">
+                "Look at these items: **Apple**, **Pear**, **Peach**, **Onion**. Click 'Audit Club' to assign the Property Tags. Once we see that 3 items share the 'Fruit' tag, the 'Vegetable' tag stands out like a sore thumb. That's our answer!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:15px;">
+                    <div class="subject-f"><div class="property-tag" id="tag-1">FRUIT</div>Apple</div>
+                    <div class="subject-f"><div class="property-tag" id="tag-2">FRUIT</div>Pear</div>
+                    <div class="subject-f"><div class="property-tag" id="tag-3">FRUIT</div>Peach</div>
+                    <div id="odd-target" class="subject-f"><div class="property-tag" id="tag-4">VEG</div>Onion</div>
+                </div>
+                <button class="btn-action" onclick="runAudit()">Audit the Club</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Apple, Pear, Peach... the pattern is forming.</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as the <b>"Group Gatekeeper."</b> You are looking for a common bond that connects four of the words. The secret weapon isn't reading—it's <b>speed-sorting</b>. Find a shared property between the first few words to lock the rule. The first word that snaps that pattern is your target.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Kitchen</b> "Apple, Banana, Carrot, Grape, Pear." (Veg among the fruits).</div>
+                <div class="tier-card"><b>Minerals</b> "Silver, Gold, Copper, Iron, Wood." (Non-metal outlier).</div>
+                <div class="tier-card"><b>Nuance</b> "Brave, Bold, Fearless, Reckless, Courageous." (Positive traits vs negative).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Logic Sieve</b>. We establish a "Majority Rule" one word at a time. The moment we hit the <b>2 vs 1</b> threshold, the answer is locked. The remaining "?" masks are just distractions that cost you time.</p>
+            <div class="anatomy-display-s">
+                <div id="s-sieve-row" style="margin-bottom:30px;"></div>
+                <button class="btn-action" style="background:var(--cognis-gold);" id="s-unmask-btn" onclick="unmaskSupp()">Scan Next Word</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Move the outlier to different positions. Notice that no matter where it hides, we usually stop thinking by the third or fourth box. This <b>Stop-Point Logic</b> is the key to finishing on time.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:5px;">
+                        <button class="btn-scenario-s active" onclick="loadSuppScenario(0, this)">Pos 1</button>
+                        <button class="btn-scenario-s" onclick="loadSuppScenario(1, this)">Pos 2</button>
+                        <button class="btn-scenario-s" onclick="loadSuppScenario(2, this)">Pos 3</button>
+                        <button class="btn-scenario-s" onclick="loadSuppScenario(3, this)">Pos 4</button>
+                        <button class="btn-scenario-s" onclick="loadSuppScenario(4, this)">Pos 5</button>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Linear Scan" Trap:</b> Most children read all 5 words before they even start categorizing. This wastes 10 seconds per question on dead information.</p>
+                <p><b>The Fix: The "2 + 1" Rule.</b> <i>"The answer is revealed at word three."</i> If Word 1 and 2 match, the rule is set. If Word 3 is different, that's the answer—stop! The moment you have a pair and an oddity, the logic is closed.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(40)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SHAPES --- */
+    function revealIntroOdd() {
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Success! The <b>Gold Circle</b> is the odd one out. The rule is 'Blue Squares'.</div>`;
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: AUDIT --- */
+    function runAudit() {
+        document.querySelectorAll('.property-tag').forEach(t => t.classList.add('tag-active'));
+        document.getElementById('odd-target').classList.add('fail-border');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">The <b>Onion</b> breaks the 'Fruit' rule. It belongs to the 'Veg' club!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sScenarios = [
+        {words:["OVEN","SPOON","FORK","KNIFE","TONGS"], out:0, reason:"Appliance vs Utensil"},
+        {words:["IRON","WOOD","GOLD","SILVER","COPPER"], out:1, reason:"Metal vs Organic"},
+        {words:["LION","TIGER","EAGLE","BEAR","WOLF"], out:2, reason:"Mammal vs Bird"},
+        {words:["BRAVE","BOLD","VALIANT","CRUEL","NOBLE"], out:3, reason:"Positive vs Negative"},
+        {words:["APPLE","PEAR","PEACH","PLUM","ONION"], out:4, reason:"Fruit vs Veg"}
+    ];
+    let sCur = 0, sRev = 0, sM = 0, sO = 0, sLock = false;
+
+    function loadSuppScenario(idx, btn) {
+        sCur = idx; sRev = 0; sM = 0; sO = 0; sLock = false;
+        document.querySelectorAll('.btn-scenario-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const row = document.getElementById('s-sieve-row');
+        row.innerHTML = sScenarios[idx].words.map(() => `<div class="word-box-s">?</div>`).join('');
+        document.getElementById('supp-log').innerHTML = `→ Rule Type: ${sScenarios[idx].reason}<br>→ Status: Ready to scan.`;
+    }
+
+    function unmaskSupp() {
+        if(sLock) return;
+        const boxes = document.querySelectorAll('.word-box-s');
+        if(sRev >= boxes.length) return;
+        const word = sScenarios[sCur].words[sRev];
+        boxes[sRev].textContent = word; boxes[sRev].classList.add('revealed');
+
+        if(sRev === sScenarios[sCur].out) sO++; else sM++;
+
+        if((sM >= 2 && sO >= 1) || (sM >= 3 && sRev >= 2)) {
+            sLock = true;
+            const outlierIdx = sScenarios[sCur].out;
+            for(let i=0; i <= sRev; i++) {
+                if(i === outlierIdx) boxes[i].classList.add('outlier');
+                else boxes[i].classList.add('majority');
+            }
+            document.getElementById('supp-log').innerHTML = `→ <b>Result: ${sScenarios[sCur].words[outlierIdx]} is the Outlier.</b><br>→ Efficiency: Only ${sRev+1}/5 words needed. STOP SCAN!`;
+        }
+        sRev++;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-sieve-row')) loadSuppScenario(0, document.querySelector('.btn-scenario-s'));
+        if(typeof initModule === "function") initModule(40);
+    });
+</script>
+</body>
+</html>

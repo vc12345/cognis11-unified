@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 39: Relationship Analogies | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔗'; }
+
+        /* INTRO: LOGIC SEESAW */
+        .seesaw-beam { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .weight-f { transition: all 0.5s; }
+
+        /* PROGRESSING: RELATIONSHIP PIPE */
+        .pipe-f { fill: none; stroke: #cbd5e0; stroke-width: 15; stroke-linecap: round; }
+        .pipe-glow { stroke: var(--cognis-gold); stroke-width: 18; opacity: 0; transition: opacity 0.4s; }
+
+        /* SUPPLEMENTAL: LOGIC MIRROR */
+        .node-s { width: 120px; height: 50px; background: white; border: 3px solid var(--cognis-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--cognis-blue); font-size: 0.9rem; transition: 0.3s; }
+        .verb-slot-s { color: var(--cognis-gold); font-weight: 800; font-size: 0.7rem; border-bottom: 2px dashed var(--cognis-gold); padding: 5px; min-width: 100px; text-align: center; text-transform: uppercase; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 39: Relationship Analogies</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Logic Seesaw</h2>
+            <p>An analogy is just a balancing act. If the left side of the seesaw has a "Big Thing" and a "Small Thing," the right side only balances if it also has a "Big Thing" and a "Small Thing."</p>
+            
+            <div class="parent-script">
+                "Look at the first pair: **Elephant : Mouse**. That's a 'Big to Small' relationship. Click 'Test Pair' to try **Whale : Ant**. See how the seesaw stays level? The logic matches perfectly. If we tried 'Ant : Whale', the seesaw would tip because the order is wrong!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="350" height="200" viewBox="0 0 350 200">
+                    <path d="M150,180 L200,180 L175,140 Z" fill="#cbd5e0" />
+                    <g id="intro-seesaw" class="seesaw-beam" transform="translate(175, 140)">
+                        <line x1="-150" y1="0" x2="150" y2="0" stroke="var(--cognis-blue)" stroke-width="6" />
+                        <text x="-120" y="-40" text-anchor="middle" font-size="30">🐘</text>
+                        <text x="-60" y="-10" text-anchor="middle" font-size="15">🐭</text>
+                        <text id="intro-r1" x="60" y="-10" text-anchor="middle" font-size="15" opacity="0.3">?</text>
+                        <text id="intro-r2" x="120" y="-40" text-anchor="middle" font-size="30" opacity="0.3">?</text>
+                    </g>
+                </svg>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="testIntroAnalog(true)">Correct: Whale : Ant</button>
+                    <button class="btn-action" style="background:var(--trap-red)" onclick="testIntroAnalog(false)">Wrong: Ant : Whale</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Match the "weight" of the relationship.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Bridge Sentence</h2>
+            <p>To find the missing word, you must build a "Bridge Sentence" for the first pair. If your sentence works for the first two words, it <b>must</b> work for the second two words as well.</p>
+            
+            <div class="parent-script">
+                "Look at **FINGER : HAND**. Our bridge is: 'A finger is a part of a hand.' Now use that exact sentence for **TOE**. 'A toe is a part of a... [FOOT]'. Click 'Build Bridge' to see the connection glow!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200">
+                    <path id="prog-pipe" d="M50,100 Q200,20 350,100" class="pipe-f" />
+                    <path id="prog-glow" d="M50,100 Q200,20 350,100" class="pipe-f pipe-glow" />
+                    <circle cx="50" cy="100" r="25" class="letter-node-f" /><text x="50" y="105" text-anchor="middle" font-weight="900" font-size="10">FINGER</text>
+                    <circle cx="350" cy="100" r="25" class="letter-node-f" /><text x="350" y="105" text-anchor="middle" font-weight="900" font-size="10">HAND</text>
+                    <text x="200" y="50" text-anchor="middle" font-weight="800" fill="var(--cognis-gold)" font-size="12">"PART OF A"</text>
+                    
+                    <g transform="translate(0, 80)">
+                        <circle cx="50" cy="100" r="25" class="letter-node-f" /><text x="50" y="105" text-anchor="middle" font-weight="900" font-size="10">TOE</text>
+                        <circle cx="350" cy="100" r="25" class="letter-node-f" style="stroke:var(--cognis-gold)" /><text x="350" y="105" text-anchor="middle" font-weight="900" font-size="10">?</text>
+                    </g>
+                </svg>
+                <button class="btn-action" onclick="runProgBridge()">Build the Bridge</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">What is the secret rule connecting the words?</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of an analogy as a <b>"Logic Ratio"</b>. You aren't just matching words; you are matching <i>relationships</i>. The secret weapon is the <b>Bridge Sentence</b>. If the rule is "A is a part of B," then the second pair must obey that exact template. If the bridge doesn't hold both pairs, the logic is broken.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Simple</b> Finger : Hand :: Toe : [?]</div>
+                <div class="tier-card"><b>Made Of</b> Scale : Fish :: Feather : [?]</div>
+                <div class="tier-card"><b>Environment</b> Arid : Desert :: Humid : [?]</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>This is the <b>Logic Mirror</b>. The gold dashed line is a rigid template. You can change the words, but you <b>cannot</b> change the bridge. The rules of the top pair must be mirrored by the bottom pair perfectly.</p>
+            <div class="anatomy-display">
+                <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="node-s" id="s-n1">HAND</div><div class="verb-slot-s" id="s-v1">HAS A</div><div class="node-s" id="s-n2">FINGER</div>
+                    </div>
+                    <div style="font-weight:900; color:#cbd5e0; font-size:0.6rem; letter-spacing:2px;">▼ MIRROR ▼</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="node-s" style="border-color:var(--cognis-gold)" id="s-n3">FOOT</div>
+                        <div class="verb-slot-s" style="color:var(--cognis-blue); border-color:var(--cognis-blue)" id="s-v2">HAS A</div>
+                        <div class="node-s" style="border-color:var(--cognis-gold)" id="s-n4">TOE</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Choose a logic type. Read the bridge out loud for both sets. If it sounds natural for both, the analogy is structurally sound.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-preset-s active" onclick="setSuppLogic('HAND','HAS A','FINGER','FOOT','TOE', this)">Part-to-Whole</button>
+                    <button class="btn-preset-s" onclick="setSuppLogic('FISH','HAS','SCALES','BIRD','FEATHERS', this)">Covering</button>
+                    <button class="btn-preset-s" onclick="setSuppLogic('PUPPY','BECOMES','DOG','KITTEN','CAT', this)">Progression</button>
+                    <button class="btn-preset-s" onclick="setSuppLogic('DESERT','IS','ARID','RAINFOREST','HUMID', this)">Property</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Inversion" Trap:</b> Most children pick the right words but the wrong order. If pair 1 is <i>Large : Small</i>, pair 2 <b>must</b> be <i>Large : Small</i>.</p>
+                <p><b>The Fix: The "Direction Test."</b> <i>"The bridge is a one-way street."</i> Draw an arrow. If you say "Hand has a Finger" (Left to Right), you cannot say "Toe has a Foot" (Right to Left). **Order is everything.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(39)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: SEESAW --- */
+    function testIntroAnalog(correct) {
+        const seesaw = document.getElementById('intro-seesaw');
+        const r1 = document.getElementById('intro-r1'), r2 = document.getElementById('intro-r2');
+        if(correct) {
+            seesaw.style.transform = "translate(175px, 140px) rotate(0deg)";
+            r1.textContent = "🐜"; r2.textContent = "🐋";
+            r1.style.opacity = "1"; r2.style.opacity = "1";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Balanced! Both sides follow <b>Big : Small</b> logic.</div>`;
+        } else {
+            seesaw.style.transform = "translate(175px, 140px) rotate(15deg)";
+            r1.textContent = "🐋"; r2.textContent = "🐜";
+            r1.style.opacity = "1"; r2.style.opacity = "1";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Tipped! You tried to match <b>Big : Small</b> with <b>Small : Big</b>.</div>`;
+        }
+    }
+
+    /* --- PROGRESSING: PIPE --- */
+    function runProgBridge() {
+        document.getElementById('prog-glow').style.opacity = "1";
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Bridge Locked! If a Hand has a Finger, then a Foot has a <b>Toe</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: MIRROR --- */
+    function setSuppLogic(w1, verb, w2, w3, w4, btn) {
+        document.querySelectorAll('.btn-preset-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('s-n1').textContent = w1;
+        document.getElementById('s-v1').textContent = verb;
+        document.getElementById('s-n2').textContent = w2;
+        document.getElementById('s-n3').textContent = w3;
+        document.getElementById('s-v2').textContent = verb;
+        document.getElementById('s-n4').textContent = w4;
+
+        document.getElementById('supp-log').innerHTML = `→ Pattern: <b>${w1}</b> ${verb} <b>${w2}</b><br>→ Mirror: <b>${w3}</b> ${verb} <b>${w4}</b><br>→ <b>Status: Logic Validated</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-n1')) setSuppLogic('HAND','HAS A','FINGER','FOOT','TOE', document.querySelector('.btn-preset-s'));
+        if(typeof initModule === "function") initModule(39);
+    });
+</script>
+</body>
+</html>

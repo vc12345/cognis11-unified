@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology Trial · Cognis11</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy:#1B3A5C; --steel:#2E6DA4; --gold:#c5a059; --cream:#FAFAF6; --lgrey:#E2E8F0; --dgrey:#334155; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'DM Sans', sans-serif; background:var(--cream); color:var(--dgrey); overflow-x: hidden; }
+        nav { background: #fff; padding: 15px 32px; border-bottom: 1px solid var(--lgrey); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .brand { font-family:'Playfair Display', serif; font-size:1.1rem; color:var(--navy); font-weight:700; text-decoration:none; }
+        .btn-navy { background: var(--navy); color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; }
+
+        .how-it-works { background: #fff; border: 1px solid var(--lgrey); padding: 40px; border-radius: 16px; margin: 40px auto; max-width: 900px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
+        .step-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold); }
+        .step-text h3 { font-size: 0.9rem; margin-bottom: 5px; }
+        .step-text p { font-size: 0.8rem; color: var(--grey); }
+
+        .tab-section { max-width: 1000px; margin: 0 auto 30px; text-align: center; }
+        .tab-container { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; }
+        .tab-btn { background: #fff; border: 1px solid var(--lgrey); padding: 16px 28px; border-radius: 10px; cursor: pointer; text-align: left; transition: 0.3s; }
+        .tab-btn span { display: block; font-size: 0.65rem; color: var(--gold); text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+        .tab-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); transform: translateY(-2px); }
+
+        /* DYNAMIC IFRAME */
+        iframe { width: 100%; border: none; transition: height 0.2s ease; overflow: hidden; }
+        .bottom-cta { background: var(--navy); color: #fff; padding: 80px 40px; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="brand">Cognis11+</a>
+    <a href="subscribe.html" class="btn-navy">Unlock All 59 Modules</a>
+</nav>
+
+<div class="wrap">
+    <div class="how-it-works">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><h3>You Read</h3><p>Master the logic fix in 60 seconds.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><h3>You Guide</h3><p>Lead your child through the interactive engine.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><h3>Discovery</h3><p>Watch the logic "click" together.</p></div></div>
+    </div>
+</div>
+
+<div class="tab-section">
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="loadSample(this, 'members/module-11-a-sample.html')"><span>Branch B: Motion</span>The Average Speed Trap</button>
+        <button class="tab-btn" onclick="loadSample(this, 'members/module-47-a-sample.html')"><span>Branch I: Manipulation</span>The Leapfrog Rule (Nets)</button>
+        <button class="tab-btn" onclick="loadSample(this, 'members/module-53-a-sample.html')"><span>Branch J: Inference</span>Implicit Inference Logic</button>
+    </div>
+</div>
+
+<main style="max-width:920px; margin:0 auto;">
+    <iframe id="sample-frame" src="members/module-11-a-sample.html" scrolling="no"></iframe>
+</main>
+
+<section class="bottom-cta">
+    <h2>Ready to build genuine understanding?</h2>
+    <p style="margin:20px 0 30px; opacity:0.8;">Transform 11+ prep into a regular, 10-minute habit of logical discovery.</p>
+    <a href="subscribe.html" class="btn-navy" style="background:var(--gold); padding:20px 40px;">View Subscription Options</a>
+</section>
+
+<script>
+    function loadSample(btn, path) {
+        const frame = document.getElementById('sample-frame');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        frame.style.opacity = '0';
+        setTimeout(() => { frame.src = path; frame.style.opacity = '1'; }, 200);
+    }
+
+    // Listen for height updates from the sample module
+    window.addEventListener('message', function(e) {
+        if (e.data.type === 'resize') {
+            document.getElementById('sample-frame').style.height = e.data.height + 'px';
+        }
+    }, false);
+</script>
+</body>
+</html>

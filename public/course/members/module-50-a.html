@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 50: Paper Folding | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📄'; }
+
+        /* INTRO: WET INK */
+        .ink-paper { width: 140px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: right center; }
+        .ink-dot { width: 15px; height: 15px; background: var(--cognis-blue); border-radius: 50%; position: absolute; }
+        .ink-mirror { opacity: 0; transition: opacity 0.3s 0.8s; }
+
+        /* PROGRESSING: CREASE MAGNET */
+        .magnet-crease { width: 4px; height: 200px; background: #ef4444; position: absolute; left: 50%; transform: translateX(-50%); }
+        .hole-f { width: 14px; height: 14px; background: #0f172a; border-radius: 50%; position: absolute; transition: all 0.5s; }
+        .dist-line { height: 2px; background: var(--cognis-gold); position: absolute; top: 50%; opacity: 0.3; }
+
+        /* SUPPLEMENTAL: REFLECTION LAB */
+        .anatomy-display-s { background: #1a202c; border-radius: 12px; padding: 40px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; }
+        .paper-s { background: white; border: 2px solid #4a5568; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .punch-s { width: 12px; height: 12px; background: #0f172a; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); }
+        .crease-s { position: absolute; background: var(--cognis-gold); opacity: 0.3; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-tier-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .btn-tier-s.active { background: var(--cognis-gold); color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 50: Paper Folding</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Wet Ink Test</h2>
+            <p>Imagine you have a drawing in wet ink. If you fold the paper, the ink "stamps" onto the other side. Paper folding is just a <b>Stamp and Mirror</b> game. When you unfold, the original hole always creates a twin.</p>
+            
+            <div class="parent-script">
+                "Look at the blue dot. It's our 'Wet Ink'. Click 'Unfold' to see the paper flatten. Notice that the new dot isn't just in the same place—it's been flipped over the crease like a mirror image!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex;">
+                    <div id="intro-p1" class="ink-paper" style="border-right-style: dashed; z-index: 10;">
+                        <div class="ink-dot" style="top:40px; left:30px;"></div>
+                    </div>
+                    <div id="intro-p2" class="ink-paper" style="border-left: none;">
+                        <div id="intro-twin" class="ink-dot ink-mirror" style="top:40px; right:30px;"></div>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runIntroUnfold()">Unfold Paper</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Hole is currently 30 units from the crease.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Crease Magnet</h2>
+            <p>A fold acts like a magnet. If a hole is <b>Close</b> to the fold, its twin will be <b>Close</b> on the other side. If it is <b>Far</b>, the twin is <b>Far</b>. The distance never changes!</p>
+            
+            <div class="parent-script">
+                "Move the dot. See how the twin follows it? If the 'Real' hole moves toward the red crease, the 'Ghost' twin moves toward it too. This is the **Distance Constant**. Distance to the crease is the only truth in paper folding!"
+            </div>
+
+            <div class="viz-container">
+                <div style="width:300px; height:200px; background:white; border:2px solid #cbd5e0; position:relative;">
+                    <div class="magnet-crease"></div>
+                    <div id="prog-real" class="hole-f" style="left:40px; top:90px; cursor:grab; background:var(--cognis-blue);"></div>
+                    <div id="prog-ghost" class="hole-f" style="right:40px; top:90px; opacity:0.4;"></div>
+                    <div id="prog-dist-l" class="dist-line" style="left:40px; width:110px;"></div>
+                    <div id="prog-dist-r" class="dist-line" style="right:40px; width:110px;"></div>
+                </div>
+                <input type="range" min="10" max="140" value="40" style="width:200px; margin-top:30px; accent-color:var(--cognis-gold);" oninput="updateProgMagnet(this.value)">
+            </div>
+
+            <div class="discovery-log" id="prog-log">Mirror the distance, not the position!</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>Think of this as <b>"Mental Mirroring."</b> Success comes from <b>unfolding the paper in reverse</b>. Every crease line is a perfect mirror. If there’s a hole on the left of a fold, there <i>must</i> be an identical twin on the right. Trace these reflections step-by-step until the paper is flat.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Single Split</b> "1 Fold. 1 Punch. Trace symmetry across vertical center."</div>
+                <div class="tier-card"><b>Quarter Fold</b> "2 Folds. 2 Punches. Mirror across X and Y axes (8 holes total)."</div>
+                <div class="tier-card"><b>11+ Master</b> "3 Folds. Analyze radial reflections where holes seem to rotate."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>The <b>Reflection Matrix</b>. Look at the Folded State (the final scrap). Observe the punch positions. When you unfold, notice how the engine clones holes across the gold crease lines. They multiply like a kaleidoscope.</p>
+            <div class="anatomy-display-s">
+                <div style="text-align:center;">
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8;">FOLDED STATE</span>
+                    <div id="s-folded" class="paper-s" style="margin-top:10px;"></div>
+                </div>
+                <div id="s-result-view" style="opacity:0; transition:0.5s; text-align:center;">
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8;">UNFOLDED RESULT</span>
+                    <div id="s-unfolded" class="paper-s" style="width:200px; height:200px; margin-top:10px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Select a complexity tier. Point to where you think the holes will appear before clicking "Unfold." This builds the <b>Prototyping</b> skill needed for speed.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <button class="btn-tier-s active" onclick="setSuppTier(1, this)">Tier 1: Half Fold</button>
+                    <button class="btn-tier-s" onclick="setSuppTier(2, this)">Tier 2: Quarter Fold</button>
+                    <button class="btn-tier-s" onclick="setSuppTier(3, this)">Tier 3: Strip Fold</button>
+                    <button class="btn-action" style="width:100%; background:var(--cognis-gold);" onclick="unfoldSupp()">Unfold Page</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Slide" Fallacy:</b> Children often think a hole simply "slides" to the other side while staying in the same relative spot (e.g. top-left corner). **Critical Error.**</p>
+                <p><b>The Fix: The "Distance Constant."</b> <i>"The crease is a magnet."</i> If a hole is 10mm from the fold, its twin **must** be 10mm from the fold on the other side. **Mirror the distance, not the spot.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(50)">Complete Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Spatial Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: UNFOLD --- */
+    function runIntroUnfold() {
+        document.getElementById('intro-p1').style.transform = "rotateY(-180deg)";
+        document.getElementById('intro-twin').style.opacity = "1";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Unfolded! The dot was mirrored across the center crease.</div>`;
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: MAGNET --- */
+    function updateProgMagnet(val) {
+        document.getElementById('prog-real').style.left = val + 'px';
+        document.getElementById('prog-ghost').style.right = val + 'px';
+        document.getElementById('prog-dist-l').style.width = (150 - val) + 'px';
+        document.getElementById('prog-dist-l').style.left = val + 'px';
+        document.getElementById('prog-dist-r').style.width = (150 - val) + 'px';
+        document.getElementById('prog-dist-r').style.right = val + 'px';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Distance to crease: <b>${150-val} units</b>. Both holes match!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sTier = 1;
+    function setSuppTier(t, btn) {
+        sTier = t;
+        document.querySelectorAll('.btn-tier-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('s-result-view').style.opacity = "0";
+        
+        const f = document.getElementById('s-folded'), u = document.getElementById('s-unfolded');
+        f.innerHTML = ''; u.innerHTML = '';
+
+        if(t === 1) {
+            f.style.width = '100px'; f.style.height = '200px';
+            f.innerHTML += '<div class="punch-s" style="top:40px; left:30px;"></div>';
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div>';
+            u.innerHTML += '<div class="punch-s" style="top:40px; left:30px;"></div><div class="punch-s" style="top:40px; left:170px;"></div>';
+        } else if(t === 2) {
+            f.style.width = '100px'; f.style.height = '100px';
+            f.innerHTML += '<div class="punch-s" style="top:25px; left:25px;"></div><div class="punch-s" style="top:70px; left:75px;"></div>';
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div><div class="crease-s" style="width:100%; height:2px; top:50%;"></div>';
+            const hs = [[25,25],[25,175],[70,75],[70,125],[175,25],[175,175],[130,75],[130,125]];
+            hs.forEach(h => u.innerHTML += `<div class="punch-s" style="top:${h[0]}px; left:${h[1]}px;"></div>`);
+        } else {
+            f.style.width = '100px'; f.style.height = '50px';
+            f.innerHTML += '<div class="punch-s" style="top:25px; left:30px;"></div>';
+            for(let i=1; i<4; i++) u.innerHTML += `<div class="crease-s" style="width:100%; height:2px; top:${i*25}%;"></div>`;
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div>';
+            for(let row=0; row<4; row++) {
+                u.innerHTML += `<div class="punch-s" style="top:${25+(row*50)}px; left:30px;"></div><div class="punch-s" style="top:${25+(row*50)}px; left:170px;"></div>`;
+            }
+        }
+        document.getElementById('supp-log').innerHTML = `Tier ${t} setup ready. Identify the mirror planes.`;
+    }
+
+    function unfoldSupp() { document.getElementById('s-result-view').style.opacity = "1"; }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateProgMagnet(40);
+        if(document.getElementById('s-folded')) setSuppTier(1, document.querySelector('.btn-tier-s'));
+        if(typeof initModule === "function") initModule(50);
+    });
+</script>
+</body>
+</html>

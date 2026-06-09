@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 16: The "More Than" Trap | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR PARTITION VIZ */
+        .anatomy-display { padding: 40px; }
+        .partition-visual {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .bar-row { display: flex; align-items: center; height: 50px; }
+        .bar-label { width: 100px; font-weight: 800; font-size: 0.8rem; color: var(--cognis-blue); text-transform: uppercase; }
+        .bar-track { flex-grow: 1; height: 100%; display: flex; background: #e2e8f0; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid var(--cognis-blue); }
+        
+        .part-base { background: var(--cognis-blue); height: 100%; transition: width 0.4s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; }
+        .part-diff { background: var(--cognis-gold); height: 100%; transition: width 0.4s ease; border-left: 2px dashed rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; }
+
+        .snip-line {
+            position: absolute;
+            top: -10px;
+            height: 70px;
+            border-left: 2px dashed var(--trap-red);
+            z-index: 10;
+            pointer-events: none;
+            transition: left 0.4s ease;
+        }
+
+        .val-out { color: var(--cognis-gold); font-weight: 900; }
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(16));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;"> 
+    <div class="header">
+        <h1>Module 16: The "More Than" Trap</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>This is the <b>"Fake 50/50"</b> problem. It occurs when you are given a <b>Combined Total</b> and a <b>Gap</b> (the difference) between two people. Your child's instinct will be to divide the total by 2 immediately—but that is a trap set by the examiner. If you divide first, the math will never balance.</p>
+        
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Sticker Swap</b>
+                "Two friends have 12 stickers. Sarah has 4 more than Tom. How many does Tom have?"
+            </div>
+            <div class="tier-card">
+                <b>The Tech Bundle</b>
+                "A tablet and a case cost £250. The tablet is £200 more than the case. What is the cost of the case?"
+            </div>
+            <div class="tier-card">
+                <b>The Family Tree</b>
+                "A father and son are 50 years old combined. The father is 26 years older than the son. How old is the son?"
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>To beat this trap, we must <b>"Snip the Gap."</b> Imagine Person A and Person B each have a stack of money. Person A has an extra pile (the gap). If we physically snip that extra pile off and put it aside, the two stacks left on the table are exactly equal. Point to the red "Snip" line below—everything to the left of that line is a <b>Fair Share</b>.</p>
+        
+        
+
+        <div class="anatomy-display">
+            <div class="partition-visual">
+                <div class="bar-row">
+                    <div class="bar-label">The Larger</div>
+                    <div class="bar-track">
+                        <div id="vis-a-base" class="part-base">Fair Share</div>
+                        <div id="vis-a-diff" class="part-diff">The Gap</div>
+                        <div id="snip" class="snip-line"></div>
+                    </div>
+                </div>
+                <div class="bar-row">
+                    <div class="bar-label">The Smaller</div>
+                    <div class="bar-track">
+                        <div id="vis-b-base" class="part-base">Fair Share</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the sliders to set the <b>Total Sum</b> and the <b>Gap</b>. Help your child notice Step 2: we subtract the gap <i>before</i> we do any dividing. Watch the <b>Trace Log</b> to see how "Snipping" makes the sharing simple.</p>
+        <div class="engine-container">
+            <div class="inputs">
+                <div class="control-group">
+                    <label>Grand Total (A + B): <span class="val-out" id="out-sum">100</span></label>
+                    <input type="range" id="in-sum" min="20" max="500" value="100">
+                </div>
+                <div class="control-group" style="margin-top: 15px;">
+                    <label>The Gap (More Than): <span class="val-out" id="out-diff">20</span></label>
+                    <input type="range" id="in-diff" min="2" max="100" value="20">
+                </div>
+            </div>
+            <div class="trace-log" id="engine-trace"></div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Impulse Split" Trap:</strong> If the tablet and case cost £250, and the tablet is £200 more, most children will say the case is £50 ($250 \div 5$) and the tablet is £200. <b>Stop!</b> If the case is £50 and the tablet is £200, the tablet is only £150 more! The gap is wrong.</p>
+            
+            <p><strong>The Fix: The "Snip and Share" Rule.</strong> Remind your child: <i>"The Gap is a thief."</i> You must take the thief's portion out of the total first. £250 - £200 = £50. Now share the remaining £50 between the two items (£25 each). The case is £25, and the tablet is £25 + £200 = £225. <b>Always subtract the gap first.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(16)">Complete Module & Update Lattice</button>
+
+<script>
+    const inSum = document.getElementById('in-sum');
+    const inDiff = document.getElementById('in-diff');
+    const engineTrace = document.getElementById('engine-trace');
+    
+    const visABase = document.getElementById('vis-a-base');
+    const visADiff = document.getElementById('vis-a-diff');
+    const visBBase = document.getElementById('vis-b-base');
+    const snip = document.getElementById('snip');
+
+    function update() {
+        let s = parseInt(inSum.value);
+        let d = parseInt(inDiff.value);
+
+        // Gap cannot be larger than the Sum
+        if (d >= s) { d = s - 2; inDiff.value = d; }
+        
+        // Gap must be same parity as Sum for whole numbers, but we'll allow decimals in display
+        document.getElementById('out-sum').innerText = s;
+        document.getElementById('out-diff').innerText = d;
+
+        // The Snip Logic
+        const equalized = s - d; // Snipping the gap
+        const smaller = equalized / 2;
+        const larger = smaller + d;
+
+        // Visual Layout Calc
+        // We use the larger value as the 100% width reference for the rows
+        const basePct = (smaller / larger) * 100;
+        const diffPct = (d / larger) * 100;
+
+        visABase.style.width = basePct + "%";
+        visADiff.style.width = diffPct + "%";
+        visBBase.style.width = basePct + "%";
+        
+        snip.style.left = basePct + "%";
+
+        visABase.innerText = smaller % 1 === 0 ? smaller : smaller.toFixed(1);
+        visADiff.innerText = "+" + d;
+        visBBase.innerText = smaller % 1 === 0 ? smaller : smaller.toFixed(1);
+
+        // Update Trace
+        engineTrace.innerHTML = `
+            <div class="trace-step">→ 1. Total Pile: <b>${s}</b></div>
+            <div class="trace-step">→ 2. Snip the Gap: ${s} - ${d} = <b>${equalized}</b></div>
+            <div class="trace-step">→ 3. Share the Rest: ${equalized} ÷ 2 = <b>${smaller}</b></div>
+            <div class="trace-step" style="margin-top: 10px; border-top: 1px dashed #4a5568; padding-top: 10px;">
+                → Smaller Share: <b>${smaller}</b>
+            </div>
+            <div class="trace-step">
+                → Larger Share: ${smaller} + ${d} = <b>${larger}</b>
+            </div>
+            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; margin-top:5px;">
+                → Verify: ${smaller} + ${larger} = ${s}
+            </div>
+        `;
+    }
+
+    [inSum, inDiff].forEach(el => el.addEventListener('input', update));
+    window.onload = update;
+</script>
+
+</body>
+</html>

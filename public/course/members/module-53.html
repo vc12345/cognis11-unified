@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 53: Implicit Inference | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR INFERENCE HUD */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .formula-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid var(--cognis-gold);
+        }
+        .formula-part { font-weight: 900; font-size: 1.1rem; color: var(--cognis-blue); }
+        .formula-operator { color: var(--cognis-gold); font-size: 1.5rem; font-weight: bold; }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
+        
+        .evidence-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 25px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #cbd5e0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .clue-node {
+            cursor: pointer;
+            padding: 0 4px;
+            border-bottom: 2px dashed var(--cognis-gold);
+            transition: 0.2s;
+            color: white;
+        }
+        .clue-node:hover { background: rgba(197, 160, 89, 0.2); }
+        .clue-node.active { background: var(--cognis-gold); color: white; border-bottom-style: solid; border-radius: 4px; }
+
+        .engine-container { grid-template-columns: 1.2fr 1fr; }
+        
+        .btn-inference {
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
+            text-align: left; transition: 0.2s; margin-bottom: 8px; width: 100%;
+            border-left: 4px solid transparent;
+        }
+        .btn-inference:hover { background: #4a5568; color: white; }
+        .btn-inference.selected { background: var(--cognis-blue); color: var(--cognis-gold); border-left-color: var(--cognis-gold); }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(53));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 53: Implicit Inference</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of inference as <b>"Reading the Shadows."</b> In the 11+, examiners won't always tell you how a character feels or what the weather is like. Instead, they give you clues. The secret weapon is realizing that an inference is a bridge. It requires your child to take a piece of <b>Evidence</b> from the text and glue it to their own <b>Real-World Logic</b>. If they can’t prove it using words from the page, it’s just a guess—not an inference.</p>
+        
+        <div style="text-align: center; margin: 25px 0;">
+            <div class="formula-box">
+                <span class="formula-part">Evidence (Page)</span>
+                <span class="formula-operator">+</span>
+                <span class="formula-part">Logic (Brain)</span>
+                <span class="formula-operator">=</span>
+                <span class="formula-part" style="color:var(--cognis-gold)">Inference</span>
+            </div>
+        </div>
+
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Weather Detective</b>
+                "Leo grabbed his umbrella and yellow boots."<br>
+                <b>Q:</b> What is the weather? (A: It is raining).
+            </div>
+            <div class="tier-card">
+                <b>The Time Tracker</b>
+                "Shadows lengthened and the street lamps flickered on."<br>
+                <b>Q:</b> What time is it? (A: Evening/Dusk).
+            </div>
+            <div class="tier-card">
+                <b>The Emotion Expert</b>
+                "Arthur’s jagged scrawl was smeared by his trembling hand."<br>
+                <b>Q:</b> How does Arthur feel? (A: Terrified or Anxious).
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Double Anchor</b>. A strong inference is never based on just one word. Look at the sentence below. We know the man is angry not just because his face is red, but because he <b>slammed</b> the phone. Tell your child: <i>"One clue is a guess; two clues is a lock."</i> They should always hunt for that second "Anchor" to be 100% sure of their answer.</p>
+        
+        <div class="anatomy-display" style="background:#1a202c; color:white; padding:50px;">
+             <div style="font-size:1.4rem; font-style:italic;">"The <span style="color:var(--cognis-gold); font-weight:bold; border-bottom:2px solid;">red-faced</span> man <span style="color:var(--cognis-gold); font-weight:bold; border-bottom:2px solid;">slammed</span> the phone down."</div>
+             <div style="margin-top:30px; font-size:0.8rem; color:#94a3b8; text-transform:uppercase; letter-spacing:2px;">Conclusion: The man is furious.</div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Use the <b>Evidence Well</b> below. Click the underlined phrases to "collect" them as clues. Once you have enough evidence, select an inference to test the logic. Help your child notice that if they only pick one clue, the engine won't validate the conclusion.</p>
+        <div class="simulation-area">
+            <div class="evidence-well" id="passage">
+                "Sarah's <span class="clue-node" onclick="toggleClue(this)">stomach somersaulted</span> as she stood behind the <span class="clue-node" onclick="toggleClue(this)">heavy velvet curtain</span>. She gripped her <span class="clue-node" onclick="toggleClue(this)">violin bow</span> so tightly her knuckles turned white."
+            </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Test the Conclusion</label>
+                    <button class="btn-inference" onclick="testInference('holiday', this)">She is going on holiday</button>
+                    <button class="btn-inference" onclick="testInference('concert', this)">She is about to perform a solo</button>
+                    <button class="btn-inference" onclick="testInference('ill', this)">She has a stomach bug</button>
+                    <button class="btn-inference" onclick="testInference('nervous', this)">She is feeling very anxious</button>
+                </div>
+                <div class="trace-log" id="trace-53">Click clues to find the Double Anchor...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Movie Script" Trap:</strong> Most children treat the text like a movie and add details that simply aren't there. For example, if a character is "carrying a bag," they assume the character is "going to the airport" because that's what happens in films. This is a <b>Projection</b>, not an Inference. It’s a guess, and it will lose them points.</p>
+            
+            <p><strong>The Insider Fix: The "Prove It" Test.</strong> Tell your child: <i>"Be a lawyer."</i> For every answer they choose, they must be able to point to two separate words in the text that support it. If they can only find one (or zero!), their answer is a guess. <b>No evidence = No points.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(53)">Complete Module & Update Lattice</button>
+
+<script>
+    let activeClues = [];
+
+    function toggleClue(el) {
+        const text = el.innerText;
+        el.classList.toggle('active');
+        
+        if(el.classList.contains('active')) {
+            activeClues.push(text);
+        } else {
+            activeClues = activeClues.filter(c => c !== text);
+        }
+        updateTrace();
+    }
+
+    function testInference(type, btn) {
+        document.querySelectorAll('.btn-inference').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        updateTrace(type);
+    }
+
+    function updateTrace(testType) {
+        const log = document.getElementById('trace-53');
+        let html = `<div class="trace-step">→ 1. Clues Found: <b>${activeClues.length}</b></div>`;
+        
+        if (activeClues.length < 2) {
+            html += `<div class="trace-step" style="color:#f87171;">→ 2. Status: Weak Evidence. Need more anchors.</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        html += `<div class="trace-step">→ 2. Evidence: <b>Double Anchor Achieved</b></div>`;
+        
+        if (!testType) {
+            html += `<div class="trace-step">→ 3. Action: Select a conclusion to test.</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        let result = "";
+        let color = "var(--cognis-gold)";
+
+        if (testType === 'concert' || testType === 'nervous') {
+            result = "INFERENCE VALIDATED";
+        } else if (testType === 'holiday') {
+            result = "INVALID: No textual support";
+            color = "#f87171";
+        } else {
+            result = "INVALID: Clues contradict this";
+            color = "#f87171";
+        }
+
+        html += `
+            <div class="trace-step" style="color:${color}; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                → ${result}
+            </div>
+        `;
+        log.innerHTML = html;
+    }
+
+    window.onload = () => updateTrace();
+</script>
+
+</body>
+</html>

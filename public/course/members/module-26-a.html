@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 26: Invariance Lab | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📏'; }
+
+        /* INTRO: FLEXIBLE FENCE */
+        .fence-rope { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 4; stroke-linejoin: round; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .grass { fill: #22c55e; opacity: 0.2; transition: opacity 0.5s; }
+
+        /* PROGRESSING: TILE GRID */
+        .tile-rect { fill: none; stroke: var(--cognis-blue); stroke-width: 2; }
+        .tile-unit { fill: var(--cognis-gold); stroke: white; stroke-width: 1; opacity: 0.8; }
+
+        /* SUPPLEMENTAL: LAB */
+        #canvas-26 { background: #1a202c; border-radius: 12px; }
+        .boundary-s { stroke: var(--cognis-gold); stroke-width: 4; fill: rgba(197, 160, 89, 0.1); transition: all 0.2s; }
+        .area-text-s { fill: var(--cognis-gold); font-weight: 900; font-size: 32px; filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.3)); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core-a.js"></script>
+</head>
+<body class="user-plan-checking">
+
+<div class="module-card">
+    <div class="header"><h1>Module 26: Area/Perimeter Invariance</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Magic Rope</h2>
+            <p>Imagine a loop of rope that is 20cm long. You can pull it into a long, skinny rectangle, or push it into a wide square. The rope stays the same length (<b>Perimeter</b>), but the amount of grass it covers (<b>Area</b>) changes as you move it!</p>
+            
+            <div class="parent-script">
+                "We have a 20cm rope. Click 'Squash' to make it skinny, and 'Stretch' to make it square. Notice that while the rope never gets longer, the green grass inside grows and shrinks. A square always holds the most grass!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect id="intro-rope" x="100" y="50" width="100" height="100" class="fence-rope" />
+                    <text x="150" y="190" text-anchor="middle" font-weight="800" fill="var(--cognis-blue)">Rope Length: 20cm</text>
+                </svg>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="transformRope(140, 60)">Squash Skinny</button>
+                    <button class="btn-action" onclick="transformRope(100, 100)">Make Square</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The perimeter is locked. Try different shapes!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Tile Squeeze</h2>
+            <p>If you have a fixed perimeter, like 12m, you have "12 steps" of wall. You can build a 5x1 room (Area: 5) or a 3x3 room (Area: 9). Even though the walls are the same total length, the 3x3 room fits more floor tiles!</p>
+            
+            <div class="parent-script">
+                "Look at these two layouts. Both use 12 units of wall. But the skinny one only fits 5 tiles. The square one fits 9! When the sides are 'equal', the shape is at its strongest."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:40px; align-items:flex-end;">
+                    <div style="text-align:center;">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <rect x="50" y="20" width="20" height="100" class="tile-rect" />
+                            <g id="tiles-skinny"></g>
+                        </svg>
+                        <small style="font-weight:800; display:block;">Skinny (5x1)<br>Area: 5</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <rect x="30" y="40" width="60" height="60" class="tile-rect" />
+                            <g id="tiles-square"></g>
+                        </svg>
+                        <small style="font-weight:800; display:block;">Square (3x3)<br>Area: 9</small>
+                    </div>
+                </div>
+                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Walls used for both: 12 units</div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Compare the tiles. Same perimeter, different space!</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: The X-Ray</h2>
+            <p>The perimeter is your "Magic String"—it's the length of the fence. The area is the grass inside. In the 11+, examiners trick you into thinking a fixed perimeter means a fixed area. <b>The opposite is true.</b> By changing the shape, you "leak" or "gain" area. A **Square** is the most efficient shape—it squeezes the most space out of every inch of fence.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Fence</b> "A garden has a 12m fence. If it is a square, what is the internal area?"</div>
+                <div class="tier-card"><b>Comparison</b> "Rectangle A is 8x2. Rectangle B is 5x5. Both have a 20cm perimeter. Which has more grass?"</div>
+                <div class="tier-card"><b>The Wire</b> "A 40cm wire is bent into a 15x5 rectangle, then a 10x10 square. Find the change in area."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Anatomy</h2>
+            <p>Welcome to the <b>Invariance Lab</b>. The perimeter is locked at 40. Move the slider to stretch the shape. Watch "Skinny" rectangles lose area, while "Fat" rectangles (near-squares) maximize it. The perimeter is a constant; the area is a variable.</p>
+            <div class="anatomy-display" style="background:#1a202c; text-align:center;">
+                <svg id="canvas-26" width="100%" height="280" viewBox="0 0 500 280">
+                    <rect id="s-rect" x="150" y="40" width="200" height="200" class="boundary-s" />
+                    <text id="s-dim-w" x="250" y="30" fill="#a0aec0" font-size="12" font-weight="800" text-anchor="middle">Width: 10</text>
+                    <text id="s-dim-h" x="130" y="140" fill="#a0aec0" font-size="12" font-weight="800" text-anchor="end">Height: 10</text>
+                    <text id="s-area-val" x="250" y="150" class="area-text-s" text-anchor="middle">100.0</text>
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Engine</h2>
+            <p style="margin-bottom: 20px;">Morph the shape. Notice that at the far left and right, the area almost vanishes, even though the perimeter hasn't moved an inch.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group">
+                        <label>Morphing (Perimeter: 40)</label>
+                        <input type="range" id="in-slider" min="1" max="19" step="0.1" value="10" oninput="runSupp()">
+                        <div style="display:flex; justify-content:space-between; font-size:0.6rem; font-weight:800; color:#a0aec0; margin-top:5px;">
+                            <span>SKINNY</span><span>SQUARE</span><span>SKINNY</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: The Saboteur</h3>
+                <p><b>The "Shape-Blind" Trap:</b> Children believe area is a fixed property of perimeter. They think 40cm of string always creates 100cm² of space.</p>
+                <p><b>The Fix: The "Square Efficiency" Rule.</b> <i>"Equality is power."</i> The closer the sides are to each other (more square), the larger the area. Long, thin rectangles are space-wasters. Same perimeter does **NOT** mean same area.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(26)">Complete Supplemental Module</button>
+    </div>
+</div>
+
+<script>
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Shape Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: ROPE --- */
+    function transformRope(w, h) {
+        const r = document.getElementById('intro-rope');
+        r.setAttribute("width", w);
+        r.setAttribute("height", h);
+        r.setAttribute("x", 150 - w/2);
+        r.setAttribute("y", 100 - h/2);
+        const area = (w*h)/100;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Internal Space: <b>${area.toFixed(0)} units</b>. Shape is now ${w > h ? 'Skinny' : 'Square'}.</div>`;
+    }
+
+    /* --- PROGRESSING: TILES --- */
+    function initTiles() {
+        const sG = document.getElementById('tiles-skinny');
+        const sqG = document.getElementById('tiles-square');
+        sG.innerHTML = ''; sqG.innerHTML = '';
+        // 5x1
+        for(let i=0; i<5; i++) sG.innerHTML += `<rect x="52" y="${22 + i*19.5}" width="16" height="16" class="tile-unit" />`;
+        // 3x3
+        for(let r=0; r<3; r++) {
+            for(let c=0; c<3; c++) {
+                sqG.innerHTML += `<rect x="${32 + c*19.5}" y="${42 + r*19.5}" width="16" height="16" class="tile-unit" />`;
+            }
+        }
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const w = parseFloat(document.getElementById('in-slider').value);
+        const h = 20 - w;
+        const area = w * h;
+        
+        const r = document.getElementById('s-rect');
+        const visualScale = 12;
+        const vw = w * visualScale;
+        const vh = h * visualScale;
+        
+        r.setAttribute('width', vw);
+        r.setAttribute('height', vh);
+        r.setAttribute('x', 250 - vw/2);
+        r.setAttribute('y', 140 - vh/2);
+        
+        document.getElementById('s-dim-w').textContent = `Width: ${w.toFixed(1)}`;
+        document.getElementById('s-dim-h').textContent = `Height: ${h.toFixed(1)}`;
+        document.getElementById('s-dim-h').setAttribute('x', 250 - vw/2 - 10);
+        document.getElementById('s-area-val').textContent = area.toFixed(1);
+        
+        document.getElementById('supp-log').innerHTML = `
+            → Perimeter: (2 x ${w.toFixed(1)}) + (2 x ${h.toFixed(1)}) = <b>40.0</b><br>
+            → Area: ${w.toFixed(1)} x ${h.toFixed(1)} = <b>${area.toFixed(1)} Units²</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); initTiles();
+        if(document.getElementById('in-slider')) runSupp();
+        if(typeof initModule === "function") initModule(26);
+    });
+</script>
+</body>
+</html>

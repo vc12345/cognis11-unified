@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 57: Cloze (Grammatical) | Cognis 11+</title>
+    
+    <link rel="stylesheet" href="../css/module-style.css">
+    
+    <style>
+        /* UNIQUE CSS FOR SYNTAX BLUEPRINT */
+        .anatomy-display { 
+            background: #f8fafc; 
+            padding: 40px; 
+            border-radius: 12px; 
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .syntax-map {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .blueprint-slot {
+            padding: 15px 10px;
+            background: white;
+            border: 2px solid var(--cognis-blue);
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            color: var(--cognis-blue);
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .blueprint-slot.ext { border-color: var(--cognis-gold); color: var(--cognis-gold); border-style: dashed; }
+        .logic-label { font-size: 0.6rem; color: #94a3b8; margin-top: 8px; display: block; }
+
+        /* Engine Terminal Customization */
+        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
+        
+        .grammar-well {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #cbd5e0;
+            margin-bottom: 30px;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .syntax-gap {
+            display: inline-block;
+            min-width: 150px;
+            border: 2px solid var(--cognis-gold);
+            padding: 2px 15px;
+            border-radius: 6px;
+            margin: 0 10px;
+            color: var(--cognis-gold);
+            font-weight: bold;
+            font-family: 'Consolas', monospace;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .engine-container { grid-template-columns: 1fr 1.3fr; }
+        
+        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn-load { 
+            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
+            padding: 12px; border-radius: 8px; cursor: pointer; 
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
+            text-align: left; transition: 0.2s;
+        }
+        .btn-load:hover { background: #4a5568; color: white; }
+        .btn-load.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
+
+        .class-bank { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-class {
+            background: transparent;
+            border: 1px solid #4a5568;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-class:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
+        .btn-class.active { background: var(--cognis-gold); color: white; border-color: white; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/module-core.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => initModule(57));</script>
+</head>
+<body>
+
+<div class="module-card" style="margin-top: 40px;">
+    <div class="header">
+        <h1>Module 57: Cloze (Grammatical)</h1>
+    </div>
+
+    <section class="phase">
+        <h2>Phase 1: The X-Ray</h2>
+        <p>Think of this as <b>"Sentence Engineering."</b> In the 11+, grammatical cloze tests aren't about the story—they are about the <b>Syntactic Skeleton</b>. Every sentence is a machine with specific slots. There is always a <b>Noun</b> (the subject) and a <b>Verb</b> (the action). You can add "Expansion Modules": <b>Adjectives</b> to describe the noun, or <b>Adverbs</b> to describe the action. To solve these, your child must identify the "Job" the missing word is being hired to do.</p>
+        
+        
+
+        <div class="question-tiers">
+            <div class="tier-card">
+                <b>The Noun Detailer</b>
+                "The ______ cat slept."<br>
+                <b>Slot:</b> Adjective (Info about the cat). <b>Fit:</b> Fluffy.
+            </div>
+            <div class="tier-card">
+                <b>The Action Engine</b>
+                "He ______ through the park."<br>
+                <b>Slot:</b> Verb (The primary action). <b>Fit:</b> Sprinted.
+            </div>
+            <div class="tier-card">
+                <b>The Verb Detailer</b>
+                "The plane landed ______."<br>
+                <b>Slot:</b> Adverb (Info about the landing). <b>Fit:</b> Smoothly.
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 2: The Anatomy</h2>
+        <p>This is the <b>Skeleton Map</b>. Notice how the core Noun and Verb are the "Pillars." The Adjectives and Adverbs (in gold) are optional parts that "snap on" to provide extra data. If your child can identify which pillar or snap-on is missing, they can eliminate 75% of the word bank instantly.</p>
+        
+        <div class="anatomy-display">
+            <div class="syntax-map">
+                <div class="blueprint-slot ext">ADJECTIVE <span class="logic-label">Modifies Noun</span></div>
+                <div class="blueprint-slot">NOUN <span class="logic-label">The Subject</span></div>
+                <div class="blueprint-slot">VERB <span class="logic-label">The Action</span></div>
+                <div class="blueprint-slot ext">ADVERB <span class="logic-label">Modifies Verb</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <h2>Phase 3: The Engine</h2>
+        <p style="margin-bottom: 20px;">Load a syntax case below and identify which "Word Class" is missing. Watch the <b>Trace Log</b> to see the "Structural Analysis." Help your child realize that even if they don't know the meaning of a word, they can often guess its class by its suffix (like <i>-ly</i> for adverbs or <i>-ed</i> for verbs).</p>
+        <div class="simulation-area">
+            <div class="grammar-well" id="grammar-well">
+                </div>
+
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Load a Sentence Blueprint</label>
+                    <div class="preset-grid">
+                        <button class="btn-load active" onclick="loadCase(0, this)">Case: Adjective Slot</button>
+                        <button class="btn-load" onclick="loadCase(1, this)">Case: Verb Slot</button>
+                        <button class="btn-load" onclick="loadCase(2, this)">Case: Adverb Slot</button>
+                        <button class="btn-load" onclick="loadCase(3, this)">Case: Noun Slot</button>
+                    </div>
+
+                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-top: 20px;">2. Identify the Missing Part</label>
+                    <div class="class-bank" id="class-bank">
+                        </div>
+                </div>
+                <div class="trace-log" id="trace-57">Awaiting skeleton scan...</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="phase">
+        <div class="trap-box">
+            <h3>Phase 4: The Saboteur</h3>
+            <p><strong>The "Cool Story" Trap:</strong> Most children pick a word because it makes the story sound exciting, even if it’s grammatically broken. For example, picking "Bravely" for the gap in "The _____ explorer" because explorers are brave. Even though it "feels" right, "Bravely" is an adverb and physically cannot describe a noun.</p>
+            
+            <p><strong>The Insider Fix: The "Substitution Test."</strong> Tell your child: <i>"Look at the neighbors."</i> If the gap is between "The" and a "Noun," it <b>must</b> be an Adjective. They should try swapping in a very simple word like "Red" or "Big." If "Big" fits the grammar, then the answer must be an adjective. <b>Let the rules of the machine pick the part.</b></p>
+        </div>
+    </section>
+</div>
+
+<button class="btn-complete" onclick="markComplete(57)">Complete Module & Update Lattice</button>
+
+<script>
+    const cases = [
+        {
+            text: "The <span class='syntax-gap' id='active-slot'>[SELECT TYPE]</span> explorer found a cave.",
+            target: "ADJECTIVE",
+            example: "Fearless / Ancient",
+            logic: "The gap is describing a Noun (Explorer)."
+        },
+        {
+            text: "The giant <span class='syntax-gap' id='active-slot'>[SELECT TYPE]</span> across the field.",
+            target: "VERB",
+            example: "Stomped / Glided",
+            logic: "The sentence is missing its central Action."
+        },
+        {
+            text: "The scientist watched the test <span class='syntax-gap' id='active-slot'>[SELECT TYPE]</span>.",
+            target: "ADVERB",
+            example: "Intently / Weekly",
+            logic: "The gap is describing the Action (Watched)."
+        },
+        {
+            text: "The shimmering <span class='syntax-gap' id='active-slot'>[SELECT TYPE]</span> was full of water.",
+            target: "NOUN",
+            example: "Cavern / Bucket",
+            logic: "The sentence is missing its central Subject."
+        }
+    ];
+
+    let currentCase = cases[0];
+    const classOptions = ["NOUN", "VERB", "ADJECTIVE", "ADVERB"];
+
+    function loadCase(idx, btn) {
+        document.querySelectorAll('.btn-load').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCase = cases[idx];
+        
+        document.getElementById('grammar-well').innerHTML = currentCase.text;
+        
+        const bank = document.getElementById('class-bank');
+        bank.innerHTML = '';
+        classOptions.forEach(opt => {
+            bank.innerHTML += `<button class="btn-class" onclick="testSlot('${opt}', this)">${opt}</button>`;
+        });
+
+        updateTrace();
+    }
+
+    function testSlot(val, btn) {
+        document.querySelectorAll('.btn-class').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        const slot = document.getElementById('active-slot');
+        slot.innerText = val;
+
+        const isCorrect = val === currentCase.target;
+        slot.style.color = isCorrect ? "var(--pass-green)" : "#f87171";
+        slot.style.borderColor = isCorrect ? "var(--pass-green)" : "#f87171";
+        
+        updateTrace(val, isCorrect);
+    }
+
+    function updateTrace(val, success) {
+        const log = document.getElementById('trace-57');
+        let html = `<div class="trace-step">→ 1. Blueprint: <b>${currentCase.target === 'NOUN' || currentCase.target === 'VERB' ? 'CORE PILLAR' : 'SNAP-ON MODULE'}</b></div>`;
+        
+        if(!val) {
+            html += `<div class="trace-step">→ 2. Status: Mapping sentence skeleton...</div>`;
+            log.innerHTML = html;
+            return;
+        }
+
+        html += `<div class="trace-step">→ 2. Auditor: Testing class <b>${val}</b></div>`;
+        
+        if(success) {
+            html += `
+                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → RESULT: GRAMMATICAL MATCH
+                </div>
+                <div class="trace-step" style="font-size:0.7rem; opacity:0.8;">Logic: ${currentCase.logic} (e.g. ${currentCase.example})</div>
+            `;
+        } else {
+            html += `
+                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
+                    → ERROR: MECHANICAL MISMATCH
+                </div>
+            `;
+        }
+        log.innerHTML = html;
+    }
+
+    window.onload = () => loadCase(0, document.querySelector('.btn-load'));
+</script>
+
+</body>
+</html>
