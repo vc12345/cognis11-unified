@@ -124,7 +124,7 @@ function ProfileHubCore() {
     // BFCache Unfreeze Protocol
     const handleVisibilityOrBack = (e: PageTransitionEvent | Event) => {
       const isBFCache = ('persisted' in e && e.persisted) || 
-                        (window.performance && window.performance.getEntriesByType("navigation")[0]?.type === "back_forward");
+                        (window.performance && window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming)?.type === "back_forward";
       
       if (isBFCache) {
         setIsProcessingAction(false); // Unfreeze buttons instantly
