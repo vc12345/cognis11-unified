@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 
 import 'katex/dist/katex.min.css';
-
+import { InlineMath, BlockMath } from 'react-katex';
 
 // --- TYPE DEFINITIONS ---
 interface TestQuestion {
@@ -265,7 +265,7 @@ function DiagnosticRunner() {
         >
           {/* Question Text */}
           <h2 className="text-xl md:text-2xl text-slate-800 leading-relaxed font-medium mb-8">
-            <Latex delimiters={latexDelimiters}>{activeQuestion.question}</Latex>
+            <BlockMath math={activeQuestion.question} />
           </h2>
 
           {/* Options Grid */}
@@ -280,7 +280,7 @@ function DiagnosticRunner() {
                     {opt.label}
                   </span>
                   <div className="overflow-x-auto text-base">
-                    <Latex delimiters={latexDelimiters}>{opt.value}</Latex>
+                    <InlineMath math={opt.value} />
                   </div>
                 </div>
               ))}
