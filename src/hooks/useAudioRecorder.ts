@@ -34,7 +34,7 @@ export function useAudioRecorder() {
         setIsRecording(false);
         
         // Turn off the camera/microphone recording light on the device
-        mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+        mediaRecorder.current?.stream.getTracks().forEach(track => track.stop());
         resolve(audioBlob);
       };
 
