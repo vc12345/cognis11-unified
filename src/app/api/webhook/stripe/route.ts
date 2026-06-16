@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // 1. Initialize Server-Side Clients
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2026-05-27.dahlia',
 });
 
 // We use the Service Role Key to bypass RLS since this is an automated server action
