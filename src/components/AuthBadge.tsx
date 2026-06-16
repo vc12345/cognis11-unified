@@ -26,7 +26,7 @@ export default function AuthBadge() {
     // 2. Clear local PIN bypass cache
     sessionStorage.removeItem('cognis_unlocked');
     // 3. Eject to login
-    router.push('/login');
+    router.push('/register');
   };
 
   // Skeleton state while fetching to prevent layout shifts

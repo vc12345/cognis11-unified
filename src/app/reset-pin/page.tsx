@@ -1,69 +1,90 @@
 'use client';
+
 import { useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation';
+import { Lock, Loader2, ArrowLeft, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ResetPinPage() {
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
+  
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const triggerResetRequest = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (pin.length !== 3) return;
     setLoading(true);
-    setMessage('');
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // Directs the email click through the server exchange router to fully hydrate the session cookies
-      redirectTo: `${window.location.origin}/api/auth/callback?next=/update-pin`,
-    });
+    // Entering '000' safely disables the PIN lock by setting it back to null
+    const finalPin = pin === '000' ? null : pin;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ user_pin: finalPin })
+      .eq('id', user.id);
 
     if (error) {
-      setMessage(`Error: ${error.message}`);
+      setMessage('Failed to update PIN parameters.');
+      setLoading(false);
     } else {
-      setMessage('Security confirmation link dispatched to your inbox.');
+      router.push('/account');
     }
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-zinc-900 px-6 py-12 font-mono">
-      <header className="max-w-md w-full mx-auto flex items-center justify-between border-b border-zinc-200 pb-4">
-        <span className="text-sm font-black tracking-[0.2em] text-zinc-900">COGNIS11</span>
-        <span className="text-[10px] text-zinc-400 tracking-wider">PIN_RECOVERY</span>
-      </header>
-
-      <div className="max-w-xs w-full mx-auto my-auto py-16 space-y-6">
-        <div className="text-center space-y-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider">Reconfigure Lock Code</h2>
-          <p className="text-[9px] text-zinc-400 uppercase">Requires out-of-band email clearance</p>
-        </div>
-
-        <form onSubmit={triggerResetRequest} className="space-y-4">
-          <div className="space-y-1">
-            <span className="text-[9px] uppercase tracking-widest text-zinc-400 block font-bold">Account_Email</span>
-            <input 
-              type="email" required placeholder="user@domain.com" value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-transparent border-b border-zinc-200 py-2 outline-none text-sm placeholder:text-zinc-300 focus:border-zinc-900 transition rounded-none text-zinc-900"
-            />
-          </div>
-
-          {message && <p className="text-[10px] uppercase text-zinc-500 text-center tracking-wide font-bold">* {message}</p>}
-
-          <button type="submit" disabled={loading} className="w-full bg-zinc-900 text-white py-3 font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition">
-            {loading ? 'Transmitting...' : 'Send Recovery Link'}
-          </button>
-        </form>
+    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] flex flex-col items-center justify-center px-6">
+      <div className="absolute top-8 left-8">
+        <Link href="/account" className="text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-[#1B3A5C] transition-colors flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" /> Cancel & Return
+        </Link>
       </div>
 
-      <footer className="max-w-md w-full mx-auto text-center text-[9px] text-zinc-400 uppercase">
-        Verification Protocols Enforced
-      </footer>
+      <form onSubmit={handleSubmit} className="bg-white border border-[#E5E3DD] rounded-2xl max-w-sm w-full p-8 shadow-xl space-y-5">
+        <div className="flex items-center gap-2 text-blue-600">
+          <ShieldCheck className="w-6 h-6 text-[#1B3A5C]" />
+          <h3 className="font-bold font-serif text-xl text-[#1B3A5C]">Configure Security Lock</h3>
+        </div>
+        
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Enter a 3-digit numerical code to secure your child's telemetry data. 
+          <br/><br/>
+          <span className="font-bold text-amber-600">To disable an existing lock, enter 000.</span>
+        </p>
+
+        <div className="space-y-1">
+          <input 
+            type="password" 
+            maxLength={3} 
+            placeholder="000"
+            value={pin}
+            onChange={e => setPin(e.target.value.replace(/\D/g, ''))}
+            disabled={loading}
+            className="w-full bg-[#FAF9F6] border border-[#E5E3DD] py-3.5 rounded-xl text-center text-2xl font-bold tracking-[0.5em] text-[#1B3A5C] outline-none focus:border-[#1B3A5C] transition-all"
+          />
+          {message && <p className="text-[11px] font-bold text-rose-600 text-center pt-1">{message}</p>}
+        </div>
+
+        <button 
+          type="submit" 
+          disabled={loading || pin.length !== 3}
+          className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save & Secure Account'}
+        </button>
+      </form>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
+import { Brain, Loader2, ArrowRight, ShieldAlert } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,6 +20,28 @@ export default function LoginPage() {
   
   const router = useRouter();
 
+  // =================================================================
+  // THE BRIDGE: Syncs Next.js session tokens down to Vanilla HTML
+  // =================================================================
+  useEffect(() => {
+    const checkAndSyncSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Write out the token format the Vanilla JavaScript app expects
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+        const match = url.match(/https:\/\/(.*?)\.supabase\.co/);
+        if (match && match[1]) {
+          localStorage.setItem(`sb-${match[1]}-auth-token`, JSON.stringify(session));
+        }
+
+        // UNIFIED ROUTE: Send everyone straight to the Central Control Hub
+        router.push('/profile');
+      }
+    };
+    checkAndSyncSession();
+  }, [supabase, router]);
+
   const handleAuth = async (type: 'LOGIN' | 'SIGNUP') => {
     setLoading(true);
     setMessage('');
@@ -30,7 +53,7 @@ export default function LoginPage() {
     }
 
     if (type === 'SIGNUP' && signUpPin.length !== 3) {
-      setMessage('Error: A 3-digit Parent Lock PIN is mandatory for registration.');
+      setMessage('A 3-digit Parent Lock PIN is mandatory for registration.');
       setLoading(false);
       return;
     }
@@ -43,7 +66,7 @@ export default function LoginPage() {
           options: {
             data: { 
               parent_pin: signUpPin,
-              test_credits: 0 // Free prep registration yields exactly zero diagnostic credits
+              test_credits: 0 
             }
           }
         });
@@ -53,20 +76,17 @@ export default function LoginPage() {
       setLoading(false);
     } else {
       if (data.session || type === 'LOGIN') {
-        // Post-Login Routing Switchboard
-        const userMetadata = data.user?.user_metadata || data.session?.user?.user_metadata;
-        
-        if (!userMetadata?.target_tier) {
-          // Missing parameters -> send to target calibration first
-          setMessage('Success. Routing to baseline setup...');
-          router.push('/profile');
-        } else {
-          // Existing baseline parameters -> route cleanly to the session router hub
-          setMessage('Success. Connecting to assessment hub...');
-          router.push('/test-initiate');
+        if (data.session) {
+          const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+          const match = url.match(/https:\/\/(.*?)\.supabase\.co/);
+          if (match && match[1]) {
+            localStorage.setItem(`sb-${match[1]}-auth-token`, JSON.stringify(data.session));
+          }
         }
+        setMessage('Access verified. Connecting to Control Hub...');
+        router.push('/profile');
       } else {
-        setMessage('Verification link transmitted to inbox.');
+        setMessage('Verification link transmitted to your inbox.');
         setIsSigningUp(false);
         setSignUpPin('');
         setLoading(false);
@@ -75,76 +95,128 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-white text-zinc-900 px-6 py-12 font-mono selection:bg-zinc-900 selection:text-white">
-      <header className="max-w-md w-full mx-auto flex items-center justify-between border-b border-zinc-200 pb-4">
-        <span className="text-sm font-black tracking-[0.2em] text-zinc-900">COGNIS11</span>
-        <span className="text-[10px] text-zinc-400 tracking-wider">GATEWAY_v1.8</span>
+    <div className="min-h-screen flex flex-col justify-between bg-[#FAFAF6] text-[#1B3A5C] px-6 py-12 font-sans antialiased selection:bg-amber-200">
+      
+      {/* Elegant Subdued Header */}
+      <header className="max-w-md w-full mx-auto flex items-center justify-between border-b border-[#E5E3DD] pb-4">
+        <div className="flex items-center gap-2">
+          <Brain className="w-5 h-5 text-[#1B3A5C]" />
+          <span className="text-sm font-black tracking-[0.2em] font-mono">COGNIS11</span>
+        </div>
+        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Gateway Access</span>
       </header>
 
-      <div className="max-w-xs w-full mx-auto my-auto py-16 space-y-8 relative">
-        <div className="space-y-5">
-          <div className="space-y-1">
-            <span className="text-[9px] uppercase tracking-widest text-zinc-400 block font-bold">Account_Email</span>
-            <input 
-              type="email" placeholder="user@domain.com" value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              className="w-full bg-transparent border-b border-zinc-200 py-2 outline-none text-sm placeholder:text-zinc-300 focus:border-zinc-900 transition disabled:opacity-30 rounded-none text-zinc-900"
-            />
+      {/* Main Authentication Card Container */}
+      <div className="max-w-md w-full mx-auto my-auto py-12">
+        <div className="bg-white border border-[#E5E3DD] rounded-2xl p-8 md:p-10 shadow-sm space-y-6">
+          
+          <div className="text-center md:text-left space-y-1">
+            <h2 className="text-2xl font-bold font-serif">
+              {isSigningUp ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-sm text-slate-400">
+              {isSigningUp ? 'Register your unified platform identity.' : 'Sign in to access your subscriptions.'}
+            </p>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[9px] uppercase tracking-widest text-zinc-400 block font-bold">Passphrase</span>
-            <input 
-              type="password" placeholder="••••••••" value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={loading}
-              className="w-full bg-transparent border-b border-zinc-200 py-2 outline-none text-sm placeholder:text-zinc-300 focus:border-zinc-900 transition disabled:opacity-30 rounded-none text-zinc-900"
-            />
-          </div>
-
-          {isSigningUp && (
-            <div className="space-y-1 bg-zinc-50 p-3 border border-zinc-200">
-              <span className="text-[9px] uppercase tracking-widest text-zinc-500 block font-bold">Create 3-Digit Parent PIN</span>
+          <div className="space-y-4">
+            {/* Input fields */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Account Email</label>
               <input 
-                type="password" maxLength={3} placeholder="000" value={signUpPin}
-                onChange={(e) => setSignUpPin(e.target.value.replace(/\D/g, ''))}
+                type="email" 
+                placeholder="e.g. parent@domain.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="w-full bg-transparent border-b border-zinc-300 py-1 outline-none text-center text-sm tracking-[0.5em] font-bold focus:border-zinc-900 transition rounded-none text-zinc-900"
+                className="w-full bg-white border border-[#E5E3DD] px-4 py-3 rounded-lg text-sm outline-none focus:border-[#1B3A5C] transition-all disabled:opacity-50 text-[#1B3A5C]"
               />
             </div>
-          )}
-          
-          {message && (
-            <div className="text-[10px] uppercase text-zinc-500 text-center pt-2 tracking-wide font-bold">* {message}</div>
-          )}
 
-          <div className="pt-4 space-y-2">
-            {!isSigningUp ? (
-              <>
-                <button onClick={() => handleAuth('LOGIN')} disabled={loading} className="w-full bg-zinc-900 text-white py-3 font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition disabled:opacity-30 shadow-sm">
-                  {loading ? 'Connecting...' : 'Sign In'}
-                </button>
-                <button onClick={() => handleAuth('SIGNUP')} className="w-full bg-transparent text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:text-zinc-900 transition py-2 text-center">
-                  Register for Free Prep Program
-                </button>
-              </>
-            ) : (
-              <>
-                <button onClick={() => handleAuth('SIGNUP')} disabled={loading} className="w-full bg-zinc-900 text-white py-3 font-bold text-xs uppercase tracking-widest hover:bg-zinc-800 transition">
-                  Confirm Registration
-                </button>
-                <button onClick={() => { setIsSigningUp(false); setSignUpPin(''); setMessage(''); }} className="w-full bg-transparent text-zinc-400 text-[10px] font-bold uppercase tracking-widest hover:text-zinc-600 transition py-1 text-center">
-                  Cancel
-                </button>
-              </>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Passphrase</label>
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+                className="w-full bg-white border border-[#E5E3DD] px-4 py-3 rounded-lg text-sm outline-none focus:border-[#1B3A5C] transition-all disabled:opacity-50 text-[#1B3A5C]"
+              />
+            </div>
+
+            {/* Parent PIN Field for Registration */}
+            {isSigningUp && (
+              <div className="bg-[#FAF9F6] p-4 border border-[#E5E3DD] rounded-xl space-y-2 animate-fadeIn">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-amber-800">Create 3-Digit Parent PIN</label>
+                <input 
+                  type="password" 
+                  maxLength={3} 
+                  placeholder="000" 
+                  value={signUpPin}
+                  onChange={(e) => setSignUpPin(e.target.value.replace(/\D/g, ''))}
+                  disabled={loading}
+                  className="w-full bg-white border border-[#E5E3DD] py-2 rounded-lg text-center text-base tracking-[0.5em] font-bold outline-none focus:border-[#1B3A5C] text-[#1B3A5C]"
+                />
+                <p className="text-[10px] text-slate-400 leading-normal">
+                  This PIN prevents students from bypassing test flows or editing billing tokens.
+                </p>
+              </div>
             )}
+            
+            {/* Error/Status Notifications */}
+            {message && (
+              <div className="flex items-start gap-2 bg-slate-50 border border-[#E5E3DD] text-xs font-medium p-3.5 rounded-lg text-slate-600 leading-relaxed">
+                <ShieldAlert className="w-4 h-4 text-[#1B3A5C] shrink-0 mt-0.5" />
+                <span>{message}</span>
+              </div>
+            )}
+
+            {/* Button Actions */}
+            <div className="pt-2 space-y-3">
+              {!isSigningUp ? (
+                <>
+                  <button 
+                    onClick={() => handleAuth('LOGIN')} 
+                    disabled={loading || !email || !password} 
+                    className="w-full bg-[#1B3A5C] text-white py-4 font-bold text-xs uppercase tracking-wider hover:bg-slate-800 rounded-lg transition-all disabled:opacity-40 shadow-sm flex items-center justify-center gap-2"
+                  >
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
+                    {!loading && <ArrowRight className="w-4 h-4" />}
+                  </button>
+                  <button 
+                    onClick={() => handleAuth('SIGNUP')} 
+                    className="w-full bg-transparent text-slate-400 text-[10px] font-bold uppercase tracking-widest hover:text-[#1B3A5C] transition-colors py-2 text-center"
+                  >
+                    Create New Account (Free Base Program)
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => handleAuth('SIGNUP')} 
+                    disabled={loading} 
+                    className="w-full bg-[#1B3A5C] text-white py-4 font-bold text-xs uppercase tracking-wider hover:bg-slate-800 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Registration'}
+                  </button>
+                  <button 
+                    onClick={() => { setIsSigningUp(false); setSignUpPin(''); setMessage(''); }} 
+                    className="w-full bg-transparent text-slate-400 text-[10px] font-bold uppercase tracking-widest hover:text-slate-600 transition-colors py-1 text-center"
+                  >
+                    Cancel Registration
+                  </button>
+                </>
+              )}
+            </div>
+
           </div>
         </div>
       </div>
 
-      <footer className="max-w-md w-full mx-auto text-center text-[9px] tracking-widest text-zinc-400 uppercase">
-        Enforcing Automated Diagnostic Protocol Logs
+      {/* Authoritative, clean enterprise footer */}
+      <footer className="max-w-md w-full mx-auto text-center text-[9px] tracking-widest text-slate-400 uppercase font-medium">
+        Secured Unified Authentication Architecture
       </footer>
     </div>
   );

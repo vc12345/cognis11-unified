@@ -1,12 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js'; // Import this to query public.profiles
 
 export async function POST(req: Request) {
   try {
     const { pin } = await req.json();
-    
-    // FIX: Await the cookies instance to prevent the type resolution failure
     const cookieStore = await cookies();
     
     const supabase = createServerClient(
@@ -14,45 +13,38 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
+          get(name: string) { return cookieStore.get(name)?.value; },
           set(name: string, value: string, options: any) {
-            try {
-              cookieStore.set({ name, value, ...options });
-            } catch (err) {
-              // Next.js sometimes throws if writing cookies in a pure read context; safe to suppress here
-            }
+            try { cookieStore.set({ name, value, ...options }); } catch (err) {}
           },
           remove(name: string, options: any) {
-            try {
-              cookieStore.set({ name, value: '', ...options });
-            } catch (err) {
-              // Safe to suppress
-            }
+            try { cookieStore.set({ name, value: '', ...options }); } catch (err) {}
           },
         },
       }
     );
     
-    // Fetch user details from the cryptographically verified session
     const { data: { user }, error } = await supabase.auth.getUser();
     
     if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized Session' }, { status: 401 });
     }
 
-    // Force pull metadata values out of the authenticated data block
-    let storedPin = user.user_metadata?.parent_pin;
+    // FIX: Instead of looking in metadata, query the public.profiles table
+    // We use a regular anon client here; as long as the user is logged in, 
+    // your RLS policies should allow them to select their own profile row.
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('user_pin')
+      .eq('id', user.id)
+      .single();
 
-    // Fallback refresh check to make sure freshly registered accounts catch up instantly
-    if (!storedPin) {
-      const { data: refreshedUser } = await supabase.auth.refreshSession();
-      storedPin = refreshedUser?.user?.user_metadata?.parent_pin;
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Profile data unreadable' }, { status: 404 });
     }
 
-    // Check entry parameters against metadata profile record
-    if (pin === String(storedPin)) {
+    // Compare the incoming PIN with the one from the database
+    if (pin === profile.user_pin) {
       return NextResponse.json({ success: true });
     }
     

@@ -74,10 +74,11 @@ function injectNav() {
             }
         </style>
         <nav class="cognis-global-nav">
-            <a href="/members/dashboard.html" class="global-nav-brand">Cognis 11+</a>
+            <a href="/course/members/dashboard.html" class="global-nav-brand">Cognis 11+</a>
             
             <div class="global-nav-right">
-                <a href="/members/account.html" class="global-nav-link">Account</a>
+                <a href="/profile" class="global-nav-link">Profile</a>
+                <a href="/account" class="global-nav-link">Account</a>
                 <button onclick="handleLogout()" class="global-nav-logout">Logout</button>
             </div>
         </nav>
@@ -94,7 +95,7 @@ async function handleLogout() {
         await window.supabaseClient.auth.signOut();
     }
     // Redirect to public index or login
-    window.location.href = "/login.html";
+    window.location.href = "/";
 }
 
 document.addEventListener('DOMContentLoaded', injectNav);

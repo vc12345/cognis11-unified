@@ -357,10 +357,14 @@ function DiagnosticRunner() {
 
         {/* Global Pause Action */}
         <div className="mt-8 text-center">
-          <button 
-            onClick={() => router.push('/test-initiate')}
-            className="text-[10px] font-mono uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+          <button
+            onClick={async () => {
+              // Save current session checkpoint states to database here if needed
+              window.location.href = '/profile'; 
+            }}
+            className="px-5 py-2.5 bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold text-[11px] uppercase tracking-widest rounded-lg transition-all shadow-sm flex items-center gap-2"
           >
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
             Pause Diagnostic Session
           </button>
         </div>

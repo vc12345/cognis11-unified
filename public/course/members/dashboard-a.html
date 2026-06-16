@@ -144,6 +144,16 @@
         <main id="lattice-root"></main>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+            // Assuming you create a <div id="user-email-display"></div> in your top navigation bar
+            const emailDisplay = document.getElementById('user-email-display');
+            if (emailDisplay) emailDisplay.innerText = user.email;
+            }
+        });
+    </script>
     <script src="../js/registry-a.js"></script>
     <script>
         const expandAcronym = (name) => {

@@ -3,17 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Cognis 11+</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Learning Lattice | Cognis 11+</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/dashboard.css">
     
     <style>
-        /* CATEGORY LOGIC GUIDE STYLES */
+        /* NEW COMPLETION BADGE */
+        .check-badge {
+            width: 24px;
+            height: 24px;
+            background: #276245;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 900;
+            box-shadow: 0 2px 8px rgba(39, 98, 69, 0.3);
+        }
+
+        /* UP NEXT HIGHLIGHT */
+        .module-card.is-up-next {
+            border: 2px solid var(--cognis-gold) !important;
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.2) !important;
+            background: #fffdf9 !important;
+            transform: scale(1.02);
+        }
+        
+        .up-next-tag {
+            background: var(--cognis-gold);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* CATEGORY GUIDE INTEGRATION */
         .guide-container {
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 25px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
@@ -43,7 +79,7 @@
         }
 
         .key-item {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #475569;
             display: flex;
             align-items: baseline;
@@ -61,24 +97,8 @@
             text-align: center;
         }
 
-        /* CARD ID TAG STYLING */
-        .mod-id {
-            background: #f1f5f9;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 800;
-            font-size: 0.65rem;
-            color: var(--cognis-blue);
-            text-transform: uppercase;
-        }
-
-        /* WELCOME HEADER TWEAKS */
-        .welcome-section h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            color: #1B3A5C;
-            margin-bottom: 10px;
-        }
+        .status-badge.status-active { background: #dcfce7; color: #166534; }
+        .status-badge.status-inactive { background: #fee2e2; color: #991b1b; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -87,6 +107,21 @@
     <script src="../js/nav-injector.js"></script>
 </head>
 <body>
+
+    <div id="course-calibration-overlay" style="display: none; position: fixed; inset: 0; background: rgba(11, 17, 33, 0.8); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: #FAFAF6; border: 1px solid #E5E3DD; border-radius: 12px; max-width: 400px; width: 100%; padding: 40px; font-family: 'DM Sans', sans-serif;">
+        <h2 style="font-family: 'Playfair Display', serif; color: #1B3A5C; font-size: 1.75rem; margin-top: 0; margin-bottom: 8px;">Welcome to the course.</h2>
+        <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 24px;">Please provide a name for your child's progress tracker.</p>
+        
+        <label style="display: block; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 8px;">Child's First Name</label>
+        <input type="text" id="course-student-name" placeholder="e.g. Leo" style="width: 100%; box-sizing: border-box; border: 1px solid #E5E3DD; padding: 12px; border-radius: 8px; margin-bottom: 24px; outline: none; font-family: 'DM Sans', sans-serif;">
+        
+        <button id="course-calib-save" style="width: 100%; background: #1B3A5C; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s;">
+          Save & Unlock
+        </button>
+      </div>
+    </div>
+
     <div id="nav-placeholder"></div>
 
     <div class="dashboard-container">
@@ -104,7 +139,7 @@
         <section class="guide-container">
             <div class="guide-header">
                 <h2>Category Logic Guide</h2>
-                <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Schema v1.0</span>
+                <span style="font-size: 0.6rem; color: #94a3b8; font-weight: 600; text-transform: uppercase;">Curriculum v1.1</span>
             </div>
             <div class="category-key">
                 <div class="key-item"><b>A</b> Proportionality & Fractions</div>
@@ -124,12 +159,24 @@
         <main id="lattice-root"></main>
     </div>
 
-    <script src="../js/registry.js"></script>
+    <script src="../js/registry-a.js"></script>
     <script>
-        // Maps registry pillar keys to full UI titles
+        // Ensure we handle both potential global references to Supabase
+        const client = window.supabaseClient || window.supabase;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (client) {
+                const { data: { user } } = await client.auth.getUser();
+                if (user) {
+                    const emailDisplay = document.getElementById('user-email-display');
+                    if (emailDisplay) emailDisplay.innerText = user.email;
+                }
+            }
+        });
+
         const expandAcronym = (name) => {
             const map = {
-                "Maths": "Core Maths",
+                "Math": "Core Maths",
                 "VR": "Verbal Reasoning",
                 "NVR": "Non-Verbal Reasoning",
                 "English": "English Literacy"
@@ -137,44 +184,87 @@
             return map[name] || name;
         };
 
+        // --- CALIBRATION MODAL SUBMIT EVENT ---
+        document.getElementById('course-calib-save').addEventListener('click', async () => {
+            const nameInput = document.getElementById('course-student-name').value.trim();
+            if (!nameInput) return alert("Please provide a name.");
+
+            const btn = document.getElementById('course-calib-save');
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            const { data: { user } } = await client.auth.getUser();
+
+            await client.from('profiles').update({
+                student_name: nameInput,
+                onboarding_completed: true
+            }).eq('id', user.id);
+
+            document.getElementById('course-calibration-overlay').style.display = 'none';
+            document.getElementById('user-greeting').innerText = `${nameInput}'s Learning Lattice`;
+        });
+
         async function loadDashboard() {
-            if (!window.supabaseClient) {
+            if (!client) {
                 setTimeout(loadDashboard, 100);
                 return;
             }
 
             try {
-                const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
-                if (authError || !user) {
-                    window.location.href = "/login.html";
-                    return;
-                }
+                const { data: { user } } = await client.auth.getUser();
+                if (!user) { window.location.href = "/login"; return; } // Route to Next.js login!
+                
                 document.getElementById('user-welcome').innerText = user.email;
 
-                const { data: profile } = await window.supabaseClient
+                // UPDATED SCHEMA QUERY
+                const { data: profile, error } = await client
                     .from('profiles')
-                    .select('subscription_status, subscription_plan')
+                    .select('course_type, course_subscription, onboarding_completed, student_name')
                     .eq('id', user.id)
                     .maybeSingle();
 
-                const statusEl = document.getElementById('account-status');
-                let userPlan = 'none';
-                
-                if (profile) {
-                    userPlan = profile.subscription_plan || 'none';
-                    const status = profile.subscription_status || 'inactive';
-                    statusEl.innerText = `${status.toUpperCase()} PLAN: ${userPlan.toUpperCase()}`;
-                    statusEl.className = `status-badge status-${status}`;
+                if (error) {
+                    console.error("Profile Fetch Error:", error);
+                    return;
                 }
 
-                const { data: completedData } = await window.supabaseClient
+                let userPlan = 'foundational'; 
+                let isSubscribed = false;
+
+                if (profile) {
+                    // Check Onboarding
+                    if (profile.onboarding_completed === false) {
+                        document.getElementById('course-calibration-overlay').style.display = 'flex';
+                    } else if (profile.student_name) {
+                        document.getElementById('user-greeting').innerText = `${profile.student_name}'s Learning Lattice`;
+                    }
+
+                    // Setup Plan & Status Badges consistent with the new request format
+                    userPlan = profile.course_type || 'foundational';
+                    isSubscribed = profile.course_subscription === true;
+
+                    const statusEl = document.getElementById('account-status');
+                    
+                    const approachText = userPlan.toUpperCase();
+                    const billingText = isSubscribed ? 'PAID' : 'FREE';
+                    
+                    // Render string output match: [FOUNDATIONAL | FREE] or [SUPPLEMENTAL | PAID]
+                    statusEl.innerText = `${approachText}   |   ${billingText}`;
+                    statusEl.className = `status-badge ${isSubscribed ? 'status-active' : 'status-inactive'}`;
+                }
+
+                const { data: completedData } = await client
                     .from('module_progress')
                     .select('module_id')
                     .eq('user_id', user.id);
 
-                const completedIds = completedData ? completedData.map(item => Number(item.module_id)) : [];
-                const maxCompleted = completedIds.length > 0 ? Math.max(...completedIds) : 0;
-                const nextUnlockedId = maxCompleted + 1;
+                const completedSet = new Set(completedData ? completedData.map(item => String(item.module_id)) : []);
+
+                const nextUpModule = COGNIS_MODULES.find(m => {
+                    const checkID = userPlan === 'supplemental' ? m.sID : m.fID;
+                    return !completedSet.has(String(checkID));
+                });
+                const nextUpId = nextUpModule ? nextUpModule.id : null;
 
                 const root = document.getElementById('lattice-root');
                 root.innerHTML = ''; 
@@ -182,13 +272,12 @@
                 const pillars = [...new Set(COGNIS_MODULES.map(m => m.pillar))];
 
                 pillars.forEach(pillarName => {
-                    const expandedName = expandAcronym(pillarName);
                     const section = document.createElement('section');
                     section.className = 'pillar-section';
                     section.innerHTML = `
                         <div class="pillar-header">
                             <span class="pillar-indicator" style="background: var(--pillar-${pillarName.toLowerCase()})"></span>
-                            <h2>${expandedName}</h2>
+                            <h2>${expandAcronym(pillarName)}</h2>
                         </div>
                         <div class="category-grid" id="group-${pillarName}"></div>
                     `;
@@ -197,29 +286,27 @@
                     const groupContainer = document.getElementById(`group-${pillarName}`);
 
                     COGNIS_MODULES.filter(m => m.pillar === pillarName).forEach(mod => {
-                        const modId = Number(mod.id);
-                        const isDone = completedIds.includes(modId);
-                        let isLocked = false;
+                        const checkID = userPlan === 'supplemental' ? mod.sID : mod.fID;
+                        const cardDone = completedSet.has(String(checkID));
+                        const isUpNext = mod.id === nextUpId;
 
-                        if (userPlan === 'foundational' && modId > 1) {
-                            if (modId > nextUnlockedId) isLocked = true;
-                        }
-
-                        const card = document.createElement(isLocked ? 'div' : 'a');
-                        card.className = `module-card ${isDone ? 'is-complete' : ''} ${isLocked ? 'is-locked' : ''}`;
-                        if (!isLocked) card.href = mod.path;
+                        const card = document.createElement('a');
+                        card.className = `module-card ${cardDone ? 'is-complete' : ''} ${isUpNext ? 'is-up-next' : ''}`;
+                        card.href = mod.path;
                         
                         card.innerHTML = `
                             <div class="card-top">
-                                <span class="cat-tag">Category ${mod.cat}</span>
-                                ${isDone ? '<span class="check-mark">✓</span>' : ''}
-                                ${isLocked ? '<span class="lock-tag">Locked 🔒</span>' : ''}
+                                <div style="display:flex; flex-direction:column;">
+                                    ${isUpNext ? '<span class="up-next-tag">Up Next</span>' : ''}
+                                    <span class="cat-tag">Category ${mod.cat}</span>
+                                </div>
+                                ${cardDone ? '<div class="check-badge">✓</div>' : ''}
                             </div>
                             <h3 class="mod-title">${mod.title}</h3>
                             <div class="card-bottom">
-                                <span class="mod-id">MODULE ${String(modId).padStart(2, '0')}</span>
-                                <span class="status-text">
-                                    ${isLocked ? 'Complete previous module' : (isDone ? 'Revision Mode' : 'Start Module →')}
+                                <span class="mod-id">MODULE ${String(mod.id).padStart(2, '0')}</span>
+                                <span class="status-text" style="color: ${cardDone ? '#276245' : 'var(--steel)'}">
+                                    ${cardDone ? 'Revision Mode' : 'Start Module →'}
                                 </span>
                             </div>
                         `;
@@ -230,6 +317,7 @@
                 console.error("Dashboard Render Error:", err);
             }
         }
+        
         loadDashboard();
     </script>
 </body>

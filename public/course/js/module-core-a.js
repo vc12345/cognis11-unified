@@ -1,6 +1,63 @@
 // js/module-core-a.js
 
 /**
+ * DATABASE SCHEMA COMPATIBILITY LAYER (POLYFILL INTERCEPTOR)
+ * Intercepts legacy queries for 'subscription_plan' from all 59 modules 
+ * and maps them automatically to 'course_type' to prevent massive file edits.
+ */
+(function patchSupabaseSchemaBridge() {
+    if (!window.supabaseClient) {
+        setTimeout(patchSupabaseSchemaBridge, 30); // Loop safely until client triggers
+        return;
+    }
+
+    const originalFrom = window.supabaseClient.from;
+    window.supabaseClient.from = function(table) {
+        if (table === 'profiles') {
+            const builder = originalFrom.apply(this, arguments);
+            const originalSelect = builder.select;
+
+            // Intercept the selection query modifier
+            builder.select = function(columns) {
+                let isLegacyQuery = false;
+                if (columns && columns.includes('subscription_plan')) {
+                    columns = columns.replace('subscription_plan', 'course_type');
+                    isLegacyQuery = true;
+                }
+
+                const postSelectBuilder = originalSelect.apply(this, [columns]);
+
+                if (isLegacyQuery) {
+                    // Intercept .maybeSingle() execution responses
+                    const originalMaybeSingle = postSelectBuilder.maybeSingle;
+                    postSelectBuilder.maybeSingle = async function() {
+                        const response = await originalMaybeSingle.apply(this, arguments);
+                        if (response.data) {
+                            response.data.subscription_plan = response.data.course_type;
+                        }
+                        return response;
+                    };
+
+                    // Intercept .single() execution responses
+                    const originalSingle = postSelectBuilder.single;
+                    postSelectBuilder.single = async function() {
+                        const response = await originalSingle.apply(this, arguments);
+                        if (response.data) {
+                            response.data.subscription_plan = response.data.course_type;
+                        }
+                        return response;
+                    };
+                }
+                return postSelectBuilder;
+            };
+            return builder;
+        }
+        return originalFrom.apply(this, arguments);
+    };
+    console.log("Cognis Core Bridge: Supabase schema query mapping proxy is live.");
+})();
+
+/**
  * GOOGLE ANALYTICS 4 INTEGRATION
  */
 (function initializeAnalytics() {
@@ -71,19 +128,25 @@ async function initModule(moduleId) {
 
     const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
     if (authError || !user) {
-        window.location.href = "/login.html";
+        window.location.href = "/login";
         return;
     }
 
     const { data: profile } = await window.supabaseClient
         .from('profiles')
-        .select('subscription_status, subscription_plan')
+        .select('course_type, course_subscription')
         .eq('id', user.id)
         .maybeSingle();
 
-    if (!profile || profile.subscription_status !== 'active') {
-        alert("This module requires an active subscription.");
-        window.location.href = "/members/dashboard-a.html";
+    if (!profile || !profile.course_type) {
+        window.location.href = "/profile";
+        return;
+    }
+
+    const isMasteryPage = window.location.pathname.includes('-mastery');
+    if (isMasteryPage && profile.course_subscription !== true) {
+        alert("This advanced Mastery sub-module requires an active voluntary subscription layer.");
+        window.location.href = "/profile";
         return;
     }
 
@@ -130,7 +193,7 @@ function injectModuleUI(email, currentId, isSample) {
 
     const navHTML = `
         <nav class="cognis-m-nav">
-            <a href="/members/dashboard-a.html">← Dashboard</a>
+            <a href="/course/members/dashboard.html">← Dashboard</a>
             <div class="user-identity-tag">${email}</div>
         </nav>
     `;
