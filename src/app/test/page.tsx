@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
 
 import 'katex/dist/katex.min.css';
-import Latex from 'react-latex-next';
+
 
 // --- TYPE DEFINITIONS ---
 interface TestQuestion {
