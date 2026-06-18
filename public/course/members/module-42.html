@@ -3,198 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 42: Rotational Invariance | Cognis 11+</title>
+    <title>Module 42: Spatial Rotation Mysteries | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR ROTATIONAL CHAMBER */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 60px; 
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #2d3748;
-            min-height: 380px;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .spin-chamber {
-            width: 180px;
-            height: 180px;
-            position: relative;
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed #4a5568;
-            border-radius: 50%;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .shape-complex {
-            width: 100px;
-            height: 100px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔄'; }
 
-        .main-pole {
-            width: 12px;
-            height: 80px;
-            background: var(--cognis-gold);
-            border-radius: 4px;
-            position: absolute;
-            bottom: 10px;
-            left: 20px;
-        }
+        /* INTRO: PIZZA SPINNER */
+        .pizza-slice { fill: #fef3c7; stroke: #b45309; stroke-width: 3; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: 150px 150px; }
+        .topping { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: 150px 150px; }
 
-        .flag-arm {
-            width: 45px;
-            height: 30px;
-            background: var(--cognis-gold);
-            position: absolute;
-            top: 10px;
-            left: 32px;
-            border-radius: 4px;
-        }
+        /* PROGRESSING: ELBOW TRACE */
+        .elbow-shape { fill: none; stroke: var(--cognis-blue); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.5s; transform-origin: center; }
+        .trace-dot { fill: var(--cognis-gold); transition: transform 0.5s; transform-origin: center; }
 
-        .anchor-dot {
-            width: 12px;
-            height: 12px;
-            background: #ef4444; 
-            border-radius: 50%;
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            border: 2px solid white;
-        }
+        /* SUPPLEMENTAL: SPIN CHAMBER */
+        .spin-chamber-s { width: 180px; height: 180px; border: 2px dashed #cbd5e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .flag-s { width: 12px; height: 80px; background: var(--cognis-gold); border-radius: 4px; position: relative; }
+        .flag-arm-s { width: 40px; height: 30px; background: var(--cognis-gold); position: absolute; top: 10px; left: 10px; border-radius: 4px; }
+        .anchor-dot-s { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; position: absolute; top: -5px; right: -5px; }
 
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        .angle-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .btn-angle {
-            background: #2d3748;
-            border: 1px solid #4a5568;
-            color: #a0aec0;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-        .btn-angle:hover { color: white; border-color: var(--cognis-gold); }
-        .btn-angle.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: white; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(42));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 42: Rotational Invariance</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 42: Spatial Rotation Mysteries</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Pizza Wheel Rule</h2>
+            <p>Imagine looking down at a single slice of pizza resting on a serving tray. Whether the crust happens to be pointing Up, Down, Left, or Right, its basic identity remains exactly the same. It hasn't changed what it is—it's simply experiencing a playful spin around the platter!</p>
+            
+            <div class="parent-script">
+                "Look closely at our test slice. Notice that it features a single pepperoni slice anchoring the right-hand edge of the crust. Click 'Spin the Serving Platter' below. Observe that as the slice turns, the pepperoni stays securely locked to that very same side of the crust. If it suddenly jumped over to the opposite side, it would be a completely different object!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="300" viewBox="0 0 300 300">
+                    <path id="intro-pizza" d="M150,150 L100,50 A110,110 0 0,1 200,50 Z" class="pizza-slice" />
+                    <circle id="intro-topping" cx="170" cy="80" r="8" fill="#ef4444" class="topping" />
+                </svg>
+                <button class="btn-action" onclick="spinIntro()">Spin the Serving Platter!</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Identity check: Pepperoni is on the right.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>Tracking Structural Landmarks</h2>
+            <p>To follow a shifting figure accurately as it spins through space, your child's eye needs a reliable landmark. Locate a distinct feature (like the sharp internal "elbow corner" of a block L-shape) and focus on where it travels. As long as all neighboring details keep their original sequence order, the item is authentic.</p>
+            
+            <div class="parent-script">
+                "Study this block 'L' shape. Notice our golden 'Landmark Dot' attached firmly to the long vertical arm. Click 'Rotate 90 Degrees' to watch it turn. Even though the figure is lying flat on its back now, that indicator dot is still riding the same long arm. If the dot suddenly popped onto the short arm instead, we would instantly know the shape was an impostor!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="200" height="200" viewBox="0 0 200 200" id="prog-svg">
+                    <path d="M70,40 L70,160 L130,160" class="elbow-shape" id="prog-shape" />
+                    <circle cx="70" cy="70" r="6" class="trace-dot" id="prog-dot" />
+                </svg>
+                <button class="btn-action" onclick="rotateProg()">Rotate 90 Degrees</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Anchor is currently at the top of the long arm.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"Mental Acrobatics."</b> In Non-Verbal Reasoning (NVR), a shape is technically identical no matter which way it’s facing—as long as you’ve just turned it. The secret weapon is picking a tiny, unique feature (a <b>Tracker</b>) and checking its position. If your Tracker moves from the "right side" to the "left side" of the main shape, it hasn't been rotated—it’s been mirrored. Learning to spot this difference is how your child will dodge the nastiest traps in the exam.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Clock Turn</b>
-                "Identify the triangle after a 90° clockwise turn. Does it look the same?"
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of non-verbal reasoning problems as practicing <b>"Mental Acrobatics."</b> A geometric layout remains structurally identical no matter which direction it faces on the test page—provided it has simply been spun. The key shortcut is isolating a single distinct landmark (a <b>Visual Tracker</b>) and verifying its relative position. If your tracker switches flanks entirely, you are looking at a flipped <b>Mirror-Image Reflection</b> rather than a true spatial turn.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Clock Face Test:</b> "Track a target triangle after a 90-degree clockwise turn. Does the internal dot remain nested in the exact same corner?"</div>
+                <div class="tier-card"><b>Spins vs. Flips:</b> "Learn to instantly distinguish between a naturally turned 'L' block and its backwards, mirrored twin."</div>
+                <div class="tier-card"><b>The Eleven-Plus Master:</b> "Isolate a multi-layered shape after a 135-degree rotation by locking your focus onto a single structural landmark."</div>
             </div>
-            <div class="tier-card">
-                <b>The Flip vs. Spin</b>
-                "Distinguish between a turned 'L' shape and its mirrored 'Backwards' twin."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Mastery</b>
-                "Find the complex shape after a 135° rotation. Keep your eye on the corner dot!"
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Tracker Point</b>. Look at the flag below. Notice the red dot on the corner. As the shape spins, that dot <i>must</i> stay on the outside edge of the flag arm. If it suddenly jumps to the inside edge, the shape has been "flipped" (reflected), and it’s no longer the same object. Use the buttons to watch how a true rotation preserves the dot's position.</p>
-        
-        <div class="anatomy-display">
-            <div id="chamber" class="spin-chamber">
-                <div class="shape-complex">
-                    <div class="main-pole"></div>
-                    <div class="flag-arm">
-                        <div class="anchor-dot"></div>
+        <section class="phase">
+            <h2>Phase 2: The Shape Identification Lab</h2>
+            <p>Study our interactive <b>Shape Identification Lab</b>. Focus on the red indicator dot riding the outer tip of the flag banner. As the entire shape spins around its core axis, that indicator <i>must</i> remain anchored to the outer rim. If it ever teleports onto the inner rim, the shape has been flipped. A genuine rotation preserves the exact alignment relationships between all components.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div id="s-chamber" class="spin-chamber-s">
+                    <div class="flag-s">
+                        <div class="flag-arm-s"><div class="anchor-dot-s"></div></div>
                     </div>
                 </div>
-            </div>
-            <div style="margin-top: 25px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
-                TRACKING: Red Dot must stay on the flag's "tip"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Initiate a rotation below. Watch the <b>Trace Log</b> to see the "Logic Scan" in action. Help your child realize that no matter how much the shape spins, the red dot never switches sides relative to the gold pole. This is the "Identity Lock."</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Spin the Chamber</label>
-                <div class="angle-grid">
-                    <button class="btn-angle active" onclick="rotate(0, this)">0° (Original)</button>
-                    <button class="btn-angle" onclick="rotate(90, this)">90° Turn</button>
-                    <button class="btn-angle" onclick="rotate(180, this)">180° Flip</button>
-                    <button class="btn-angle" onclick="rotate(270, this)">270° Turn</button>
+                <div style="margin-top:30px; font-weight:800; color:#94a3b8; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase;">
+                    Identity Check: Dot is on the arm's "Tip"
                 </div>
             </div>
-            <div class="trace-log" id="trace-42">Awaiting the spin...</div>
-        </div>
-    </section>
+        </section>
 
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Mirror" Trap:</strong> This is the #1 NVR point-stealer. The examiner shows a shape that has been <b>reflected</b> (flipped like a mirror) but turned to the correct angle. Your child’s brain sees the correct angle and thinks: <i>"That's it!"</i></p>
-            
-            <p><strong>The Insider Fix: The "Clockwise Rule."</strong> Tell your child: <i>"Trace the features in a circle."</i> In a rotation, the order of details (Pole &rarr; Arm &rarr; Dot) will always be clockwise. In a reflection, that order will flip to anti-clockwise. <b>If the order breaks, the shape is a fake.</b></p>
-        </div>
-    </section>
+        <section class="phase">
+            <h2>Phase 3: The Precision Orientation Simulator</h2>
+            <p style="margin-bottom: 20px;">Spin the simulator platform below. Notice that no matter how steep the calibration angle becomes, the red tracker dot never swaps sides relative to the gold pole. This represents our absolute 'Identity Lock' rule.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Calibrate Rotation Angle</label>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <button class="btn-action" style="font-size:0.6rem; padding:10px;" onclick="runSuppRotate(90)">+ 90° Clockwise Turn</button>
+                        <button class="btn-action" style="font-size:0.6rem; padding:10px;" onclick="runSuppRotate(180)">+ 180° Half-Circle Spin</button>
+                        <button class="btn-action" style="font-size:0.6rem; padding:10px; background:#4a5568;" onclick="runSuppRotate(0)">Reset to Baseline</button>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Mirrored Backwards" Trick Trap:</b> Exam papers frequently display a distractor choice that has been completely flipped backwards, but then turned to a clever angle. It tricks the eye into seeing a valid match at a quick glance!</p>
+                <p><b>The Easy Fix: Apply the Clockwise Circular Rule.</b> Coach your student with this shortcut: <i>"Trace the details of the shape in a steady circle."</i> In a legitimate rotation, the sequence of landmarks (Pole &rarr; Flag Banner &rarr; Indicator Dot) always moves in a clockwise path. The moment it flips to an anti-clockwise path, it is a mirrored fake. <b>If the circular order breaks, throw it out.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(42)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(42)">Complete Module & Update Lattice</button>
-
 <script>
-    function rotate(deg, btn) {
-        document.getElementById('chamber').style.transform = `rotate(${deg}deg)`;
-        
-        document.querySelectorAll('.btn-angle').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        const log = document.getElementById('trace-42');
-        log.innerHTML = `
-            <div class="trace-step">→ 1. Input: Rotating shape to <b>${deg}°</b></div>
-            <div class="trace-step">→ 2. Scan: Tracking dot position relative to pole...</div>
-            <div class="trace-step">→ 3. Result: Dot is still on the "tip" of the arm.</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → STATUS: VALID ROTATION (Identity Confirmed)
-            </div>
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: PIZZA --- */
+    let introDeg = 0;
+    function spinIntro() {
+        introDeg += 90;
+        document.getElementById('intro-pizza').style.transform = `rotate(${introDeg}deg)`;
+        document.getElementById('intro-topping').style.transform = `rotate(${introDeg}deg)`;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Platter rotated to <b>${introDeg % 360}°</b>. The topping traveled with the crust!</div>`;
+    }
+
+    /* --- PROGRESSING: ELBOW --- */
+    let progDeg = 0;
+    function rotateProg() {
+        progDeg += 90;
+        document.getElementById('prog-shape').style.transform = `rotate(${progDeg}deg)`;
+        document.getElementById('prog-dot').style.transform = `rotate(${progDeg}deg)`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Turned 90 degrees. Our landmark dot remains fixed to the <b>Long Vertical Arm</b>. Authenticity verified!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSuppRotate(deg) {
+        document.getElementById('s-chamber').style.transform = `rotate(${deg}deg)`;
+        document.getElementById('supp-log').innerHTML = `
+            &rarr; Orientation Calibration History: Spun to <b>${deg}°</b><br>
+            &rarr; Landmark Audit: Measuring Tracker Dot distance to central Pole...<br>
+            &rarr; Spatial Alignment Check: <b>Component layout preserved.</b><br>
+            &rarr; <b>Current Status: Verified Authentic Rotation ✅</b>
         `;
     }
 
-    window.onload = () => rotate(0, document.querySelector('.btn-angle'));
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-chamber')) runSuppRotate(0);
+        if(typeof initModule === "function") initModule(42);
+    });
 </script>
-
 </body>
 </html>

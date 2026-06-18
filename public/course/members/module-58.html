@@ -3,283 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 58: Punctuation Mechanics | Cognis 11+</title>
+    <title>Module 58: Advanced Clause Junctions | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR PUNCTUATION MAPPING */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 40px; 
-            border-radius: 12px; 
-            text-align: center;
-            border: 2px solid #e2e8f0;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .junction-map {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            max-width: 650px;
-            margin: 0 auto;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .clause-box {
-            background: white;
-            border: 2px solid var(--cognis-blue);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            color: var(--cognis-blue);
-            text-transform: uppercase;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            flex: 1;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚦'; }
 
-        .punct-symbol {
-            font-size: 2.5rem;
-            color: var(--cognis-gold);
-            font-weight: 900;
-            line-height: 1;
-        }
+        /* INTRO: TRAFFIC SIGNAL */
+        .light-pole { width: 60px; background: #334155; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        .light { width: 40px; height: 40px; border-radius: 50%; background: #1e293b; transition: 0.3s; }
+        .light.red.active { background: #ef4444; box-shadow: 0 0 15px #ef4444; }
+        .light.yellow.active { background: #fbbf24; box-shadow: 0 0 15px #fbbf24; }
+        .light.green.active { background: #10b981; box-shadow: 0 0 15px #10b981; }
 
-        /* Engine Terminal Customization */
-        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; }
-        
-        .sentence-well {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #334155;
-            padding: 30px;
-            border-radius: 12px;
-            font-size: 1.4rem;
-            line-height: 1.8;
-            color: #cbd5e0;
-            margin-bottom: 30px;
-            text-align: center;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+        /* PROGRESSING: THOUGHT SCALE */
+        .scale-base { width: 100%; max-width: 300px; height: 10px; background: #cbd5e0; border-radius: 5px; position: relative; transition: transform 0.5s; }
+        .clause-weight { width: 120px; padding: 10px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; font-weight: 800; font-size: 0.7rem; text-align: center; position: absolute; top: -50px; transition: all 0.5s; }
 
-        .punct-gap {
-            display: inline-block;
-            min-width: 40px;
-            border-bottom: 3px solid var(--cognis-gold);
-            margin: 0 10px;
-            color: var(--cognis-gold);
-            font-weight: bold;
-            font-family: 'Consolas', monospace;
-            font-size: 1.8rem;
-            transition: 0.3s;
-        }
+        /* SUPPLEMENTAL: JUNCTION ENGINE */
+        .junction-map-s { display: flex; align-items: center; gap: 15px; margin: 20px 0; }
+        .clause-box-s { background: white; border: 2px solid var(--cognis-blue); padding: 15px; border-radius: 8px; font-weight: 900; font-size: 0.75rem; color: var(--cognis-blue); width: 140px; text-align: center; }
+        .punct-symbol-s { font-size: 2.5rem; color: var(--cognis-gold); font-weight: 900; min-width: 30px; }
 
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
-        .btn-load { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
-            text-align: left; transition: 0.2s;
-        }
-        .btn-load:hover { background: #4a5568; color: white; }
-        .btn-load.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
-
-        .punct-bank { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .btn-punct {
-            background: transparent;
-            border: 1px solid #4a5568;
-            color: white;
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 1.1rem;
-            transition: 0.2s;
-        }
-        .btn-punct:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
-        .btn-punct.active { background: var(--cognis-gold); color: white; border-color: white; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-load-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-load-s.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(58));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 58: Punctuation Junctions</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 58: Advanced Clause Junctions</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Traffic Signals</h2>
+            <p>Punctuation characters behave exactly like roadside traffic signs designed for your child's eyes. They explicitly broadcast when to <b>Keep Gliding Forward</b>, when to <b>Pause for a Quick Breath</b>, and when to <b>Stop Completely</b> so that independent thoughts never collide into a chaotic multi-car pileup.</p>
+            
+            <div class="parent-script">
+                "Think of this pole as managing our reading track. A <b>Full Stop</b> functions like an absolute Red Light (Brake immediately!). A <b>Comma</b> functions like a rolling Green Light (Keep sliding forward smoothly, just steal a split-second breath). A <b>Semicolon</b> functions like an advisory Yellow Light (Prepare to slow down, because these two distinct thoughts share an intimate relationship). Click our control lights below to hear the rhythmic bounce of each sign!"
+            </div>
+
+            <div class="viz-container">
+                <div class="light-pole">
+                    <div id="l-red" class="light red"></div>
+                    <div id="l-yellow" class="light yellow"></div>
+                    <div id="l-green" class="light green"></div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:30px;">
+                    <button class="btn-action" onclick="setLight('red')">Full Stop (.)</button>
+                    <button class="btn-action" style="background:var(--cognis-gold)" onclick="setLight('yellow')">Semicolon (;)</button>
+                    <button class="btn-action" style="background:#10b981" onclick="setLight('green')">Comma (,)</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for a signal selection...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Thought Balance Scale</h2>
+            <p>To allocate perfect sentence punctuation calmly on test day, your child must learn to weigh their clauses. If a core thought can stand entirely isolated by its own strength, it ranks as a <b>Heavy Weight</b>. If it requires secondary assistance to establish clear meaning, it ranks as a <b>Light Weight</b>. True semicolons exclusively link matching Heavy thoughts together.</p>
+            
+            <div class="parent-script">
+                "Study these isolated segments. 'The sun rose' represents a solid, independent Heavy thought. 'Birds sang' registers as another equal Heavy thought. Because both components display perfectly equal structural power, they balance our internal scale beautifully. Click 'Engage Semicolon Hinge' to see how the semicolon acts as the ultimate balanced link for matching weights!"
+            </div>
+
+            <div class="viz-container">
+                <div id="scale-pivot" style="margin-bottom: 50px; text-align: center;">⚖️</div>
+                <div class="scale-base" id="scale-beam">
+                    <div class="clause-weight" style="left: -130px;">"The sun rose" (HEAVY WEIGHT)</div>
+                    <div class="clause-weight" style="right: -130px;">"Birds sang" (HEAVY WEIGHT)</div>
+                </div>
+                <button class="btn-action" style="margin-top:80px;" onclick="balanceScale()">Engage Semicolon Hinge</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Equal thoughts need an equal link.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of punctuation as <b>Traffic Lights for Reading</b>. Without them, ideas crash into each other. Every mark has one job: telling the reader how two thoughts connect. A <b>Semicolon (;)</b> glues two equal ideas together; a <b>Colon (:)</b> is like a drumroll for a list or a big reveal; and a <b>Comma (,)</b> is just a quick breath to add a little detail. Master these, and you can "hear" the rhythm of the writing.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The List Divider</b>
-                "I like dogs, cats, and birds."<br>
-                <b>The Mark:</b> Comma (,)<br>
-                <b>The Job:</b> Keeping items in a list tidy.
-            </div>
-            <div class="tier-card">
-                <b>The Equal Link</b>
-                "The rain stopped; the sun came out."<br>
-                <b>The Mark:</b> Semicolon (;)<br>
-                <b>The Job:</b> Connecting two full, heavy thoughts.
-            </div>
-            <div class="tier-card">
-                <b>The Big Reveal</b>
-                "One thing remained: victory."<br>
-                <b>The Mark:</b> Colon (:)<br>
-                <b>The Job:</b> Pointing at the main event.
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Junction Map</b>. Look at how the mark in the middle acts as the glue. Punctuation decides if the thoughts are standing alone, leaning on each other, or if one is introducing the other. Point this out to your child: the mark defines the relationship.</p>
-        
-        <div class="anatomy-display">
-            <div class="junction-map">
-                <div class="clause-box">THOUGHT A <br><small style="font-weight:400; font-size:0.6rem;">(The Setup)</small></div>
-                <div class="punct-symbol">;</div>
-                <div class="clause-box">THOUGHT B <br><small style="font-weight:400; font-size:0.6rem;">(The Equal Partner)</small></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <div class="simulation-area">
-            <div class="sentence-well" id="sentence-well">
-                </div>
-
-            <div class="engine-container">
-                <div class="inputs">
-                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Choose a Sentence Type</label>
-                    <div class="preset-grid">
-                        <button class="btn-load active" onclick="loadCase(0, this)">Case: Two Heavy Thoughts</button>
-                        <button class="btn-load" onclick="loadCase(1, this)">Case: The Drumroll Reveal</button>
-                        <button class="btn-load" onclick="loadCase(2, this)">Case: The Brief Pause</button>
-                    </div>
-
-                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-top: 20px;">2. Pick the Right Tool</label>
-                    <div class="punct-bank" id="punct-bank">
-                        </div>
-                </div>
-                <div class="trace-log" id="trace-58">Testing the logic...</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Lazy Comma" Trap:</strong> Many children use a comma to join two full sentences just because they "take a breath" there. (e.g., "I'm hungry, I want pizza.") This is a crash! A comma isn't strong enough to hold two heavy, finished thoughts together.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Punctuation maps out the precise <b>Mechanical Relationships</b> holding independent clauses together. A structural <b>Semicolon (;)</b> tightly welds dual independent statements without relying on conjunction filler; a <b>Colon (:)</b> introduces a dramatic revelation or a formal list; a standard <b>Comma (,)</b> buffers a minor introductory fragment. Mastering this system allows your student to hear the exact architectural rhythm intended by the writer.</p>
             
-            <p><strong>The Fix:</strong> Use the <b>Full Stop Test</b>. Ask your child: "Could we put a full stop here?" If the answer is yes, and both sides work as perfect sentences, you need a <b>Semicolon (;)</b>. Use a comma only for small pauses or extra bits that can't stand alone.</p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Coordinate Equality:</b> "The storm subsided; clear skies emerged." (Two heavy-weight, entirely self-sustaining independent clauses).</div>
+                <div class="tier-card"><b>The Reveal Drumroll:</b> "One absolute objective remained: global victory." (Deploying an anticipatory colon to unveil the primary event resolution).</div>
+                <div class="tier-card"><b>The Introductory Fragment:</b> "Although the hour was late, the researcher pressed onward." (Slicing an introductory dependent fragment cleanly away from the primary clause via a brief pause).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Clause Assembly Blueprint</h2>
+            <p>Study the schematic variables inside our <b>Clause Assembly Blueprint</b>. The central punctuation mark dictates the strength of the structural bond. When clauses serve as equal coordinate partners, they brace one another across a semicolon partition. When an upstream clause purposefully sets up a downstream answer, a colon steps in to create a clean introductory delivery track.</p>
+            <div class="anatomy-display" style="background:#f8fafc;">
+                <div class="junction-map-s">
+                    <div class="clause-box-s">INDEPENDENT THOUGHT A<br><small>The Base Setup</small></div>
+                    <div class="punct-symbol-s">;</div>
+                    <div class="clause-box-s">INDEPENDENT THOUGHT B<br><small>The Equal Partner</small></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Syntactic Junction Simulator</h2>
+            <p style="margin-bottom: 20px;">Load a target case from our layout terminal below. Run the classic <b>Full Stop Substitution Test</b>: if both sides of your target junction can operate as independent standalone sentences, your syntax demands an link far stronger than a weak comma.</p>
+            <div class="simulation-area" style="background:#1a202c; padding:30px; border-radius:12px;">
+                <div id="s-well" class="sentence-well" style="color:white; font-size:1.3rem;"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Clause Case Profile</label>
+                        <button class="btn-load-s active" onclick="loadSuppCase(0, this)">Case Profile A: Twin Coordinate Weights</button>
+                        <button class="btn-load-s" onclick="loadSuppCase(1, this)">Case Profile B: Anticipatory List Reveal</button>
+                        <div style="display:flex; gap:5px; margin-top:15px;">
+                            <button class="btn-action" style="flex:1;" onclick="testSuppPunct(',')">Test Comma [ , ]</button>
+                            <button class="btn-action" style="flex:1; background:var(--cognis-gold);" onclick="testSuppPunct(';')">Test Semicolon [ ; ]</button>
+                            <button class="btn-action" style="flex:1; background:#4a5568;" onclick="testSuppPunct(':')">Test Colon [ : ]</button>
+                        </div>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Lazy Splice" Comma Fault Trap:</b> Children frequently drop a weak comma between two robust full sentences simply because they happen to take a physical breath when reading aloud (such as assembling 'I am famished, I want a slice of pizza'). This is a severe architectural structural collapse!</p>
+                <p><b>The Easy Fix: Enforce the Rigorous Full Stop Isolation Test.</b> Train your child to check every junction area by asking: <i>"Could we safely place an isolated full stop dot right here?"</i> If the answer is an absolute yes, and both upstream and downstream word strings can stand independently as isolated sentences, you <b>must</b> deploy a strong <b>Semicolon (;)</b> or Conjunction. Commas are structurally reserved for trailing fragments and boundary lists only.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(58)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(58)">Complete Module & Update Lattice</button>
-
 <script>
-    const cases = [
-        {
-            text: "The storm was fierce <span class='punct-gap' id='active-gap'>?</span> the sailors lowered the sails.",
-            target: ";",
-            desc: "Two full, independent thoughts.",
-            error_msg: "Too weak! These are two full sentences.",
-            correct_msg: "Strong Link! Semicolons join two finished thoughts."
-        },
-        {
-            text: "The backpack contained three items <span class='punct-gap' id='active-gap'>?</span> a map, a compass, and a rope.",
-            target: ":",
-            desc: "A list is coming up.",
-            error_msg: "Wait for it! We need a drumroll for this list.",
-            correct_msg: "Spot on! Colons introduce what's next."
-        },
-        {
-            text: "Although it was late <span class='punct-gap' id='active-gap'>?</span> the lights were still on.",
-            target: ",",
-            desc: "A short introductory fragment.",
-            error_msg: "Too heavy! Use a semicolon for two full thoughts.",
-            correct_msg: "Perfect! A comma handles a quick breath."
-        }
-    ];
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    let currentCase = cases[0];
-    const marks = [",", ";", ":"];
-
-    function loadCase(idx, btn) {
-        document.querySelectorAll('.btn-load').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentCase = cases[idx];
-        
-        document.getElementById('sentence-well').innerHTML = currentCase.text;
-        
-        const bank = document.getElementById('punct-bank');
-        bank.innerHTML = '';
-        marks.forEach(m => {
-            bank.innerHTML += `<button class="btn-punct" onclick="testMark('${m}', this)">${m}</button>`;
-        });
-
-        updateTrace();
-    }
-
-    function testMark(val, btn) {
-        document.querySelectorAll('.btn-punct').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const gap = document.getElementById('active-gap');
-        gap.innerText = val;
-
-        const isCorrect = val === currentCase.target;
-        gap.style.color = isCorrect ? "var(--pass-green)" : "#f87171";
-        
-        updateTrace(val, isCorrect);
-    }
-
-    function updateTrace(val, success) {
-        const log = document.getElementById('trace-58');
-        let html = `<div class="trace-step">→ 1. Analyzing: <b>${currentCase.desc}</b></div>`;
-        
-        if(!val) {
-            html += `<div class="trace-step">→ 2. Status: Waiting for your move...</div>`;
-            log.innerHTML = html;
-            return;
-        }
-
-        html += `<div class="trace-step">→ 2. Trying: [ <b>${val}</b> ]</div>`;
-        
-        if(success) {
-            html += `
-                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                    → RESULT: ${currentCase.correct_msg}
-                </div>
-            `;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Writing Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
         } else {
-            html += `
-                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                    → HINT: ${currentCase.error_msg}
-                </div>
-            `;
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-        log.innerHTML = html;
     }
 
-    window.onload = () => loadCase(0, document.querySelector('.btn-load'));
-</script>
+    /* --- INTRO: LIGHTS --- */
+    function setLight(type) {
+        document.querySelectorAll('.light').forEach(l => l.classList.remove('active'));
+        document.getElementById('l-' + type).classList.add('active');
+        const msgs = {
+            red: "TRAFFIC STOP ENFORCED! The sentence machine has reached an absolute boundary line.",
+            yellow: "PAUSE INDEPENDENT JUNCTION. These two thoughts represent distinct but perfectly balanced coordinate partners.",
+            green: "MOMENTARY BREATH ONLY. Keep sliding smoothly directly into the next supporting text descriptive item."
+        };
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">${msgs[type]}</div>`;
+    }
 
+    /* --- PROGRESSING: SCALE --- */
+    function balanceScale() {
+        document.getElementById('scale-beam').style.transform = "rotate(0deg)";
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Structural Balance Achieved! A <b>Semicolon (;)</b> anchors the exact central axis hinge for coordinate weights.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sCases = [
+        { t: "The storm was fierce <span id='sg' style='color:var(--cognis-gold)'>?</span> the sailors lowered the sails.", c: ";", log: "Both flanking clause profiles operate as self-sustaining items. Semicolon connection validated." },
+        { t: "He packed three things <span id='sg' style='color:var(--cognis-gold)'>?</span> a map, a snack, and water.", c: ":", log: "Upstream clause anticipates a categorical expansion module. Colon introduction validated." }
+    ];
+    let sIdx = 0;
+    function loadSuppCase(idx, btn) {
+        sIdx = idx;
+        if(btn) {
+            document.querySelectorAll('.btn-load-s').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        document.getElementById('s-well').innerHTML = sCases[idx].t;
+        document.getElementById('supp-log').innerHTML = "Analyzing clause weights inside currentCase framework...";
+    }
+    function testSuppPunct(val) {
+        const correct = val === sCases[sIdx].c;
+        document.getElementById('sg').textContent = val;
+        document.getElementById('supp-log').innerHTML = `&rarr; Active Punctuation Metric Log: <br>&bull; Deployed Junction Tool: [ <b>${val}</b> ]<br>&rarr; <b>Structural Evaluation: ${correct?'VALID SYNTACTIC JUNCTION ✅':'CLAUSE COLLISION DETECTED ❌'}</b><br><small>${sCases[sIdx].log}</small>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSuppCase(0);
+        if(typeof initModule === "function") initModule(58);
+    });
+</script>
 </body>
 </html>

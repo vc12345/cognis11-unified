@@ -3,186 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 31: Vowel/Consonant Ciphers | Cognis 11+</title>
+    <title>Module 31: The Letter-Type Sorting Office | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR GATEKEEPER TILES */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 40px; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 200px;
-            border: none;
-            border-radius: 12px;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .word-stream { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-
-        .char-tile { 
-            width: 90px; 
-            height: 90px; 
-            background: white; 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
+            overflow: hidden;
         }
 
-        .char-tile.vowel { border: 4px solid #3182ce; color: #3182ce; }
-        .char-tile.consonant { border: 4px solid #e53e3e; color: #e53e3e; }
-        
-        .char-tile .io { font-size: 1.3rem; margin-bottom: 2px; }
-        .char-tile small { 
-            font-size: 0.6rem; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            opacity: 0.7; 
-            font-family: 'DM Sans', sans-serif;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚪'; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        .input-text { 
-            width: 100%; padding: 12px; border-radius: 8px; border: none; 
-            background: #2d3748; color: white; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 4px; font-size: 1.1rem;
-        }
+        /* INTRO: COLORED GATES */
+        .gate { stroke-width: 4; fill: #fff; transition: all 0.3s; }
+        .gate-vowel { stroke: #3182ce; }
+        .gate-consonant { stroke: #e53e3e; }
+        .gate-active { fill: rgba(0,0,0,0.05); }
+        .letter-particle { font-weight: 900; font-size: 2rem; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .shift-controls { display: flex; gap: 10px; margin-top: 20px; }
-        .shift-box { flex: 1; }
-        .shift-box label { font-size: 0.6rem !important; margin-bottom: 5px !important; }
-        .shift-box input { 
-            width: 100%; padding: 10px; border-radius: 6px; 
-            background: #2d3748; color: white; border: 1px solid #4a5568; 
-            text-align: center; font-weight: 800;
-        }
+        /* PROGRESSING: CONVEYORS */
+        .belt { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 2; }
+        .belt-gear { fill: #cbd5e0; }
+        .belt-label { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* SUPPLEMENTAL: TILES */
+        .char-tile-s { width: 80px; height: 80px; background: white; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; transition: all 0.4s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .char-tile-s.vowel { border: 3px solid #3182ce; color: #3182ce; }
+        .char-tile-s.consonant { border: 3px solid #e53e3e; color: #e53e3e; }
+        .char-tile-s small { font-size: 0.5rem; opacity: 0.7; margin-bottom: 2px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .input-dark { background: #2d3748; color: white; border: 1px solid #4a5568; padding: 8px; border-radius: 6px; font-weight: 800; text-align: center; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(31));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 31: Vowel/Consonant Ciphers</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 31: The Letter-Type Sorting Office</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Sorting Gates</h2>
+            <p>Imagine a central mail office equipped with two distinct sorting doors. One path is highlighted in <b>Blue</b> exclusively for Vowels (A, E, I, O, U), while the neighboring pathway is marked in <b>Red</b> for all other characters (Consonants). Before we shift or transform any letter, we must first determine which door it matches up with.</p>
+            
+            <div class="parent-script">
+                "Click the 'Pick and Sort a New Letter' button below to watch a random alphabet letter slide into position. If it lands as a Vowel, it glides straight through the blue gate. If it stands as a Consonant, it shifts into the red gate. We cannot unlock the puzzle code until we recognize which doorway each letter uses!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200">
+                    <rect id="gate-v" x="80" y="50" width="80" height="100" rx="8" class="gate gate-vowel" />
+                    <rect id="gate-c" x="240" y="50" width="80" height="100" rx="8" class="gate gate-consonant" />
+                    <text x="120" y="40" text-anchor="middle" font-weight="800" font-size="10" fill="#3182ce">BLUE GATE: VOWELS</text>
+                    <text x="280" y="40" text-anchor="middle" font-weight="800" font-size="10" fill="#e53e3e">RED GATE: CONSONANTS</text>
+                    
+                    <text id="intro-letter" x="200" y="180" text-anchor="middle" class="letter-particle" fill="var(--cognis-blue)">?</text>
+                </svg>
+                <button class="btn-action" onclick="runIntroSort()">Pick and Sort a New Letter</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Ready to sort the alphabet.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Parallel Tracking Conveyors</h2>
+            <p>In advanced word ciphers, different categories of letters obey separate instructions. For instance, the Vowel track might glide forward (+1 space), while the Consonant track rolls backward (-1 space). This means letters packed inside the exact same word will jump in completely opposite directions simultaneously!</p>
+            
+            <div class="parent-script">
+                "Look closely at the word <b>BRAIN</b>. The letters travel along completely separate pathways. Characters B, R, and N ride along the Red track, while A and I glide across the Blue track. Click the 'Slide Conveyor Belts' button to see them move independently!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250">
+                    <rect x="50" y="60" width="300" height="40" rx="20" class="belt" />
+                    <text x="200" y="50" text-anchor="middle" class="belt-label" fill="#3182ce">Vowel Track (+1 Leap Forward)</text>
+                    <text id="prog-v-chars" x="100" y="88" font-weight="900" fill="#3182ce">A I</text>
+                    
+                    <rect x="50" y="160" width="300" height="40" rx="20" class="belt" />
+                    <text x="200" y="150" text-anchor="middle" class="belt-label" fill="#e53e3e">Consonant Track (-1 Step Backward)</text>
+                    <text id="prog-c-chars" x="100" y="188" font-weight="900" fill="#e53e3e">B R N</text>
+                </svg>
+                <button class="btn-action" onclick="runProgShift()">Slide Conveyor Belts</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Word: BRAIN. Rules: Vowels +1, Consonants -1.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"The Sorting Office."</b> In advanced coding, the rule depends on <i>what kind</i> of letter you are holding. Vowels (A, E, I, O, U) go through the blue door, and Consonants go through the red door. The secret weapon is realizing that each group has its own math. Your child must learn to act like a gatekeeper—categorizing every letter through a mental "check" before they even think about shifting it.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Basic Gate</b>
-                "If Vowels shift +1 and Consonants stay the same, what is the code for 'BAT'?"
-            </div>
-            <div class="tier-card">
-                <b>The Split Shift</b>
-                "Vowels shift +2, Consonants shift -1. Find the code for the word 'DOG'."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Challenge</b>
-                "A word is encoded using split rules to become 'QMANFU'. Can you reverse the gates to find 'PLANET'?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Property Gatekeeper</b>. Notice how the colors change based on the letter type. Blue tiles are for <b>Vowels</b> and Red tiles are for <b>Consonants</b>. Help your child see that the letter 'A' in the middle of a word might jump forward, while the 'B' next to it might jump backward. They aren't following one path; they are following two different sets of orders.</p>
-        <div class="anatomy-display">
-            <div class="word-stream" id="gate-display"></div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Type a word and set separate shifts for Vowels and Consonants. Watch the <b>Trace Log</b> as it sorts each character. Ask your child to spot the moment the rule "flips"—usually when the word moves from a consonant to a vowel. This visual "tagging" is exactly how they should solve these in the exam.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Type your Test Word</label>
-                    <input type="text" id="word-in" class="input-text" value="BRAIN" maxlength="10" oninput="run31()">
-                </div>
-                
-                <div class="shift-controls">
-                    <div class="shift-box">
-                        <label style="color: #3182ce;">VOWEL SHIFT</label>
-                        <input type="number" id="v-shift" value="1" oninput="run31()">
-                    </div>
-                    <div class="shift-box">
-                        <label style="color: #e53e3e;">CONS. SHIFT</label>
-                        <input type="number" id="c-shift" value="-1" oninput="run31()">
-                    </div>
-                </div>
-            </div>
-            <div class="trace-log" id="trace-31">Categorizing the word...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "One-Track" Trap:</strong> Most children get into a rhythm. If they shift the first two consonants by -1, their brain will go on autopilot and shift the vowel by -1 as well. They forget that the rule "re-boots" itself at every single letter.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of this category of word problem as managing a <b>"Two-Gate Sorting Office."</b> The transformation rule relies entirely on <i>what kind</i> of letter profile you are currently holding. Vowels and Consonants each utilize distinct shift logic. Train your child to act like a strict gatekeeper—always sorting and categorizing every character through a quick mental check before executing any position shifts.</p>
             
-            <p><strong>The Insider Fix: The "Label Before You Leap" Rule.</strong> Tell your child: <i>"Don't do the math yet."</i> Before they shift anything, they should write a tiny 'V' or 'C' above every letter in the word. Only once the whole word is tagged should they pick up their pencil to do the jumping. <b>Tagging stops the autopilot.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Base Gate:</b> "If Vowels shift +1 and Consonants remain completely locked in place, encode the word 'BAT'."</div>
+                <div class="tier-card"><b>The Split Shift Challenge:</b> "Vowels shift forward +2 spaces, while Consonants shift backward -1 space. Discover the transformed string for the word 'DOG'."</div>
+                <div class="tier-card"><b>The 11+ Reverse Riddle:</b> "Untangle the rules backward to convert the encrypted message 'QMANFU' straight back into the target word 'PLANET'."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Split-Tracking View</h2>
+            <p>Study the behavior of our <b>Split-Tracking View</b> container. Notice the absolute color discipline: Blue borders denote Vowels, while Red borders track Consonants. A single word can travel down two entirely different mathematical branches at the exact same moment. A vowel will leap forward while its direct neighbor steps back.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;" id="s-tiles-cont"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Word Transformer Engine</h2>
+            <p style="margin-bottom: 20px;">Type a custom sample word and configure independent shift properties using the inputs below. Watch how our tracking console separates the string elements and reveals the precise moment the arithmetic rule flips as the characters swap categories.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Enter Your Sample Word</label><input type="text" id="si-word" class="input-dark" value="BRAIN" maxlength="10" style="width:100%;" oninput="runSupp()"></div>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <div class="control-group" style="flex:1;"><label style="color:#3182ce; font-weight:800;">VOWEL JUMP DISTANCE</label><input type="number" id="si-v" value="1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
+                        <div class="control-group" style="flex:1;"><label style="color:#e53e3e; font-weight:800;">CONSONANT JUMP DISTANCE</label><input type="number" id="si-c" value="-1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Single-Track Autopilot" Speed Trap:</b> Children naturally slip into a repetitive calculation rhythm. If they successfully move the first few consonants backward by -1 space, they will often accidentally apply that same -1 rule to the upcoming vowels without thinking.</p>
+                <p><b>The Easy Fix: The "Label Before You Leap" Rule.</b> Remind your child: <i>"Never rush into the math blindly."</i> Write a small, clear 'V' or 'C' directly above every letter in the question word before transforming anything. Tagging the letters stops autopilot mistakes from breaking the cipher pattern.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(31)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(31)">Complete Module & Update Lattice</button>
-
 <script>
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const vowels = "AEIOU";
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function run31() {
-        const word = document.getElementById('word-in').value.toUpperCase().replace(/[^A-Z]/g, '');
-        const vShift = parseInt(document.getElementById('v-shift').value) || 0;
-        const cShift = parseInt(document.getElementById('c-shift').value) || 0;
-        
-        const display = document.getElementById('gate-display');
-        display.innerHTML = '';
-        
-        let trace = "";
-        let finalResult = "";
-
-        for (let char of word) {
-            const isVowel = vowels.includes(char);
-            const shift = isVowel ? vShift : cShift;
-            const charIdx = alphabet.indexOf(char);
-            const newChar = alphabet[(charIdx + shift + 26) % 26];
-            finalResult += newChar;
-
-            display.innerHTML += `
-                <div class="char-tile ${isVowel ? 'vowel' : 'consonant'}">
-                    <small>${isVowel ? 'VOWEL' : 'CONS.'}</small>
-                    <div class="io">${char} → ${newChar}</div>
-                </div>
-            `;
-            
-            trace += `<div class="trace-step" style="font-size:0.75rem;">${char} [${isVowel?'Blue Door':'Red Door'}] shifts ${shift > 0 ? '+' + shift : shift} → <b>${newChar}</b></div>`;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-
-        document.getElementById('trace-31').innerHTML = `
-            ${trace}
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → CIPHER RESULT: ${finalResult || '...'}
-            </div>
-        `;
     }
 
-    window.onload = run31;
-</script>
+    /* --- INTRO: GATES --- */
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const vowels = "AEIOU";
+    function runIntroSort() {
+        const char = alpha[Math.floor(Math.random() * 26)];
+        const isV = vowels.includes(char);
+        const p = document.getElementById('intro-letter');
+        const gV = document.getElementById('gate-v'), gC = document.getElementById('gate-c');
+        
+        p.style.transition = 'none'; p.setAttribute("x", "200"); p.setAttribute("y", "180"); p.textContent = char;
+        gV.classList.remove('gate-active'); gC.classList.remove('gate-active');
 
+        setTimeout(() => {
+            p.style.transition = 'all 0.8s ease-in-out';
+            p.setAttribute("y", "105");
+            p.setAttribute("x", isV ? "120" : "280");
+            if(isV) gV.classList.add('gate-active'); else gC.classList.add('gate-active');
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Letter <b>${char}</b> is classified as a <b>${isV?'Vowel':'Consonant'}</b>. It passed straight through the ${isV?'Blue':'Red'} gate!</div>`;
+        }, 50);
+    }
+
+    /* --- PROGRESSING: BELTS --- */
+    let progShifted = false;
+    function runProgShift() {
+        const vChars = document.getElementById('prog-v-chars');
+        const cChars = document.getElementById('prog-c-chars');
+        if(!progShifted) {
+            vChars.textContent = "B J"; // A+1, I+1
+            cChars.textContent = "A Q M"; // B-1, R-1, N-1
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Tracks shifted! Vowels advanced forward, while Consonants dropped backward.</div>`;
+        } else {
+            vChars.textContent = "A I"; cChars.textContent = "B R N";
+        }
+        progShifted = !progShifted;
+    }
+
+    /* --- SUPPLEMENTAL: TILES --- */
+    function runSupp() {
+        const word = document.getElementById('si-word').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const vS = parseInt(document.getElementById('si-v').value) || 0;
+        const cS = parseInt(document.getElementById('si-c').value) || 0;
+        const cont = document.getElementById('s-tiles-cont');
+        cont.innerHTML = '';
+        
+        let res = "";
+        for(let c of word) {
+            const isV = vowels.includes(c);
+            const s = isV ? vS : cS;
+            const next = alpha[(alpha.indexOf(c) + s + 26) % 26];
+            res += next;
+            cont.innerHTML += `<div class="char-tile-s ${isV?'vowel':'consonant'}"><small>${isV?'VOWEL':'CONS.'}</small><div>${c} &rarr; ${next}</div></div>`;
+        }
+        document.getElementById('supp-log').innerHTML = `→ Transformation Rules: Vowels ${vS>=0?'+':''}${vS}, Consonants ${cS>=0?'+':''}${cS}<br>→ <b>Final Encrypted Output: ${res}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-word')) runSupp();
+        if(typeof initModule === "function") initModule(31);
+    });
+</script>
 </body>
 </html>

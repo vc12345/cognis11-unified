@@ -3,186 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 51: Block Counting | Cognis 11+</title>
+    <title>Module 51: 3D Block Counting | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR ISOMETRIC STACKS */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 20px; 
-            border-radius: 12px; 
-            margin: 20px 0; 
-            text-align: center;
-            border: 2px solid #2d3748;
-            min-height: 450px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        #stack-svg { 
-            width: 100%; 
-            max-width: 500px; 
-            height: 400px; 
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
-        
-        .cube-top { fill: var(--cognis-gold); stroke: #fff; stroke-width: 1; }
-        .cube-left { fill: #b58d4a; stroke: #fff; stroke-width: 1; }
-        .cube-right { fill: #8e6c38; stroke: #fff; stroke-width: 1; }
 
-        /* X-Ray Effect */
-        .xray .cube-top, .xray .cube-left, .xray .cube-right { opacity: 0.15; }
-        .xray .hidden-marker { fill: #ef4444 !important; opacity: 1 !important; stroke: #fff; stroke-width: 2; }
-
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        
-        .btn-action { 
-            background: var(--cognis-gold); color: white; border: none; 
-            padding: 15px; border-radius: 8px; width: 100%; 
-            font-weight: 900; cursor: pointer; text-transform: uppercase; 
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
-            transition: 0.2s;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        .btn-action:hover { background: #b08d4b; transform: translateY(-2px); }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🧱'; }
 
-        .btn-secondary {
-            background: transparent; color: #a0aec0; border: 1px solid #4a5568; 
-            margin-top: 15px; cursor: pointer; font-size: 0.65rem; 
-            padding: 10px; border-radius: 6px; width: 100%;
-            text-transform: uppercase; font-weight: 800; letter-spacing: 1px;
-            transition: 0.2s;
-        }
-        .btn-secondary:hover { color: white; border-color: var(--cognis-gold); }
+        /* INTRO: ELEVATOR TEST */
+        .floor-indicator { position: absolute; left: 10px; border-left: 2px solid #cbd5e0; padding-left: 10px; color: #94a3b8; font-weight: 800; font-size: 0.7rem; }
+        .block-f { width: 50px; height: 40px; background: var(--cognis-blue); border: 2px solid white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; position: absolute; }
+        .support-hidden { background: #e5e7eb; border: 1px dashed #cbd5e0; color: #94a3b8; }
+
+        /* PROGRESSING: BLUEPRINT */
+        .blueprint-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 5px; background: #f1f5f9; padding: 10px; border-radius: 8px; border: 2px solid var(--cognis-blue); }
+        .blueprint-cell { width: 50px; height: 50px; background: white; border: 1px solid #cbd5e0; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--cognis-gold); font-size: 1.2rem; }
+
+        /* SUPPLEMENTAL: ISOMETRIC LAB */
+        .anatomy-display-s { background: #1a202c; padding: 20px; border-radius: 12px; text-align: center; }
+        #s-stack-svg { width: 100%; max-width: 450px; height: 350px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); }
+        .cube-top { fill: var(--cognis-gold); stroke: #fff; stroke-width: 1; transition: opacity 0.3s; }
+        .cube-left { fill: #b58d4a; stroke: #fff; stroke-width: 1; transition: opacity 0.3s; }
+        .cube-right { fill: #8e6c38; stroke: #fff; stroke-width: 1; transition: opacity 0.3s; }
+        .xray-s .cube-top, .xray-s .cube-left, .xray-s .cube-right { opacity: 0.15; }
+        .xray-s .hidden-marker { fill: #ef4444 !important; opacity: 1 !important; stroke: #fff; stroke-width: 2; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(51));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 51: Block Counting</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 51: 3D Block Counting</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Tower Elevator Test</h2>
+            <p>Imagine 3D blocks behave exactly like apartment rooms inside a high-rise building. Because gravity is always active, a room cannot physically sit on Floor 3 unless there is a Floor 1 and a Floor 2 locked directly beneath it to hold it up. Even when the lowest support rooms are completely blocked from view, they <b>must</b> exist in space.</p>
+            
+            <div class="parent-script">
+                "Look closely at our single golden block sitting way up on Floor 3. Right now, it appears to be floating in thin air! To make this tower structurally realistic, we must include its hidden foundation support. Click 'Reveal Foundation Support' to uncover the hidden background blocks that allow our tower to stand upright."
+            </div>
+
+            <div class="viz-container">
+                <div style="position:relative; width:200px; height:240px;">
+                    <div class="floor-indicator" style="bottom:10px;">FLOOR 1</div>
+                    <div class="floor-indicator" style="bottom:50px;">FLOOR 2</div>
+                    <div class="floor-indicator" style="bottom:90px;">FLOOR 3</div>
+                    
+                    <div class="block-f" style="bottom:90px; left:75px; background:var(--cognis-gold);">3</div>
+                    <div id="support-2" class="block-f support-hidden" style="bottom:50px; left:75px; opacity:0;">2</div>
+                    <div id="support-1" class="block-f support-hidden" style="bottom:10px; left:75px; opacity:0;">1</div>
+                </div>
+                <button class="btn-action" onclick="runIntroSupport()">Reveal Foundation Support</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">A block on Floor 3 needs 2 supports.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Bird's-Eye Grid Map</h2>
+            <p>To count blocks calmly without losing your place, focus exclusively on the <b>Rooftops</b>. If we map out the specific floor height value of every independent vertical stack on a flat grid card, we can simply add those integers together. This is just like evaluating a mini-city layout from a bird's-eye perspective.</p>
+            
+            <div class="parent-script">
+                "Study this cluster of stacked blocks. Let's sketch a grid map of its heights. This pillar measures 3 levels high, that front unit measures 1 level high, and our tall anchor unit rises 4 levels high. Click 'Map Roof Heights' to translate these 3D objects into flat grid values. Adding 3 + 1 + 4 is vastly quicker and cleaner than trying to guess every hidden cube!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:40px; align-items:center;">
+                    <div style="font-size: 3rem;">MAPPED ROOFS 🏘️</div>
+                    <div style="font-size: 2rem;">&rarr;</div>
+                    <div class="blueprint-grid" id="blueprint-cont">
+                        <div class="blueprint-cell">3</div><div class="blueprint-cell">0</div><div class="blueprint-cell">0</div>
+                        <div class="blueprint-cell">1</div><div class="blueprint-cell">4</div><div class="blueprint-cell">0</div>
+                        <div class="blueprint-cell">0</div><div class="blueprint-cell">0</div><div class="blueprint-cell">0</div>
+                    </div>
+                </div>
+                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Total Block Volume: <span id="blueprint-total">8</span></div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Numbers are the secret to 3D counting.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"Invisible Foundations."</b> In the 11+, you are shown a 3D stack of blocks and asked: <i>"How many blocks are here total?"</i> The secret weapon is realizing that <b>Gravity never sleeps</b>. If you see a block sitting on the 3rd floor, there must be two blocks hiding directly beneath it to hold it up. Success isn't about counting what you see—it's about deducing what <i>must</i> be there for the tower to stand.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Simple L-Stack</b>
-                "Count the blocks in a 2-level stack. Don't forget the one hiding in the corner!"
-            </div>
-            <div class="tier-card">
-                <b>The 3x3 Grid</b>
-                "A corner column is 3 blocks high. How many 'ghost' blocks are supporting the top one?"
-            </div>
-            <div class="tier-card">
-                <b>The Skyline Challenge</b>
-                "Calculate the total volume of an irregular building where some columns are completely out of sight."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Volumetric Scanner</b>. Below is a random stack of blocks. To the naked eye, it looks like a single surface. Click <b>"Toggle X-Ray Vision"</b> to reveal the red "Support Blocks." These are the blocks required by physics to exist, even though they are hidden behind their neighbors. Notice that the total count always includes these red foundations.</p>
-        
-        <div class="anatomy-display">
-            <svg id="stack-svg" viewBox="0 0 400 400"></svg>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the generator to build new structures. Ask your child to guess the total count first, then use the <b>X-Ray</b> to check their work. Watch the <b>Trace Log</b> as it performs a "Column Audit"—counting the height of every stack from the roof down to the floor.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <button class="btn-action" onclick="toggleXRay()">Toggle X-Ray Vision</button>
-                <button class="btn-secondary" onclick="render()">Build New Stack</button>
-            </div>
-            <div class="trace-log" id="trace-51">Scanning for hidden support...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Face-Value" Trap:</strong> Most children count visible "diamond" faces. Because a single corner block on the top level shows 3 different faces (Top, Left, and Right), they often count that one block three times! This leads to a massive overcount.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Approach block-stacking challenges by searching out <b>"Invisible Foundations."</b> Gravity is a fixed physical constraint. If a target cube sits exposed on layer three, two structural blocks <i>must</i> reside hidden inside the layout below it. Winning non-verbal reasoning marks isn't about haphazardly counting visible surface panel faces—it is about correctly deducing the total hidden volume required to sustain the building framework.</p>
             
-            <p><strong>The Insider Fix: The "Roof Tally" Rule.</strong> Tell your child: <i>"Only count the roofs."</i> They should pick one top-facing gold diamond and ask: <i>"What floor is this on?"</i> If it's on floor 4, that counts as 4 blocks. They should write "4" on that diamond, then move to the next gold roof. <b>Summing the floor numbers of the roofs is the only way to never double-count.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Level-2 L-Stack:</b> Audit a stacked block array. Ensure your student accounts for the shared corner support element tucked out of view!</div>
+                <div class="tier-card"><b>The Three-Tier Column:</b> A standalone pillar rises 3 blocks high. How many background foundation blocks hide directly behind neighboring units to brace the apex?</div>
+                <div class="tier-card"><b>The Irregular Skyline:</b> Calculate the exact structural volume of an asymmetrical cube matrix packed with hidden baseline columns.</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Volumetric Breakdown Lab</h2>
+            <p>Welcome to our interactive <b>Volumetric Breakdown Lab</b>. Toggle our X-Ray lens tool below to illuminate all hidden foundation <b>Support Blocks</b> in bright Red. These elements form the critical structural pillars buried directly behind front-facing neighbors. Notice how the absolute calculation totals must always integrate these hidden items.</p>
+            <div class="anatomy-display-s">
+                <svg id="s-stack-svg" viewBox="0 0 400 400"></svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Architectural Stack Generator</h2>
+            <p style="margin-bottom: 20px;">Generate a random block model below. Estimate the volume count mentally, then activate our scanner to verify hidden columns. Our simulator executes an automated column height verification step, tracking values smoothly from the floor to each rooftop.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Calibrate Internal Scanning Matrix</label>
+                    <button class="btn-action" style="width:100%;" onclick="toggleSuppXRay()">Toggle X-Ray Lens Vision</button>
+                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="renderSupp()">Generate Random Stack Model</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <h3>The "Surface Face-Value" Overcounting Trap</h3>
+                <p>Children working quickly frequently fall victim to counting every single visible diamond face panel they spot. An individual corner block sticking out from the stack exposes 3 separate face directions simultaneously (its Top, its Left, and its Right). Tallying every face creates a massive overcount!</p>
+                <p><b>The Easy Fix: Practice the Rooftop Floor Tally Method.</b> Train your student with this shortcut rule: <i>"Isolate only the topmost roof diamonds."</i> Select one golden top face. Ask explicitly: <i>"Which floor level does this specific column rise to?"</i> Write that height integer directly over the diamond face. <b>Summing up the floor numbers of the roofs completely prevents double-counting.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(51)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(51)">Complete Module & Update Lattice</button>
-
 <script>
-    function drawCube(svg, x, y, z, isHidden) {
-        const isoX = 200 + (x - y) * 40;
-        const isoY = 220 + (x + y) * 22 - z * 45;
-        
-        const top = `M${isoX},${isoY-45} l40,22 l-40,22 l-40,-22 z`;
-        const left = `M${isoX-40},${isoY-23} l0,45 l40,22 l0,-45 z`;
-        const right = `M${isoX},${isoY-1} l0,45 l40,-22 l0,-45 z`;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        
-        group.innerHTML = `
-            <path d="${top}" class="cube-top ${isHidden ? 'hidden-marker' : ''}" />
-            <path d="${left}" class="cube-left ${isHidden ? 'hidden-marker' : ''}" />
-            <path d="${right}" class="cube-right ${isHidden ? 'hidden-marker' : ''}" />
-        `;
-        svg.appendChild(group);
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Spatial Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function render() {
-        const svg = document.getElementById('stack-svg');
-        svg.innerHTML = '';
-        let total = 0, hidden = 0;
-        
-        const grid = [];
-        for(let x=0; x<3; x++) {
-            grid[x] = [];
-            for(let y=0; y<3; y++) {
-                grid[x][y] = Math.floor(Math.random() * 4) + 1;
-            }
-        }
+    /* --- INTRO: SUPPORTS --- */
+    function runIntroSupport() {
+        document.getElementById('support-1').style.opacity = '1';
+        document.getElementById('support-2').style.opacity = '1';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Foundation bracing confirmed! The column tower is verified at exactly 3 blocks tall.</div>`;
+    }
+    function resetIntro() { location.reload(); }
 
-        for(let x=0; x<3; x++) {
-            for(let y=0; y<3; y++) {
-                let h = grid[x][y];
-                total += h;
+    /* --- SUPPLEMENTAL: ISOMETRIC --- */
+    function drawSuppCube(svg, x, y, z, isHidden) {
+        const isoX = 200 + (x - y) * 35;
+        const isoY = 220 + (x + y) * 20 - z * 40;
+        const top = `M${isoX},${isoY-40} l35,20 l-35,20 l-35,-20 z`;
+        const left = `M${isoX-35},${isoY-20} l0,40 l35,20 l0,-40 z`;
+        const right = `M${isoX},${isoY} l0,40 l35,-20 l0,-40 z`;
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.innerHTML = `<path d="${top}" class="cube-top ${isHidden?'hidden-marker':''}"/>
+                       <path d="${left}" class="cube-left ${isHidden?'hidden-marker':''}"/>
+                       <path d="${right}" class="cube-right ${isHidden?'hidden-marker':''}"/>`;
+        svg.appendChild(g);
+    }
+
+    function renderSupp() {
+        const svg = document.getElementById('s-stack-svg'); if(!svg) return;
+        svg.innerHTML = ''; let total = 0, hidden = 0;
+        const grid = [[],[],[]];
+        for(let x=0; x<3; x++){
+            for(let y=0; y<3; y++){
+                let h = Math.floor(Math.random()*4)+1;
+                grid[x][y] = h; total += h;
                 for(let z=0; z<h; z++) {
-                    let isUnder = (z < h - 1);
+                    let isUnder = (z < h-1);
                     if(isUnder) hidden++;
-                    drawCube(svg, x, y, z, isUnder);
+                    drawSuppCube(svg, x, y, z, isUnder);
                 }
             }
         }
-
-        document.getElementById('trace-51').innerHTML = `
-            <div class="trace-step">→ 1. Total Volume: <b>${total} Blocks</b></div>
-            <div class="trace-step">→ 2. Visible Roofs: <b>9 Gold Surfaces</b></div>
-            <div class="trace-step">→ 3. Red Foundation Blocks: <b style="color:#f87171">${hidden}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → AUDIT: ${total} blocks confirmed (Roofs + Foundations).
-            </div>
-        `;
+        document.getElementById('supp-log').innerHTML = `&rarr; Audit Foundation Support Log: <br>&bull; Surface Scan: 9 visible roofs mapped.<br>&bull; Adjacency Logic: Structural foundations required = <b>${hidden} hidden units</b>.<br>&rarr; <b>Total Calculated Stack Volume: ${total} Blocks</b>`;
     }
 
-    function toggleXRay() {
-        document.getElementById('stack-svg').classList.toggle('xray');
-    }
+    function toggleSuppXRay() { document.getElementById('s-stack-svg').classList.toggle('xray-s'); }
 
-    window.onload = render;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-stack-svg')) renderSupp();
+        if(typeof initModule === "function") initModule(51);
+    });
 </script>
-
 </body>
 </html>

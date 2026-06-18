@@ -363,7 +363,7 @@ function ProfileHubCore() {
                   !isCourseEnrolled ? 'bg-amber-50 text-amber-800 border border-amber-200 animate-pulse' :
                   isCoursePaying ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-50 text-slate-500 border border-slate-200'
                 }`}>
-                  {!isCourseEnrolled ? 'Unenrolled' : isCoursePaying ? 'Premium Support Active' : 'Free Core Access'}
+                  {!isCourseEnrolled ? 'Unenrolled' : isCoursePaying ? 'Supporter Active' : 'Free Core Access'}
                 </span>
               </div>
 
@@ -443,7 +443,7 @@ function ProfileHubCore() {
                     disabled={isProcessingAction} 
                     className="w-full bg-white border border-[#E5E3DD] hover:border-amber-500 text-amber-800 text-[10px] font-bold uppercase tracking-wider py-2.5 rounded-lg transition-all text-center"
                   >
-                    Upgrade to Optional Premium Support (£5/mo)
+                    Help us help more parents and kids (£5/mo)
                   </button>
                 )}
               </div>

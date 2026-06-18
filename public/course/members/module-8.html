@@ -3,221 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 8: Fractions of Amounts | Cognis 11+</title>
+    <title>Module 8: Fractions of an Amount | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR DYNAMIC FRACTION BAR */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 40px; 
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 2px solid #e2e8f0;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .fraction-bar-container {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 360px; position: relative;
         }
 
-        .bar-frame {
-            width: 100%;
-            height: 60px;
-            background: white;
-            border: 3px solid var(--cognis-blue);
-            border-radius: 10px;
-            display: flex;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🍕'; }
 
-        .slice {
-            flex: 1;
-            height: 100%;
-            border-right: 1px solid #cbd5e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 900;
-            color: #94a3b8;
-            transition: all 0.3s ease;
-        }
-        .slice:last-child { border-right: none; }
+        /* INTRO: PIZZA CUTTER */
+        .pizza-slice { stroke: #fff; stroke-width: 2; transition: fill 0.3s; }
+        .pizza-crust { fill: #d97706; stroke: #92400e; stroke-width: 2; }
 
-        .slice.active {
-            background: var(--cognis-gold);
-            color: white;
-        }
+        /* PROGRESSING: TREASURE CHESTS */
+        .chest { fill: #78350f; stroke: #451a03; stroke-width: 2; transition: all 0.3s; }
+        .chest-open { fill: #fbbf24; stroke: #b45309; filter: drop-shadow(0 4px 6px rgba(251, 191, 36, 0.4)); }
 
-        .label-row {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 900;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--cognis-blue);
-        }
+        /* SUPPLEMENTAL: FRACTION BAR */
+        .bar-frame-s { width: 100%; max-width: 500px; height: 50px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; overflow: hidden; }
+        .slice-s { flex: 1; height: 100%; border-right: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; color: #94a3b8; transition: all 0.3s; }
+        .slice-s.active { background: var(--cognis-gold); color: white; }
 
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        input[type=number], input[type=range] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #4a5568;
-            background: #2d3748;
-            color: white;
-            font-weight: 800;
-            margin-top: 5px;
-        }
-
-        input[type=range] { accent-color: var(--cognis-gold); cursor: pointer; }
-
-        .control-group label { 
-            display: flex; 
-            justify-content: space-between; 
-            font-weight: 800 !important; 
-        }
-        .val-display { color: var(--cognis-gold); }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .val-display { color: var(--cognis-gold); font-weight: 800; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(8));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 8: Fractions of Amounts</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 8: Fractions of an Amount</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Pizza Sharing Rule</h2>
+            <p>Fractions are really just simple rules for sharing out a pizza fairly. The <b>Bottom Number</b> acts like a knife, showing you exactly how many equal slices to cut. The <b>Top Number</b> acts like your hand, telling you how many of those slices you get to place onto your plate.</p>
+            
+            <div class="parent-script">
+                "Imagine we have one large, fresh pizza. If we want to find 3/4 of it, we first use our 'Bottom Knife' slider to divide it into 4 equal slices. Then, we use our 'Top Hand' slider to pick up 3 of those pieces. Look at how beautifully the fraction matches our meal on the screen!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="250" height="250" viewBox="0 0 250 250" id="intro-svg">
+                    <circle cx="125" cy="125" r="105" class="pizza-crust" />
+                    <g id="pizza-slices"></g>
+                </svg>
+                <div id="intro-fraction-label" style="font-size: 2rem; font-weight: 800; color: var(--cognis-blue); margin-top: 10px;">3/4</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Slices to Cut (Bottom Number)</label>
+                        <input type="range" min="2" max="8" value="4" id="intro-d" oninput="updateIntro()">
+                        <div class="val-out" id="intro-d-val">4 slices</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Slices to Take (Top Number)</label>
+                        <input type="range" min="1" max="8" value="3" id="intro-n" oninput="updateIntro()">
+                        <div class="val-out" id="intro-n-val">3 slices</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log"></div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Secret Treasure Boxes</h2>
+            <p>When we are sharing out money instead of food, we don't use a kitchen knife. Instead, we divide the total sum into <b>Equal Treasure Chests</b>. To discover 2/5 of £100, we start by splitting our full £100 across 5 individual chests. Once we see how much money sits inside 1 single chest, we just collect the 2 chests we are allowed to take.</p>
+            
+            <div class="parent-script">
+                "Imagine we have a grand pile of £100. Our target fraction is 2/5, which means we must set up 5 separate treasure boxes. Let's look inside just one single box first—it holds exactly £20! Because our top number tells us to take 2 boxes, we pick up two chests to reveal our final total of £40."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150" id="prog-svg"></svg>
+                <div id="prog-unit-label" style="margin-top:15px; font-weight:800; color:var(--cognis-blue);">1 Chest = £20</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Total Gold Coins (£)</label>
+                        <input type="range" min="20" max="500" step="20" value="100" id="prog-total" oninput="updateProg()">
+                        <div class="val-out" id="prog-total-val">£100</div>
+                    </div>
+                    <div class="control-group">
+                        <label>Fraction Shares (Top / Bottom)</label>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="number" id="prog-n" value="2" style="width:50px; background:var(--engine-input); color:white; border:none; padding:8px; border-radius:6px; font-weight:800;" oninput="updateProg()">
+                            <span style="color:white; font-size:1.2rem; font-weight:800;">/</span>
+                            <input type="number" id="prog-d" value="5" style="width:50px; background:var(--engine-input); color:white; border:none; padding:8px; border-radius:6px; font-weight:800;" oninput="updateProg()">
+                        </div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('8-p')">Complete Progressing Step</button>
+            </div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of a fraction as two simple instructions: <b>Slice and Collect</b>. The bottom number tells you how many equal slices to cut your total into. The top number tells you how many of those slices to put on your plate. To solve any 11+ fraction problem, we always find the "weight" of <b>just one slice</b> first.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Sweet Shop</b>
-                "Find 1/2 of 12 sweets. How many go into each of the two groups?"
-            </div>
-            <div class="tier-card">
-                <b>The Birthday Cake</b>
-                "A cake weighs 500g and is cut into 5 slices. If 3 are eaten, how much did they weigh?"
-            </div>
-            <div class="tier-card">
-                <b>The Long Run</b>
-                "A 40km race is 5/8 complete. How many km are left? (Hint: Find the 3/8 left over)."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>The <b>Cutter and the Plate</b>. Point to the bar below. The lines show where the "Cutter" (the bottom number) has sliced the total into equal boxes. Each box—our <b>Golden Unit</b>—holds the same value. To find that value, we divide the grand total by the number of boxes.</p>
-        
-        <div class="anatomy-display">
-            <div class="fraction-bar-container">
-                <div class="bar-frame" id="viz-bar">
-                    </div>
-                <div class="label-row">
-                    <span>Value of 1 Box: <span id="unit-label">£25</span></span>
-                    <span style="color:var(--cognis-gold)">Total Collected: <span id="total-label">£75</span></span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Move the sliders with your child and watch the "Cutter" (Denominator) change the size of the boxes. Then, use the "Collector" (Numerator) to grab the boxes you want. Notice we always <b>divide</b> to find one box before we <b>multiply</b> to get the total.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Grand Total (£):</label>
-                    <input type="number" id="amt-in" value="100" oninput="run8()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label>The Cutter (Bottom): <span class="val-display" id="d-disp">4</span></label>
-                    <input type="range" id="d-in" min="2" max="12" value="4" oninput="run8()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label>The Collector (Top): <span class="val-display" id="n-disp">3</span></label>
-                    <input type="range" id="n-in" min="1" max="12" value="3" oninput="run8()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-8">Awaiting instructions...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Upside-Down" Mistake:</strong> Children often try to divide the total by the top number because it's usually the first one they see in the sentence. This leads to massive, confusing numbers.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Every fraction in a word problem boils down to a two-step game: <b>Cut and Collect</b>. The bottom value shows you how many equal blocks to slice your total into. The top value shows you exactly how many of those blocks to scoop up onto your plate. To solve any fraction puzzle under exam pressure, always track down the value of **just one single block** first.</p>
             
-            <p><strong>The Fix: The "Knife and Hand" Rule.</strong> Remind your child: "The bottom number is the <b>Knife</b>; it cuts the total into pieces. The top number is the <b>Hand</b>; it picks them up." We always <b>Divide by the Bottom</b> and <b>Multiply by the Top</b>. If the answer looks bigger than the starting total, the fraction has gone upside down!</p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>Starting Level:</b> "Find 1/2 of 12 luxury sweets. How many sweets end up in each of the two groups?"</div>
+                <div class="tier-card"><b>Intermediate Level:</b> "A birthday cake weighs 500g and is cut into 5 equal portions. If 3 portions are eaten, what is the combined mass of the missing cake?"</div>
+                <div class="tier-card"><b>Advanced Level:</b> "A challenging 40km cross-country race is 5/8 complete. How many kilometers are left to run?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Sharing Bar</h2>
+            <p>Think of fractions as a simple balancing line. Look at the partitioned bar below. The dividing lines reveal where our "Knife" (the bottom number) has chopped our grand total into uniform blocks. Every single box contains the exact same value. To find that individual amount, we divide the full total by our total number of blocks.</p>
+            <div class="anatomy-display">
+                <div class="bar-frame-s" id="supp-bar"></div>
+                <div style="display:flex; justify-content:space-between; width:100%; max-width:500px; margin-top:15px; font-weight:800; color:var(--cognis-blue); font-size:0.75rem;">
+                    <span id="supp-unit-label">1 Box: £25</span>
+                    <span id="supp-total-label" style="color:var(--cognis-gold);">Total Collected: £75</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Ultimate Fraction Tool</h2>
+            <p style="margin-bottom: 20px;">Use the "Knife" slider to set the total blocks, and use the "Collector" slider to take them. Watch the tracker notes change to see why finding "one block value" makes the rest of the problem effortless.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Grand Total Amount (£)</label><input type="number" id="in-v" value="100"></div>
+                    <div class="control-group"><label>The Knife (Total Cuts on Bottom)</label><input type="range" id="in-d" min="2" max="12" value="4" oninput="runSupp()"></div>
+                    <div class="control-group"><label>The Collector (Portions Taken on Top)</label><input type="range" id="in-n" min="1" max="12" value="3" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Upside-Down" Trap:</b> Rushed children often try to divide the grand total by the top number simply because it is the very first digit they scan on the page. This leads to confusingly massive answers.</p>
+                <p><b>The Easy Fix: The "Knife and Hand" Rule.</b> Remind your child: the bottom number is the <b>Knife</b> (we divide by it). The top number is the <b>Hand</b> (we multiply by it). Always cut down to find one piece first. If the final answer looks larger than the starting amount, your fraction rule has gone upside down!</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(8)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(8)">Complete Module & Update Lattice</button>
-
 <script>
-    function run8() {
-        const total = parseFloat(document.getElementById('amt-in').value) || 0;
-        const den = parseInt(document.getElementById('d-in').value);
-        let num = parseInt(document.getElementById('n-in').value);
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        // Cap numerator to denominator for visual sanity
-        if (num > den) {
-            num = den;
-            document.getElementById('n-in').value = num;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Fractions)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: PIZZA CUTTER --- */
+    function updateIntro() {
+        const d = parseInt(document.getElementById('intro-d').value);
+        let n = parseInt(document.getElementById('intro-n').value);
+        if (n > d) { n = d; document.getElementById('intro-n').value = n; }
+        
+        document.getElementById('intro-d-val').innerText = d + " slices";
+        document.getElementById('intro-n-val').innerText = n + " slices";
+        document.getElementById('intro-fraction-label').innerText = `${n}/${d}`;
+
+        const g = document.getElementById('pizza-slices');
+        g.innerHTML = '';
+        const centerX = 125, centerY = 125, radius = 100;
+
+        for (let i = 0; i < d; i++) {
+            const startAngle = (i * 2 * Math.PI) / d - Math.PI / 2;
+            const endAngle = ((i + 1) * 2 * Math.PI) / d - Math.PI / 2;
+            const x1 = centerX + radius * Math.cos(startAngle);
+            const y1 = centerY + radius * Math.sin(startAngle);
+            const x2 = centerX + radius * Math.cos(endAngle);
+            const y2 = centerY + radius * Math.sin(endAngle);
+
+            const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`;
+            const color = i < n ? '#f59e0b' : '#fffbeb';
+            g.innerHTML += `<path d="${pathData}" class="pizza-slice" fill="${color}" />`;
         }
 
-        // Update Labels
-        document.getElementById('d-disp').innerText = den;
-        document.getElementById('n-disp').innerText = num;
-
-        // Logic
-        const unitVal = total / den;
-        const finalVal = unitVal * num;
-
-        // Update Anatomy
-        const bar = document.getElementById('viz-bar');
-        bar.innerHTML = '';
-        for(let i=0; i < den; i++) {
-            const slice = document.createElement('div');
-            slice.className = i < num ? 'slice active' : 'slice';
-            slice.innerText = "£" + unitVal.toFixed(0);
-            bar.appendChild(slice);
-        }
-
-        document.getElementById('unit-label').innerText = "£" + unitVal.toFixed(2);
-        document.getElementById('total-label').innerText = "£" + finalVal.toFixed(2);
-
-        // Trace Output
-        document.getElementById('trace-8').innerHTML = `
-            <div class="trace-step">→ 1. The Cut: Divide £${total} by the bottom number (${den})</div>
-            <div class="trace-step">→ 2. One Box Found: <b>£${unitVal.toFixed(2)}</b></div>
-            <div class="trace-step">→ 3. The Collection: Multiply by the top number (${num})</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → FINAL RESULT: £${finalVal.toFixed(2)}
-            </div>
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">Our Knife successfully cut the pizza into <b>${d}</b> equal pieces.</div>
+            <div class="discovery-step">Our Hand safely took away <b>${n}</b> of those portions!</div>
         `;
     }
 
-    window.onload = run8;
-</script>
+    /* --- PROGRESSING: TREASURE --- */
+    function updateProg() {
+        const tot = parseInt(document.getElementById('prog-total').value);
+        const d = parseInt(document.getElementById('prog-d').value) || 1;
+        const n = parseInt(document.getElementById('prog-n').value) || 0;
+        
+        document.getElementById('prog-total-val').innerText = '£' + tot;
+        const unit = tot / d;
+        const final = unit * n;
 
+        const svg = document.getElementById('prog-svg');
+        svg.innerHTML = '';
+        const chestW = 40, gap = 10;
+        const startX = (400 - (d * (chestW + gap))) / 2;
+
+        for(let i=0; i<d; i++) {
+            const active = i < n;
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            g.innerHTML = `
+                <rect x="${startX + i*(chestW+gap)}" y="50" width="${chestW}" height="30" rx="4" class="chest ${active ? 'chest-open' : ''}" />
+                <path d="M${startX + i*(chestW+gap)},50 L${startX + i*(chestW+gap)+chestW},50 L${startX + i*(chestW+gap)+chestW/2},40 Z" fill="#451a03" />
+                <text x="${startX + i*(chestW+gap)+chestW/2}" y="100" text-anchor="middle" font-size="10" font-weight="900" fill="#1b3a5c">£${unit.toFixed(0)}</text>
+            `;
+            svg.appendChild(g);
+        }
+
+        document.getElementById('prog-unit-label').innerText = `1 Chest = £${unit.toFixed(2)}`;
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">Divide £${tot} across <b>${d}</b> total chests = <b>£${unit.toFixed(2)}</b> in each box.</div>
+            <div class="discovery-step">Collect <b>${n}</b> of those chests together = <b>£${final.toFixed(2)}</b> total value.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const v = parseFloat(document.getElementById('in-v').value) || 0;
+        const d = parseInt(document.getElementById('in-d').value);
+        let n = parseInt(document.getElementById('in-n').value);
+        if (n > d) { n = d; document.getElementById('in-n').value = n; }
+
+        const unit = v / d;
+        const total = unit * n;
+
+        const bar = document.getElementById('supp-bar');
+        bar.innerHTML = '';
+        for(let i=0; i<d; i++) {
+            const div = document.createElement('div');
+            div.className = `slice-s ${i < n ? 'active' : ''}`;
+            div.innerText = '£' + unit.toFixed(0);
+            bar.appendChild(div);
+        }
+
+        document.getElementById('supp-unit-label').innerText = `1 Box: £${unit.toFixed(2)}`;
+        document.getElementById('supp-total-label').innerText = `Total Collected: £${total.toFixed(2)}`;
+
+        document.getElementById('supp-log').innerHTML = `
+            → 1. The Knife Step: £${v} ÷ ${d} blocks = <b>£${unit.toFixed(2)}</b> per box<br>
+            → 2. The Collector Step: £${unit.toFixed(2)} × ${n} boxes taken<br>
+            → 3. Final Collected Value: <b>£${total.toFixed(2)}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro(); updateProg();
+        if(document.getElementById('in-v')) {
+            runSupp();
+            document.getElementById('in-v').oninput = runSupp;
+        }
+        if(typeof initModule === "function") initModule(8);
+    });
+</script>
 </body>
 </html>

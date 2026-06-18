@@ -3,215 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 49: Rotated Cubes | Cognis 11+</title>
+    <title>Module 49: 3D Cube Rotations | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR 3D CUBE SIMULATION */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 80px 40px; 
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #2d3748;
-            perspective: 1000px;
-            min-height: 400px;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .cube-viewport {
-            width: 120px;
-            height: 120px;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 450px; position: relative;
+            overflow: hidden;
         }
 
-        .face {
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 3px solid rgba(255,255,255,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            font-weight: 900;
-            backface-visibility: visible;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📦'; }
 
-        /* Symbol Mapping & Faces */
-        .f-front  { transform: rotateY(0deg) translateZ(60px); background: var(--cognis-gold); color: #1a202c; }
-        .f-back   { transform: rotateY(180deg) translateZ(60px); background: #3182ce; color: white; }
-        .f-right  { transform: rotateY(90deg) translateZ(60px); background: #48bb78; color: white; }
-        .f-left   { transform: rotateY(-90deg) translateZ(60px); background: #e53e3e; color: white; }
-        .f-top    { transform: rotateX(90deg) translateZ(60px); background: #f6ad55; color: white; }
-        .f-bottom { transform: rotateX(-90deg) translateZ(60px); background: #805ad5; color: white; }
+        /* INTRO: ANCHOR CHECK */
+        .intro-cube-view { width: 120px; height: 120px; border: 4px solid var(--cognis-blue); background: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: 900; color: var(--cognis-blue); transition: all 0.6s; border-radius: 12px; }
+        .neighbor-box { width: 40px; height: 40px; border: 2px solid #cbd5e0; background: #f8fafc; display: flex; align-items: center; justify-content: center; font-weight: 800; border-radius: 4px; }
 
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        .spin-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
+        /* PROGRESSING: OPPOSITES */
+        .opposite-shield { width: 100px; height: 100px; background: var(--cognis-gold); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 2rem; position: relative; }
+        .shield-ghost { position: absolute; top: 20px; left: 20px; width: 100px; height: 100px; background: rgba(0,0,0,0.05); border: 2px dashed #cbd5e0; z-index: -1; border-radius: 8px; }
 
-        .btn-spin {
-            background: #2d3748;
-            border: 1px solid #4a5568;
-            color: #a0aec0;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            transition: 0.2s;
-            text-align: left;
-            display: flex;
-            justify-content: space-between;
-        }
-        .btn-spin:hover { color: white; border-color: var(--cognis-gold); }
-        .btn-spin span { color: var(--cognis-gold); }
+        /* SUPPLEMENTAL: 3D LAB */
+        .cube-viewport-s { width: 120px; height: 120px; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .face-s { position: absolute; width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; backface-visibility: visible; }
+        .f-front-s { transform: rotateY(0deg) translateZ(60px); background: var(--cognis-gold); color: #1a202c; }
+        .f-back-s { transform: rotateY(180deg) translateZ(60px); background: #3182ce; color: white; }
+        .f-right-s { transform: rotateY(90deg) translateZ(60px); background: #48bb78; color: white; }
+        .f-left-s { transform: rotateY(-90deg) translateZ(60px); background: #e53e3e; color: white; }
+        .f-top-s { transform: rotateX(90deg) translateZ(60px); background: #f6ad55; color: white; }
+        .f-bot-s { transform: rotateX(-90deg) translateZ(60px); background: #805ad5; color: white; }
 
-        .btn-reset {
-            background: transparent;
-            color: #718096;
-            border: 1px solid #4a5568;
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            font-weight: 800;
-            width: 100%;
-        }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .spin-grid-s { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; }
+        .btn-spin-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; text-transform: uppercase; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; }
+        .btn-spin-s:hover { color: white; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(49));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 49: Rotated Cubes</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 49: 3D Cube Rotations</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Anchor Face Strategy</h2>
+            <p>To keep clear track of a solid block as it rolls through space, your child must select a visual <b>Anchor Face</b>. This represents the one specific target pattern you can see both before and after the object changes positions. By locking your attention onto this anchor, you can watch all neighboring symbols pivot around it like moons orbiting a planet.</p>
+            
+            <div class="parent-script">
+                "Look closely at our prominent Star face. It serves as our anchor landmark. Resting right next door to it is a Triangle. Click 'Spin the Block' below. Notice that our Star remains fully visible, but the Triangle has now rolled around onto the front face. The actual positioning relationship between the Star and Triangle never changed at all—only our point of view did!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div id="intro-anchor" class="intro-cube-view">★</div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <div class="neighbor-box" id="n-1">▲</div>
+                        <div class="neighbor-box" id="n-2">■</div>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runIntroSpin()">Spin the Block</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Anchor Face</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">The Star is our anchor face.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Hiding Parallel Face</h2>
+            <p>In eleven-plus non-verbal spatial tests, you must constantly rely on the <b>Law of Absolute Opposites</b>. Every face on a cube possesses a fixed partner panel hiding on the exact opposite side. Because they are arranged completely back-to-back, it is physically impossible to view them at the same time.</p>
+            
+            <div class="parent-script">
+                "Examine this golden face labeled 'A'. Its parallel matching partner 'B' is positioned directly behind it at the rear of the block. Click 'Audit Opposite Logic'. Notice how 'B' stays locked out of sight? If an answer option on your worksheet shows panels A and B crowded next to each other, you instantly know it's a fake decoy. Opposite faces can never share a border!"
+            </div>
+
+            <div class="viz-container">
+                <div class="opposite-shield">A <div class="shield-ghost">B</div></div>
+                <div style="margin-top:40px; font-weight:800; color:var(--cognis-blue);">Rule: A and B can never touch.</div>
+                <button class="btn-action" onclick="showOppLogic()">Audit Opposite Logic</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Identify the partners to eliminate decoys.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"3D Tracking."</b> In the 11+, examiners show a cube and then ask you to find it again after it’s been spun like a top or flipped over. The secret weapon is <b>Adjacency Logic</b>. Since you only ever see three faces at once, your child must pick an "Anchor" face and track its neighbors. If the Star is directly above the Circle in the original, it will stay above the Circle no matter how much you spin it horizontally.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Horizontal Spin</b>
-                "Identify the cube after one 90° turn to the right. Which side face becomes the front?"
-            </div>
-            <div class="tier-card">
-                <b>The Adjacency Audit</b>
-                "Find the 'Impossible Neighbor'—a face that is opposite the anchor but is shown touching it."
-            </div>
-            <div class="tier-card">
-                <b>The Orientation Trap</b>
-                "Does the arrow point toward the Star or away from it after a 180° flip?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Spatial Matrix</b>. Use the controls below to spin the cube. Notice how the relationship between faces is "Fixed." Even when symbols move to the top or side, they keep the same neighbors. Help your child visualize the "Back" and "Bottom" faces that are currently hidden—this mental X-ray is the key to 11+ success.</p>
-        
-        
-
-        <div class="anatomy-display">
-            <div class="cube-viewport" id="cube-element">
-                <div class="face f-front">★</div>
-                <div class="face f-back">●</div>
-                <div class="face f-right">▲</div>
-                <div class="face f-left">■</div>
-                <div class="face f-top">♦</div>
-                <div class="face f-bottom">♣</div>
-            </div>
-            <div style="margin-top: 50px; color: #94a3b8; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
-                3D Laboratory: Spin to verify adjacency
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Manipulate the cube's axes below. Watch the <b>Trace Log</b> as it tracks the exact orientation. Ask your child: <i>"If the Star (★) is on the front and we flip it up, what symbol will be on top now?"</i> This builds the spatial intuition needed for the fastest-paced NVR sections.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Rotate the Cube</label>
-                <div class="spin-grid">
-                    <button class="btn-spin" onclick="rotateCube('y', 90)">Turn Right <span>Y-Axis</span></button>
-                    <button class="btn-spin" onclick="rotateCube('x', 90)">Flip Over <span>X-Axis</span></button>
-                    <button class="btn-spin" onclick="rotateCube('z', 90)">Tilt Clockwise <span>Z-Axis</span></button>
-                </div>
-                <button class="btn-reset" onclick="resetCube()">Reset Origin</button>
-            </div>
-            <div class="trace-log" id="trace-49">Orientation mapping active...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Mirage Neighbor" Trap:</strong> Distractors often use the correct symbols but place them in impossible spots. They might show two faces touching that you know are actually <b>Opposites</b> (like the front and back of the box).</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Approach block spinning problems as practicing rapid <b>"3D Tracking Analysis."</b> Solving these puzzles accurately relies on mapping out <b>Adjacency Logic</b>. Because you are only permitted to see three face panels simultaneously from any single angle, identify a primary landmark anchor and trace its border neighbors. If a Star sits directly above a Circle icon on the original reference card, it must remain positioned above that Circle regardless of how many horizontal spins are applied.</p>
             
-            <p><strong>The Insider Fix: The "Law of Opposites."</strong> Tell your child: <i>"Opposites are shy."</i> If Symbol A and Symbol B are on opposite sides of the cube, they can <b>never</b> be seen at the same time. If a multiple-choice answer shows both, it’s a lie. Cross it out immediately and don't waste another second checking its rotation. <b>Opposites can never be neighbors.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Horizontal Pivot Track:</b> "Calculate the look of a cube after a 90-degree sideways turn. Which neighboring panel assumes the front position?"</div>
+                <div class="tier-card"><b>The Border Adjacency Audit:</b> "Spot the 'Impossible Neighbor'—a distractor choice where a confirmed back-face partner is drawn touching the anchor."</div>
+                <div class="tier-card"><b>The Directional Alignment Trap:</b> "Verify whether an internal directional arrow points directly toward the Star face after a 180-degree tumble."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Spatial Orientation Sandbox</h2>
+            <p>Welcome to our <b>Spatial Orientation Sandbox</b>. Spin the cube model below and monitor the "Fixed" positioning patterns. Even when target symbols rotate onto the top or side profiles, they preserve their fixed border relationships. Train your child to mentally "X-ray" the hidden rear and base panels of the cube to verify matches.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div class="cube-viewport-s" id="s-cube">
+                    <div class="face-s f-front-s">★</div>
+                    <div class="face-s f-back-s">●</div>
+                    <div class="face-s f-right-s">▲</div>
+                    <div class="face-s f-left-s">■</div>
+                    <div class="face-s f-top-s">♦</div>
+                    <div class="face-s f-bot-s">♣</div>
+                </div>
+                <div style="margin-top:50px; font-weight:800; color:#94a3b8; font-size:0.6rem; text-transform:uppercase;">3D Laboratory: verify adjacency</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Dynamic Rotation Matrix</h2>
+            <p style="margin-bottom: 20px;">Manipulate our structural rotation buttons below. Observe how our real-time tracking log records changes in baseline coordinates. If our front-facing Star (★) panel is flipped up vertically, which hidden symbol moves up to replace it?</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Execute 3D Spatial Rotation</label>
+                    <div class="spin-grid-s">
+                        <button class="btn-spin-s" onclick="rotateSupp('y', 90)">Turn Sideways <span>Horizontal Axis Pivot</span></button>
+                        <button class="btn-spin-s" onclick="rotateSupp('x', 90)">Tumble Forward <span>Vertical Axis Flip</span></button>
+                        <button class="btn-spin-s" onclick="rotateSupp('z', 90)">Tilt Clockwise <span>Depth Axis Lean</span></button>
+                    </div>
+                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="resetSupp()">Reset to Original Orientation</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Mirage Neighbor" Layout Trap:</b> Test designers frequently craft distractor blocks that place all the correct symbols onto the visible panels, but arrange them in impossible configurations—such as showing two known <b>Opposite Faces</b> sharing a border line (like the Front symbol and Back symbol drawn side-by-side).</p>
+                <p><b>The Easy Fix: Enforce the Law of Invisible Opposites.</b> Coach your child with this absolute strategy: <i>"True opposite faces are always hidden from each other."</i> If symbol A and symbol B sit on parallel opposite sides of the cube frame, they can <b>never</b> be caught in the same view. The very second you spot a choice displaying both together, cross it out immediately. It is an impossible layout.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(49)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(49)">Complete Module & Update Lattice</button>
-
 <script>
-    let rotX = -20, rotY = -30, rotZ = 0;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function rotateCube(axis, deg) {
-        if(axis === 'x') rotX += deg;
-        if(axis === 'y') rotY += deg;
-        if(axis === 'z') rotZ += deg;
-
-        const cube = document.getElementById('cube-element');
-        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-        updateTrace();
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Spatial Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function resetCube() {
-        rotX = -20; rotY = -30; rotZ = 0;
-        const cube = document.getElementById('cube-element');
-        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-        updateTrace();
+    /* --- INTRO: ANCHOR --- */
+    function runIntroSpin() {
+        const anchor = document.getElementById('intro-anchor');
+        anchor.style.transform = "rotateY(90deg)";
+        setTimeout(() => {
+            anchor.textContent = "▲"; anchor.style.transform = "rotateY(0deg)";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Block Spun! The Star anchor has rotated around to the <b>Left Side</b> (out of view), and our Triangle has moved straight onto the <b>Front Face</b>.</div>`;
+        }, 300);
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: SHIELD --- */
+    function showOppLogic() {
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Logic Audit Complete: If face 'A' directly addresses the front view, then face 'B' <b>must</b> occupy the back plane. Viewing both panels simultaneously is a structural impossibility!</div>`;
     }
 
-    function updateTrace() {
-        const log = document.getElementById('trace-49');
-        log.innerHTML = `
-            <div class="trace-step">→ 1. Spin (Y): ${rotY % 360}°</div>
-            <div class="trace-step">→ 2. Tilt (X): ${rotX % 360}°</div>
-            <div class="trace-step">→ 3. Lean (Z): ${rotZ % 360}°</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → STATUS: SPATIAL COORDS LOGGED
-            </div>
-            <div class="trace-step" style="font-size:0.7rem; opacity:0.7;">Check: Does the front face still hide its opposite?</div>
-        `;
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sX = -20, sY = -30, sZ = 0;
+    function rotateSupp(axis, deg) {
+        if(axis === 'x') sX += deg; if(axis === 'y') sY += deg; if(axis === 'z') sZ += deg;
+        const cube = document.getElementById('s-cube');
+        cube.style.transform = `rotateX(${sX}deg) rotateY(${sY}deg) rotateZ(${sZ}deg)`;
+        updateSuppLog();
+    }
+    function resetSupp() { sX = -20; sY = -30; sZ = 0; rotateSupp('', 0); }
+    function updateSuppLog() {
+        document.getElementById('supp-log').innerHTML = `&rarr; Orientation History Matrix: <br>&bull; Sideways Y-Rotation: <b>${sY % 360}°</b><br>&bull; Forward X-Tumble: <b>${sX % 360}°</b><br>&bull; Depth Z-Lean: <b>${sZ % 360}°</b><br>&rarr; <b>Current Status: Tracking Border Adjacency Log</b>`;
     }
 
-    window.onload = () => {
-        const cube = document.getElementById('cube-element');
-        cube.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-    };
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-cube')) resetSupp();
+        if(typeof initModule === "function") initModule(49);
+    });
 </script>
-
 </body>
 </html>

@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
+// Force Next.js to treat this route as dynamic, bypassing the static CDN cache
+export const dynamic = 'force-dynamic';
+
 // 1. Initialize Server-Side Clients
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-05-27.dahlia',
@@ -45,33 +48,39 @@ export async function POST(req: Request) {
       // PATH A: THE PRE-PREP COURSE (Subscription)
       // ==========================================
       if (intent === 'course') {
-        await supabaseAdmin.from('profiles').update({
+        const { error: updateError } = await supabaseAdmin.from('profiles').update({
           course_type: plan,
           course_subscription: true,
           course_subscription_start_date: now,
           course_subscription_cancel_date: null,
         }).eq('id', userId);
+
+        if (updateError) throw new Error(`Supabase Course Update Error: ${updateError.message}`);
       } 
       
       // ==========================================
       // PATH B: THE DIAGNOSTIC (One-off / 6-Month)
       // ==========================================
       else if (intent === 'diagnostic') {
-        const { data: profile } = await supabaseAdmin
+        const { data: profile, error: fetchError } = await supabaseAdmin
           .from('profiles')
           .select('test_credits, diagnostic_type, diagnostic_subscription_end_date')
           .eq('id', userId)
           .single();
+          
+        if (fetchError) throw new Error(`Supabase Fetch Error: ${fetchError.message}`);
           
         const currentCredits = profile?.test_credits || 0;
         const currentType = profile?.diagnostic_type;
         const currentEndDate = profile?.diagnostic_subscription_end_date;
 
         if (plan === 'one-off') {
-          await supabaseAdmin.from('profiles').update({
+          const { error: oneOffError } = await supabaseAdmin.from('profiles').update({
             test_credits: currentCredits + 1,
             diagnostic_type: 'one-off',
           }).eq('id', userId);
+
+          if (oneOffError) throw new Error(`Supabase One-Off Update Error: ${oneOffError.message}`);
         } 
         else if (plan === '6-month') {
           let newEndDate = new Date();
@@ -102,12 +111,15 @@ export async function POST(req: Request) {
             updatePayload.diagnostic_subscription_renewal_date = null;
           }
 
-          await supabaseAdmin.from('profiles').update(updatePayload).eq('id', userId);
+          const { error: sixMonthError } = await supabaseAdmin.from('profiles').update(updatePayload).eq('id', userId);
+
+          if (sixMonthError) throw new Error(`Supabase 6-Month Update Error: ${sixMonthError.message}`);
         }
       }
-    } catch (dbError) {
-      console.error('Database Update Failed:', dbError);
-      return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
+    } catch (dbError: any) {
+      // This will now catch the explicitly thrown Supabase errors
+      console.error('Database Update Failed:', dbError.message || dbError);
+      return NextResponse.json({ error: `Database update failed: ${dbError.message}` }, { status: 500 });
     }
   }
 

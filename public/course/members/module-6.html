@@ -3,273 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 6: Percentage Multipliers | Cognis 11+</title>
+    <title>Module 6: The Percentage Shortcut | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR PROPORTIONAL GROWTH BARS */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 40px; 
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-            border: 2px solid #e2e8f0;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .viz-row {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 350px; position: relative;
         }
 
-        .viz-label {
-            font-size: 0.65rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #94a3b8;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🎯'; }
 
-        .bar-container {
-            width: 100%;
-            height: 40px;
-            background: #edf2f7;
-            border-radius: 6px;
-            position: relative;
-            overflow: visible;
+        /* INTRO: 100-GRID */
+        .grid-100 {
+            display: grid; grid-template-columns: repeat(10, 1fr);
+            gap: 2px; width: 220px; background: #e2e8f0; padding: 4px; border-radius: 4px;
         }
+        .grid-cell { width: 20px; height: 20px; background: #fff; border-radius: 2px; transition: background 0.3s; }
+        .cell-active { background: var(--cognis-blue); }
+        .cell-extra { background: var(--cognis-gold); }
+        .cell-lost { background: #fee2e2; border: 1px dashed #ef4444; }
 
-        /* The 100% Reference Bar */
-        .bar-base {
-            height: 100%;
-            width: 250px; /* This represents our "100%" unit in px */
-            background: var(--cognis-blue);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            padding-left: 15px;
-            color: white;
-            font-weight: 900;
-            font-size: 0.75rem;
-            position: relative;
-            z-index: 2;
+        /* PROGRESSING: PRICE TAG */
+        .price-tag {
+            width: 180px; height: 100px; background: #fff;
+            border: 2px solid var(--cognis-blue); border-radius: 8px;
+            position: relative; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
-
-        /* The Ghost Frame for Decrease */
-        .ghost-frame {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 250px;
-            border: 2px dashed #cbd5e0;
-            border-radius: 6px;
-            z-index: 1;
+        .tag-hole {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            width: 12px; height: 12px; background: #f8fafc; border: 2px solid var(--cognis-blue); border-radius: 50%;
         }
+        .old-price { text-decoration: line-through; color: #94a3b8; font-size: 0.9rem; }
+        .new-price { font-size: 1.8rem; font-weight: 800; color: var(--cognis-blue); }
 
-        /* The Scaling Segment */
-        .bar-new {
-            height: 100%;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 15px;
-            color: white;
-            font-weight: 900;
-            font-size: 0.75rem;
-            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
+        /* SUPPLEMENTAL: BARS */
+        .bar-wrap { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 20px; }
+        .bar-main { height: 40px; border-radius: 6px; display: flex; align-items: center; padding: 0 15px; color: white; font-weight: 900; font-size: 0.8rem; transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        .multiplier-bubble {
-            align-self: center;
-            background: var(--cognis-gold);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 1rem;
-            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.3);
-        }
-
-        .engine-container { grid-template-columns: 1.1fr 1fr; }
-        
-        .control-group label { 
-            display: flex; 
-            justify-content: space-between; 
-            font-weight: 800 !important; 
-        }
-        .val-display { color: var(--cognis-gold); }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #4a5568;
-            background: #2d3748;
-            color: white;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .multiplier-badge { background: var(--cognis-gold); color: white; padding: 4px 12px; border-radius: 20px; font-weight: 800; display: inline-block; margin: 10px 0; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(6));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 6: Percentage Multipliers</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 6: The Percentage Shortcut</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The 100-Square Grid</h2>
+            <p>Every single percentage value is just a simple way of looking at a <b>100-square grid</b>. When you have 100%, you hold the entire grid in your hands. If someone gives you a 10% bonus, they are simply handing you 10 extra squares. If you lose 20%, those squares just disappear from the grid.</p>
+            
+            <div class="parent-script">
+                "Look closely at the square grid below. This represents our starting 100%. If we slide the bar up to add 20%, watch how the new gold blocks appear outside the lines. We now hold 120 total squares. Seeing it as one single group is much faster than trying to calculate two separate math steps, isn't it?"
+            </div>
+
+            <div class="viz-container">
+                <div class="grid-100" id="intro-grid"></div>
+                <div id="intro-status" style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Current: 100%</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Adjust Percentage Scale</label>
+                        <input type="range" min="50" max="150" step="10" value="100" id="intro-p" oninput="updateIntro()">
+                        <div class="val-out" id="intro-p-val">100%</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="intro-log"></div>
+            </div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Shopping Shortcut</h2>
+            <p>In real life, we want to find the final checkout price instantly. Instead of finding 10% of an item first and then laboriously taking it away, we use a single <b>Shortcut Number</b>. If a toy is 20% off, it means you are still choosing to pay for 80% of it. We just multiply the original tag price by 0.8 to reveal the final cost in one swift move!</p>
+            
+            <div class="parent-script">
+                "Imagine we are at the shops. This board game costs £50, but it has a 20% discount. Instead of using two separate math steps, let's use our shortcut number: 0.8. Notice how the price tag updates instantly? That is because you are only paying for 80% of the game's original value."
+            </div>
+
+            <div class="viz-container">
+                <div class="price-tag">
+                    <div class="tag-hole"></div>
+                    <div class="old-price" id="prog-old">£50</div>
+                    <div class="new-price" id="prog-new">£40</div>
+                </div>
+                <div class="multiplier-badge" id="prog-mult">Our Shortcut Number: x0.80</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Original Shop Price (£)</label>
+                        <input type="range" min="10" max="200" step="10" value="50" id="prog-v" oninput="updateProg()">
+                    </div>
+                    <div class="control-group">
+                        <label>Discount Size (%)</label>
+                        <input type="range" min="0" max="90" step="5" value="20" id="prog-p" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('6-p')">Complete Progressing Step</button>
+            </div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>In the 11+, doing percentage problems in two steps (finding 10%, then doubling it, then adding it) is a "Speed Trap." We use the <b>One-Step Shortcut</b>. By treating the original price as 1.00, we simply multiply once to get straight to the final answer. This turns a messy word problem into a 5-second calculation.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Toy Sale</b>
-                "A £20 teddy is 10% off. How much is the new price?"
-            </div>
-            <div class="tier-card">
-                <b>The Marble Bonus</b>
-                "40 marbles get a 20% 'extra free' bonus. What is the new total?"
-            </div>
-            <div class="tier-card">
-                <b>The Price Hike</b>
-                "A £40 item increases by 15%. What is the new cost?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Think of the <b>Starting Block</b>. The blue bar is always your 100% (the number 1.00). An increase stretches that bar forward, while a decrease cuts it back. Notice how the "Shortcut Number" in the gold bubble tells you exactly how much bar you have left.</p>
-        
-        <div class="anatomy-display">
-            <div class="viz-row">
-                <div class="viz-label"><span>Starting Block</span><span>100% (1.00)</span></div>
-                <div class="bar-container" style="background:transparent;">
-                    <div class="bar-base">ORIGINAL VALUE</div>
-                </div>
-            </div>
-
-            <div class="multiplier-bubble" id="m-val">x1.20</div>
-
-            <div class="viz-row">
-                <div class="viz-label"><span id="mode-label">The Result</span><span id="perc-label">120%</span></div>
-                <div class="bar-container">
-                    <div class="ghost-frame"></div>
-                    <div class="bar-new" id="scaled-bar" style="width: 300px; background: #22c55e;">NEW TOTAL</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Toggle between increase and decrease with your child. Watch the <b>Shortcut Number</b> in the gold bubble. Help them notice that a 20% increase is just multiplying by 1.2, while a 20% decrease is just multiplying by 0.8.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Original Value (£): <span class="val-display" id="v-disp">100</span></label>
-                    <input type="range" id="v-in" min="10" max="500" value="100" oninput="run6()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label>Action:</label>
-                    <select id="mode-in" onchange="run6()">
-                        <option value="inc">Increase (+)</option>
-                        <option value="dec">Decrease (-)</option>
-                    </select>
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label>Percentage Change: <span class="val-display" id="p-disp">20%</span></label>
-                    <input type="range" id="p-in" min="1" max="95" value="20" oninput="run6()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-6">Awaiting parameters...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Simple Addition" Trap:</strong> If a price is £50 and goes up 10%, many kids just add the number 10 (making it £60). They are treating the percentage like a £10 note instead of a part of the original price.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>In 11+ exams, long multi-step percentage questions are a classic <b>Speed Trap</b>. Finding 10%, then doubling it, then adding it onto the original takes far too much valuable time. We teach children to use the **One-Step Shortcut**. By treating the starting item as a baseline of 1.00, we can multiply just once to find the final answer. This turns a wordy problem into a quick 5-second calculation.</p>
             
-            <p><strong>The Fix: The "Shortcut Multiplier."</strong> Remind your child: "Percentages are for multiplying, not adding." Turn the 10% into its shortcut (1.1) and multiply: 50 × 1.1 = £55. This keeps the "extra" proportionate to the starting value.</p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The High Street Sale:</b> "A coat costing £20 is reduced by 15% in a sale. Find its new final price tag."</div>
+                <div class="tier-card"><b>The Bonus Pack:</b> "A box of 40 marbles arrives with a 20% 'extra free' bonus inside. What is the new total number of marbles?"</div>
+                <div class="tier-card"><b>The Price Rise:</b> "A train ticket costing £40 increases in value by exactly 12%. What is the new cost of the ticket?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Growing or Shrinking Bar</h2>
+            <p>The <b>Starting Block</b> always acts as your baseline of 1.00 (which stands for 100%). Increasing a value stretches the bar outward, while a decrease chops it back. The gold badge highlights your **Shortcut Number**—this is the only multiplier you need to discover the final answer in one clean calculation.</p>
+            <div class="anatomy-display">
+                <div class="bar-wrap">
+                    <div style="font-size:0.7rem; font-weight:800; color:#94a3b8;">STARTING BASE: 100%</div>
+                    <div class="bar-main" style="width:250px; background:var(--cognis-blue);">ORIGINAL VALUE</div>
+                    <div id="supp-mult-ui" class="multiplier-badge" style="align-self:center;">x1.20</div>
+                    <div style="font-size:0.7rem; font-weight:800; color:#94a3b8;" id="supp-label-new">FINAL SIZE: 120%</div>
+                    <div class="bar-main" id="supp-bar-new" style="width:300px; background:#22c55e;">FINAL TOTAL</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Shortcut Tool</h2>
+            <p style="margin-bottom: 20px;">Toggle between increase and decrease below. Watch the **Shortcut Number** update. Help your child notice that an increase of 20% uses the shortcut x1.2, whereas a 20% drop uses the shortcut x0.8.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Original Amount (£)</label><input type="range" id="in-v" min="10" max="500" value="100" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Are we adding or subtracting?</label>
+                        <select id="in-mode" onchange="runSupp()">
+                            <option value="inc">Adding an Increase (+)</option>
+                            <option value="dec">Subtracting a Decrease (-)</option>
+                        </select>
+                    </div>
+                    <div class="control-group"><label>Percentage to Change (%)</label><input type="range" id="in-p" min="1" max="90" value="20" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Simple Addition" Trap:</b> If an item costs £50 and increases by 10%, many children make the mistake of simply adding the number 10 onto the price (giving an answer of £60). They are treating a percentage like a normal £10 note.</p>
+                <p><b>The Easy Fix: The "Shortcut Multiplier."</b> Remind your child directly: "Percentages are built for multiplying, not adding." Turn that 10% jump into its single shortcut format (1.1) and multiply: 50 × 1.1 = £55. This keeps the extra portion perfectly scaled to the item's size.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(6)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(6)">Complete Module & Update Lattice</button>
-
 <script>
-    function run6() {
-        const val = parseFloat(document.getElementById('v-in').value);
-        const perc = parseFloat(document.getElementById('p-in').value);
-        const mode = document.getElementById('mode-in').value;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        // Update Labels
-        document.getElementById('v-disp').innerText = val;
-        document.getElementById('p-disp').innerText = perc + "%";
-
-        // Constants for Visuals
-        const baseWidth = 250;
-        
-        const scaledBar = document.getElementById('scaled-bar');
-        const mBubble = document.getElementById('m-val');
-        const mLabel = document.getElementById('mode-label');
-        const pLabel = document.getElementById('perc-label');
-
-        let multiplier, finalVal;
-
-        if (mode === 'inc') {
-            multiplier = 1 + (perc / 100);
-            finalVal = val * multiplier;
-            
-            scaledBar.style.width = (baseWidth * multiplier) + "px";
-            scaledBar.style.background = "#22c55e";
-            scaledBar.innerText = "NEW TOTAL";
-            mLabel.innerText = "Increase Result";
-            pLabel.innerText = (100 + perc) + "%";
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
         } else {
-            multiplier = 1 - (perc / 100);
-            finalVal = val * multiplier;
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
 
-            scaledBar.style.width = (baseWidth * multiplier) + "px";
-            scaledBar.style.background = "#ef4444";
-            scaledBar.innerText = "REMAINDER";
-            mLabel.innerText = "Decrease Result";
-            pLabel.innerText = (100 - perc) + "%";
+    /* --- INTRO: 100-GRID --- */
+    function updateIntro() {
+        const p = parseInt(document.getElementById('intro-p').value);
+        document.getElementById('intro-p-val').innerText = p + "%";
+        document.getElementById('intro-status').innerText = `Current: ${p}%`;
+        
+        const grid = document.getElementById('intro-grid');
+        grid.innerHTML = '';
+        for(let i=1; i<=150; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            if(i <= 100 && i <= p) cell.classList.add('cell-active');
+            else if(i > 100 && i <= p) cell.classList.add('cell-extra');
+            else if(i <= 100 && i > p) cell.classList.add('cell-lost');
+            if(i <= Math.max(100, p)) grid.appendChild(cell);
         }
 
-        mBubble.innerText = "x" + multiplier.toFixed(2);
-
-        // Trace Output
-        document.getElementById('trace-6').innerHTML = `
-            <div class="trace-step">→ 1. The Shortcut: 1.00 ${mode === 'inc' ? '+' : '-'} ${perc / 100}</div>
-            <div class="trace-step">→ 2. Multiplier: <b>${multiplier.toFixed(2)}</b></div>
-            <div class="trace-step">→ 3. The Jump: £${val} × ${multiplier.toFixed(2)}</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → FINAL TOTAL: £${finalVal.toFixed(2)}
-            </div>
+        const diff = p - 100;
+        document.getElementById('intro-log').innerHTML = `
+            <div class="discovery-step">Our base grid is locked at exactly 100 squares.</div>
+            <div class="discovery-step">We have ${diff >= 0 ? 'added ' + diff : 'removed ' + Math.abs(diff)} matching squares from the box.</div>
         `;
     }
 
-    window.onload = run6;
-</script>
+    /* --- PROGRESSING: PRICE TAG --- */
+    function updateProg() {
+        const v = parseInt(document.getElementById('prog-v').value);
+        const p = parseInt(document.getElementById('prog-p').value);
+        const mult = 1 - (p/100);
+        const res = v * mult;
 
+        document.getElementById('prog-old').innerText = '£' + v;
+        document.getElementById('prog-new').innerText = '£' + res.toFixed(2);
+        document.getElementById('prog-mult').innerText = `Our Shortcut Number: x${mult.toFixed(2)}`;
+
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">The price discount is ${p}%. This tells us that you only pay for <b>${100-p}%</b> of the toy.</div>
+            <div class="discovery-step">Shortcut Rule: £${v} × ${mult.toFixed(2)} = <b>£${res.toFixed(2)}</b> final cost.</div>
+        `;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const v = parseFloat(document.getElementById('in-v').value);
+        const p = parseFloat(document.getElementById('in-p').value);
+        const mode = document.getElementById('in-mode').value;
+        
+        const multiplier = mode === 'inc' ? 1 + (p/100) : 1 - (p/100);
+        const res = v * multiplier;
+
+        document.getElementById('supp-mult-ui').innerText = `x${multiplier.toFixed(2)}`;
+        document.getElementById('supp-label-new').innerText = `FINAL SIZE: ${(multiplier*100).toFixed(0)}%`;
+        
+        const bar = document.getElementById('supp-bar-new');
+        bar.style.width = (250 * multiplier) + "px";
+        bar.style.background = mode === 'inc' ? "#22c55e" : "#ef4444";
+        bar.innerText = mode === 'inc' ? "NEW TOTAL" : "REMAINDER VALUE";
+
+        document.getElementById('supp-log').innerHTML = `
+            → 1. The Shortcut Shift: 1.00 ${mode === 'inc' ? '+' : '-'} ${p/100}<br>
+            → 2. Final Multiplier: <b>${multiplier.toFixed(2)}</b><br>
+            → 3. One-Step Answer: £${v} × ${multiplier.toFixed(2)} = <b>£${res.toFixed(2)}</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateIntro(); updateProg();
+        if(document.getElementById('in-v')) runSupp();
+        if(typeof initModule === "function") initModule(6);
+    });
+</script>
 </body>
 </html>

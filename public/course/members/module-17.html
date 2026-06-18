@@ -3,248 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 17: Reverse Operations | Cognis 11+</title>
+    <title>Module 17: Working Backwards to the Start | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR LOGIC REWINDER */
-        .anatomy-display { padding: 60px 20px; }
-        
-        .simulation-area { 
-            display: flex; 
-            justify-content: space-around; 
-            align-items: center; 
-            width: 100%; 
-            max-width: 700px;
-            position: relative; 
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .node { 
-            width: 85px; height: 85px; 
-            background: white; border: 4px solid var(--cognis-blue);
-            border-radius: 18px; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; 
-            font-weight: 800; font-size: 1.3rem; 
-            color: var(--cognis-blue);
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; z-index: 2; 
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
         }
 
-        .node small { 
-            font-size: 0.6rem; color: #a0aec0; 
-            margin-bottom: 4px; text-transform: uppercase;
-            letter-spacing: 1px;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        
-        .path { flex-grow: 1; height: 6px; background: #e2e8f0; margin: 0 -5px; position: relative; border-radius: 3px; }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🕵️'; }
 
-        .op-badge { 
-            position: absolute; top: -40px; left: 50%; transform: translateX(-50%); 
-            background: var(--cognis-blue); color: white; 
-            padding: 5px 15px; border-radius: 20px; 
-            font-size: 0.85rem; font-weight: 800; 
-            transition: all 0.4s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        
-        /* Animation States */
-        .rewind-active .op-badge { 
-            background: var(--cognis-gold); 
-            transform: translateX(-50%) translateY(65px); 
-        }
-        
-        .rewind-active .node { 
-            border-color: var(--cognis-gold); 
-            box-shadow: 0 0 25px rgba(197, 160, 89, 0.3); 
-        }
+        /* INTRO: LAUNDRY MACHINE VIZ */
+        .machine-frame { fill: #e2e8f0; stroke: var(--cognis-blue); stroke-width: 4; }
+        .door-glass { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 2; opacity: 0.6; }
+        .shirt { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .sim-btn-wrapper { text-align: center; margin-top: 30px; }
-        .sim-btn { 
-            background: var(--cognis-gold); color: white; border: none; 
-            padding: 14px 35px; border-radius: 10px; 
-            font-weight: 800; cursor: pointer; text-transform: uppercase;
-            letter-spacing: 1px; transition: transform 0.2s;
-        }
-        .sim-btn:hover { transform: scale(1.05); }
+        /* PROGRESSING: THE INVERSE KEY */
+        .op-circle { fill: white; stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.3s; }
+        .op-circle.active { stroke: var(--cognis-gold); fill: #fffbeb; }
+        .key-symbol { font-weight: 900; font-size: 1.2rem; transition: transform 0.4s; display: inline-block; }
 
-        .engine-container { grid-template-columns: 1fr 1fr; }
-        .op-row { display: flex; gap: 10px; align-items: center; margin-top: 5px; }
-        .op-row select { flex: 1; height: 40px; border-radius: 8px; }
-        .op-row input { flex: 1.5; }
+        /* SUPPLEMENTAL: DETECTIVE BRIDGE */
+        .node-s { width: 70px; height: 70px; background: white; border: 3px solid var(--cognis-blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; }
+        .bridge-path { flex-grow: 1; height: 4px; background: #cbd5e0; position: relative; margin: 0 -2px; }
+        .op-bubble-s { position: absolute; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; color: white; white-space: nowrap; }
 
-        .trap-box p { margin: 0 0 15px 0; }
-        .trap-box p:last-child { margin-bottom: 0; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(17));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header"><h1>Module 17: Reverse Operations</h1></div>
+<div class="module-card">
+    <div class="header"><h1>Module 17: Working Backwards to the Start</h1></div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>This is the <b>"Detective Method."</b> In "I think of a number" problems, you aren't given the starting point—you are given the crime scene (the final result). To find the culprit, your child must retrace every step in <b>total reverse</b>. The world turns upside down: every instruction must be flipped to its opposite (Inverse) to unlock the original number.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Single Step</b>
-                "I think of a number. I add 8 and get 20. What was my starting number?"
-            </div>
-            <div class="tier-card">
-                <b>The Double Jump</b>
-                "I multiply a number by 4, then subtract 6. The result is 30. Find the number."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Challenge</b>
-                "I square a number, add 5, then divide by 3 to get 10. What did I start with?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Think of this as <b>The Mirror Bridge</b>. To go forward, we follow the blue path. To find the start, we use the gold <b>Reverse Logic</b>. We flip the signs (Addition becomes Subtraction; Multiplication becomes Division) and retrace the path from right to left.</p>
-        
-        <div class="anatomy-display">
-            <div class="simulation-area" id="machine">
-                <div class="node"><small>Start</small><span id="v-start">?</span></div>
-                <div class="path"><div class="op-badge" id="v-op1">+5</div></div>
-                <div class="node"><small>Middle</small><span id="v-mid">?</span></div>
-                <div class="path"><div class="op-badge" id="v-op2">x2</div></div>
-                <div class="node" style="border-color: var(--cognis-gold);"><small>Result</small><span id="v-res">20</span></div>
-            </div>
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Magic Undo Machine</h2>
+            <p>Every single step we take forward in math has a perfect matching twin that moves in the exact opposite direction. For example, if I give you 5 reward sweets (+5), the only way to return to the original starting line is to hand those 5 sweets right back (-5). We call this <b>The Inverse Action</b>. Think of it like pressing the visual 'Rewind' button on a video tracker.</p>
             
-            <div class="sim-btn-wrapper">
-                <button class="sim-btn" onclick="runReverse()">Watch the Rewind</button>
+            <div class="parent-script">
+                "Take a close look at our Magic Machine. It is currently configured to 'Add 5'. When we drop a number into the machine, it grows. To track down our secret starting value, we simply toggle the control switch to 'Take Away 5' and watch the number retrace its forward steps cleanly!"
             </div>
-        </div>
-    </section>
 
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Build your own multi-step problem below. Watch the <b>Trace Log</b> as it unravels the math. Help your child see that the very last step performed is always the first step we undo.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Final Result</label>
-                    <input type="number" id="in-res" value="20">
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect x="100" y="50" width="100" height="100" rx="10" class="machine-frame" />
+                    <circle cx="150" cy="100" r="35" class="door-glass" />
+                    <text id="intro-num-display" x="150" y="110" text-anchor="middle" font-size="24" font-weight="900" fill="var(--cognis-blue)">?</text>
+                    <text x="40" y="105" font-size="20">➡️</text>
+                    <text x="230" y="105" font-size="20">➡️</text>
+                </svg>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="runIntro(true)">Go Forward (+5)</button>
+                    <button class="btn-action" style="background:var(--cognis-gold);" onclick="runIntro(false)">Go Backward (-5)</button>
                 </div>
-                <div class="control-group">
-                    <label>Instruction 1 (The Start)</label>
-                    <div class="op-row">
-                        <select id="in-o1t">
-                            <option value="add">Add (+)</option>
-                            <option value="sub">Subtract (-)</option>
-                            <option value="mul">Multiply (x)</option>
-                            <option value="div">Divide (÷)</option>
-                        </select>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting to start...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Backtrack Code</h2>
+            <p>Retracing a numerical journey simply means systematically flipping every math sign on the track. If the story reads 'Multiply by 2', our detective logic switches it to 'Divide by 2'. If the story says 'Subtract 10', we turn it around into 'Add 10'. This <b>Backtrack Code</b> opens up a clear trail directly back to our mystery start point.</p>
+            
+            <div class="parent-script">
+                "We know our final destination value is 20. The very last step performed in the story was 'Multiply by 2'. To walk backward along the path, we apply our backtrack code: 'Divide by 2'. Watch how we use the opposing mathematical sign to unlock each individual junction until we reach our starting value."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150">
+                    <line x1="50" y1="75" x2="350" y2="75" stroke="#cbd5e0" stroke-width="4" stroke-dasharray="8" />
+                    <circle id="p-node-1" cx="80" cy="75" r="30" class="op-circle" />
+                    <circle id="p-node-2" cx="200" cy="75" r="30" class="op-circle" />
+                    <circle id="p-node-3" cx="320" cy="75" r="30" class="op-circle" />
+                    <text x="80" y="82" text-anchor="middle" id="p-val-1" font-weight="900">?</text>
+                    <text x="200" y="82" text-anchor="middle" id="p-val-2" font-weight="900">?</text>
+                    <text x="320" y="82" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">20</text>
+                    
+                    <g transform="translate(140, 30)">
+                        <rect width="40" height="20" rx="10" fill="var(--cognis-blue)" />
+                        <text x="20" y="15" text-anchor="middle" fill="white" font-size="12" font-weight="900">x2</text>
+                    </g>
+                    <g transform="translate(260, 30)">
+                        <rect width="40" height="20" rx="10" fill="var(--cognis-blue)" />
+                        <text x="20" y="15" text-anchor="middle" fill="white" font-size="12" font-weight="900">+10</text>
+                    </g>
+                </svg>
+                <button class="btn-action" onclick="stepBackward()">Use Backtrack Code 🗝️</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Retrace from 20...</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>This is known as the <b>"Detective Approach"</b>. In multi-step 'I am thinking of a mystery number' problems, you are given the final outcome of the challenge. To identify the hidden number, your child must track the clues in <b>total reverse sequence</b>. Every mathematical instruction must be turned completely upside down to unpack the original value safely.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Single-Step Path:</b> "I add 8 to my mystery number and get a total of 20. What was my starting number?"</div>
+                <div class="tier-card"><b>Double-Step Jump:</b> "I multiply my secret number by 4, and then I subtract 6. The final output is 30. Find the starting number."</div>
+                <div class="tier-card"><b>The Advanced Challenge:</b> "I square a mystery number, add 5 to the product, and then divide that total by 3 to reach 10. What was my starting point?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Mirror Tracking Bridge</h2>
+            <p>Study the <b>Mirror Tracking Bridge</b> layout below. To push ahead through the calculations, follow the blue pathway arrows from left to right. To uncover the start, follow the gold <b>Reverse Logic</b> path backwards. We mirror every sign (transforming Addition into Subtraction, and Multiplication into Division) and walk step-by-step from right to left.</p>
+            <div class="anatomy-display">
+                <div style="display:flex; align-items:center; width:100%; max-width:500px;">
+                    <div class="node-s" id="s-node-1">?</div>
+                    <div class="bridge-path">
+                        <div class="op-bubble-s" style="top:-30px; background:var(--cognis-blue);" id="s-op-top">+5</div>
+                        <div class="op-bubble-s" style="bottom:-30px; background:var(--cognis-gold);" id="s-op-bot">-5</div>
+                    </div>
+                    <div class="node-s" id="s-node-2">?</div>
+                    <div class="bridge-path">
+                        <div class="op-bubble-s" style="top:-30px; background:var(--cognis-blue);" id="s-op2-top">x2</div>
+                        <div class="op-bubble-s" style="bottom:-30px; background:var(--cognis-gold);" id="s-op2-bot">÷2</div>
+                    </div>
+                    <div class="node-s" style="border-color:var(--cognis-gold);" id="s-node-3">20</div>
+                </div>
+                <button class="btn-action" style="background:var(--cognis-gold); margin-top:50px;" onclick="runSuppReverse()">Execute Rewind</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Step-by-Step Backtrack Tool</h2>
+            <p style="margin-bottom: 20px;">Construct a complex math sequence using the panels below. Observe the tracking logs to see how the logic unwinds automatically. Keep this golden rule in mind: the very last calculation performed in the story is always the very first one we must dismantle.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>The Final Destination Number</label><input type="number" id="in-res" value="20"></div>
+                    <div class="control-group"><label>First Math Step Done (The Start)</label>
+                        <select id="in-o1t"><option value="add">Add</option><option value="mul" selected>Multiply</option></select>
                         <input type="number" id="in-o1v" value="5">
                     </div>
-                </div>
-                <div class="control-group">
-                    <label>Instruction 2 (The End)</label>
-                    <div class="op-row">
-                        <select id="in-o2t">
-                            <option value="mul">Multiply (x)</option>
-                            <option value="div">Divide (÷)</option>
-                            <option value="add">Add (+)</option>
-                            <option value="sub">Subtract (-)</option>
-                        </select>
-                        <input type="number" id="in-o2v" value="2">
+                    <div class="control-group"><label>Second Math Step Done (The End)</label>
+                        <select id="in-o2t"><option value="add" selected>Add</option><option value="mul">Multiply</option></select>
+                        <input type="number" id="in-o2v" value="10">
                     </div>
                 </div>
+                <div class="trace-log" id="supp-log"></div>
             </div>
-            <div class="trace-log" id="engine-trace">Adjust values to unravel the logic...</div>
-        </div>
-    </section>
+        </section>
 
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "First-Come" Trap:</strong> Children often try to reverse the very first instruction written in the sentence because it’s the first one they see. This is like trying to take off your socks before your shoes—it’s physically impossible!</p>
-            
-            <p><strong>The Fix: The "Shoes and Socks" Rule.</strong> Remind your child: <i>"The last thing you did is the first thing you undo."</i> Always retrace from the final result. If the result was the result of Step 2, you <b>must</b> undo Step 2 before you even look at Step 1. Start from the finish line.</p>
-        </div>
-    </section>
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "First-Read" Speed Trap:</b> Children working under test conditions frequently try to reverse the very first instruction they read at the beginning of the text sentence. This is exactly like trying to pull off your socks before you unlace your shoes—it is physically impossible!</p>
+                <p><b>The Easy Fix: The "Shoes and Socks" Rule.</b> The very last action performed in the paragraph is the first task you must reverse. Always drop your anchor down directly at the finish line total and walk backward toward the beginning.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(17)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(17)">Complete Module & Update Lattice</button>
-
 <script>
-    const symbols = {add:'+', sub:'-', mul:'x', div:'÷'};
-    const inverse = {add:'-', sub:'+', mul:'÷', div:'x'};
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function refresh() {
-        const resInput = document.getElementById('in-res').value;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Logic Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: MAGIC MACHINE --- */
+    function runIntro(forward) {
+        const display = document.getElementById('intro-num-display');
+        const log = document.getElementById('intro-log');
+        if(forward) {
+            display.innerText = "15";
+            log.innerHTML = `<div class="discovery-step">We dropped in 10 and <b>Added 5</b>. The machine tracking screen output shows 15!</div>`;
+        } else {
+            display.innerText = "10";
+            log.innerHTML = `<div class="discovery-step">We dropped in 15 and <b>Subtracted 5</b>. We are returned safely back to 10!</div>`;
+        }
+    }
+
+    /* --- PROGRESSING: RETRACE --- */
+    let progStep = 0;
+    function stepBackward() {
+        if(progStep === 0) {
+            document.getElementById('p-val-2').innerText = "10";
+            document.getElementById('p-node-2').classList.add('active');
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Dismantling Junction 1: 20 minus 10 leaves <b>10</b>.</div>`;
+            progStep++;
+        } else if(progStep === 1) {
+            document.getElementById('p-val-1').innerText = "5";
+            document.getElementById('p-node-1').classList.add('active');
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Dismantling Junction 2: 10 divided by 2 leaves <b>5</b>. We tracked down our mystery start point!</div>`;
+            progStep++;
+        }
+    }
+
+    /* --- SUPPLEMENTAL: LOGIC --- */
+    function runSuppLogic() {
+        const res = parseFloat(document.getElementById('in-res').value) || 0;
+        const o1v = parseFloat(document.getElementById('in-o1v').value) || 1;
+        const o2v = parseFloat(document.getElementById('in-o2v').value) || 1;
         const o1t = document.getElementById('in-o1t').value;
-        const o1v = document.getElementById('in-o1v').value;
         const o2t = document.getElementById('in-o2t').value;
-        const o2v = document.getElementById('in-o2v').value;
 
-        const rVal = parseFloat(resInput) || 0;
-        const v1 = parseFloat(o1v) || 0;
-        const v2 = parseFloat(o2v) || 0;
+        const undo2 = (o2t === 'add') ? res - o2v : res / o2v;
+        const undo1 = (o1t === 'add') ? undo2 - o1v : undo2 / o1v;
 
-        document.getElementById('v-res').innerText = rVal;
-        document.getElementById('v-op1').innerText = symbols[o1t] + v1;
-        document.getElementById('v-op2').innerText = symbols[o2t] + v2;
-        document.getElementById('v-mid').innerText = "?";
-        document.getElementById('v-start').innerText = "?";
-        document.getElementById('machine').classList.remove('rewind-active');
-
-        const solve = (v, type, n) => {
-            if(type==='add') return v - n;
-            if(type==='sub') return v + n;
-            if(type==='mul') return v / n;
-            if(type==='div') return v * n;
-            return v;
-        };
-
-        const mid = solve(rVal, o2t, v2);
-        const start = solve(mid, o1t, v1);
-
-        document.getElementById('engine-trace').innerHTML = `
-            <div class="trace-step">→ 1. Retrace from: <b>${rVal}</b></div>
-            <div class="trace-step">→ 2. Undo Last Step (${inverse[o2t]}${v2}): <b>${mid.toFixed(1)}</b></div>
-            <div class="trace-step">→ 3. Undo First Step (${inverse[o1t]}${v1}): <b>${start.toFixed(1)}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → ORIGINAL NUMBER: ${start.toFixed(2)}
-            </div>
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Plant Anchor at Destination: <b>${res}</b><br>
+            → 2. Reverse End Step: ${res} ${o2t==='add'?'-':'&divide;'} ${o2v} = <b>${undo2.toFixed(1)}</b><br>
+            → 3. Reverse Start Step: ${undo2.toFixed(1)} ${o1t==='add'?'-':'&divide;'} ${o1v} = <b>${undo1.toFixed(1)}</b>
         `;
-        
-        return { mid, start, o1t, v1, o2t, v2 };
     }
 
-    function runReverse() {
-        const data = refresh();
-        const machine = document.getElementById('machine');
-        
-        document.getElementById('v-op1').innerText = inverse[data.o1t] + data.v1;
-        document.getElementById('v-op2').innerText = inverse[data.o2t] + data.v2;
+    function runSuppReverse() {
+        const res = parseFloat(document.getElementById('in-res').value) || 20;
+        const o1v = parseFloat(document.getElementById('in-o1v').value) || 5;
+        const o2v = parseFloat(document.getElementById('in-o2v').value) || 10;
+        const o1t = document.getElementById('in-o1t').value;
+        const o2t = document.getElementById('in-o2t').value;
 
-        machine.classList.add('rewind-active');
+        const undo2 = (o2t === 'add') ? res - o2v : res / o2v;
+        const undo1 = (o1t === 'add') ? undo2 - o1v : undo2 / o1v;
 
-        setTimeout(() => { 
-            document.getElementById('v-mid').innerText = isFinite(data.mid) ? data.mid.toFixed(1) : "Error"; 
-        }, 600);
-
-        setTimeout(() => { 
-            document.getElementById('v-start').innerText = isFinite(data.start) ? data.start.toFixed(1) : "Error"; 
-        }, 1200);
+        document.getElementById('s-node-2').innerText = undo2.toFixed(0);
+        document.getElementById('s-node-1').innerText = undo1.toFixed(0);
+        document.getElementById('s-op-top').innerText = (o1t==='add'?'+':'x') + o1v;
+        document.getElementById('s-op-bot').innerText = (o1t==='add'?'-':'&divide;') + o1v;
+        document.getElementById('s-op2-top').innerText = (o2t==='add'?'+':'x') + o2v;
+        document.getElementById('s-op2-bot').innerText = (o2t==='add'?'-':'&divide;') + o2v;
     }
 
-    const controlIds = ['in-res', 'in-o1t', 'in-o1v', 'in-o2t', 'in-o2v'];
-    controlIds.forEach(id => {
-        document.getElementById(id).addEventListener('input', refresh);
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        ['in-res', 'in-o1t', 'in-o1v', 'in-o2t', 'in-o2v'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.oninput = runSuppLogic;
+        });
+        if(document.getElementById('in-res')) runSuppLogic();
+        if(typeof initModule === "function") initModule(17);
     });
-
-    window.onload = refresh;
 </script>
-
 </body>
 </html>

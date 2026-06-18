@@ -8,11 +8,15 @@
     <link rel="stylesheet" href="../css/dashboard.css">
     
     <style>
-        /* NEW COMPLETION BADGE */
+        /* NEW COMPLETION BADGES */
+        .badge-container {
+            display: flex;
+            gap: 6px;
+        }
+
         .check-badge {
             width: 24px;
             height: 24px;
-            background: #276245;
             color: white;
             border-radius: 50%;
             display: flex;
@@ -20,7 +24,16 @@
             justify-content: center;
             font-size: 0.8rem;
             font-weight: 900;
+        }
+
+        .badge-supp {
+            background: #276245;
             box-shadow: 0 2px 8px rgba(39, 98, 69, 0.3);
+        }
+
+        .badge-found {
+            background: var(--cognis-gold, #c5a059);
+            box-shadow: 0 2px 8px rgba(197, 160, 89, 0.3);
         }
 
         /* UP NEXT HIGHLIGHT */
@@ -212,7 +225,7 @@
 
             try {
                 const { data: { user } } = await client.auth.getUser();
-                if (!user) { window.location.href = "/login"; return; } // Route to Next.js login!
+                if (!user) { window.location.href = "/login"; return; } 
                 
                 document.getElementById('user-welcome').innerText = user.email;
 
@@ -239,16 +252,14 @@
                         document.getElementById('user-greeting').innerText = `${profile.student_name}'s Learning Lattice`;
                     }
 
-                    // Setup Plan & Status Badges consistent with the new request format
+                    // Setup Plan & Status Badges
                     userPlan = profile.course_type || 'foundational';
                     isSubscribed = profile.course_subscription === true;
 
                     const statusEl = document.getElementById('account-status');
-                    
                     const approachText = userPlan.toUpperCase();
                     const billingText = isSubscribed ? 'PAID' : 'FREE';
                     
-                    // Render string output match: [FOUNDATIONAL | FREE] or [SUPPLEMENTAL | PAID]
                     statusEl.innerText = `${approachText}   |   ${billingText}`;
                     statusEl.className = `status-badge ${isSubscribed ? 'status-active' : 'status-inactive'}`;
                 }
@@ -260,6 +271,7 @@
 
                 const completedSet = new Set(completedData ? completedData.map(item => String(item.module_id)) : []);
 
+                // Determine "Up Next" based strictly on the user's active plan
                 const nextUpModule = COGNIS_MODULES.find(m => {
                     const checkID = userPlan === 'supplemental' ? m.sID : m.fID;
                     return !completedSet.has(String(checkID));
@@ -286,12 +298,27 @@
                     const groupContainer = document.getElementById(`group-${pillarName}`);
 
                     COGNIS_MODULES.filter(m => m.pillar === pillarName).forEach(mod => {
-                        const checkID = userPlan === 'supplemental' ? mod.sID : mod.fID;
-                        const cardDone = completedSet.has(String(checkID));
+                        
+                        // Check both completion states globally
+                        const isFoundationalDone = completedSet.has(String(mod.fID));
+                        const isSupplementalDone = completedSet.has(String(mod.sID));
+                        
+                        // Determine card UI state based on active plan
+                        const currentPlanDone = userPlan === 'supplemental' ? isSupplementalDone : isFoundationalDone;
                         const isUpNext = mod.id === nextUpId;
 
+                        // Build the badges dynamically
+                        let badgesHtml = '<div class="badge-container">';
+                        if (isFoundationalDone) {
+                            badgesHtml += '<div class="check-badge badge-found" title="Foundational Completed">✓</div>';
+                        }
+                        if (isSupplementalDone) {
+                            badgesHtml += '<div class="check-badge badge-supp" title="Supplemental Completed">✓</div>';
+                        }
+                        badgesHtml += '</div>';
+
                         const card = document.createElement('a');
-                        card.className = `module-card ${cardDone ? 'is-complete' : ''} ${isUpNext ? 'is-up-next' : ''}`;
+                        card.className = `module-card ${currentPlanDone ? 'is-complete' : ''} ${isUpNext ? 'is-up-next' : ''}`;
                         card.href = mod.path;
                         
                         card.innerHTML = `
@@ -300,13 +327,13 @@
                                     ${isUpNext ? '<span class="up-next-tag">Up Next</span>' : ''}
                                     <span class="cat-tag">Category ${mod.cat}</span>
                                 </div>
-                                ${cardDone ? '<div class="check-badge">✓</div>' : ''}
+                                ${badgesHtml}
                             </div>
                             <h3 class="mod-title">${mod.title}</h3>
                             <div class="card-bottom">
                                 <span class="mod-id">MODULE ${String(mod.id).padStart(2, '0')}</span>
-                                <span class="status-text" style="color: ${cardDone ? '#276245' : 'var(--steel)'}">
-                                    ${cardDone ? 'Revision Mode' : 'Start Module →'}
+                                <span class="status-text" style="color: ${currentPlanDone ? '#276245' : 'var(--steel)'}">
+                                    ${currentPlanDone ? 'Revision Mode' : 'Start Module →'}
                                 </span>
                             </div>
                         `;

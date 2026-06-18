@@ -3,305 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 56: Cloze (Contextual) | Cognis 11+</title>
+    <title>Module 56: Context-Clue Missing Words | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR CONTEXT RADAR */
-        .anatomy-display { 
-            background: #0f172a; 
-            padding: 50px; 
-            border-radius: 12px; 
-            text-align: center;
-            border: 2px solid #1e293b;
-            position: relative;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
+
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
             overflow: hidden;
         }
 
-        .radar-line {
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 200%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--cognis-gold), transparent);
-            transform-origin: center;
-            animation: rotateRadar 4s linear infinite;
-            opacity: 0.2;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🧲'; }
+
+        /* INTRO: PUZZLE PIECE */
+        .puzzle-gap { width: 140px; height: 60px; background: #e2e8f0; border: 3px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; margin: 0 10px; }
+        .puzzle-piece { padding: 10px 20px; background: var(--cognis-gold); color: white; border-radius: 8px; font-weight: 900; cursor: grab; transition: transform 0.2s; position: absolute; top: 250px; }
+        .magnet-force { color: var(--cognis-gold); font-size: 1.5rem; opacity: 0; transition: opacity 0.3s; }
+
+        /* PROGRESSING: ANCHORS */
+        .anchor-text { font-size: 1.2rem; line-height: 1.8; color: #4a5568; background: white; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e0; }
+        .magnet-word { border-bottom: 2px solid var(--cognis-gold); color: var(--cognis-gold); font-weight: 800; cursor: help; }
+
+        /* SUPPLEMENTAL: CONTEXT RADAR */
+        .anatomy-display-s { background: #0f172a; padding: 50px; border-radius: 12px; text-align: center; border: 2px solid #1e293b; position: relative; overflow: hidden; }
+        .radar-line-s { position: absolute; top: 50%; left: 50%; width: 200%; height: 2px; background: linear-gradient(90deg, transparent, var(--cognis-gold), transparent); transform-origin: center; animation: rotateRadar 4s linear infinite; opacity: 0.2; }
         @keyframes rotateRadar { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+        .anchor-pill-s { background: rgba(255,255,255,0.05); border: 1px solid var(--cognis-gold); padding: 12px 20px; border-radius: 8px; color: white; font-weight: 800; font-size: 0.7rem; }
+        .grid-node-s { width: 100px; height: 50px; border: 3px dashed #4a5568; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--cognis-gold); font-weight: 900; }
 
-        .logic-bridge {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            position: relative;
-            z-index: 2;
-        }
+        /* ENGINE */
+        .ui-gap-s { display: inline-block; min-width: 120px; border-bottom: 3px solid var(--cognis-gold); margin: 0 5px; color: var(--cognis-gold); font-weight: 800; }
+        .btn-word-s { background: transparent; border: 1px solid #4a5568; color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
+        .btn-word-s.selected { background: var(--cognis-gold); border-color: white; }
 
-        .anchor-pill {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--cognis-gold);
-            padding: 12px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 800;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        .gap-node {
-            width: 100px;
-            height: 50px;
-            border: 3px dashed #4a5568;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--cognis-gold);
-            font-weight: 900;
-        }
-
-        /* Engine Terminal Customization */
-        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
-        
-        .sentence-well {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #334155;
-            padding: 30px;
-            border-radius: 12px;
-            font-size: 1.4rem;
-            line-height: 1.8;
-            color: #cbd5e0;
-            margin-bottom: 30px;
-            text-align: center;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .ui-gap {
-            display: inline-block;
-            min-width: 140px;
-            border-bottom: 3px solid var(--cognis-gold);
-            margin: 0 10px;
-            color: var(--cognis-gold);
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        .preset-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
-        .btn-scenario { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
-            text-align: left; transition: 0.2s;
-        }
-        .btn-scenario:hover { background: #4a5568; color: white; }
-        .btn-scenario.active { background: var(--cognis-blue); color: var(--cognis-gold); border-color: var(--cognis-gold); }
-
-        .option-bank {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn-word {
-            background: transparent;
-            border: 1px solid #4a5568;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-        .btn-word:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
-        .btn-word.selected { background: var(--cognis-gold); color: white; border-color: white; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(56));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 56: Cloze (Contextual)</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 56: Context-Clue Missing Words</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Puzzle Piece Test</h2>
+            <p>Selecting the perfect word to heal a blank sentence gap operates exactly like fitting the correct interlocking piece into a jigsaw puzzle. You cannot simply squeeze any random word choice into the empty space—it must seamlessly match the overall "picture" and thematic direction established by the vocabulary surrounding it.</p>
+            
+            <div class="parent-script">
+                "We have a target sentence describing an exceptionally chilly afternoon. Take a close look at our option choice <b>FREEZING**. Click 'Snap into Gap' below to trigger the movement animation. Notice how beautifully the surrounding vocabulary tokens 'Snow' and 'Bleak' function like magnets—they physically pull the word 'Freezing' into the center because they belong to the exact same semantic family!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; align-items:center; font-weight:800; font-size:1.2rem; color:#4a5568;">
+                    The <span class="puzzle-gap" id="intro-gap">?</span> weather brought snow.
+                </div>
+                <div id="intro-piece" class="puzzle-piece">FREEZING</div>
+                <button class="btn-action" style="margin-top:100px;" onclick="runIntroCloze()">Snap into Gap</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Only one word matches the "picture" of snow.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Contextual Logic Anchors</h2>
+            <p>To master tricky eleven-plus verbal worksheets, train your child to hunt down the internal <b>Contextual Anchors</b>. These represent specific, unwavering landmark clues hidden inside the prose that mathematically force the empty slot to accept one exact vocabulary definition over all others. To secure the point, always verify at least two independent anchors for every gap.</p>
+            
+            <div class="parent-script">
+                "Read this prompt line out loud: 'The hiker felt ______ as his water bottle was completely empty.' Click 'Isolate Logic Anchors'. Notice how securely those two underlined clues work together to navigate your choice straight to the advanced target word <b>PARCHED**? Without those structural anchors text-stamped onto the sheet, the character could have simply felt sad, bored, or tired—but our twin anchors provide concrete proof that he is profoundly thirsty!"
+            </div>
+
+            <div class="viz-container">
+                <div class="anchor-text">
+                    "The hiker felt <span style="color:var(--cognis-gold); font-weight:900;">________</span> after the climb, as his <span id="anc-1">water bottle</span> was <span id="anc-2">completely empty</span>."
+                </div>
+                <button class="btn-action" onclick="runProgAnchors()">Isolate Logic Anchors</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Anchors provide the proof for your choice.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of contextual cloze as <b>"Semantic Radar."</b> In the 11+, you are hunting for <b>Magnet Words</b>—specific clues that physically pull a certain vocabulary match toward the gap. Success isn't about guessing what fits; it's about reading <i>past the hole</i> to find the resolution. If a sentence mentions an "empty water bottle" and a "desert," the missing word is mathematically forced to be <i>parched</i>, not just <i>unhappy</i>.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Content Cat</b>
-                "The cat ______ as it curled by the warm fire."<br>
-                <b>Magnet Words:</b> Content / Warm Fire. <b>Fit:</b> Purred.
-            </div>
-            <div class="tier-card">
-                <b>The Hungry Hiker</b>
-                "He was so ______ that he ate his dinner in seconds."<br>
-                <b>Magnet Words:</b> Ate / Seconds. <b>Fit:</b> Famished.
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Politician</b>
-                "The leader’s ______ speech failed to convince the crowd."<br>
-                <b>Magnet Words:</b> Failed / Skeptical. <b>Fit:</b> Vague.
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Context Radar</b>. Notice how the Magnet Words before and after the gap create a narrow window of possibility. To solve a Cloze puzzle, you must find the only word in the bank that satisfies <b>both</b> anchors at the same time. If it only matches one, it’s a decoy.</p>
-        
-        <div class="anatomy-display">
-            <div class="radar-line"></div>
-            <div class="logic-bridge">
-                <div class="anchor-pill">Magnet A: "Empty Bottle"</div>
-                <div style="color:var(--cognis-gold); font-weight:bold;">&rarr;</div>
-                <div class="gap-node">PARCHED</div>
-                <div style="color:var(--cognis-gold); font-weight:bold;">&larr;</div>
-                <div class="anchor-pill">Magnet B: "Desert Sun"</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Load a scenario below and select the word you think fits best. Watch the <b>Trace Log</b> to see the "Anchor Analysis" in action. Help your child realize that the sentence is a set of scales; the correct word must balance the logic on both sides.</p>
-        <div class="simulation-area">
-            <div class="sentence-well" id="sentence-well">
-                </div>
-
-            <div class="engine-container">
-                <div class="inputs">
-                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">1. Load Sentence</label>
-                    <div class="preset-grid">
-                        <button class="btn-scenario active" onclick="loadScenario(0, this)">The Thirsty Hiker</button>
-                        <button class="btn-scenario" onclick="loadScenario(1, this)">The Stormy Voyage</button>
-                        <button class="btn-scenario" onclick="loadScenario(2, this)">The Diligent Student</button>
-                    </div>
-
-                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-top: 20px;">2. Pick the Fit</label>
-                    <div class="option-bank" id="option-bank">
-                        </div>
-                </div>
-                <div class="trace-log" id="trace-56">Ready for anchor analysis...</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Sounds Right" Trap:</strong> Most children choose a word because it fits a common phrase in their head, even if it contradicts the clues in the sentence. For example, they might pick "The hiker felt <i>happy</i>" because it sounds nice, completely ignoring the fact that he is lost and out of water.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Approach sentence completion problems with an analytical <b>"Semantic Logic Radar."</b> Securing full marks on this category isn't a matter of guessing what sounds pleasant; it demands systematically scanning *completely past the empty slot* to locate the logical resolution. <b>Magnet Words</b> are explicit context variables that physically draw a corresponding vocabulary solution straight toward the gap zone. If an advanced sentence block embeds descriptors like "arid," "parched," or "dunes," your internal engine is mathematically constrained to source a matching solution like *desert*.</p>
             
-            <p><strong>The Insider Fix: The "Evidence Check."</strong> Tell your child: <i>"No word is an island."</i> Before they commit, they must point to at least <b>two</b> Magnet Words in the sentence that support their choice. If they pick 'Parched,' their magnets are 'Empty bottle' and 'Arid.' If they can only find one magnet, the word is a distractor. <b>Evidence beats 'feeling' every time.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Contented Feline:</b> "...______ as it curled contently beside the roaring hearth." Context Magnets: roaring hearth / curled contently. (Target payload: Purred).</div>
+                <div class="tier-card"><b>The Exhausted Mountaineer:</b> "...so ______ he devoured his basic rations in mere seconds." Context Magnets: devoured / mere seconds. (Target payload: Famished).</div>
+                <div class="tier-card"><b>The Analytical Juror:</b> "...his ______ address failed to convince the skeptical panel." Context Magnets: failed to convince / skeptical. (Target payload: Ambiguous).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Semantic Logic Radar</h2>
+            <p>Explore our active <b>Semantic Logic Radar** diagnostic interface. Landmark context indicators positioned both upstream and downstream from the target gap calculate a highly restrictive logical envelope. Your objective is to discover the solitary element inside the vocabulary bank that simultaneously satisfies <b>both</b> boundary anchors. Mapping one single point of context is merely an entry guess; locking down two matching anchors creates an absolute solution link.</p>
+            <div class="anatomy-display-s">
+                <div class="radar-line-s"></div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:20px; position:relative; z-index:2;">
+                    <div class="anchor-pill-s">CONTEXT ANCHOR A: "Empty Water Bottle"</div>
+                    <div style="color:var(--cognis-gold); font-weight:bold;">&rarr;</div>
+                    <div class="grid-node-s">PARCHED</div>
+                    <div style="color:var(--cognis-gold); font-weight:bold;">&larr;</div>
+                    <div class="anchor-pill-s">CONTEXT ANCHOR B: "Blazing Arid Sun"</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Vocabulary Balance Simulator</h2>
+            <p style="margin-bottom: 20px;">Calibrate a custom challenge scenario using our selector options below. Visualize the sentence framework as a pair of precision scales; the incoming vocabulary selection must perfectly balance the conceptual logic patterns running on both sides. Track our active trace log below to monitor real-time context verification scores.</p>
+            <div class="simulation-area" style="background:#1a202c; padding:30px; border-radius:12px; border:1px solid #2d3748;">
+                <div id="s-well" class="sentence-well-s" style="background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; color:#cbd5e0; font-size:1.2rem; text-align:center; min-height:80px; margin-bottom:20px;"></div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Contextual Challenge Scenario</label>
+                        <div style="display:grid; grid-template-columns:1fr; gap:5px; margin-bottom:15px;">
+                            <button class="btn-scenario-s btn-action" style="font-size:0.6rem; padding:10px;" onclick="loadSupp(0, this)">Scenario Model A: The Tempestuous High-Seas Voyage</button>
+                            <button class="btn-scenario-s btn-action" style="font-size:0.6rem; padding:10px;" onclick="loadSupp(1, this)">Scenario Model B: The Meticulous Academic Achievement</button>
+                        </div>
+                        <div id="s-options" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+                    </div>
+                    <div class="trace-log" id="supp-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Casual Colloquial Sound" Association Trap:</b> Students frequently select an answer choice simply because it echoes a familiar everyday phrase they've heard in conversation, even when that choice completely violates the explicit logical parameters of the written prompt (such as selecting a low-level filler option like 'happy' because it flows smoothly off the tongue, completely ignoring that the sentence explicitly specifies the character has just been stranded in a blizzard).</p>
+                <p><b>The Easy Fix: Execute a Strict Structural Evidence Check.</b> Instill this mental checklist in your child's routine: <i>"No word sits isolated on an island."</i> Before committing any final word entry to your testing sheet, physically trace out at least <b>two</b> separate magnet keywords on the page that mandate that specific choice. If you can only extract a single weak point of correlation, throw the choice out as a clever distractor. <b>Verifiable text evidence must always conquer subjective intuition.**</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(56)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(56)">Complete Module & Update Lattice</button>
-
 <script>
-    const scenarios = [
-        {
-            text: "The hiker felt <span class='ui-gap' id='active-gap'>________</span> after the grueling climb, as his water bottle was completely empty.",
-            anchors: ["Grueling Climb", "Empty Bottle"],
-            options: ["Excited", "Parched", "Relieved", "Freezing"],
-            correct: "Parched",
-            logic: "Extreme effort + zero water = Extreme thirst."
-        },
-        {
-            text: "The captain grew <span class='ui-gap' id='active-gap'>________</span> when he saw the dark clouds gathering on the horizon.",
-            anchors: ["Dark Clouds", "Horizon"],
-            options: ["Apprehensive", "Cheerful", "Bored", "Angry"],
-            correct: "Apprehensive",
-            logic: "Storm approaching + responsibility = Anxiety/Worry."
-        },
-        {
-            text: "The student's <span class='ui-gap' id='active-gap'>________</span> effort resulted in a perfect score on the final exam.",
-            anchors: ["Perfect Score", "Resulted"],
-            options: ["Careless", "Meticulous", "Rapid", "Initial"],
-            correct: "Meticulous",
-            logic: "Perfect score = Total attention to detail."
-        }
-    ];
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    let currentScenario = scenarios[0];
-
-    function loadScenario(idx, btn) {
-        document.querySelectorAll('.btn-scenario').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentScenario = scenarios[idx];
-        
-        document.getElementById('sentence-well').innerHTML = currentScenario.text;
-        
-        const bank = document.getElementById('option-bank');
-        bank.innerHTML = '';
-        currentScenario.options.forEach(opt => {
-            bank.innerHTML += `<button class="btn-word" onclick="testWord('${opt}', this)">${opt}</button>`;
-        });
-
-        updateTrace();
-    }
-
-    function testWord(word, btn) {
-        document.querySelectorAll('.btn-word').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        
-        const gap = document.getElementById('active-gap');
-        gap.innerText = word;
-
-        const isCorrect = word === currentScenario.correct;
-        gap.style.color = isCorrect ? "var(--pass-green)" : "#f87171";
-        
-        updateTrace(word, isCorrect);
-    }
-
-    function updateTrace(val, success) {
-        const log = document.getElementById('trace-56');
-        let html = `<div class="trace-step">→ 1. Magnets Detected: [${currentScenario.anchors.join(' & ')}]</div>`;
-        
-        if(!val) {
-            html += `<div class="trace-step">→ 2. Status: Scanning for contextual match...</div>`;
-            log.innerHTML = html;
-            return;
-        }
-
-        html += `<div class="trace-step">→ 2. Auditor: Testing "<b>${val}</b>"</div>`;
-        
-        if(success) {
-            html += `
-                <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                    → RESULT: ANCHOR ALIGNMENT 100%
-                </div>
-                <div class="trace-step" style="font-size:0.7rem; opacity:0.8;">${currentScenario.logic}</div>
-            `;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
         } else {
-            html += `
-                <div class="trace-step" style="color:#f87171; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                    → ERROR: MAGNET MISMATCH
-                </div>
-            `;
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-        log.innerHTML = html;
     }
 
-    window.onload = () => loadScenario(0, document.querySelector('.btn-scenario'));
-</script>
+    /* --- INTRO: PIECE --- */
+    function runIntroCloze() {
+        const piece = document.getElementById('intro-piece');
+        piece.style.transform = "translateY(-180px)";
+        setTimeout(() => {
+            document.getElementById('intro-gap').textContent = "FREEZING";
+            document.getElementById('intro-gap').style.color = "var(--cognis-gold)";
+            piece.style.opacity = "0";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Structural Alignment Locked! The term 'Freezing' establishes a flawless match with the core 'Snow' anchor theme.</div>`;
+        }, 300);
+    }
+    function resetIntro() { location.reload(); }
 
+    /* --- PROGRESSING: ANCHORS --- */
+    function runProgAnchors() {
+        document.getElementById('anc-1').classList.add('magnet-word');
+        document.getElementById('anc-2').classList.add('magnet-word');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Twin Context Magnets Locked! <b>"Empty Bottle"</b> + <b>"Depleted Water"</b> = Dehydration Context (Parched Choice Validated).</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const sScenarios = [
+        { t: "The captain grew <span class='ui-gap-s' id='sg'>________</span> when he saw the dark clouds gathering.", a: ["Dark Clouds", "Gathering"], o: ["Apprehensive", "Cheerful", "Bored", "Angry"], c: "Apprehensive" },
+        { t: "The student's <span class='ui-gap-s' id='sg'>________</span> effort resulted in a perfect score.", a: ["Perfect Score", "Resulted"], o: ["Careless", "Meticulous", "Rapid", "Initial"], c: "Meticulous" }
+    ];
+    let sIdx = 0;
+    function loadSupp(idx, btn) {
+        sIdx = idx; const d = sScenarios[idx];
+        document.querySelectorAll('.btn-scenario-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('s-well').innerHTML = d.t;
+        const optCont = document.getElementById('s-options'); optCont.innerHTML = '';
+        d.o.forEach(o => {
+            optCont.innerHTML += `<button class="btn-word-s" onclick="testSuppWord('${o}', this)">${o}</button>`;
+        });
+        document.getElementById('supp-log').innerHTML = `&rarr; Contextual Anchors Discovered: [<b>${d.a.join(' &bull; ')}</b>]<br>&rarr; Diagnostic Status: Awaiting targeted node input configuration...`;
+    }
+    function testSuppWord(val, btn) {
+        document.querySelectorAll('.btn-word-s').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const correct = val === sScenarios[sIdx].c;
+        document.getElementById('sg').textContent = val;
+        document.getElementById('sg').style.color = correct ? "var(--pass-green)" : "var(--fail-red)";
+        document.getElementById('supp-log').innerHTML = `&rarr; Active Cloze Alignment Trace: Testing element "<b>${val}</b>"<br>&rarr; Evaluation Verification Score: <b>${correct?'PROSE BOUNDARIES ALIGNED ✅':'SEMANTIC CRITERIA MISMATCH ❌'}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-well')) loadSupp(0, document.querySelector('.btn-scenario-s'));
+        if(typeof initModule === "function") initModule(56);
+    });
+</script>
 </body>
 </html>

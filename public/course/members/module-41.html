@@ -3,264 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 41: Logical Ordering | Cognis 11+</title>
+    <title>Module 41: The Sequential Logic Line-Up | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR ORDERING LAB */
-        .anatomy-display { 
-            background: #1a202c; 
-            border-radius: 12px; 
-            padding: 40px; 
-            min-height: 450px;
-            border: 2px solid #2d3748;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .tab-group { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
-        .tab-btn { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
-            transition: 0.2s;
-        }
-        .tab-btn.active { background: var(--cognis-gold); color: white; border-color: white; }
-
-        #perm-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 15px; 
-            max-height: 380px; 
-            overflow-y: auto; 
-            padding: 10px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--cognis-gold) #2d3748;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .perm-row { 
-            display: flex; gap: 8px; justify-content: center; 
-            background: rgba(255,255,255,0.05); padding: 15px; 
-            border-radius: 10px; border: 1px solid #4a5568; 
-            position: relative; transition: all 0.3s; 
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🕵️'; }
 
-        .token { 
-            width: 30px; height: 30px; border-radius: 6px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-weight: 900; color: white; font-size: 0.8rem; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        /* INTRO: HEIGHT CHECK */
+        .block-f { width: 60px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .block-red { background: #e53e3e; height: 140px; }
+        .block-blue { background: #3182ce; height: 80px; }
+        .clue-tag { background: var(--cognis-gold); color: white; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; margin-bottom: 20px; }
 
-        .token-a { background: #e53e3e; } 
-        .token-b { background: #ecc94b; color: #1a202c; } 
-        .token-c { background: #48bb78; } 
-        .token-d { background: #3182ce; }
+        /* PROGRESSING: CHAIN LINKER */
+        .chain-node { width: 50px; height: 50px; border: 3px solid var(--cognis-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; background: white; }
+        .chain-arrow { font-size: 1.5rem; color: var(--cognis-gold); font-weight: 900; }
 
-        .perm-row.eliminated { opacity: 0.2; filter: grayscale(1); transform: scale(0.95); }
-        .perm-row.eliminated::after { 
-            content: ''; position: absolute; top: 50%; left: 10%; right: 10%; 
-            height: 2px; background: #f87171; transform: rotate(-12deg); 
-            box-shadow: 0 0 8px #f87171;
-        }
+        /* SUPPLEMENTAL: LOGIC SIEVE */
+        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; }
+        .tab-group-s { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
+        .tab-btn-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.7rem; font-weight: 800; }
+        .tab-btn-s.active { background: var(--cognis-gold); color: white; border-color: white; }
+        #s-perm-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; max-height: 300px; overflow-y: auto; padding: 10px; }
+        .perm-row-s { display: flex; gap: 5px; justify-content: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #4a5568; position: relative; transition: 0.3s; }
+        .token-s { width: 25px; height: 25px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 0.7rem; }
+        .perm-row-s.eliminated { opacity: 0.2; filter: grayscale(1); }
+        .perm-row-s.winner { background: rgba(197,160,89,0.15); border: 2px solid var(--cognis-gold); }
 
-        .perm-row.winner { 
-            background: rgba(197, 160, 89, 0.15); 
-            border: 2px solid var(--cognis-gold); 
-            transform: scale(1.05); 
-            box-shadow: 0 0 20px rgba(197, 160, 89, 0.3); 
-        }
-
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        
-        .rule-btn { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; 
-            width: 100%; text-align: left; font-weight: 800; 
-            border-left: 4px solid transparent; transition: 0.2s; 
-        }
-        .rule-btn:hover { background: #4a5568; color: white; }
-        .rule-btn.active { 
-            background: var(--cognis-blue); 
-            border-left: 4px solid var(--cognis-gold); 
-            color: var(--cognis-gold); 
-            border-color: #4a5568;
-        }
-
-        .btn-reset { 
-            width: 100%; background: transparent; border: 2px solid #4a5568; 
-            color: #a0aec0; padding: 12px; border-radius: 8px; 
-            font-weight: 800; cursor: pointer; text-transform: uppercase; 
-            margin-top: 10px; font-size: 0.65rem; transition: 0.2s;
-        }
-        .btn-reset:hover { border-color: var(--cognis-gold); color: white; }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .rule-btn-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .rule-btn-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(41));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 41: Logical Ordering</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 41: The Sequential Logic Line-Up</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Visual Ranker</h2>
+            <p>Organizing items sequentially is exactly like arranging a class line-up for a group photograph. You are handed a specific rule, and you must move the pieces around until that condition is satisfied. Success does not rely on guessing; it is entirely about aligning your sequence with the evidence.</p>
+            
+            <div class="parent-script">
+                "Take a close look at these two blocks. Our visual clue states: <b>Red is taller than Blue</b>. Right now on the stage, they are standing in the wrong slots! Click 'Swap Rank Positions' to enforce the rule and see the logic satisfy the evidence."
+            </div>
+
+            <div class="viz-container">
+                <div class="clue-tag">VISUAL CLUE: RED > BLUE</div>
+                <div style="display:flex; gap:30px; align-items:flex-end; height:150px;" id="intro-lineup">
+                    <div class="block-f block-blue" id="b-1">B</div>
+                    <div class="block-f block-red" id="b-2">R</div>
+                </div>
+                <button class="btn-action" onclick="swapIntro()">Swap Rank Positions</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Clue: Red must be taller. Current: Blue is on the left.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Clue Anchoring Chain</h2>
+            <p>To untangle highly complex ordering puzzles, you must learn to link individual clues together like a physical chain. If brick A is taller than brick B, and brick B is taller than brick C, then brick B acts as the structural anchor that fuses A directly to C!</p>
+            
+            <div class="parent-script">
+                "We are tracking two isolated clues here: <b>A > B</b> and <b>B > C</b>. Notice how the character B acts as a shared link in both statements? That reveals that B is our 'Anchor Point'. Click 'Snap Clue Chain Together' to see them lock into a single, seamless sequence: A > B > C."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; flex-direction:column; gap:20px; align-items:center;" id="chain-area">
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="chain-node">A</div><div class="chain-arrow">→</div><div class="chain-node">B</div>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div class="chain-node" style="border-color:var(--cognis-gold)">B</div><div class="chain-arrow">→</div><div class="chain-node">C</div>
+                    </div>
+                </div>
+                <button class="btn-action" style="margin-top:40px;" onclick="snapChain()">Snap Clue Chain Together</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Two clues, one shared person (B).</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of logical ordering as the <b>"Detective's Filter."</b> In the 11+, you are given several clues about who is taller, heavier, or faster than someone else. The secret weapon isn't guessing the order—it's <b>eliminating the impossible</b>. Instead of trying to find the "winner" immediately, your child should treat every clue like a screen that blocks out the wrong answers. By the time they've used every clue, only one truth will remain.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Simple Pair</b>
-                "A is taller than B. There are only two friends. Who is the shortest?"
-            </div>
-            <div class="tier-card">
-                <b>The Trio Chain</b>
-                "B is taller than A, and C is taller than B. Arrange them from shortest to tallest."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Challenge</b>
-                "D is the tallest. B is taller than A, but shorter than C. Find the full sequence."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Possibility Matrix</b>. Select the number of items. Below, you see every possible way they could be arranged. As you toggle clues in the engine, watch how the "impossible" rows are instantly struck through. Help your child notice that we are narrowing the search, not searching for a needle in a haystack.</p>
-        
-        <div class="anatomy-display">
-            <div class="tab-group">
-                <button class="tab-btn active" id="tab-2" onclick="startSetup(2)">2 Items</button>
-                <button class="tab-btn" id="tab-3" onclick="startSetup(3)">3 Items</button>
-                <button class="tab-btn" id="tab-4" onclick="startSetup(4)">4 Items</button>
-            </div>
-            <div id="perm-container">
-                </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Toggle the clues below to filter the matrix above. Watch the <b>Trace Log</b> to see the "Surviver Count" drop. The goal is to apply just enough clues until only <b>one surviving row</b> remains—that is your answer.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Apply Constraint Filters</label>
-                <div id="rule-box">
-                    </div>
-                <button class="btn-reset" onclick="resetRules()">Reset Matrix</button>
-            </div>
-            <div class="trace-log" id="trace-41">Apply a clue to start the elimination...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "First Clue" Trap:</strong> Most children see the first clue (e.g., "A is taller than B") and immediately put A in the first position. <b>Stop!</b> This is a disaster. Just because A is taller than B doesn't mean A is the tallest person in the whole group.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of sequential layout questions as applying a strict <b>"Detective's Filter."</b> Gaining the upper hand does not depend on guessing the final arrangement right away—it relies on <b>eliminating the impossible combinations</b>. Treat every clue like a fine mesh screen that catches and blocks out faulty options. By the time you filter your list through every statement, only one undeniable truth remains standing.</p>
             
-            <p><strong>The Insider Fix: The "Chain Link" Rule.</strong> Tell your child: <i>"Don't build the house until you have all the bricks."</i> They should link clues together into a chain (A > B and B > C becomes A > B > C). Only once every person is linked should they decide on the final order. <b>Link the clues, then label the spots.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Simple Pair:</b> "A is taller than B. If there are only two friends in total, who must be the shortest?"</div>
+                <div class="tier-card"><b>The Trio Chain:</b> "B is taller than A, and C is taller than B. Arrange their positions from shortest to tallest."</div>
+                <div class="tier-card"><b>The Eleven-Plus Master:</b> "D is verified as tallest. B is taller than A but shorter than C. Calculate the exact sequence."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Sequential Elimination Grid</h2>
+            <p>Welcome to our interactive <b>Sequential Elimination Grid</b>. Below is a map of every possible arrangement option for the characters. As you toggle clue filters on the control panel, watch how the impossible layout rows fade away. We are systematically narrow down the search fields to isolate the single surviving solution.</p>
+            <div class="anatomy-display-s">
+                <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px; text-align:center;">Configure Puzzle Size</label>
+                <div class="tab-group-s">
+                    <button class="tab-btn-s active" onclick="setupSupp(2, this)">2 Token Set</button>
+                    <button class="tab-btn-s" onclick="setupSupp(3, this)">3 Token Set</button>
+                    <button class="tab-btn-s" onclick="setupSupp(4, this)">4 Token Set</button>
+                </div>
+                <div id="s-perm-container"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Rule Filter Engine</h2>
+            <p style="margin-bottom: 20px;">Toggle clue criteria below to apply selective logic filters to our grid map. Your student's goal is to activate rules until exactly <b>one solitary row survives</b> the evaluation.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Toggle Clue Filters</label>
+                    <div id="s-rule-box"></div>
+                    <button class="btn-action" style="background:#94a3b8; width:100%; font-size:0.6rem;" onclick="resetSuppRules()">Reset Elimination Grid</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Immediate Placement" Shortcut Trap:</b> Children under pressure often spot a clue like "A is taller than B" and instantly assign A to the absolute first slot on their sheet. <b>This is an exam trap!</b> Knowing A > B simply means A sits ahead of B; it does not prove that A is the tallest overall choice in the group.</p>
+                <p><b>The Easy Fix: Establish the Clue Chain First.</b> Teach your student this golden rule: <i>"Never build the wall until you have linked the bricks together."</i> Force them to connect independent clues together on scrap paper first (combining A > B and B > C into a clear, unified A > B > C chain). <b>Always hook your clues together before labeling final rank positions.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(41)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(41)">Complete Module & Update Lattice</button>
-
 <script>
-    let currentItems = [];
-    let activeRules = [];
-    const itemConfig = { 'A': 'token-a', 'B': 'token-b', 'C': 'token-c', 'D': 'token-d' };
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function startSetup(size) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-' + size).classList.add('active');
-        currentItems = ['A', 'B', 'C', 'D'].slice(0, size);
-        activeRules = [];
-        
-        const ruleBox = document.getElementById('rule-box');
-        ruleBox.innerHTML = '';
-        
-        let clues = [];
-        if(size === 2) clues = [{t:"A > B", a:"A", b:"B"}];
-        if(size === 3) clues = [{t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}];
-        if(size === 4) clues = [{t:"D > A", a:"D", b:"A"}, {t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}, {t:"D > C", a:"D", b:"C"}];
-
-        clues.forEach(r => {
-            const btn = document.createElement('button');
-            btn.className = 'rule-btn';
-            btn.innerText = `Clue: ${r.t}`;
-            btn.onclick = () => toggleRule(r, btn);
-            ruleBox.appendChild(btn);
-        });
-        updateSim();
-    }
-
-    function toggleRule(rule, btn) {
-        const idx = activeRules.findIndex(r => r.t === rule.t);
-        if(idx > -1) { 
-            activeRules.splice(idx, 1); 
-            btn.classList.remove('active'); 
-        } else { 
-            activeRules.push(rule); 
-            btn.classList.add('active'); 
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-        updateSim();
     }
 
-    function resetRules() {
-        activeRules = [];
-        document.querySelectorAll('.rule-btn').forEach(b => b.classList.remove('active'));
-        updateSim();
+    /* --- INTRO: LINEUP --- */
+    let introSwapped = false;
+    function swapIntro() {
+        const line = document.getElementById('intro-lineup');
+        if(!introSwapped) {
+            line.style.flexDirection = 'row-reverse';
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Evidence Aligned! Red has now scaled ahead of Blue positionally.</div>`;
+        } else {
+            line.style.flexDirection = 'row';
+        }
+        introSwapped = !introSwapped;
     }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: CHAIN --- */
+    function snapChain() {
+        const area = document.getElementById('chain-area');
+        area.innerHTML = `
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="chain-node">A</div><div class="chain-arrow">→</div>
+                <div class="chain-node" style="border-color:var(--cognis-gold)">B</div><div class="chain-arrow">→</div>
+                <div class="chain-node">C</div>
+            </div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Logic Chain Anchored! We can now verify the full sequence order is <b>A → B → C</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sSize = 2; let sRules = []; let sActiveRules = [];
+    const sColors = { A: '#e53e3e', B: '#ecc94b', C: '#48bb78', D: '#3182ce' };
+
+    function setupSupp(size, btn) {
+        sSize = size; sActiveRules = [];
+        if(btn) { document.querySelectorAll('.tab-btn-s').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        
+        const rBox = document.getElementById('s-rule-box'); rBox.innerHTML = '';
+        const clues = (size===2) ? [{t:"A > B", a:"A", b:"B"}] :
+                      (size===3) ? [{t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}] :
+                      [{t:"D > A", a:"D", b:"A"}, {t:"B > A", a:"B", b:"A"}, {t:"C > B", a:"C", b:"B"}, {t:"D > C", a:"D", b:"C"}];
+        sRules = clues;
+        clues.forEach((r, i) => {
+            rBox.innerHTML += `<button class="rule-btn-s" id="sr-${i}" onclick="toggleSuppRule(${i})">Activate Clue Filter: ${r.t}</button>`;
+        });
+        updateSuppSim();
+    }
+
+    function toggleSuppRule(idx) {
+        const r = sRules[idx];
+        const activeIdx = sActiveRules.findIndex(x => x.t === r.t);
+        if(activeIdx > -1) sActiveRules.splice(activeIdx, 1);
+        else sActiveRules.push(r);
+        document.getElementById('sr-'+idx).classList.toggle('active');
+        updateSuppSim();
+    }
+
+    function resetSuppRules() { sActiveRules = []; document.querySelectorAll('.rule-btn-s').forEach(b=>b.classList.remove('active')); updateSuppSim(); }
 
     function getPerms(arr) {
-        if (arr.length <= 1) return [arr];
+        if(arr.length<=1) return [arr];
         let p = [];
-        for (let i = 0; i < arr.length; i++) {
-            let rest = getPerms(arr.slice(0, i).concat(arr.slice(i + 1)));
-            for (let r of rest) p.push([arr[i]].concat(r));
+        for(let i=0; i<arr.length; i++) {
+            let rest = getPerms(arr.slice(0,i).concat(arr.slice(i+1)));
+            for(let r of rest) p.push([arr[i]].concat(r));
         }
         return p;
     }
 
-    function updateSim() {
-        const container = document.getElementById('perm-container');
-        container.innerHTML = '';
-        const allPerms = getPerms(currentItems);
+    function updateSuppSim() {
+        const cont = document.getElementById('s-perm-container'); cont.innerHTML = '';
+        const items = ['A','B','C','D'].slice(0, sSize);
+        const all = getPerms(items);
         let validCount = 0;
 
-        allPerms.forEach(p => {
-            const isValid = activeRules.every(r => p.indexOf(r.a) < p.indexOf(r.b));
+        all.forEach(p => {
+            const isValid = sActiveRules.every(r => p.indexOf(r.a) < p.indexOf(r.b));
             if(isValid) validCount++;
-            
-            const row = document.createElement('div');
-            row.className = 'perm-row' + (isValid ? '' : ' eliminated');
-            p.forEach(letter => { 
-                row.innerHTML += `<div class="token ${itemConfig[letter]}">${letter}</div>`; 
-            });
-            container.appendChild(row);
+            let rowHtml = `<div class="perm-row-s ${isValid?'':'eliminated'}">`;
+            p.forEach(l => rowHtml += `<div class="token-s" style="background:${sColors[l]}">${l}</div>`);
+            rowHtml += `</div>`;
+            cont.innerHTML += rowHtml;
         });
 
-        if(validCount === 1) {
-            const winner = document.querySelector('.perm-row:not(.eliminated)');
-            if(winner) winner.classList.add('winner');
-        }
-
-        document.getElementById('trace-41').innerHTML = `
-            <div class="trace-step">→ 1. Possible Worlds: <b>${allPerms.length}</b></div>
-            <div class="trace-step">→ 2. Clues Locked: <b>${activeRules.length}</b></div>
-            <div class="trace-step">→ 3. Remaining Truths: <b>${validCount}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → STATUS: ${validCount === 1 ? 'LOGIC SOLVED' : 'STILL FILTERING...'}
-            </div>
-        `;
+        document.getElementById('supp-log').innerHTML = `&rarr; Total Initial Permutations: ${all.length} | Active Rules Applied: ${sActiveRules.length}<br>&rarr; <b>Surviving Valid Arrangements: ${validCount}</b>`;
     }
-    
-    window.onload = () => startSetup(2);
-</script>
 
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); setupSupp(2);
+        if(typeof initModule === "function") initModule(41);
+    });
+</script>
 </body>
 </html>

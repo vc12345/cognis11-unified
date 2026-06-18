@@ -3,210 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 30: Relative Letter Shift | Cognis 11+</title>
+    <title>Module 30: Letter Jumping Patterns | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR CAESAR WHEEL */
-        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
-        
-        #caesar-svg { 
-            background: #0f172a; 
-            border-radius: 50%; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);
-            display: block;
-            margin: 0 auto;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .ring-text { 
-            font-family: 'Consolas', monospace; 
-            font-weight: 900; 
-            font-size: 14px; 
-            fill: #4a5568; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            cursor: default; 
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .outer-text { fill: #a0aec0; }
-        .inner-text { fill: var(--cognis-gold); opacity: 0.7; }
-        
-        .active-pair { 
-            fill: white; 
-            font-size: 19px; 
-            filter: drop-shadow(0 0 8px white); 
-            opacity: 1;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🕵️'; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        .input-text { 
-            width: 100%; padding: 12px; border-radius: 8px; border: none; 
-            background: #2d3748; color: white; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 4px; font-size: 1.1rem;
-        }
-        
-        .btn-toggle { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 10px 15px; border-radius: 6px; font-size: 0.7rem; 
-            cursor: pointer; text-transform: uppercase; font-weight: 800;
-            width: 100%; transition: 0.3s;
-        }
-        .btn-toggle.active { background: var(--cognis-gold); color: white; border-color: white; }
+        /* INTRO: ALPHABET STEPS */
+        .step-node { width: 50px; height: 50px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; transition: all 0.4s; }
+        .step-active { border-color: var(--cognis-gold); background: #fef3c7; transform: translateY(-10px); }
+        .jump-arrow { font-size: 1.5rem; color: var(--cognis-gold); transition: transform 0.4s; }
+
+        /* PROGRESSING: CODE STRIP */
+        .strip-f { display: flex; gap: 2px; background: #e2e8f0; padding: 5px; border-radius: 6px; overflow-x: auto; width: 100%; max-width: 500px; }
+        .strip-cell { min-width: 35px; height: 50px; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 4px; }
+        .strip-cell b { color: var(--cognis-blue); font-size: 0.9rem; }
+        .strip-cell small { color: var(--cognis-gold); font-size: 0.7rem; font-weight: 800; }
+
+        /* SUPPLEMENTAL: CAESAR DIAL */
+        #caesar-svg-s { background: #0f172a; border-radius: 50%; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .ring-text-s { font-family: 'Consolas', monospace; font-weight: 900; font-size: 12px; fill: #4a5568; transition: 0.4s; }
+        .active-pair-s { fill: white; font-size: 16px; filter: drop-shadow(0 0 5px white); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .input-text-s { width: 100%; padding: 10px; border-radius: 8px; background: #2d3748; color: white; font-weight: 900; text-transform: uppercase; text-align: center; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(30));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 30: Relative Letter Shift</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 30: Letter Jumping Patterns</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Secret Leapfrog</h2>
+            <p>If you want to hide a word inside a secret code, you can simply shift every single letter forward by a matching number of paces. For example, if we shift by one space, 'A' turns into 'B', 'B' turns into 'C', and so on. It is just like every letter holding hands in the alphabet line took exactly one synchronized side-step to the right!</p>
+            
+            <div class="parent-script">
+                "We are looking at the letters A and B. Click 'Take the Secret Leap' to watch the puzzle transform. If the clue shows us that 'A' transformed into 'B', we have successfully discovered the secret leap size! Now every other letter in the word must jump by that exact same distance."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:20px; align-items:center;">
+                    <div id="intro-box-1" class="step-node">A</div>
+                    <div class="jump-arrow">➡️</div>
+                    <div id="intro-box-2" class="step-node">B</div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="runIntroJump()">Take the Secret Leap</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Letters</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">A became B. That is a shift of <b>+1</b>.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Step Tracking Strip</h2>
+            <p>To untangle much larger shifts, we can trace our places along a sliding ruler track. If the master clue reveals a jump size of $+3$, we count exactly 3 positions forward for every single letter. If letter A takes 3 leaps, it lands safely on D. The entire alphabet string glides forward in perfect unison like an inner sliding strip of paper inside a ruler.</p>
+            
+            <div class="parent-script">
+                "Slide the tracking bar to experiment with different jump distances. Look at the starting letter (Blue) and see which hidden code letter (Gold) it matches up with. If we apply a shift size of $+5$, letter A transforms into F. The spacing between the partners never alters!"
+            </div>
+
+            <div class="viz-container">
+                <div class="strip-f" id="strip-cont"></div>
+                <input type="range" min="0" max="10" value="3" id="prog-slider" oninput="updateProg()" style="width:250px; margin-top:30px; accent-color:var(--cognis-gold);">
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top:15px;">Active Leap Size: <span id="prog-val">+3</span></div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Shift is currently +3. A matches with D.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"The Secret Service Code."</b> In the 11+, your child will encounter words hidden behind a "shift"—where each letter has been moved a certain number of steps down the alphabet. The secret weapon is <b>Pattern Persistence</b>. Once your child figures out the "Key" (how many steps 'A' moved to become its new letter), they must apply that exact same jump to every other letter in the word to crack the code.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Single Step</b>
-                "If 'CAT' is coded as 'DBU', what is the shift? Use that same pattern to code 'DOG'."
-            </div>
-            <div class="tier-card">
-                <b>The Decoder Ring</b>
-                "In a secret code, 'FISH' becomes 'HKUJ'. Find the key and decode the mystery word 'BIRD'."
-            </div>
-            <div class="tier-card">
-                <b>The Reverse Riddle</b>
-                "The code is flipped (A=Z, B=Y). If the message is 'BCZ', what was the original word?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Concentric Cipher</b>. The outer ring is the "Normal" alphabet; the inner ring is the "Secret" alphabet. Point to the gold line at the top—that’s the <b>Sync Point</b>. When you rotate the inner ring, the relationship between every letter pair shifts. Help your child notice that the distance between letters never changes; the whole alphabet moves together like a set of locked gears.</p>
-        
-        <div class="anatomy-display">
-            <svg id="caesar-svg" width="100%" height="400" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet">
-                <circle cx="210" cy="210" r="165" fill="none" stroke="#2d3748" stroke-width="45" />
-                <circle cx="210" cy="210" r="115" fill="none" stroke="#1e293b" stroke-width="45" />
-                
-                <g id="outer-ring"></g>
-                <g id="inner-ring"></g>
-                
-                <path d="M 210 20 L 210 65" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
-            </svg>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the slider to rotate the inner dial and type a word into the box. Watch the <b>Trace Log</b> as it translates each letter using your custom key. Ask your child to predict the coded letter for 'A' before they move the slider—if they can guess one, they can solve the whole word.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Rotate the Inner Dial (Shift)</label>
-                    <input type="range" id="shift-slider" min="0" max="25" value="1" oninput="run30()">
-                </div>
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Alphabet Flow</label>
-                    <button id="btn-reverse" class="btn-toggle" onclick="toggleReverse()">Standard (A→B→C)</button>
-                </div>
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Your Word</label>
-                    <input type="text" id="word-in" class="input-text" value="FISH" maxlength="10" oninput="run30()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-30">Sync the alphabets to reveal the code...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Alphabet Wall" Trap:</strong> Most children visualize the alphabet as a flat line. When a shift moves past 'Z', they freeze because they think the alphabet has "run out" of room. If the code is $+2$ and they need to code 'Y', they get stuck.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of this word puzzle style as <b>"The Secret Service Code Game."</b> Normal words are hidden behind a uniform jumping distance—where each character marches a fixed number of steps down the alphabet line. The key shortcut is <b>Pattern Persistence</b>. The very instant you discover the master jump scale (by measuring exactly how many spaces the letter 'A' traveled), you simply apply that identical jump distance to every single remaining letter to crack the code wide open.</p>
             
-            <p><strong>The Insider Fix: The "Alphabet Clock" Rule.</strong> Tell your child: <i>"The alphabet is a ring, not a ruler."</i> Just like a clock goes from 12 back to 1, the alphabet goes from Z back to A. If they hit the 'Wall' at Z, they just keep counting from the start. <b>Z is not the end; it's just the bridge back to A.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Single-Step Leap:</b> "If the word 'CAT' is written in code as 'DBU', what is the exact jump size? Apply that same rule to transform the word 'DOG'."</div>
+                <div class="tier-card"><b>The Secret Decoder Ring:</b> "Inside a secret ledger, the word 'FISH' transforms into 'HKUJ'. Use this spacing pattern to decode the mystery word 'BIRD'."</div>
+                <div class="tier-card"><b>The Reverse Mirror Riddle:</b> "The coding system is flipped completely backwards ($A=Z, B=Y$). If the incoming message reads 'BCZ', find the original hidden word."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Concentric Decoder Wheel</h2>
+            <p>Study our interactive <b>Concentric Decoder Wheel</b> layout below. The outer ring tracks the "Normal Alphabet," while the inner ring contains the "Secret Code Letters." The vertical gold line marks your <b>Pattern Sync Point</b>. Whenever you rotate the inner wheel, every single letter pair shifts together like interlocked clock gears. The distance separating the letters remains completely constant around the loop.</p>
+            <div class="anatomy-display">
+                <svg id="s-caesar-svg" width="300" height="300" viewBox="0 0 400 400">
+                    <circle cx="200" cy="200" r="160" fill="none" stroke="#2d3748" stroke-width="40" />
+                    <circle cx="200" cy="200" r="115" fill="none" stroke="#1e293b" stroke-width="40" />
+                    <g id="s-outer-ring"></g>
+                    <g id="s-inner-ring"></g>
+                    <path d="M 200 25 L 200 65" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Real-Time Decoding Tool</h2>
+            <p style="margin-bottom: 20px;">Rotate our inner dial wheel and type out a test word below. Observe our tracking log translate each character one by one. If you can pinpoint the shift distance for a single letter, you can solve the entire word instantly.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Dial Rotation Control</label><input type="range" id="si-shift" min="0" max="25" value="1" oninput="runSupp()"></div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Letter Tracking Direction</label>
+                        <button id="si-btn-rev" class="btn-action" style="width:100%; font-size:0.6rem;" onclick="toggleSuppRev()">Standard Direction (A&rarr;B&rarr;C)</button>
+                    </div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Enter Your Test Word</label><input type="text" id="si-word" class="input-text-s" value="FISH" maxlength="10" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Alphabet End Wall" Illusion Trap:</b> Children often visualize the alphabet string as a flat, rigid line on a page. When a forward shift pushes a character past the letter 'Z', they frequently freeze up because they believe the track has completely run out of room.</p>
+                <p><b>The Easy Fix: The Alphabet Clock Face Rule.</b> Remind your student: <i>"The alphabet is a continuous ring, not a flat ruler."</i> Just like a standard clock face loops past 12 o'clock straight back around to 1 o'clock, the alphabet links seamlessly from Z right back into A. <b>The letter Z is simply the bridge that returns you to the start of the circle.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(30)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(30)">Complete Module & Update Lattice</button>
-
 <script>
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let isReversed = false;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function toggleReverse() {
-        isReversed = !isReversed;
-        const btn = document.getElementById('btn-reverse');
-        btn.innerText = isReversed ? "Reverse (Z→Y→X)" : "Standard (A→B→C)";
-        btn.classList.toggle('active', isReversed);
-        run30();
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data & Logic)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function run30() {
-        const offset = parseInt(document.getElementById('shift-slider').value);
-        const word = document.getElementById('word-in').value.toUpperCase().replace(/[^A-Z]/g, '');
-        const outerG = document.getElementById('outer-ring');
-        const innerG = document.getElementById('inner-ring');
-        
-        outerG.innerHTML = '';
-        innerG.innerHTML = '';
-
-        for (let i = 0; i < 26; i++) {
-            const angle = (i / 26) * 2 * Math.PI - Math.PI / 2;
-            const ox = 210 + 165 * Math.cos(angle);
-            const oy = 210 + 165 * Math.sin(angle);
-            const ix = 210 + 115 * Math.cos(angle);
-            const iy = 210 + 115 * Math.sin(angle);
-
-            const plainChar = alphabet[i];
-            
-            let cipherIdx;
-            if (!isReversed) {
-                cipherIdx = (i + offset) % 26;
-            } else {
-                cipherIdx = (26 - (i + offset) % 26) % 26;
-            }
-            const cipherChar = alphabet[cipherIdx];
-
-            const isActive = word.includes(plainChar);
-
-            outerG.innerHTML += `<text x="${ox}" y="${oy}" class="ring-text outer-text ${isActive ? 'active-pair' : ''}" text-anchor="middle" dominant-baseline="middle">${plainChar}</text>`;
-            innerG.innerHTML += `<text x="${ix}" y="${iy}" class="ring-text inner-text ${isActive ? 'active-pair' : ''}" text-anchor="middle" dominant-baseline="middle">${cipherChar}</text>`;
-        }
-
-        const keyChar = alphabet[isReversed ? (26-offset)%26 : offset];
-        let trace = `<div class="trace-step">→ 1. Key Identified: <b>A = ${keyChar}</b></div>`;
-        let results = [];
-        
-        for (let c of word) {
-            const idx = alphabet.indexOf(c);
-            let codeChar;
-            if (!isReversed) {
-                codeChar = alphabet[(idx + offset) % 26];
-            } else {
-                codeChar = alphabet[(offset - idx + 26) % 26];
-            }
-            results.push(codeChar);
-            trace += `<div class="trace-step" style="font-size:0.75rem;">Decoding <b>${c}</b> → <b>${codeChar}</b></div>`;
-        }
-
-        trace += `
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → ENCRYPTED WORD: ${results.join('') || '...'}
-            </div>
-        `;
-        document.getElementById('trace-30').innerHTML = trace;
+    /* --- INTRO: JUMP --- */
+    function resetIntro() {
+        document.getElementById('intro-box-1').innerText = "A";
+        document.getElementById('intro-box-1').classList.remove('step-active');
+        document.getElementById('intro-box-2').innerText = "B";
+        document.getElementById('intro-box-2').classList.remove('step-active');
+        document.getElementById('intro-log').innerHTML = "A became B. Shift of +1.";
+    }
+    function runIntroJump() {
+        document.getElementById('intro-box-1').innerText = "C";
+        document.getElementById('intro-box-1').classList.add('step-active');
+        setTimeout(() => {
+            document.getElementById('intro-box-2').innerText = "D";
+            document.getElementById('intro-box-2').classList.add('step-active');
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Because the shift distance is set to +1, <b>letter C must leap forward to D</b>!</div>`;
+        }, 500);
     }
 
-    window.onload = run30;
+    /* --- PROGRESSING: STRIP --- */
+    function updateProg() {
+        const s = parseInt(document.getElementById('prog-slider').value);
+        const cont = document.getElementById('strip-cont');
+        cont.innerHTML = '';
+        const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for(let i=0; i<10; i++) {
+            cont.innerHTML += `<div class="strip-cell"><b>${alpha[i]}</b><small>${alpha[(i+s)%26]}</small></div>`;
+        }
+        document.getElementById('prog-val').innerText = "+" + s;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Leap scale is +${s}. Starting letter A maps straight to <b>${alpha[s]}</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: DIAL --- */
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let sRev = false;
+    function toggleSuppRev() { sRev = !sRev; document.getElementById('si-btn-rev').innerText = sRev ? "Reverse Direction (Z&rarr;Y&rarr;X)" : "Standard Direction (A&rarr;B&rarr;C)"; runSupp(); }
+    function runSupp() {
+        const off = parseInt(document.getElementById('si-shift').value);
+        const word = document.getElementById('si-word').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const outer = document.getElementById('s-outer-ring'), inner = document.getElementById('s-inner-ring');
+        outer.innerHTML = ''; inner.innerHTML = '';
+
+        for(let i=0; i<26; i++) {
+            let cipherIdx = sRev ? (26 - (i + off) % 26) % 26 : (i + off) % 26;
+            let pChar = alpha[i], cChar = alpha[cipherIdx], active = word.includes(pChar);
+            let ang = (i/26)*2*Math.PI - Math.PI/2;
+            let ox = 200+160*Math.cos(ang), oy = 200+160*Math.sin(ang);
+            let ix = 200+115*Math.cos(ang), iy = 200+115*Math.sin(ang);
+            outer.innerHTML += `<text x="${ox}" y="${oy}" text-anchor="middle" dominant-baseline="middle" class="ring-text-s ${active?'active-pair-s':''}">${pChar}</text>`;
+            inner.innerHTML += `<text x="${ix}" y="${iy}" text-anchor="middle" dominant-baseline="middle" class="ring-text-s ${active?'active-pair-s':''}" style="fill:var(--cognis-gold); opacity:0.7;">${cChar}</text>`;
+        }
+
+        let res = [];
+        for(let c of word) {
+            let idx = alpha.indexOf(c);
+            res.push(sRev ? alpha[(off - idx + 26) % 26] : alpha[(idx + off) % 26]);
+        }
+        document.getElementById('supp-log').innerHTML = `→ Master Alignment Key: letter A balances with <b>${alpha[sRev?(26-off)%26:off]}</b><br>→ Encrypted Word Output: <b>${res.join('')}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateProg();
+        if(document.getElementById('si-shift')) runSupp();
+        if(typeof initModule === "function") initModule(30);
+    });
 </script>
-
 </body>
 </html>

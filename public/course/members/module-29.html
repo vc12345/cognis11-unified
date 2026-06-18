@@ -3,208 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 29: Alpha-Numeric Decoder | Cognis 11+</title>
+    <title>Module 29: The Letter-Number Decoder Map | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR CIPHER DIAL */
-        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
-        
-        #cipher-svg { 
-            background: #0f172a; 
-            border-radius: 50%; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(197, 160, 89, 0.1);
-            display: block;
-            margin: 0 auto;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .ring-text { 
-            font-family: 'Consolas', monospace; 
-            font-weight: 900; 
-            font-size: 13px; 
-            fill: #4a5568; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            cursor: default; 
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .letter-text { fill: #a0aec0; }
-        .number-text { fill: var(--cognis-gold); font-size: 11px; opacity: 0.6; }
-        
-        .active-char { 
-            fill: white; 
-            font-size: 18px; 
-            filter: drop-shadow(0 0 8px var(--cognis-gold)); 
-            opacity: 1;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🕵️'; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        .input-text { 
-            width: 100%; padding: 12px; border-radius: 8px; border: none; 
-            background: #2d3748; color: white; font-weight: 900; 
-            text-transform: uppercase; letter-spacing: 4px; font-size: 1.1rem;
-        }
-        
-        .btn-toggle { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 10px 15px; border-radius: 6px; font-size: 0.7rem; 
-            cursor: pointer; text-transform: uppercase; font-weight: 800;
-            width: 100%; transition: 0.3s;
-        }
-        .btn-toggle.active { background: var(--cognis-gold); color: white; border-color: white; }
+        /* INTRO: NUMBER BADGES */
+        .badge-f { width: 50px; height: 70px; background: white; border: 3px solid var(--cognis-blue); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
+        .badge-f b { font-size: 1.2rem; color: var(--cognis-blue); }
+        .badge-f span { font-size: 0.7rem; color: var(--cognis-gold); font-weight: 800; margin-top: 5px; }
+        .badge-active { border-color: var(--cognis-gold); background: #fffbeb; transform: scale(1.1); }
+
+        /* PROGRESSING: SHIFT RULER */
+        .ruler-f { display: flex; gap: 4px; padding: 10px; background: #e2e8f0; border-radius: 8px; width: 100%; max-width: 500px; overflow-x: auto; }
+        .ruler-tick { min-width: 30px; text-align: center; font-family: monospace; }
+        .ruler-tick small { display: block; font-size: 0.6rem; color: #64748b; }
+        .ruler-tick b { display: block; color: var(--cognis-blue); font-size: 0.9rem; }
+
+        /* SUPPLEMENTAL: CIPHER DIAL */
+        #cipher-svg-s { background: #0f172a; border-radius: 50%; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .ring-text-s { font-family: 'Consolas', monospace; font-weight: 900; font-size: 12px; fill: #4a5568; transition: 0.4s; }
+        .active-char-s { fill: white; font-size: 16px; filter: drop-shadow(0 0 5px var(--cognis-gold)); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .input-code { background: #2d3748; color: white; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; text-transform: uppercase; font-weight: 800; text-align: center; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(29));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 29: Alpha-Numeric Decoder</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 29: The Letter-Number Decoder Map</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Secret Identity Badges</h2>
+            <p>Every single letter in our alphabet wears its own secret identity badge number. When we line the whole row up standardly, letter A claims badge 1, letter B takes badge 2, tracking all the way along to Z sitting at badge 26. Cracking a mystery code is simply matching each badge number back to its rightful letter holder!</p>
+            
+            <div class="parent-script">
+                "Look closely at the letters A, B, and C below. They are sporting their standard everyday identity badges. If I give you a mystery secret combination like '3-1-2', can you trace which hidden letters those badges stand for? Click 'Verify Code Combination' to watch the badges flash dynamically in sequence!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:15px;">
+                    <div class="badge-f" id="badge-1"><b>A</b><span>1</span></div>
+                    <div class="badge-f" id="badge-2"><b>B</b><span>2</span></div>
+                    <div class="badge-f" id="badge-3"><b>C</b><span>3</span></div>
+                </div>
+                <div style="margin-top:30px; font-weight:800; color:var(--cognis-blue);">Target Secret Combination: <span style="color:var(--cognis-gold);">3 - 1 - 2</span></div>
+                <button class="btn-action" onclick="runIntroBadge()">Verify Code Combination</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">A stands for 1, B stands for 2, C stands for 3. Easy as pie!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Sliding Alphabet Tracker</h2>
+            <p>In advanced word puzzles, our badge identities will slide out of position. If a puzzle shifts the values by +2, then letter A drops its standard 1 identity and adopts badge number 3 instead! The entire alphabet line slides forward together along the tracker, just like a line of train carriages moving down a railway track.</p>
+            
+            <div class="parent-script">
+                "Slide the control handle below to slide our matching system out of position. Notice how the badge numbers keep their perfect numerical sequence, but the alphabet letters shift over to link up with new partners. If A slides to 4, then B must step forward to 5. The spacing pattern remains perfectly uniform!"
+            </div>
+
+            <div class="viz-container">
+                <div class="ruler-f" id="ruler-cont"></div>
+                <input type="range" min="0" max="10" value="0" id="prog-shift" oninput="updateProg()" style="width:200px; margin-top:30px; accent-color:var(--cognis-gold);">
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top:15px;">Active Step Shift: <span id="prog-shift-val">0</span></div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">A=1. Standard pattern alignment.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as the <b>"Secret Agent Rule."</b> In the 11+, examiners love to hide messages by swapping letters for numbers. Whether they use a simple count ($A=1$), a reverse countdown ($A=26$), or a shifted code ($A=3$), the secret weapon is <b>Mapping Consistency</b>. Once your child identifies the "Key" (which letter equals which number), they must apply that exact same logic to every letter in the word without breaking the pattern.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Direct Code</b>
-                "If $A=1$ and $B=2$, what is the numerical code for the word 'FISH'?"
-            </div>
-            <div class="tier-card">
-                <b>The Reverse Riddle</b>
-                "If the alphabet is flipped so $A=26$ and $Z=1$, what is the code for 'CAT'?"
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Shift</b>
-                "A secret code uses a $+3$ offset ($A=4$). Decode the numbers '4-18-21-13' to find the word."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Cipher Dial</b>. Point to the outer ring of letters and the inner ring of numbers. The gold line at the top indicates our <b>Master Key</b>. When the dial rotates, the relationship between every letter and number changes instantly. Help your child notice how the whole alphabet moves together like a locked gears—if you know one pair, you know them all.</p>
-        
-        <div class="anatomy-display">
-            <svg id="cipher-svg" width="100%" height="400" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet">
-                <circle cx="210" cy="210" r="165" fill="none" stroke="#2d3748" stroke-width="40" />
-                <circle cx="210" cy="210" r="120" fill="none" stroke="#1e293b" stroke-width="40" />
-                
-                <g id="letters-group"></g>
-                <g id="numbers-group"></g>
-                
-                <line x1="210" y1="25" x2="210" y2="65" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
-            </svg>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the slider to rotate the dial and type a word into the box. Watch the <b>Trace Log</b> as it translates each letter using the active key. Ask your child to predict the number for the next letter before the engine reveals it. Notice how the "Mapping Direction" button flips the logic from a standard count to a reverse countdown.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Set the Key (Rotation)</label>
-                    <input type="range" id="shift-dial" min="0" max="25" value="0" oninput="run29()">
-                </div>
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Dial Direction</label>
-                    <button id="btn-reverse" class="btn-toggle" onclick="toggleReverse()">Standard (A=1)</button>
-                </div>
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Your Message</label>
-                    <input type="text" id="word-in" class="input-text" value="CODE" maxlength="10" oninput="run29()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-29">Adjust the dial to decode...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Alphabet Wall" Trap:</strong> When a shift moves past Z or before A, children often freeze. If the code is $A=24$, and they need to find the value of $C$, they think the alphabet has "run out" of room.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>In competitive 11+ papers, exam designers conceal hidden words by swapping letters out for a string of numbers. Whether the question applies a direct step count ($A=1$), a reverse countdown flip ($A=26$), or a customized position slide ($A=3$), the master key to success is maintaining a <b>Uniform Pattern Alignment</b>. The very second you uncover the rule governing one letter pair, you must stamp that exact layout across every remaining symbol without breaking stride.</p>
             
-            <p><strong>The Insider Fix: The "Alphabet Clock" Rule.</strong> Tell your child: <i>"The alphabet is a circle, not a line."</i> Just like a clock goes from 12 back to 1, the alphabet goes from Z back to A. If they hit the "Wall" at Z, they just keep counting from 1 again at A. <b>There is no end to the loop.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>Direct Alignment:</b> "If letter $A=1$ and $B=2$, what combined numerical value string represents the word 'FISH'?"</div>
+                <div class="tier-card"><b>Flipped Reverse Alignment:</b> "If the alphabet grid is flipped upside down ($A=26$ and $Z=1$), what values represent 'CAT'?"</div>
+                <div class="tier-card"><b>The Position Slide:</b> "A secret message uses a +3 offset rule ($A=4$). Translate the raw value sequence '4-18-21-13' to discover the hidden word."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Secret Coding Dial</h2>
+            <p>Study our interactive <b>Secret Coding Dial</b> below. The bright gold pointer mark marks your <b>Master Key</b>. As you spin the control dial, the entire alphabet shifts in perfect unison like interlocked clock gears—once you discover the identity of a single pair, you hold the secret to the entire diagram. Watch how the layout loops continuously from Z right back around to A.</p>
+            <div class="anatomy-display">
+                <svg id="s-cipher-svg" width="300" height="300" viewBox="0 0 400 400">
+                    <circle cx="200" cy="200" r="160" fill="none" stroke="#2d3748" stroke-width="30" />
+                    <circle cx="200" cy="200" r="120" fill="none" stroke="#1e293b" stroke-width="30" />
+                    <g id="s-letters-g"></g>
+                    <g id="s-numbers-g"></g>
+                    <line x1="200" y1="20" x2="200" y2="60" stroke="var(--cognis-gold)" stroke-width="4" stroke-linecap="round" />
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Real-Time Decoding Tool</h2>
+            <p style="margin-bottom: 20px;">Rotate our wheel control handle and type out a sample word. Observe the tracking outputs below to watch each letter process through your active key filter. Try swapping the tracking direction to see how a countdown code behaves!</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Dial Shifting Control</label><input type="range" id="si-shift" min="0" max="25" value="0" oninput="runSupp()"></div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Letter Alignment Mode</label>
+                        <button id="si-btn-dir" class="btn-action" style="width:100%; font-size:0.6rem;" onclick="toggleSuppDir()">Standard Mode (A=1)</button>
+                    </div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Enter Your Sample Word</label><input type="text" id="si-word" class="input-code" value="CODE" maxlength="10" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Alphabet End Wall" Speed Trap:</b> When a pattern slide shifts letters past the end marker Z, many children freeze in confusion. If a rule places $A=24$, they mistakenly assume that finding an identity for a letter like $C$ is mathematically impossible because they hit the end of the line.</p>
+                <p><b>The Easy Fix: The Alphabet Clock Face Rule.</b> Remind your child: <i>"The alphabet tracks in a continuous circle."</i> Just like a standard clock hand rolls right past 12 midnight and starts back fresh at 1 o'clock, the alphabet loops seamlessly past Z straight back into A. The very millisecond you hit Z, keep your count rolling forward from 1 at the A quadrant.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(29)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(29)">Complete Module & Update Lattice</button>
-
 <script>
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let isReversed = false;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function toggleReverse() {
-        isReversed = !isReversed;
-        const btn = document.getElementById('btn-reverse');
-        btn.innerText = isReversed ? "Reverse (Z=1)" : "Standard (A=1)";
-        btn.classList.toggle('active', isReversed);
-        run29();
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Logic Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function run29() {
-        const offset = parseInt(document.getElementById('shift-dial').value);
-        const word = document.getElementById('word-in').value.toUpperCase().replace(/[^A-Z]/g, '');
-        const lGroup = document.getElementById('letters-group');
-        const nGroup = document.getElementById('numbers-group');
-        
-        lGroup.innerHTML = '';
-        nGroup.innerHTML = '';
-
-        for (let i = 0; i < 26; i++) {
-            let alphaIdx;
-            if (!isReversed) {
-                alphaIdx = (i + offset) % 26;
-            } else {
-                alphaIdx = (26 - (i + offset) % 26) % 26;
+    /* --- INTRO: BADGES --- */
+    function runIntroBadge() {
+        const order = [3, 1, 2];
+        let i = 0;
+        const interval = setInterval(() => {
+            document.querySelectorAll('.badge-f').forEach(b => b.classList.remove('badge-active'));
+            document.getElementById('badge-' + order[i]).classList.add('badge-active');
+            i++;
+            if(i >= order.length) {
+                clearInterval(interval);
+                document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Identity sequence 3-1-2 decodes to word letters <b>C-A-B</b>!</div>`;
             }
-            
-            const char = alphabet[alphaIdx];
-            const isActive = word.includes(char);
-            
-            const angle = (i / 26) * 2 * Math.PI - Math.PI / 2;
-            const lx = 210 + 165 * Math.cos(angle);
-            const ly = 210 + 165 * Math.sin(angle);
-            const nx = 210 + 120 * Math.cos(angle);
-            const ny = 210 + 120 * Math.sin(angle);
+        }, 800);
+    }
 
-            lGroup.innerHTML += `<text x="${lx}" y="${ly}" class="ring-text letter-text ${isActive ? 'active-char' : ''}" text-anchor="middle" dominant-baseline="middle">${char}</text>`;
-            nGroup.innerHTML += `<text x="${nx}" y="${ny}" class="ring-text number-text ${isActive ? 'active-char' : ''}" text-anchor="middle" dominant-baseline="middle">${i+1}</text>`;
+    /* --- PROGRESSING: RULER --- */
+    function updateProg() {
+        const shift = parseInt(document.getElementById('prog-shift').value);
+        const cont = document.getElementById('ruler-cont');
+        cont.innerHTML = '';
+        const letters = "ABCDEFGHIJKLM";
+        for(let i=0; i<letters.length; i++) {
+            cont.innerHTML += `<div class="ruler-tick"><small>${i+1+shift}</small><b>${letters[i]}</b></div>`;
+        }
+        document.getElementById('prog-shift-val').innerText = "+" + shift;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Tracker updated: letter <b>A holds identity badge value ${1+shift}</b>. All trailing elements shifted forward by ${shift} positions uniformly.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: DIAL --- */
+    const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let sRev = false;
+    function toggleSuppDir() { sRev = !sRev; document.getElementById('si-btn-dir').innerText = sRev ? "Reverse Mode (Z=1)" : "Standard Mode (A=1)"; runSupp(); }
+    function runSupp() {
+        const offset = parseInt(document.getElementById('si-shift').value);
+        const word = document.getElementById('si-word').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const lG = document.getElementById('s-letters-g'), nG = document.getElementById('s-numbers-g');
+        lG.innerHTML = ''; nG.innerHTML = '';
+
+        for(let i=0; i<26; i++) {
+            let aIdx = sRev ? (26 - (i + offset) % 26) % 26 : (i + offset) % 26;
+            let char = alpha[aIdx], act = word.includes(char), angle = (i/26)*2*Math.PI - Math.PI/2;
+            let lx = 200 + 160*Math.cos(angle), ly = 200 + 160*Math.sin(angle);
+            let nx = 200 + 120*Math.cos(angle), ny = 200 + 120*Math.sin(angle);
+            lG.innerHTML += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" class="ring-text-s ${act?'active-char-s':''}">${char}</text>`;
+            nG.innerHTML += `<text x="${nx}" y="${ny}" text-anchor="middle" dominant-baseline="middle" class="ring-text-s" style="fill:var(--cognis-gold); font-size:9px;">${i+1}</text>`;
         }
 
-        const keyChar = alphabet[isReversed ? (26-offset)%26 : offset];
-        let trace = `<div class="trace-step">→ 1. Active Key: <b>${keyChar} = 1</b></div>`;
+        const keyChar = alpha[sRev ? (26-offset)%26 : offset];
         let results = [];
-        
-        for (let c of word) {
-            const charIdx = alphabet.indexOf(c);
-            let num;
-            if (!isReversed) {
-                num = ((charIdx - offset + 26) % 26) + 1;
-            } else {
-                num = ((offset - charIdx + 26) % 26) + 1;
-            }
+        for(let c of word) {
+            let num = sRev ? ((offset - alpha.indexOf(c) + 26) % 26) + 1 : ((alpha.indexOf(c) - offset + 26) % 26) + 1;
             results.push(num);
-            trace += `<div class="trace-step" style="font-size:0.75rem;">Decoding letter <b>${c}</b> using Key → <b>${num}</b></div>`;
         }
-
-        trace += `
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → NUMERICAL CODE: ${results.join('-') || '...'}
-            </div>
-        `;
-        document.getElementById('trace-29').innerHTML = trace;
+        document.getElementById('supp-log').innerHTML = `→ Master Alignment Key: <b>${keyChar} = badge 1</b><br>→ Processed Code Sequence: <b>${results.join('-')}</b>`;
     }
 
-    window.onload = run29;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateProg();
+        if(document.getElementById('si-shift')) runSupp();
+        if(typeof initModule === "function") initModule(29);
+    });
 </script>
-
 </body>
 </html>

@@ -1,5 +1,3 @@
-// js/module-core-a.js
-
 /**
  * DATABASE SCHEMA COMPATIBILITY LAYER (POLYFILL INTERCEPTOR)
  * Intercepts legacy queries for 'subscription_plan' from all 59 modules 
@@ -153,29 +151,44 @@ async function initModule(moduleId) {
     injectModuleUI(user.email, moduleId, false);
 }
 
-async function checkCompletionStatus(moduleId) {
+async function checkCompletionStatus(baseModuleId) {
     if (!window.supabaseClient) return;
     const { data: { user } } = await window.supabaseClient.auth.getUser();
     if (!user) return;
 
-    const { data } = await window.supabaseClient
-        .from('module_progress')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('module_id', moduleId)
-        .maybeSingle();
+    // Find all completion buttons on the page
+    const buttons = document.querySelectorAll('.btn-complete');
+    
+    for (const btn of buttons) {
+        // Read the exact module ID this button triggers (e.g. '1-p' or '1')
+        const match = btn.getAttribute('onclick')?.match(/markComplete\(['"]?([^'"]+)['"]?\)/);
+        
+        if (match && match[1]) {
+            const exactModuleId = match[1];
 
-    if (data) {
-        disableCompleteButton();
+            const { data } = await window.supabaseClient
+                .from('module_progress')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('module_id', exactModuleId)
+                .maybeSingle();
+
+            // ONLY disable this exact button if its specific module is in the database
+            if (data) {
+                disableCompleteButton(btn);
+            }
+        }
     }
 }
 
-function disableCompleteButton() {
-    const btn = document.querySelector('.btn-complete');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "Module Completed ✓";
-        btn.classList.add('is-finished');
+function disableCompleteButton(specificBtn) {
+    if (specificBtn) {
+        specificBtn.disabled = true;
+        specificBtn.innerText = "Module Completed ✓";
+        specificBtn.classList.add('is-finished');
+        specificBtn.style.backgroundColor = "#276245"; 
+        specificBtn.style.opacity = "1";
+        specificBtn.style.cursor = "not-allowed";
     }
 }
 
@@ -212,30 +225,56 @@ function injectModuleUI(email, currentId, isSample) {
 }
 
 async function markComplete(moduleId) {
-    const btn = document.querySelector('.btn-complete');
-    if (btn) {
-        btn.disabled = true;
-        btn.innerText = "Saving Progress...";
+    // Accurately find the specific button that was clicked by matching the onclick attribute
+    const buttons = document.querySelectorAll('.btn-complete');
+    let clickedBtn = null;
+    for (const b of buttons) {
+        if (b.getAttribute('onclick').includes(`markComplete('${moduleId}')`) || 
+            b.getAttribute('onclick').includes(`markComplete(${moduleId})`)) {
+            clickedBtn = b;
+            break;
+        }
+    }
+
+    const originalText = clickedBtn ? clickedBtn.innerText : "Complete Module";
+
+    if (clickedBtn) {
+        clickedBtn.disabled = true;
+        clickedBtn.innerText = "Saving Progress...";
+        clickedBtn.style.opacity = "0.7";
     }
 
     try {
-        const { data: { user } } = await window.supabaseClient.auth.getUser();
-        if (!user) throw new Error("No user logged in");
+        const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
+        if (authError || !user) throw new Error("No user logged in");
+
+        // Force string casting so the DB doesn't crash on "1-p"
+        const targetModuleId = String(moduleId);
 
         const { error } = await window.supabaseClient
             .from('module_progress')
             .upsert({ 
                 user_id: user.id, 
-                module_id: moduleId,
+                module_id: targetModuleId,
                 completed_at: new Date().toISOString()
             }, { onConflict: 'user_id, module_id' });
 
         if (error) throw error;
-        disableCompleteButton();
+        
+        // Pass the specific button to successfully update it visually
+        disableCompleteButton(clickedBtn);
+
     } catch (err) {
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = "Complete Module & Update Lattice";
+        console.error("Supabase Save Error:", err);
+        // This alert will catch and display any silent database rejections
+        alert("Could not save progress: " + (err.message || JSON.stringify(err)));
+
+        // Reset the button if the database rejects the save so the user isn't stuck
+        if (clickedBtn) {
+            clickedBtn.disabled = false;
+            clickedBtn.innerText = originalText;
+            clickedBtn.style.opacity = "1";
+            clickedBtn.style.cursor = "pointer";
         }
     }
 }

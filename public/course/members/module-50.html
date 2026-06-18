@@ -3,229 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 50: Paper Folding | Cognis 11+</title>
+    <title>Module 50: Mirror Fold Patterns | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR SYMMETRY LAB */
-        .anatomy-display { 
-            background: #1a202c; 
-            border-radius: 12px; 
-            padding: 40px; 
-            margin: 20px 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            gap: 40px; 
-            min-height: 320px;
-            border: 2px solid #2d3748;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .view-column { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .view-label { 
-            color: #718096; 
-            font-size: 0.65rem; 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-        }
-        
-        .paper { 
-            background: white; 
-            border: 2px solid #4a5568; 
-            position: relative; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
-            transition: all 0.3s ease;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .crease { 
-            position: absolute; 
-            background: var(--cognis-gold); 
-            opacity: 0.3; 
-            pointer-events: none; 
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📄'; }
 
-        .punch { 
-            width: 12px; 
-            height: 12px; 
-            background: #0f172a; 
-            border-radius: 50%; 
-            position: absolute; 
-            transform: translate(-50%, -50%);
-            box-shadow: inset 0 0 5px rgba(255,255,255,0.2);
-        }
-        
-        #result-view { opacity: 0; transform: translateY(10px); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-        #result-view.visible { opacity: 1; transform: translateY(0); }
+        /* INTRO: WET INK */
+        .ink-paper { width: 140px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: right center; }
+        .ink-dot { width: 15px; height: 15px; background: var(--cognis-blue); border-radius: 50%; position: absolute; }
+        .ink-mirror { opacity: 0; transition: opacity 0.3s 0.8s; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        
-        .btn-tier { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; 
-            width: 100%; text-align: left; transition: 0.2s;
-            margin-bottom: 8px;
-        }
-        .btn-tier:hover { background: #4a5568; color: white; }
-        .btn-tier.active { 
-            background: var(--cognis-blue); 
-            border-left: 5px solid var(--cognis-gold); 
-            color: var(--cognis-gold); 
-        }
+        /* PROGRESSING: CREASE MAGNET */
+        .magnet-crease { width: 4px; height: 200px; background: #ef4444; position: absolute; left: 50%; transform: translateX(-50%); }
+        .hole-f { width: 14px; height: 14px; background: #0f172a; border-radius: 50%; position: absolute; transition: all 0.5s; }
+        .dist-line { height: 2px; background: var(--cognis-gold); position: absolute; top: 50%; opacity: 0.3; }
 
-        .btn-action { 
-            background: var(--cognis-gold); color: white; border: none; 
-            padding: 15px; border-radius: 8px; width: 100%; 
-            font-weight: 900; cursor: pointer; text-transform: uppercase; 
-            margin-top: 15px; letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
-            transition: 0.3s;
-        }
-        .btn-action:hover { background: #b08d4b; transform: translateY(-2px); }
+        /* SUPPLEMENTAL: REFLECTION LAB */
+        .anatomy-display-s { background: #1a202c; border-radius: 12px; padding: 40px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; }
+        .paper-s { background: white; border: 2px solid #4a5568; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .punch-s { width: 12px; height: 12px; background: #0f172a; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); }
+        .crease-s { position: absolute; background: var(--cognis-gold); opacity: 0.3; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-tier-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .btn-tier-s.active { background: var(--cognis-gold); color: white; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(50));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 50: Paper Folding</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 50: Mirror Fold Patterns</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Wet Paint Paper Test</h2>
+            <p>Imagine your child pressing a fresh drop of wet paint onto a sheet of paper. When you fold the sheet closed and flatten it out, the paint automatically stamps a duplicate pattern onto the opposite side. Spatial paper folding operates exactly like this <b>Stamp and Mirror</b> sequence. When you pull the layer back open, the source hole always leaves a symmetrical twin.</p>
+            
+            <div class="parent-script">
+                "Look closely at our primary blue dot. This represents our active patch of wet ink. Click the 'Flatten Sheet Open' button below to watch the page unfold. Notice that our newly stamped dot doesn't simply slide across into a random spot—it flips perfectly across the central crease line like a mirror reflection!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex;">
+                    <div id="intro-p1" class="ink-paper" style="border-right-style: dashed; z-index: 10;">
+                        <div class="ink-dot" style="top:40px; left:30px;"></div>
+                    </div>
+                    <div id="intro-p2" class="ink-paper" style="border-left: none;">
+                        <div id="intro-twin" class="ink-dot ink-mirror" style="top:40px; right:30px;"></div>
+                    </div>
+                </div>
+                <button class="btn-action" onclick="runIntroUnfold()">Flatten Sheet Open</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Layout Board</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Hole is currently 30 units from the crease.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Folding Crease Magnet</h2>
+            <p>A structural fold line behaves exactly like a magnet. If a hole is punched exceptionally <b>Close</b> to the dividing crease, its matching reflection will rest exceptionally <b>Close</b> on the other side. If the source hole sits <b>Far</b> back from the dividing track, its cloned partner maps out <b>Far</b> back too. This distance balance stays constant across both fields!</p>
+            
+            <div class="parent-script">
+                "Slide the controller bar back and forth. Watch how the ghost twin mimics our movements. If your real hole travels closer toward the red crease line, the shadow twin steps closer to greet it. This is called the <b>Constant Distance Rule</b>. Tracking how far a punch sits from the crease line is your ultimate guide to solving folding questions!"
+            </div>
+
+            <div class="viz-container">
+                <div style="width:300px; height:200px; background:white; border:2px solid #cbd5e0; position:relative;">
+                    <div class="magnet-crease"></div>
+                    <div id="prog-real" class="hole-f" style="left:40px; top:90px; cursor:grab; background:var(--cognis-blue);"></div>
+                    <div id="prog-ghost" class="hole-f" style="right:40px; top:90px; opacity:0.4;"></div>
+                    <div id="prog-dist-l" class="dist-line" style="left:40px; width:110px;"></div>
+                    <div id="prog-dist-r" class="dist-line" style="right:40px; width:110px;"></div>
+                </div>
+                <input type="range" min="10" max="140" value="40" style="width:200px; margin-top:30px; accent-color:var(--cognis-gold);" oninput="updateProgMagnet(this.value)">
+            </div>
+
+            <div class="discovery-log" id="prog-log">Mirror the distance, not the position!</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"Mental Mirroring."</b> In the 11+, you are shown a piece of paper being folded and then "punched" with a hole. The secret weapon is realizing that you aren't trying to guess where the holes land—you are <b>unfolding the paper in reverse</b>. Every crease line is a perfect mirror. If there’s a hole on the left of a fold, there <i>must</i> be an identical twin on the right. Your child’s job is to trace these reflections step-by-step until the paper is flat again.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Single Split</b>
-                "1 Fold (Half). 1 Punch. Trace the symmetry across the vertical center to find the pair."
-            </div>
-            <div class="tier-card">
-                <b>The Quarter Fold</b>
-                "2 Folds (Quarter). 2 Punches. Mirror the pattern across both the X and Y axes to find the group of 8."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Masterclass</b>
-                "3 Folds (Complex). Analyze radial reflections where the hole positions seem to 'rotate' around the center."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Reflection Matrix</b>. Look at the "Folded State" below. This represents the final scrap of paper before it's unfolded. Notice the position of the black dots (the punches). When you click <b>"Unfold Page,"</b> watch how the engine clones those holes across the gold crease lines. The holes don't move; they simply multiply like a kaleidoscope.</p>
-        
-        
-
-        <div class="anatomy-display">
-            <div class="view-column">
-                <span class="view-label">Folded State</span>
-                <div id="folded-paper" class="paper"></div>
-            </div>
-            <div class="view-column" id="result-view">
-                <span class="view-label">Unfolded Result</span>
-                <div id="unfolded-paper" class="paper" style="width: 200px; height: 200px;"></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Select a complexity tier below. Ask your child to point to where they think the holes will appear in the "Unfolded Result" before you click the button. This builds the <b>Prototyping</b> skill required to solve these questions in seconds rather than minutes.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <button class="btn-tier active" onclick="loadTier(1, this)">Tier 1: The Half Fold</button>
-                <button class="btn-tier" onclick="loadTier(2, this)">Tier 2: The Quarter Fold</button>
-                <button class="btn-tier" onclick="loadTier(3, this)">Tier 3: The Strip Fold</button>
-                <button class="btn-action" onclick="unfold()">Unfold Page</button>
-            </div>
-            <div class="trace-log" id="trace-50">Select a pattern to begin the projection...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Slide" Fallacy:</strong> Most children think the hole simply "moves" to the other side of the paper while staying in the same relative spot (e.g., always staying in the "top-left" corner of its section). <b>This is a point-stealing trap.</b></p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Approach compound punch layout puzzles as mastering <b>"Mental Reverse Mirroring."</b> Arriving at the correct solution quickly depends entirely on <b>tracing the unfolding steps in absolute reverse order</b>. Every single crease line functions as a perfect axis of symmetry. If a hole exists on one flank of a fold, a duplicate <i>must</i> project onto the opposing flank. Trace these independent twin pairs step-by-step until your blueprint model lies flat on the page.</p>
             
-            <p><strong>The Insider Fix: The "Distance Constant."</strong> Tell your child: <i>"The crease is a magnet."</i> If a hole is 10mm away from the fold line, its mirror-twin <b>must</b> be exactly 10mm away on the other side. If the hole is near the edge, its twin is near the edge. Distance to the crease is the only thing that never lies. <b>Mirror the distance, not the position.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Single Split Fold:</b> 1 simple fold, followed by 1 punch. Trace out the balanced mirror symmetry across the central vertical axis line.</div>
+                <div class="tier-card"><b>The Quarter Corner Grid:</b> 2 perpendicular folds, followed by 2 distinct punches. Project matches across the horizontal and vertical axes simultaneously (yielding 8 holes total).</div>
+                <div class="tier-card"><b>The Eleven-Plus Master Challenge:</b> 3 overlapping folds. Dissect compound radial reflections where geometric shapes seem to twist and step across triangular layouts.</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Symmetry Blueprint Lab</h2>
+            <p>Welcome to our interactive <b>Symmetry Blueprint Lab</b>. Inspect the Folded State container (this shows the final cropped paper fragment right before it gets punched). Note the coordinates of the punch holes. The moment you activate the template, follow how our generator maps clones across the golden crease tracks. They multiply rapidly like a kaleidoscope.</p>
+            <div class="anatomy-display-s">
+                <div style="text-align:center;">
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8;">COMPACT FOLDED STATE</span>
+                    <div id="s-folded" class="paper-s" style="margin-top:10px;"></div>
+                </div>
+                <div id="s-result-view" style="opacity:0; transition:0.5s; text-align:center;">
+                    <span style="font-size:0.6rem; font-weight:800; color:#94a3b8;">UNFOLDED REVERSAL RESULT</span>
+                    <div id="s-unfolded" class="paper-s" style="width:200px; height:200px; margin-top:10px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Unfolding Transformation Simulator</h2>
+            <p style="margin-bottom: 20px;">Choose a folding difficulty level from the options below. Challenge your child to spot exactly where the cloned punches will appear before you click the activation trigger. This builds the spatial prototyping reflexes needed to conquer exam time constraints.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Folding Complexity</label>
+                    <button class="btn-tier-s active" onclick="setSuppTier(1, this)">Tier 1: Single Half Fold Reversal</button>
+                    <button class="btn-tier-s" onclick="setSuppTier(2, this)">Tier 2: Four-Layer Quarter Fold Reversal</button>
+                    <button class="btn-tier-s" onclick="setSuppTier(3, this)">Tier 3: Multi-Layer Strip Fold Reversal</button>
+                    <button class="btn-action" style="width:100%; background:var(--cognis-gold);" onclick="unfoldSupp()">Unfold Layout Sheet</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Sliding Shift" Illusion Trap:</b> Children frequently look at a paper fragment and assume a hole simply slides across into the next quadrant while keeping its exact original placement orientation (such as assuming a punch nestled in the upper-left corner of a small scrap stays in the upper-left zone of the big open sheet).</p>
+                <p><b>The Easy Fix: Enforce the Balanced Crease Distance Habit.</b> Coach your student with this exact visual trick: <i>"The fold acts like an absolute magnet."</i> If a punched hole rests precisely 10mm away from the crease line on the source panel, its clone <b>must</b> map out exactly 10mm away from that crease line on the flipped side. <b>Always mirror the distance away from the fold, never the general position on the grid.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(50)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(50)">Complete Module & Update Lattice</button>
-
 <script>
-    let currentTier = 1;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function loadTier(t, btn) {
-        currentTier = t;
-        document.querySelectorAll('.btn-tier').forEach(b => b.classList.remove('active'));
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Spatial Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: UNFOLD --- */
+    function runIntroUnfold() {
+        document.getElementById('intro-p1').style.transform = "rotateY(-180deg)";
+        document.getElementById('intro-twin').style.opacity = "1";
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Symmetry Enforced! The ink drop was flipped symmetrically across the central fold track.</div>`;
+    }
+    function resetIntro() { location.reload(); }
+
+    /* --- PROGRESSING: MAGNET --- */
+    function updateProgMagnet(val) {
+        document.getElementById('prog-real').style.left = val + 'px';
+        document.getElementById('prog-ghost').style.right = val + 'px';
+        document.getElementById('prog-dist-l').style.width = (150 - val) + 'px';
+        document.getElementById('prog-dist-l').style.left = val + 'px';
+        document.getElementById('prog-dist-r').style.width = (150 - val) + 'px';
+        document.getElementById('prog-dist-r').style.right = val + 'px';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Measured clearance to fold: <b>${150-val} units</b>. Symmetrical distance confirmed on both sides!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sTier = 1;
+    function setSuppTier(t, btn) {
+        sTier = t;
+        document.querySelectorAll('.btn-tier-s').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById('result-view').classList.remove('visible');
+        document.getElementById('s-result-view').style.opacity = "0";
         
-        const folded = document.getElementById('folded-paper');
-        const unfolded = document.getElementById('unfolded-paper');
-        folded.innerHTML = ''; 
-        unfolded.innerHTML = '';
-        
-        let trace = "";
+        const f = document.getElementById('s-folded'), u = document.getElementById('s-unfolded');
+        f.innerHTML = ''; u.innerHTML = '';
 
         if(t === 1) {
-            folded.style.width = '100px'; folded.style.height = '200px';
-            folded.innerHTML += '<div class="punch" style="top:40px; left:30px;"></div>';
-            
-            unfolded.innerHTML += '<div class="crease" style="width:2px; height:100%; left:50%;"></div>';
-            unfolded.innerHTML += '<div class="punch" style="top:40px; left:30px;"></div>';
-            unfolded.innerHTML += '<div class="punch" style="top:40px; left:170px;"></div>';
-            trace = "Single Mirror: Horizontal projection across the center crease.";
+            f.style.width = '100px'; f.style.height = '200px';
+            f.innerHTML += '<div class="punch-s" style="top:40px; left:30px;"></div>';
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div>';
+            u.innerHTML += '<div class="punch-s" style="top:40px; left:30px;"></div><div class="punch-s" style="top:40px; left:170px;"></div>';
         } else if(t === 2) {
-            folded.style.width = '100px'; folded.style.height = '100px';
-            folded.innerHTML += '<div class="punch" style="top:25px; left:25px;"></div>';
-            folded.innerHTML += '<div class="punch" style="top:70px; left:75px;"></div>';
-            
-            unfolded.innerHTML += '<div class="crease" style="width:2px; height:100%; left:50%;"></div>';
-            unfolded.innerHTML += '<div class="crease" style="width:100%; height:2px; top:50%;"></div>';
-            
-            const holes = [[25,25], [25,175], [70,75], [70,125], [175,25], [175,175], [130,75], [130,125]];
-            holes.forEach(h => unfolded.innerHTML += `<div class="punch" style="top:${h[0]}px; left:${h[1]}px;"></div>`);
-            trace = "Dual Mirror: 4-way symmetry across the X and Y axes.";
+            f.style.width = '100px'; f.style.height = '100px';
+            f.innerHTML += '<div class="punch-s" style="top:25px; left:25px;"></div><div class="punch-s" style="top:70px; left:75px;"></div>';
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div><div class="crease-s" style="width:100%; height:2px; top:50%;"></div>';
+            const hs = [[25,25],[25,175],[70,75],[70,125],[175,25],[175,175],[130,75],[130,125]];
+            hs.forEach(h => u.innerHTML += `<div class="punch-s" style="top:${h[0]}px; left:${h[1]}px;"></div>`);
         } else {
-            folded.style.width = '100px'; folded.style.height = '50px';
-            folded.innerHTML += '<div class="punch" style="top:25px; left:30px;"></div>';
-            
-            for(let i=1; i<4; i++) unfolded.innerHTML += `<div class="crease" style="width:100%; height:2px; top:${i*25}%;"></div>`;
-            unfolded.innerHTML += '<div class="crease" style="width:2px; height:100%; left:50%;"></div>';
-            
+            f.style.width = '100px'; f.style.height = '50px';
+            f.innerHTML += '<div class="punch-s" style="top:25px; left:30px;"></div>';
+            for(let i=1; i<4; i++) u.innerHTML += `<div class="crease-s" style="width:100%; height:2px; top:${i*25}%;"></div>`;
+            u.innerHTML += '<div class="crease-s" style="width:2px; height:100%; left:50%;"></div>';
             for(let row=0; row<4; row++) {
-                unfolded.innerHTML += `<div class="punch" style="top:${25 + (row*50)}px; left:30px;"></div>`;
-                unfolded.innerHTML += `<div class="punch" style="top:${25 + (row*50)}px; left:170px;"></div>`;
+                u.innerHTML += `<div class="punch-s" style="top:${25+(row*50)}px; left:30px;"></div><div class="punch-s" style="top:${25+(row*50)}px; left:170px;"></div>`;
             }
-            trace = "Accordion Mirror: 8-segment symmetrical propagation.";
         }
-
-        document.getElementById('trace-50').innerHTML = `
-            <div class="trace-step">→ 1. Setup: <b>Tier ${t} Fold</b></div>
-            <div class="trace-step">→ 2. Scan: Identifying ${t === 1 ? 'one' : t === 2 ? 'two' : 'multiple'} mirror planes...</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → LOGIC: ${trace}
-            </div>
-        `;
+        document.getElementById('supp-log').innerHTML = `&rarr; Symmetry Audit History: Tier ${t} framework loaded. Calibrate your eyes to track the reflection planes.`;
     }
 
-    function unfold() { 
-        document.getElementById('result-view').classList.add('visible'); 
-    }
+    function unfoldSupp() { document.getElementById('s-result-view').style.opacity = "1"; }
 
-    window.onload = () => loadTier(1, document.querySelector('.btn-tier'));
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); updateProgMagnet(40);
+        if(document.getElementById('s-folded')) setSuppTier(1, document.querySelector('.btn-tier-s'));
+        if(typeof initModule === "function") initModule(50);
+    });
 </script>
-
 </body>
 </html>

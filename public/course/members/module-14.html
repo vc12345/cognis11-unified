@@ -3,231 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 14: Interval Logic | Cognis 11+</title>
+    <title>Module 14: The Spaces In Between | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR INTERVAL VISUALIZER */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 60px 40px; 
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .timeline-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100px;
-            width: 100%; 
-            max-width: 700px;
-            margin: 0 auto;
-            position: relative;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 380px; position: relative;
         }
 
-        .post {
-            width: 12px;
-            height: 60px;
-            background: var(--cognis-blue);
-            border-radius: 4px;
-            position: relative;
-            z-index: 2;
-            flex-shrink: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔔'; }
 
-        .post::after {
-            content: attr(data-label);
-            position: absolute;
-            top: -28px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.65rem;
-            font-weight: 900;
-            color: var(--cognis-blue);
-            white-space: nowrap;
-        }
+        /* INTRO: BELL RINGER */
+        .bell-path { fill: #facc15; stroke: #a16207; stroke-width: 2; transition: transform 0.1s; }
+        .time-dot { fill: var(--cognis-blue); opacity: 0; transition: opacity 0.3s; }
+        .time-gap-line { stroke: #38bdf8; stroke-width: 4; stroke-dasharray: 4; opacity: 0; transition: opacity 0.3s; }
 
-        .gap {
-            height: 8px;
-            background: #38bdf8;
-            flex-grow: 1; 
-            z-index: 1;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
+        /* PROGRESSING: FENCE BUILDER */
+        .post-f { fill: var(--cognis-blue); stroke: #001a35; rx: 2; }
+        .panel-f { fill: #bae6fd; stroke: #38bdf8; stroke-width: 2; opacity: 0.6; }
 
-        .gap::after {
-            content: 'GAP';
-            position: absolute;
-            bottom: -22px;
-            font-size: 0.6rem;
-            font-weight: 900;
-            color: #38bdf8;
-            letter-spacing: 1px;
-        }
+        /* SUPPLEMENTAL: TIMELINE */
+        .timeline-s { display: flex; align-items: center; width: 100%; max-width: 600px; height: 100px; position: relative; }
+        .post-s { width: 10px; height: 50px; background: var(--cognis-blue); border-radius: 4px; flex-shrink: 0; position: relative; }
+        .post-s::after { content: attr(data-num); position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 0.6rem; font-weight: 800; color: var(--cognis-blue); }
+        .gap-s { flex-grow: 1; height: 6px; background: #38bdf8; position: relative; }
+        .gap-s::after { content: 'GAP'; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; font-weight: 800; color: #38bdf8; }
 
-        .stats-row {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 50px;
-            width: 100%;
-        }
-
-        .stat-pill {
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        .pill-blue { background: #e0e7ff; color: var(--cognis-blue); border: 1px solid #c7d2fe; }
-        .pill-sky { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
-
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        input[type=number] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #4a5568;
-            background: #2d3748;
-            color: white;
-            font-weight: 800;
-            margin-top: 5px;
-        }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-interact { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .stat-pill { background: #e0f2fe; color: #0369a1; padding: 5px 15px; border-radius: 20px; font-weight: 800; font-size: 0.7rem; margin: 5px; display: inline-block; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(14));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 14: Interval Logic</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 14: The Spaces In Between</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Bell Ringer</h2>
+            <p>If a large church bell rings out 3 separate times, your mind might instinctively think that 3 full seconds have ticked away. But time can only pass <b>in between</b> the chimes! The very first chime acts like a starting pistol—it fires right at the "Zero" mark on our track. We only measure the pockets of silence that follow after it sounds.</p>
+            
+            <div class="parent-script">
+                "Click our bell icon 3 times in a row. Watch the tracking line form below it. The first chime represents our baseline 'Start Point'. Notice that for 3 distinct bell chimes, we only create 2 empty gaps of actual time. In tricky word problems, the math action lives in the silent spaces, not in the noises!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="150" viewBox="0 0 300 150">
+                    <path id="bell-icon" d="M150,20 Q120,20 120,60 L110,90 L190,90 L180,60 Q180,20 150,20" class="bell-path" />
+                    <circle cx="150" cy="95" r="5" fill="#475569" />
+                    <line x1="20" y1="130" x2="280" y2="130" stroke="#cbd5e0" stroke-width="2" />
+                    <circle id="strike-1" cx="20" cy="130" r="6" class="time-dot" />
+                    <circle id="strike-2" cx="150" cy="130" r="6" class="time-dot" />
+                    <circle id="strike-3" cx="280" cy="130" r="6" class="time-dot" />
+                    <line id="gap-1" x1="20" y1="130" x2="150" y2="130" class="time-gap-line" />
+                    <line id="gap-2" x1="150" y1="130" x2="280" y2="130" class="time-gap-line" />
+                </svg>
+                <button class="btn-interact" id="ring-btn" onclick="ringBell()">Ring the Bell!</button>
+                <button class="btn-interact" style="background:#94a3b8; font-size:0.7rem; padding: 5px 10px; margin-top:10px;" onclick="resetIntro()">Reset</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting for the first chime...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Fence Builder</h2>
+            <p>Calculating columns or post placements along a straight line is a classic exam trick. If you want to connect 4 flat wooden fence panels together, you will actually need <b>5 structural posts</b>. Why? Because you must plant an extra post at the very start and one at the very finish. Your total count of objects is always <b>one more</b> than the number of gaps between them.</p>
+            
+            <div class="parent-script">
+                "Imagine we are building a garden boundary wall. Move our slider to add new fence panels to the plot. Count the dark blue vertical posts with your child as they appear. Do you see the pattern? If we have 3 panel sections (which represent our gaps), we always require 4 solid posts to clamp them into place!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150" id="fence-svg"></svg>
+                <div style="margin-top:15px;">
+                    <div class="stat-pill" id="pill-panels">3 Panels (Gaps)</div>
+                    <div class="stat-pill" style="background:#e0e7ff; color:var(--cognis-blue);" id="pill-posts">4 Posts</div>
+                </div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Number of Panels (Gaps Between)</label>
+                        <input type="range" min="1" max="6" value="3" id="prog-gaps" oninput="updateProg()">
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('14-p')">Complete Progressing Step</button>
+            </div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>This is the <b>"Hidden Space"</b> secret. In the 11+, examiners love to trick children with sequences like clock strikes or fence posts. Bright children usually count the physical objects, but the real math always happens in the <b>gaps</b> between them. If your child can learn to ignore the objects and count the spaces, they’ll dodge the "Off-by-One" trap that catches most students out.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Striking Clock</b>
-                "A clock strikes 4 times. If there are 3 seconds between each strike, how much time passes from the first strike to the last?"
-            </div>
-            <div class="tier-card">
-                <b>The Garden Fence</b>
-                "A 30m straight fence has posts every 6m. How many posts are needed in total?"
-            </div>
-            <div class="tier-card">
-                <b>The Doctor's Orders</b>
-                "A patient takes 6 doses of medicine, one every 45 minutes. How many minutes pass between the very first and the very last dose?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Look at the <b>Boundary Map</b> below. Point to the dark blue posts and the light blue gaps with your child. Notice that no matter how many posts you place, the number of gaps is always <b>exactly one less</b>. If you have 4 posts, you only have 3 gaps. This is the "Skeleton" of the problem—the gaps are where the distance and time actually live.</p>
-        
-        <div class="anatomy-display">
-            <div id="timeline" class="timeline-container">
-                </div>
-            <div class="stats-row">
-                <div class="stat-pill pill-blue">Physical Objects: <span id="n-val">4</span></div>
-                <div class="stat-pill pill-sky">Hidden Gaps: <span id="g-val">3</span></div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the 'Number of Objects' box to add or remove posts. Watch the <b>Hidden Gaps</b> count change in the sky-blue pill. Help your child notice that the total distance is shared across the **gaps**, not the posts themselves. This is why we always subtract one before we do the math.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Number of Objects (N)</label>
-                    <input type="number" id="n-in" value="4" min="2" max="10" oninput="run14()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Total Distance or Time</label>
-                    <input type="number" id="t-in" value="12" oninput="run14()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-14">Awaiting boundary inputs...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Fence Post" Trap:</strong> Most kids see "20m distance, 5m gaps" and say "4 posts." They are dividing the distance by the gap size and forgetting that a fence needs a post at the very start (the "Zero" mark) to hold it up!</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>This is commonly known as the <b>"Hidden Space"</b> rule. In competitive 11+ exams, linear sequences like grandfather clock strikes, evenly spaced street lights, or fence boundary lines are written purposefully to trick students. The true mathematical spacing always happens in the <b>gaps</b> hidden between the items. To secure full marks, look past the items themselves and measure the spaces. This ensures you avoid the classic off-by-one mistake every time.</p>
             
-            <p><strong>The Insider Fix: The "Starting Anchor" Rule.</strong> Remind your child: "Your division answer tells you the number of <b>Gaps</b>. To find the number of <b>Posts</b>, you must always add the first anchor." Just remember the secret code: <b>Gaps + 1 = Objects</b>.</p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Tower Clock:</b> "A village clock strikes 4 times, leaving exactly 3 seconds of silence between each strike. How much time passes from the very first strike to the very last?"</div>
+                <div class="tier-card"><b>The Property Fence:</b> "A straight fence stretching 30m needs wooden posts fixed every 6m along the line. How many total posts are needed to finish the job?"</div>
+                <div class="tier-card"><b>The Scheduled Medication:</b> "A patient must take 6 doses of medicine, with one dose administered every 45 minutes. How much total time passes from the first dose to the final one?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Gap Map</h2>
+            <p>Study the <b>Gap Map</b> timeline below. No matter how many items or posts you arrange on the line, the number of empty intervals between them is always <b>exactly one less</b>. If you arrange 4 structural posts, you create 3 open gaps. Distance values and time measurements occupy the spaces, never the items themselves.</p>
+            <div class="anatomy-display">
+                <div class="timeline-s" id="supp-timeline"></div>
+                <div style="margin-top:30px;">
+                    <span class="stat-pill" style="background:#e0e7ff; color:var(--cognis-blue);" id="supp-pill-n">Total Objects: 4</span>
+                    <span class="stat-pill" id="supp-pill-g">Calculated Gaps: 3</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Interval Breakdown Tool</h2>
+            <p style="margin-bottom: 20px;">Change the quantity of items using the selector inputs below. Observe how the <b>Hidden Gaps</b> tracker automatically matches the shift. Your full measurement span is shared evenly across those gaps, which is why we must always subtract one before dividing.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Total Count of Objects</label><input type="number" id="in-n" value="4" min="2" max="12" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Total Gap Span (Distance/Time Total)</label><input type="number" id="in-v" value="12" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Standard Division" Trap:</b> Most students scan a question that reads "20m layout distance, 5m spaces" and instantly answer "4 posts." They successfully divide the overall distance by the gap size but completely forget to factor in the <b>Starting Anchor</b> planted at the very beginning of the run.</p>
+                <p><b>The Easy Fix: The "Starting Anchor" Rule.</b> Teach your child that dividing the total span tells you the number of <b>Gaps</b>. To find the total number of <b>Posts</b> required to frame those gaps, you must always add that first anchor post back into the mix: <b>Gaps + 1 = Total Objects</b>.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(14)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(14)">Complete Module & Update Lattice</button>
-
 <script>
-    function run14() {
-        const n = parseInt(document.getElementById('n-in').value) || 2;
-        const total = parseFloat(document.getElementById('t-in').value) || 0;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        // Logic
-        const gaps = n - 1;
-        const intervalSize = gaps > 0 ? total / gaps : 0;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Motion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
 
-        // Update Labels
-        document.getElementById('n-val').innerText = n;
-        document.getElementById('g-val').innerText = gaps;
+    /* --- INTRO: BELL RINGER --- */
+    let strikes = 0;
+    function resetIntro() {
+        strikes = 0;
+        document.querySelectorAll('.time-dot, .time-gap-line').forEach(el => el.style.opacity = '0');
+        document.getElementById('intro-log').innerHTML = "Waiting for the first chime...";
+        document.getElementById('ring-btn').disabled = false;
+    }
+    function ringBell() {
+        if(strikes >= 3) return;
+        strikes++;
+        const bell = document.getElementById('bell-icon');
+        bell.style.transform = "rotate(15deg)";
+        setTimeout(() => bell.style.transform = "rotate(-15deg)", 50);
+        setTimeout(() => bell.style.transform = "rotate(0deg)", 100);
 
-        // Rebuild Visual
-        const container = document.getElementById('timeline');
-        container.innerHTML = '';
-        for(let i=1; i<=n; i++) {
-            const post = document.createElement('div');
-            post.className = 'post';
-            post.setAttribute('data-label', 'Item ' + i);
-            container.appendChild(post);
-            
-            if(i < n) {
-                const gap = document.createElement('div');
-                gap.className = 'gap';
-                container.appendChild(gap);
-            }
+        document.getElementById('strike-' + strikes).style.opacity = '1';
+        if(strikes > 1) document.getElementById('gap-' + (strikes-1)).style.opacity = '1';
+
+        const logs = [
+            "Chime 1: This is our START marker. Elapsed time = 0.",
+            "Chime 2: We have just created our very first GAP of tracking time!",
+            "Chime 3: Final chime! We recorded 3 chimes, but notice there are only 2 gaps."
+        ];
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">${logs[strikes-1]}</div>`;
+        if(strikes === 3) document.getElementById('ring-btn').disabled = true;
+    }
+
+    /* --- PROGRESSING: FENCE BUILDER --- */
+    function updateProg() {
+        const gaps = parseInt(document.getElementById('prog-gaps').value);
+        const posts = gaps + 1;
+        const svg = document.getElementById('fence-svg');
+        svg.innerHTML = '';
+        
+        const startX = 50;
+        const panelW = 50;
+        
+        for(let i=0; i<gaps; i++) {
+            svg.innerHTML += `<rect x="${startX + i*panelW}" y="60" width="${panelW}" height="40" class="panel-f" />`;
+        }
+        for(let i=0; i<posts; i++) {
+            svg.innerHTML += `<rect x="${startX + i*panelW - 4}" y="50" width="8" height="60" class="post-f" />`;
         }
 
-        // Trace Output
-        document.getElementById('trace-14').innerHTML = `
-            <div class="trace-step">→ 1. Count the items: We have ${n} objects.</div>
-            <div class="trace-step">→ 2. Find the gaps: ${n} - 1 = <b>${gaps} Hidden Gaps</b>.</div>
-            <div class="trace-step">→ 3. The Math: Divide ${total} by the ${gaps} gaps.</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → RESULT: ${intervalSize.toFixed(2)} PER GAP
-            </div>
+        document.getElementById('pill-panels').innerText = `${gaps} Panels (Gaps Between)`;
+        document.getElementById('pill-posts').innerText = `${posts} Posts Fixed`;
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">To anchor <b>${gaps}</b> wall panels safely, we require <b>${posts}</b> vertical posts.</div>
+            <div class="discovery-step">Logic Track: Panels (Gaps) + 1 Starting Anchor = Total Posts.</div>
         `;
     }
 
-    window.onload = run14;
-</script>
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const n = parseInt(document.getElementById('in-n').value) || 2;
+        const v = parseFloat(document.getElementById('in-v').value) || 0;
+        const gaps = n - 1;
+        const unit = gaps > 0 ? v / gaps : 0;
 
+        const timeline = document.getElementById('supp-timeline');
+        timeline.innerHTML = '';
+        for(let i=1; i<=n; i++) {
+            timeline.innerHTML += `<div class="post-s" data-num="${i}"></div>`;
+            if(i < n) timeline.innerHTML += `<div class="gap-s"></div>`;
+        }
+
+        document.getElementById('supp-pill-n').innerText = `Total Objects: ${n}`;
+        document.getElementById('supp-pill-g').innerText = `Calculated Gaps: ${gaps}`;
+
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Calculate Spaces: ${n} total items - 1 starting anchor = <b>${gaps} true gaps</b><br>
+            → 2. Distribute Total Span: ${v} ÷ ${gaps} available gaps<br>
+            → 3. Final Spacing Value: <b>${unit.toFixed(2)} units per open interval</b>
+        `;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        if(document.getElementById('in-n')) runSupp();
+        if(typeof initModule === "function") initModule(14);
+    });
+</script>
 </body>
 </html>

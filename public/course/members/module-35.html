@@ -3,217 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 35: Word Morphing | Cognis 11+</title>
+    <title>Module 35: The Traveling Letter Puzzle | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR WORD MORPHING */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 60px 20px; 
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid #2d3748;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .word-box { 
-            display: inline-flex; 
-            gap: 10px; 
-            background: rgba(255,255,255,0.05); 
-            padding: 20px; 
-            border-radius: 16px; 
-            border: 2px dashed #4a5568; 
-            margin-bottom: 40px; 
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .letter-node { 
-            width: 50px; 
-            height: 65px; 
-            background: white; 
-            color: var(--cognis-blue); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            font-size: 2rem; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            user-select: none;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        .letter-node:hover { transform: scale(1.1); background: var(--cognis-light); }
-        .letter-node.selected { 
-            background: var(--cognis-gold); 
-            color: white; 
-            transform: translateY(-15px); 
-            box-shadow: 0 10px 25px rgba(197, 160, 89, 0.4); 
-        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🚚'; }
 
-        .target-display { 
-            font-family: 'Consolas', monospace; 
-            font-size: 3.5rem; 
-            color: white; 
-            margin-top: 20px; 
-            letter-spacing: 10px; 
-            font-weight: 900;
-            min-height: 80px;
-        }
-        .insertion-point { 
-            color: var(--cognis-gold); 
-            text-decoration: underline; 
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        /* INTRO: TRAVELING TILE */
+        .tile-tray { display: flex; gap: 8px; padding: 15px; background: #e2e8f0; border-radius: 12px; min-width: 150px; justify-content: center; }
+        .tile-f { width: 40px; height: 55px; background: white; border: 2px solid var(--cognis-blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.5rem; transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .tile-traveler { background: var(--cognis-gold); color: white; border-color: #b45309; z-index: 10; }
 
-        .btn-example-row { margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .btn-example { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 10px 18px; border-radius: 8px; font-size: 0.75rem; 
-            cursor: pointer; text-transform: uppercase; font-weight: 800; 
-            transition: 0.2s;
-        }
-        .btn-example:hover { background: #4a5568; color: white; }
+        /* PROGRESSING: BALANCE CHECK */
+        .dictionary-card { width: 120px; padding: 15px; background: white; border: 3px solid #cbd5e0; border-radius: 8px; text-align: center; font-weight: 900; transition: all 0.3s; }
+        .dict-valid { border-color: #10b981; color: #10b981; background: #f0fdf4; }
+        .dict-invalid { border-color: var(--trap-red); color: var(--trap-red); background: #fef2f2; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; margin-top: 10px; }
+        /* SUPPLEMENTAL: LAB */
+        .anatomy-display-s { background: #1a202c; padding: 40px 20px; border-radius: 12px; text-align: center; }
+        .letter-node-s { width: 45px; height: 60px; background: white; color: var(--cognis-blue); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.8rem; border-radius: 6px; margin: 0 4px; cursor: pointer; transition: 0.2s; }
+        .node-selected { background: var(--cognis-gold); color: white; transform: translateY(-10px); }
+        .target-word-s { font-family: 'Consolas', monospace; font-size: 3rem; color: white; letter-spacing: 5px; margin-top: 30px; font-weight: 900; }
+        .insertion-s { color: var(--cognis-gold); text-decoration: underline; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(35));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 35: Word Morphing</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 35: The Traveling Letter Puzzle</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Migrating Letter</h2>
+            <p>Imagine holding two separate words side by side. A single <b>Migrating Letter</b> decides to unpack its bags from the first word block and fly over to nestle inside the second word block instead. To successfully crack this vocabulary mystery, the move must leave a perfectly real word behind while generating an entirely valid new word where it hits the ground.</p>
+            
+            <div class="parent-script">
+                "We are looking at two word tracks here: <b>CHART</b> and <b>EAT</b>. One character inside CHART wants to go on a trip. Click the 'Migrate Selected Letter' button to see character <b>H</b> slide down. Notice that it leaves behind a legitimate shorthand word ('CART') while expanding the target into a valid new word ('HEAT'). Both choices pass the dictionary check!"
+            </div>
+
+            <div class="viz-container">
+                <div class="tile-tray" style="margin-bottom: 40px;">
+                    <div class="tile-f">C</div><div class="tile-f" id="intro-h">H</div><div class="tile-f">A</div><div class="tile-f">R</div><div class="tile-f">T</div>
+                </div>
+                <div class="tile-tray">
+                    <div class="tile-f">E</div><div class="tile-f">A</div><div class="tile-f">T</div>
+                    <div class="tile-f" id="intro-dest" style="opacity: 0; border: 2px dashed #94a3b8;"></div>
+                </div>
+                <button class="btn-action" style="margin-top: 30px;" onclick="runIntroMorph()">Migrate Selected Letter</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Wait for the letter to migrate...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Symmetrical Dictionary Balance Check</h2>
+            <p>Moving an alphabet tile across word lines works just like balancing a suspension bridge—if either side lacks structural support, the entire solution collapses. You must run a strict cross-check on both the <b>Leftover Base Word</b> (what remains behind) and the <b>New Destination Word</b> (the newly formed term).</p>
+            
+            <div class="parent-script">
+                "Study our starting targets: <b>STEAM</b> and <b>BIT</b>. If we try traveling the letter 'M' over, we form 'STEA' and 'MBIT'. Do either of those combinations exist in a real book? Not at all! Click the 'Test Moving the Letter S' button to watch a successful position shift. Both dictionary evaluation cards must turn solid green to secure the win."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:30px; margin-bottom: 20px;">
+                    <div id="dict-1" class="dictionary-card">STEA ?</div>
+                    <div id="dict-2" class="dictionary-card">MBIT ?</div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="checkValid(false)">Test Moving the Letter 'M'</button>
+                    <button class="btn-action" style="background:var(--cognis-gold);" onclick="checkValid(true)">Test Moving the Letter 'S'</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Check both sides of the bridge!</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as the <b>"Stolen Letter"</b> mystery. In the 11+, your child will be shown two words and told that exactly one letter has moved from the first word into the second. The goal is to create two entirely new, valid words. The secret weapon is recognizing that the letter you move must be "expendable"—it must leave a perfect word behind while creating a perfect word at its destination.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Easy Swap</b>
-                "Move one letter from <i>CHART</i> to <i>EAT</i> to make two new words."
-            </div>
-            <div class="tier-card">
-                <b>The Hidden Slot</b>
-                "One letter can be moved from <i>STEAM</i> to <i>BIT</i>. Where does it land?"
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Challenge</b>
-                "Find the letter that migrates from <i>POUND</i> to <i>EACH</i>. Both results must be real words."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Morph Lab</b>. 1. Click a letter in the top row to "stipple" it. 2. Use the slider to find its new home in the bottom word. Point out to your child that as the letter moves, both words change their meaning instantly. If one side looks like gibberish, the "stolen" letter is the wrong one.</p>
-        
-        <div class="anatomy-display">
-            <div id="word-a-box" class="word-box">
-                </div>
-            <div id="word-b-display" class="target-display">
-                </div>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of this question structure as resolving an <b>"Expendable Tile Migration"</b> logic puzzle. A single character jumps out of the leading word grid and drops straight into the trailing row. The vital secret here is identifying that the moving piece must leave a fully functioning, legitimate word behind in its original location. This represents a symmetrical double-verification check: the movement must prove entirely vocabulary-correct on both sides of the puzzle card.</p>
             
-            <div style="max-width: 400px; margin: 50px auto 0;">
-                <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:800; text-transform:uppercase;">Front of word</span>
-                    <span style="font-size:0.6rem; color:#94a3b8; font-weight:800; text-transform:uppercase;">Back of word</span>
-                </div>
-                <input type="range" id="slot-slider" min="0" max="4" value="0" oninput="updateMorph()">
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Base Swap Row:</b> "Migrate one isolated character from the word block <i>CHART</i> over into <i>EAT</i>."</div>
+                <div class="tier-card"><b>The Hidden Drop Target:</b> "Shift a single tile out of the word block <i>STEAM</i> over into <i>BIT</i>. Where does it anchor?"</div>
+                <div class="tier-card"><b>The Eleven-Plus Powerplay:</b> "Pinpoint the single character migrating smoothly from the word block <i>POUND</i> over into <i>EACH</i>."</div>
             </div>
-        </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Letter Shift Lab</h2>
+            <p>Welcome to our interactive <b>Letter Shift Lab</b> visualization deck. Click on an individual letter node inside the upper source word to select your traveling piece, and then slide our drop target slider to select its new home row inside the lower target block. If either resulting word track forms non-readable gibberish, your chosen traveling tile or its insertion point is incorrect.</p>
+            <div class="anatomy-display-s">
+                <div id="s-word-a" style="margin-bottom:40px;"></div>
+                <div id="s-word-b" class="target-word-s"></div>
+                <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-top:30px; margin-bottom:5px;">Choose an In-Word Drop Position</label>
+                <input type="range" id="si-slider" min="0" max="4" value="0" style="width:200px;" oninput="updateSupp()">
+                <div style="display:flex; justify-content:space-between; width:200px; margin:5px auto; font-size:0.6rem; color:#94a3b8; font-weight:800;">
+                    <span>FRONT WORD EDGE</span><span>BACK WORD EDGE</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Vocabulary Migration Engine</h2>
+            <p style="margin-bottom: 20px;">Use our custom text preset matrix to examine advanced 11+ vocabulary shifts. Track the background updates inside our console log to observe how the engine verifies the dual dictionary rules. Notice how migrating characters frequently hide deep inside the center slots of their new homes rather than just attaching to the ends.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select an Eleven-Plus Sample Pair</label>
+                    <select id="si-preset" class="input-dark" style="width:100%;" onchange="loadSuppPair()">
+                        <option value="CHART,EAT">CHART &rarr; EAT</option>
+                        <option value="STEAM,BIT">STEAM &rarr; BIT</option>
+                        <option value="POUND,EACH">POUND &rarr; EACH</option>
+                        <option value="SMILE,PORT">SMILE &rarr; PORT</option>
+                    </select>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "One-Sided Target" Illusion Trap:</b> Children under pressure often spot a letter that constructs a brilliant new option inside the second box (like moving the H out of CHART to build HEAT) and log their answer right away. They completely forget to check if the leftover base is a real word (confirming that CART is a valid standalone term!).</p>
+                <p><b>The Easy Fix: Apply the Dual Dictionary Balance Check.</b> Keep your child mindful of this concept: <i>"The traveling letter is a bridge that must hold weight on both ends simultaneously."</i> Train them to perform two quick, distinct checks every time: 1. Is the source word still alive and real? 2. Is the destination word correctly born? <b>Both conditions must pass to win the mark.</b></p>
+            </div>
+        </section>
         
-        <div class="btn-example-row">
-            <button class="btn-example" onclick="loadPair('CHART', 'EAT')">CHART &rarr; EAT</button>
-            <button class="btn-example" onclick="loadPair('STEAM', 'BIT')">STEAM &rarr; BIT</button>
-            <button class="btn-example" onclick="loadPair('POUND', 'EACH')">POUND &rarr; EACH</button>
-            <button class="btn-example" onclick="loadPair('SMILE', 'PORT')">SMILE &rarr; PORT</button>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Experiment with the presets above. Watch the <b>Trace Log</b> to see the "Dictionary Check" in action. Help your child notice that we aren't just adding letters to the end of a word; the stolen letter often likes to hide right in the middle.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <p style="font-size: 0.75rem; color: #a0aec0;">
-                    Verification Rule: You are looking for the only letter whose migration leaves the first word intact.
-                </p>
-                <div style="margin-top: 20px; color: var(--cognis-gold); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
-                    Morphing Engine: <span id="mig-status">Online</span>
-                </div>
-            </div>
-            <div class="trace-log" id="trace-35">Click a letter above to start the morph...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "One-Sided" Trap:</strong> Most children find a letter that makes a great new word in the second box (e.g., taking the 'H' from CHART to make HEAT) and stop there. They forget to check if the word they left behind (CART) is actually a real word!</p>
-            
-            <p><strong>The Insider Fix: The "Dual Dictionary" Rule.</strong> Tell your child: <i>"The letter is a bridge—if one side collapses, the answer is wrong."</i> They must perform two separate checks: 1. Is the first word still alive? 2. Is the second word newly born? If they don't see two real words, they must put the letter back and try another one. <b>Both words must pass the test.</b></p>
-        </div>
-    </section>
+        <button class="btn-complete" onclick="markComplete(35)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(35)">Complete Module & Update Lattice</button>
-
 <script>
-    let wordA = "CHART";
-    let wordB = "EAT";
-    let activeIdx = 0;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function loadPair(a, b) {
-        wordA = a;
-        wordB = b;
-        activeIdx = 0;
-        document.getElementById('slot-slider').max = b.length;
-        document.getElementById('slot-slider').value = 0;
-        updateMorph();
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 VR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function selectLetter(i) {
-        activeIdx = i;
-        updateMorph();
+    /* --- INTRO: TRAVELING --- */
+    function runIntroMorph() {
+        const h = document.getElementById('intro-h');
+        const dest = document.getElementById('intro-dest');
+        h.classList.add('tile-traveler');
+        h.style.transform = "translateY(110px) translateX(25px)";
+        setTimeout(() => {
+            h.style.opacity = "0";
+            dest.style.opacity = "1";
+            dest.textContent = "H";
+            dest.style.borderColor = "var(--cognis-gold)";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">CHART scaled down into <b>CART</b>. EAT expanded into <b>HEAT</b>. Uniform precision!</div>`;
+        }, 600);
     }
 
-    function updateMorph() {
-        const boxA = document.getElementById('word-a-box');
-        const displayB = document.getElementById('word-b-display');
-        const slider = document.getElementById('slot-slider');
-        const insPos = parseInt(slider.value);
-
-        boxA.innerHTML = wordA.split('').map((l, i) => 
-            `<div class="letter-node ${i === activeIdx ? 'selected' : ''}" onclick="selectLetter(${i})">${l}</div>`
-        ).join('');
-
-        const stolen = wordA[activeIdx];
-        const newBMarkup = wordB.slice(0, insPos) + `<span class="insertion-point">${stolen}</span>` + wordB.slice(insPos);
-        displayB.innerHTML = newBMarkup;
-
-        const remainA = wordA.slice(0, activeIdx) + wordA.slice(activeIdx + 1);
-        const morphedB = wordB.slice(0, insPos) + stolen + wordB.slice(insPos);
-
-        document.getElementById('trace-35').innerHTML = `
-            <div class="trace-step">→ 1. Selected Letter: <b style="color:var(--cognis-gold)">${stolen}</b></div>
-            <div class="trace-step">→ 2. Remainder Word: <b>${remainA}</b></div>
-            <div class="trace-step">→ 3. New Target Word: <b>${morphedB}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → RESULT: ${remainA} and ${morphedB}
-            </div>
-        `;
+    /* --- PROGRESSING: BALANCE --- */
+    function checkValid(isS) {
+        const d1 = document.getElementById('dict-1');
+        const d2 = document.getElementById('dict-2');
+        if(isS) {
+            d1.className = "dictionary-card dict-valid"; d1.textContent = "TEAM ✅";
+            d2.className = "dictionary-card dict-valid"; d2.textContent = "BITS ✅";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Outstanding! Moving character 'S' creates valid words <b>TEAM</b> and <b>BITS</b>.</div>`;
+        } else {
+            d1.className = "dictionary-card dict-invalid"; d1.textContent = "STEA ❌";
+            d2.className = "dictionary-card dict-invalid"; d2.textContent = "MBIT ❌";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Both balances failed. Neither 'STEA' nor 'MBIT' are recognized terms.</div>`;
+        }
     }
 
-    window.onload = () => loadPair('CHART', 'EAT');
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sA = "CHART", sB = "EAT", sIdx = 0;
+    function loadSuppPair() {
+        const val = document.getElementById('si-preset').value;
+        [sA, sB] = val.split(',');
+        sIdx = 0;
+        document.getElementById('si-slider').max = sB.length;
+        updateSupp();
+    }
+    function updateSupp() {
+        const wordACont = document.getElementById('s-word-a');
+        wordACont.innerHTML = '';
+        sA.split('').forEach((l, i) => {
+            const n = document.createElement('div'); n.className = `letter-node-s ${i===sIdx?'node-selected':''}`;
+            n.textContent = l; n.onclick = () => { sIdx = i; updateSupp(); };
+            wordACont.appendChild(n);
+        });
+
+        const ins = parseInt(document.getElementById('si-slider').value);
+        const letter = sA[sIdx];
+        const newB = sB.slice(0, ins) + `<span class="insertion-s">${letter}</span>` + sB.slice(ins);
+        document.getElementById('s-word-b').innerHTML = newB;
+
+        const remA = sA.slice(0, sIdx) + sA.slice(sIdx+1);
+        const fullB = sB.slice(0, ins) + letter + sB.slice(ins);
+        document.getElementById('supp-log').innerHTML = `→ Leftover Source Remainder: <b>${remA}</b><br>→ Newly Formed Destination Word: <b>${fullB}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-preset')) loadSuppPair();
+        if(typeof initModule === "function") initModule(35);
+    });
 </script>
-
 </body>
 </html>

@@ -3,221 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 53: Implicit Inference | Cognis 11+</title>
+    <title>Module 53: Uncovering Hidden Clues | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR INFERENCE HUD */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 40px; 
-            border-radius: 12px; 
-            text-align: center;
-            border: 2px solid #e2e8f0;
-        }
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
 
-        .formula-box {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            background: white;
-            padding: 20px 30px;
-            border-radius: 50px;
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border: 1px solid var(--cognis-gold);
         }
-        .formula-part { font-weight: 900; font-size: 1.1rem; color: var(--cognis-blue); }
-        .formula-operator { color: var(--cognis-gold); font-size: 1.5rem; font-weight: bold; }
-
-        /* Engine Terminal Customization */
-        .simulation-area { background: #1a202c; padding: 40px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #2d3748; }
-        
-        .evidence-well {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #334155;
-            padding: 25px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #cbd5e0;
-            margin-bottom: 30px;
-            text-align: center;
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .clue-node {
-            cursor: pointer;
-            padding: 0 4px;
-            border-bottom: 2px dashed var(--cognis-gold);
-            transition: 0.2s;
-            color: white;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
-        .clue-node:hover { background: rgba(197, 160, 89, 0.2); }
-        .clue-node.active { background: var(--cognis-gold); color: white; border-bottom-style: solid; border-radius: 4px; }
 
-        .engine-container { grid-template-columns: 1.2fr 1fr; }
-        
-        .btn-inference {
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.75rem; text-transform: uppercase; font-weight: 800;
-            text-align: left; transition: 0.2s; margin-bottom: 8px; width: 100%;
-            border-left: 4px solid transparent;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        .btn-inference:hover { background: #4a5568; color: white; }
-        .btn-inference.selected { background: var(--cognis-blue); color: var(--cognis-gold); border-left-color: var(--cognis-gold); }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🔍'; }
+
+        /* INTRO: DETECTIVE BAG */
+        .clue-bag { width: 150px; height: 180px; background: #8e6c38; border-radius: 10px 10px 40px 40px; position: relative; border: 4px solid #5d4037; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .floating-clue { font-size: 2.5rem; cursor: pointer; transition: transform 0.3s; }
+        .floating-clue:hover { transform: scale(1.2); }
+
+        /* PROGRESSING: EQUATION */
+        .formula-box-f { display: flex; align-items: center; gap: 15px; background: white; padding: 20px; border-radius: 50px; border: 2px solid var(--cognis-gold); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .formula-part-f { font-weight: 900; color: var(--cognis-blue); font-size: 0.9rem; }
+
+        /* SUPPLEMENTAL: HUD */
+        .simulation-area-s { background: #1a202c; padding: 40px; border-radius: 12px; border: 1px solid #2d3748; }
+        .evidence-well-s { background: rgba(255,255,255,0.03); border: 1px solid #334155; padding: 25px; border-radius: 8px; font-size: 1.1rem; color: #cbd5e0; line-height: 1.8; text-align: center; margin-bottom: 20px; }
+        .clue-node-s { cursor: pointer; border-bottom: 2px dashed var(--cognis-gold); color: white; transition: 0.2s; padding: 0 2px; }
+        .clue-node-s.active { background: var(--cognis-gold); border-bottom-style: solid; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-inference-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-inference-s.selected { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: #0f172a; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(53));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 53: Implicit Inference</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 53: Uncovering Hidden Clues</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Detective's Clue Bag</h2>
+            <p>Gathering implicit facts means acting exactly like an expert investigator. You might not see a character directly standing in a room, but if you map out muddy footprints tracking across the floor mat, you know with total certainty that they walked through. In a reading passage, you trace down these text "footprints" (our background clues) to solve exactly what the author is thinking behind the lines.</p>
+            
+            <div class="parent-script">
+                "Examine this satchel. We have pulled out three distinct objects hiding inside: <b>A Sea Shell</b>, <b>A Plastic Bucket</b>, and <b>Fine Sand</b>. Notice that I haven't written down our exact geographical location anywhere yet. Click directly onto the satchel to see how instantly you calculate our hidden environment from these trace pieces!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:20px; margin-bottom: 30px;">
+                    <div class="floating-clue">🐚</div><div class="floating-clue">🪣</div><div class="floating-clue">🏖️</div>
+                </div>
+                <div class="clue-bag" onclick="revealIntroInference()">💼</div>
+                <div id="intro-ans" style="margin-top: 20px; font-weight: 900; font-size: 1.5rem; color: var(--cognis-gold); opacity: 0;">SETTING: THE BEACH</div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Use the objects to guess the hidden truth.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Core Logic Equation</h2>
+            <p>To master eleven-plus reading inference questions, your student must rely on a reliable procedural rule. You take the explicit <b>Text Evidence</b> (exactly what is printed on the page) and combine it with your own <b>Real-World Knowledge</b> (facts you already understand from daily life). Adding these elements together reveals the unwritten truth.</p>
+            
+            <div class="parent-script">
+                "Study this descriptive sentence: 'The wind howled through the leafless trees.' Our Text Evidence is: No leaves on the branches. Our Real-World Knowledge tells us: Deciduous trees shed their canopy during the cold months. Click 'Formulate Logic Blend' to watch the hidden meaning appear. Remember, if you can't point directly to a physical word footprint on your test booklet page, you are just guessing, not concluding!"
+            </div>
+
+            <div class="viz-container">
+                <div class="formula-box-f">
+                    <span class="formula-part-f">LEAFLESS TREES</span>
+                    <span style="font-weight:bold; color:var(--cognis-gold);">+</span>
+                    <span class="formula-part-f">REAL-WORLD KNOWLEDGE</span>
+                    <span style="font-weight:bold; color:var(--cognis-gold);">=</span>
+                    <span id="prog-result" class="formula-part-f" style="color:var(--cognis-gold); opacity: 0.2;">IT IS WINTER</span>
+                </div>
+                <button class="btn-action" onclick="runProgInference()">Formulate Logic Blend</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Evidence + Logic = Truth.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of inference as <b>"Reading the Shadows."</b> In the 11+, examiners won't always tell you how a character feels or what the weather is like. Instead, they give you clues. The secret weapon is realizing that an inference is a bridge. It requires your child to take a piece of <b>Evidence</b> from the text and glue it to their own <b>Real-World Logic</b>. If they can’t prove it using words from the page, it’s just a guess—not an inference.</p>
-        
-        <div style="text-align: center; margin: 25px 0;">
-            <div class="formula-box">
-                <span class="formula-part">Evidence (Page)</span>
-                <span class="formula-operator">+</span>
-                <span class="formula-part">Logic (Brain)</span>
-                <span class="formula-operator">=</span>
-                <span class="formula-part" style="color:var(--cognis-gold)">Inference</span>
-            </div>
-        </div>
-
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Weather Detective</b>
-                "Leo grabbed his umbrella and yellow boots."<br>
-                <b>Q:</b> What is the weather? (A: It is raining).
-            </div>
-            <div class="tier-card">
-                <b>The Time Tracker</b>
-                "Shadows lengthened and the street lamps flickered on."<br>
-                <b>Q:</b> What time is it? (A: Evening/Dusk).
-            </div>
-            <div class="tier-card">
-                <b>The Emotion Expert</b>
-                "Arthur’s jagged scrawl was smeared by his trembling hand."<br>
-                <b>Q:</b> How does Arthur feel? (A: Terrified or Anxious).
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Double Anchor</b>. A strong inference is never based on just one word. Look at the sentence below. We know the man is angry not just because his face is red, but because he <b>slammed</b> the phone. Tell your child: <i>"One clue is a guess; two clues is a lock."</i> They should always hunt for that second "Anchor" to be 100% sure of their answer.</p>
-        
-        <div class="anatomy-display" style="background:#1a202c; color:white; padding:50px;">
-             <div style="font-size:1.4rem; font-style:italic;">"The <span style="color:var(--cognis-gold); font-weight:bold; border-bottom:2px solid;">red-faced</span> man <span style="color:var(--cognis-gold); font-weight:bold; border-bottom:2px solid;">slammed</span> the phone down."</div>
-             <div style="margin-top:30px; font-size:0.8rem; color:#94a3b8; text-transform:uppercase; letter-spacing:2px;">Conclusion: The man is furious.</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the <b>Evidence Well</b> below. Click the underlined phrases to "collect" them as clues. Once you have enough evidence, select an inference to test the logic. Help your child notice that if they only pick one clue, the engine won't validate the conclusion.</p>
-        <div class="simulation-area">
-            <div class="evidence-well" id="passage">
-                "Sarah's <span class="clue-node" onclick="toggleClue(this)">stomach somersaulted</span> as she stood behind the <span class="clue-node" onclick="toggleClue(this)">heavy velvet curtain</span>. She gripped her <span class="clue-node" onclick="toggleClue(this)">violin bow</span> so tightly her knuckles turned white."
-            </div>
-
-            <div class="engine-container">
-                <div class="inputs">
-                    <label style="font-size: 0.6rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 12px;">Test the Conclusion</label>
-                    <button class="btn-inference" onclick="testInference('holiday', this)">She is going on holiday</button>
-                    <button class="btn-inference" onclick="testInference('concert', this)">She is about to perform a solo</button>
-                    <button class="btn-inference" onclick="testInference('ill', this)">She has a stomach bug</button>
-                    <button class="btn-inference" onclick="testInference('nervous', this)">She is feeling very anxious</button>
-                </div>
-                <div class="trace-log" id="trace-53">Click clues to find the Double Anchor...</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Movie Script" Trap:</strong> Most children treat the text like a movie and add details that simply aren't there. For example, if a character is "carrying a bag," they assume the character is "going to the airport" because that's what happens in films. This is a <b>Projection</b>, not an Inference. It’s a guess, and it will lose them points.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Approach advanced implicit reading prompts as systematically <b>"Reading the Shadows."</b> Conquering these trickier variations depends on utilizing the <b>Double-Proof Anchor Strategy</b>. A valid text deduction is never built around one single solitary word. You must securely lock text-based <b>Evidence</b> directly to <b>Real-World Knowledge</b>. If you cannot support your conclusion using specific phrases extracted directly from the text field, your response is an active projection rather than a valid deduction.</p>
             
-            <p><strong>The Insider Fix: The "Prove It" Test.</strong> Tell your child: <i>"Be a lawyer."</i> For every answer they choose, they must be able to point to two separate words in the text that support it. If they can only find one (or zero!), their answer is a guess. <b>No evidence = No points.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>Environmental Tracking:</b> "Leo grabbed his umbrella and zipped his bright yellow rubber boots up tight." Q: What is the current state of the weather? (Deduction: Active Rainfall).</div>
+                <div class="tier-card"><b>Temporal Tracking:</b> "Elongated shadows stretched far across the lane as the iron street lamps began to flicker open." Q: What point of the day is unfolding? (Deduction: Late Evening).</div>
+                <div class="tier-card"><b>Emotional Tracking:</b> "Arthur’s jagged handwriting scrawled unevenly down the parchment, smeared by his trembling fingers." Q: What internal state is driving the character? (Deduction: Deeply Terrified).</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Double-Proof Anchor Station</h2>
+            <p>Examine the mechanics of the <b>Double-Proof Anchor</b>. Read the sample excerpt block below. We can determine with absolute safety that our character is furious because of two intersecting anchor points: his descriptive "red face" AND the forceful physical action of "slamming" down the receiver receiver. <i>"One clue leaves room for doubt; two clues provide a tight lock."</i> Train your student to always seek out that critical second point of validation.</p>
+            <div class="anatomy-display" style="background:#1a202c; color:white;">
+                <div style="font-size:1.2rem; font-style:italic;">"The <span style="color:var(--cognis-gold); border-bottom:1px solid;">red-faced</span> man <span style="color:var(--cognis-gold); border-bottom:1px solid;">slammed</span> the phone down."</div>
+                <div style="margin-top:20px; font-size:0.7rem; color:#94a3b8; text-transform:uppercase;">Conclusion: The character is experiencing intense fury.</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Clue Evaluation System</h2>
+            <p style="margin-bottom: 20px;">Utilize our interactive <b>Clue Evaluation System</b>. Click directly on the underlined phrases in the evidence block below to log them into your workspace. Once you successfully lock down a <b>Double-Proof Anchor Set</b>, test your logged metrics against our target logical conclusions listed below.</p>
+            <div class="simulation-area-s">
+                <div class="evidence-well-s">
+                    "Sarah's <span class="clue-node-s" onclick="toggleSuppClue(this)">stomach somersaulted</span> as she stood behind the <span class="clue-node-s" onclick="toggleSuppClue(this)">heavy velvet curtain</span>. She gripped her <span class="clue-node-s" onclick="toggleSuppClue(this)">violin bow</span> so tightly her knuckles turned white."
+                </div>
+                <div class="engine-container">
+                    <div class="inputs">
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Evaluate Text Conclusion</label>
+                        <button class="btn-inference-s" onclick="testSuppInference('holiday', this)">Deduction Path: She is preparing to depart for a holiday</button>
+                        <button class="btn-inference-s" onclick="testSuppInference('concert', this)">Deduction Path: She is walking out to perform a musical solo</button>
+                        <button class="btn-inference-s" onclick="testSuppInference('nervous', this)">Deduction Path: She is currently battling acute stage anxiety</button>
+                    </div>
+                    <div class="trace-log" id="supp-log">Click clues to find the Double Anchor...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Imaginative Movie Script" Over-Interpretation Trap:</b> Children racing through comprehension texts routinely invent colorful background narrative details that are completely unsupported by the printed copy (such as reading 'He picked up a suitcase' and instantly declaring 'He is traveling out to the airport to board a flight'). This constitutes a speculative <b>Projection</b>, not a disciplined logical deduction.</p>
+                <p><b>The Easy Fix: Deploy the Rigorous "Prove It" Checklist.</b> Teach your student to act like a strict court attorney: <i>"Testify from the text alone."</i> For every single option choice marked on their booklet, they must be capable of physically pointing to two distinct, isolated keyword tokens on the page that hold up that exact fact. <b>If you cannot back it up with a twin set of anchors, drop the choice immediately.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(53)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(53)">Complete Module & Update Lattice</button>
-
 <script>
-    let activeClues = [];
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function toggleClue(el) {
-        const text = el.innerText;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Reading Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: BAG --- */
+    function revealIntroInference() {
+        document.getElementById('intro-ans').style.opacity = '1';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Setting Unlocked! You successfully verified the unwritten location using implicit anchors!</div>`;
+    }
+
+    /* --- PROGRESSING: EQUATION --- */
+    function runProgInference() {
+        document.getElementById('prog-result').style.opacity = '1';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Logic Blend Complete: No Leaves + Seasonal Fact = <b>Winter Environment</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sClues = [];
+    function toggleSuppClue(el) {
         el.classList.toggle('active');
-        
-        if(el.classList.contains('active')) {
-            activeClues.push(text);
-        } else {
-            activeClues = activeClues.filter(c => c !== text);
-        }
-        updateTrace();
+        const txt = el.innerText;
+        if(el.classList.contains('active')) sClues.push(txt);
+        else sClues = sClues.filter(c => c !== txt);
+        updateSuppTrace();
     }
-
-    function testInference(type, btn) {
-        document.querySelectorAll('.btn-inference').forEach(b => b.classList.remove('selected'));
+    function testSuppInference(type, btn) {
+        document.querySelectorAll('.btn-inference-s').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
-        updateTrace(type);
+        updateSuppTrace(type);
     }
-
-    function updateTrace(testType) {
-        const log = document.getElementById('trace-53');
-        let html = `<div class="trace-step">→ 1. Clues Found: <b>${activeClues.length}</b></div>`;
-        
-        if (activeClues.length < 2) {
-            html += `<div class="trace-step" style="color:#f87171;">→ 2. Status: Weak Evidence. Need more anchors.</div>`;
-            log.innerHTML = html;
-            return;
-        }
-
-        html += `<div class="trace-step">→ 2. Evidence: <b>Double Anchor Achieved</b></div>`;
-        
-        if (!testType) {
-            html += `<div class="trace-step">→ 3. Action: Select a conclusion to test.</div>`;
-            log.innerHTML = html;
-            return;
-        }
-
-        let result = "";
-        let color = "var(--cognis-gold)";
-
-        if (testType === 'concert' || testType === 'nervous') {
-            result = "INFERENCE VALIDATED";
-        } else if (testType === 'holiday') {
-            result = "INVALID: No textual support";
-            color = "#f87171";
+    function updateSuppTrace(testType) {
+        const log = document.getElementById('supp-log'); if(!log) return;
+        let html = `&rarr; Active Clue Inventory Log: Identified tokens: <b>${sClues.length}</b><br>`;
+        if(sClues.length < 2) {
+            html += `<small style="color:var(--trap-red)">Current Status: Insufficient Evidence. Lock down 2 baseline text anchors first.</small>`;
         } else {
-            result = "INVALID: Clues contradict this";
-            color = "#f87171";
+            html += `&rarr; Verification: <b>Double-Proof Anchor Set Established</b><br>`;
+            if(testType) {
+                const win = (testType === 'concert' || testType === 'nervous');
+                html += `&rarr; <b>Structural Evaluation: ${win?'DEDUCTION PATH VALIDATED ✅':'IMPOSSIBLE PROJECTION ❌'}</b>`;
+            }
         }
-
-        html += `
-            <div class="trace-step" style="color:${color}; font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → ${result}
-            </div>
-        `;
         log.innerHTML = html;
     }
 
-    window.onload = () => updateTrace();
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('supp-log')) updateSuppTrace();
+        if(typeof initModule === "function") initModule(53);
+    });
 </script>
-
 </body>
 </html>

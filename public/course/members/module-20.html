@@ -3,267 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 20: Substitution | Cognis 11+</title>
+    <title>Module 20: Swapping Letters for Numbers | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR THE FORMULA LAB */
-        .anatomy-display { padding: 40px; background: #f0f4f8; border-radius: 12px; border: 2px solid #e2e8f0; }
-        
-        .vial-rack { 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-            margin-bottom: 30px; 
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .vial { 
-            background: white; 
-            border: 3px solid var(--cognis-blue); 
-            padding: 15px; 
-            border-radius: 12px; 
-            width: 70px; 
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-        }
-        .vial b { display: block; color: var(--cognis-gold); font-size: 1.5rem; margin-top: 5px; }
-        .vial span { font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
-
-        .lab-bench { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 16px; 
-            border: 2px solid #e2e8f0; 
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-            margin: 0 auto;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
         }
 
-        .formula-view { 
-            font-size: 2rem; 
-            font-weight: 900; 
-            color: var(--cognis-blue); 
-            letter-spacing: 2px; 
-            min-height: 80px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: all 0.4s ease; 
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        .formula-view.active-lens { color: var(--cognis-gold); font-size: 1.6rem; }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🧪'; }
 
-        .sim-btn { 
-            background: var(--cognis-gold); 
-            color: white; 
-            border: none; 
-            padding: 12px 30px; 
-            border-radius: 8px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            margin-top: 20px; 
-            letter-spacing: 1px;
-            transition: 0.2s; 
-        }
-        .sim-btn:hover { background: #b08d4b; transform: translateY(-2px); }
+        /* INTRO: MYSTERY BOXES */
+        .box-f { width: 80px; height: 80px; background: white; border: 4px solid var(--cognis-blue); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; position: relative; }
+        .box-f.revealed { border-color: var(--cognis-gold); background: #fef3c7; transform: rotateY(180deg); }
+        .box-f span { font-weight: 900; font-size: 2rem; color: var(--cognis-blue); transition: opacity 0.3s; }
+        .box-f.revealed span { transform: rotateY(180deg); color: var(--cognis-gold); }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        .vial-inputs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .vial-inputs div { flex: 1; }
-        .vial-inputs input { width: 100% !important; text-align: center; background: #2d3748; color: white; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-weight: 800; }
-        
-        .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .preset-btn { 
-            background: #2d3748; color: #a0aec0; border: none; 
-            padding: 10px; border-radius: 6px; font-size: 0.7rem; 
-            cursor: pointer; text-align: left; font-weight: 700;
-            transition: 0.2s; 
-        }
-        .preset-btn:hover { background: #4a5568; color: white; }
-        .preset-btn.active { background: var(--cognis-blue); color: var(--cognis-gold); border-left: 4px solid var(--cognis-gold); }
+        /* PROGRESSING: INGREDIENT SWAP */
+        .formula-card-f { background: white; padding: 20px; border-radius: 12px; border: 2px solid var(--cognis-blue); display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 1.5rem; color: var(--cognis-blue); margin-bottom: 20px; }
+        .swap-node { padding: 5px 15px; border-radius: 8px; background: #e0e7ff; color: #4338ca; transition: all 0.4s; }
+        .swap-active { background: var(--cognis-gold); color: white; transform: scale(1.1); }
+
+        /* SUPPLEMENTAL: VIALS */
+        .vial-rack-s { display: flex; gap: 15px; margin-bottom: 20px; }
+        .vial-s { background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; padding: 10px; width: 60px; text-align: center; }
+        .vial-s b { color: var(--cognis-gold); display: block; font-size: 1.2rem; }
+        .vial-s small { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(20));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header"><h1>Module 20: Substitution</h1></div>
+<div class="module-card">
+    <div class="header"><h1>Module 20: Swapping Letters for Numbers</h1></div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of substitution as a <b>Recipe Swap</b>. You are given a formula (the recipe), but you need to swap the ingredients (the letters) for real numbers. In the 11+, children often get confused when letters and numbers are "glued" together. The secret is knowing that in Algebra, <b>touching means multiplying</b>. If your child can visualize the letter as a container waiting for a value to be poured in, they’ll master this instantly.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Simple Sum</b>
-                "If $a = 10$ and $b = 3$, what is the value of $a + b$?"
-            </div>
-            <div class="tier-card">
-                <b>The "Glue" Challenge</b>
-                "If $x = 5$ and $y = 4$, calculate $3x - 2y$."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Powerplay</b>
-                "If $p = 4$ and $q = 9$, find the value of $(p^2 + q) \div 5$."
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Think of this as the <b>Variable Lab</b>. Point to the Vials below. Each vial holds a specific "weight" (the value). When we apply the <b>Logic Lens</b>, we peer inside the formula to see the real numbers taking their places. Help your child notice how the letters vanish as the numbers are "poured" in.</p>
-        
-        <div class="anatomy-display">
-            <div class="vial-rack">
-                <div class="vial"><span>Vial A</span><b id="v-a">12</b></div>
-                <div class="vial"><span>Vial B</span><b id="v-b">2</b></div>
-                <div class="vial"><span>Vial C</span><b id="v-c">5</b></div>
-            </div>
-            <div class="lab-bench">
-                <div id="viz-formula" class="formula-view">3A + 2B + 5C</div>
-                <button class="sim-btn" id="lens-btn" onclick="toggleLens()">Apply Logic Lens</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Change the values in the vials and select different formulas. Use the <b>Logic Lens</b> above to show your child exactly how the math is structured before it's solved. Notice how brackets appear to protect the numbers once they are swapped.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">1. Set Vial Values</label>
-                <div class="vial-inputs">
-                    <div><input type="number" id="in-a" value="12"></div>
-                    <div><input type="number" id="in-b" value="2"></div>
-                    <div><input type="number" id="in-c" value="5"></div>
-                </div>
-                
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">2. Select Experiment</label>
-                <div class="preset-grid">
-                    <button class="preset-btn active" onclick="setFormula(['3A', '+', '2B', '+', '5C'], this)">3A + 2B + 5C</button>
-                    <button class="preset-btn" onclick="setFormula(['A', '+', 'B', '^2', '/', 'C'], this)">A + B² / C</button>
-                    <button class="preset-btn" onclick="setFormula(['5C', '-', '(', 'A', 'x', 'B', ')'], this)">5C - (A x B)</button>
-                    <button class="preset-btn" onclick="setFormula(['A', '/', 'B', '+', 'C', '^2'], this)">A/B + C²</button>
-                    <button class="preset-btn" onclick="setFormula(['2A', 'x', '3B', '/', 'C'], this)">2A x 3B / C</button>
-                    <button class="preset-btn" onclick="setFormula(['(A+C)', '/', 'B'], this)">(A + C) / B</button>
-                </div>
-            </div>
-            <div class="trace-log" id="engine-trace">Select a preset to begin.</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Digit Gluing" Trap:</strong> If $A = 5$, many students see "$3A$" and think the answer is $35$. They are treating the letter like a placeholder in a two-digit number!</p>
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Mystery Storage Boxes</h2>
+            <p>In algebra puzzles, a printed letter is simply a <b>Mystery Storage Box</b>. It holds no special secret power on its own until we pop the lid off to see what is hidden inside. Value swapping is simply the act of uncovering the number resting inside the box and using it to finish our calculation lines.</p>
             
-            <p><strong>The Fix: The "Invisible Times" Rule.</strong> Remind your child: <i>"Algebra is crowded."</i> If a number and a letter are touching, they are secretly multiplying to save space. You aren't putting the number $5$ next to the $3$; you are multiplying them. Result: $3 \times 5 = 15$. <b>If they touch, they multiply.</b></p>
-        </div>
-    </section>
+            <div class="parent-script">
+                "Take a close look at these two boxes labeled 'A' and 'B'. We want to figure out the final total for <b>A + B</b>. But we are stuck until we discover what value is hidden inside! Click directly on each box to reveal its value, and then help me calculate the total."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:30px; align-items:center;">
+                    <div id="box-a" class="box-f" onclick="revealBox('a')"><span>A</span></div>
+                    <span style="font-size: 2rem; font-weight: 900;">+</span>
+                    <div id="box-b" class="box-f" onclick="revealBox('b')"><span>B</span></div>
+                    <span style="font-size: 2rem; font-weight: 900;">=</span>
+                    <div id="box-result" style="font-size: 2.5rem; font-weight: 900; color: var(--cognis-blue);">?</div>
+                </div>
+                <button class="btn-action" style="margin-top:40px; background:#94a3b8;" onclick="resetIntro()">Close Storage Boxes</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Tap the letters to find the numbers!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Component Swap</h2>
+            <p>Sometimes you will notice numbers and letters glued tightly together with no sign between them, such as <b>3x</b>. In algebra tracking, whenever items touch like this, they are secretly <b>multiplying</b>. Think of it like a baking recipe: 3x simply means you need to add "3 full helpings of whatever value is hidden inside box x."</p>
+            
+            <div class="parent-script">
+                "We are given a starter calculation string: <b>2y + 5</b>. Our clue sheet says that <b>y = 4</b>. Click the 'Swap' button to pour that value into our expression. Notice how the 'y' letter slides away and changes into a '4' safely tucked inside a protective frame. Now we can track the answer down!"
+            </div>
+
+            <div class="viz-container">
+                <div class="formula-card-f">
+                    <span>2</span><span id="p-node-y" class="swap-node">y</span><span> + 5</span>
+                </div>
+                <div style="font-weight: 800; color: var(--cognis-blue);">If y holds a value of 4...</div>
+                <button id="btn-swap-f" class="btn-action" onclick="runSwapIntro()">Swap y for 4</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Ready to swap...</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of value swapping as a <b>Recipe Ingredient Swap</b>. You are provided with a blueprint rule (the basic recipe), and you must switch the placeholders out for real quantities. The central trick is remembering that <b>items touching means multiplication</b>. If a letter acts like a beaker container, the value is the numerical fluid we pour inside.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>Simple Swap:</b> "If $a=10$ and $b=3$, find the combined value of $a+b$."</div>
+                <div class="tier-card"><b>Glued Characters:</b> "If $x=5$ and $y=4$, calculate the exact balance of $3x - 2y$."</div>
+                <div class="tier-card"><b>Advanced Powerplay:</b> "If $p=4$ and $q=9$, track down the output value for $(p^2 + q) \div 5$."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Symbol Variable Lab</h2>
+            <p>Welcome to the <b>Variable Lab</b> simulation. Each storage vial keeps a specific numerical value safe. When we apply our <b>Formula Lens</b> view, the tracking letters slide away and the hidden values jump into their places. Protective brackets appear around the numbers to keep our swapped values completely clear and separate from the rest of the string.</p>
+            <div class="anatomy-display" style="text-align:center;">
+                <div class="vial-rack-s">
+                    <div class="vial-s"><span>A</span><b id="s-v-a">12</b></div>
+                    <div class="vial-s"><span>B</span><b id="s-v-b">2</b></div>
+                    <div class="vial-s"><span>C</span><b id="s-v-c">5</b></div>
+                </div>
+                <div style="background:white; padding:30px; border-radius:12px; border:2px solid #e2e8f0;">
+                    <div id="s-viz-formula" style="font-size:1.8rem; font-weight:900; color:var(--cognis-blue); margin-bottom:20px;">3A + 2B</div>
+                    <button class="btn-action" id="s-lens-btn" onclick="toggleSuppLens()">Apply Formula Lens</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Value Swapping Box Tool</h2>
+            <p style="margin-bottom: 20px;">Adjust the fluid values inside our vials and pick an experiment combination from the selection panel below. Watch the tracking logs below calculate the results using proper importance steps as soon as the swap executes.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <div class="control-group"><label style="font-size:0.65rem;">Vial A</label><input type="number" id="in-a" value="12" style="width:40px;"></div>
+                        <div class="control-group"><label style="font-size:0.65rem;">Vial B</label><input type="number" id="in-b" value="2" style="width:40px;"></div>
+                        <div class="control-group"><label style="font-size:0.65rem;">Vial C</label><input type="number" id="in-c" value="5" style="width:40px;"></div>
+                    </div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Swapping Formula Option</label>
+                    <select id="in-formula" onchange="runSupp()" style="width:100%; padding:10px; border-radius:8px; background:#2d3748; color:white; font-weight:700;">
+                        <option value="3A+2B">3A + 2B</option>
+                        <option value="A/B+C">A / B + C</option>
+                        <option value="B^2+A">B² + A</option>
+                        <option value="(A+C)/B">(A + C) / B</option>
+                    </select>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Digit Gluing" Illusion:</b> If an exam question states that $A=5$, rushed children look at a term like $3A$ and write down $35$. They are treating our structural letter like an empty space placeholder in a two-digit number!</p>
+                <p><b>The Easy Fix: The "Invisible Multiplication" Rule.</b> Remind your child that algebra layouts get tightly packed. If a number and a letter touch with no sign between them, they must multiply. Therefore, $3A$ truly means $3 \times 5 = 15$. <b>Always place safety brackets around your numbers when swapping them into a line.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(20)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(20)">Complete Module & Update Lattice</button>
-
 <script>
-    let activeFormula = ['3A', '+', '2B', '+', '5C'];
-    let lensOn = false;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function toggleLens() {
-        lensOn = !lensOn;
-        document.getElementById('lens-btn').innerText = lensOn ? "Reset Formula" : "Apply Logic Lens";
-        document.getElementById('viz-formula').classList.toggle('active-lens', lensOn);
-        refresh();
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Logic Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    function setFormula(arr, btn) {
-        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeFormula = arr;
-        lensOn = false;
-        document.getElementById('lens-btn').innerText = "Apply Logic Lens";
-        document.getElementById('viz-formula').classList.remove('active-lens');
-        refresh();
+    /* --- INTRO: MYSTERY BOX --- */
+    let boxes = { a: false, b: false };
+    const vals = { a: 7, b: 3 };
+    function resetIntro() {
+        boxes = { a: false, b: false };
+        document.getElementById('box-a').classList.remove('revealed');
+        document.getElementById('box-b').classList.remove('revealed');
+        document.getElementById('box-a').querySelector('span').innerText = "A";
+        document.getElementById('box-b').querySelector('span').innerText = "B";
+        document.getElementById('box-result').innerText = "?";
+        document.getElementById('intro-log').innerHTML = "Tap the letter boxes to begin!";
+    }
+    function revealBox(id) {
+        boxes[id] = true;
+        const el = document.getElementById('box-' + id);
+        el.classList.add('revealed');
+        el.querySelector('span').innerText = vals[id];
+        if(boxes.a && boxes.b) {
+            document.getElementById('box-result').innerText = vals.a + vals.b;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Both boxes successfully opened! 7 + 3 = <b>10</b>.</div>`;
+        } else {
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">You uncovered a value of ${vals[id]}! Open the remaining box to finish the sum.</div>`;
+        }
     }
 
-    function refresh() {
+    /* --- PROGRESSING: SWAP --- */
+    function runSwapIntro() {
+        const node = document.getElementById('p-node-y');
+        node.classList.add('swap-active');
+        setTimeout(() => {
+            node.innerText = "(4)";
+            document.getElementById('prog-log').innerHTML = `
+                <div class="discovery-step">The 'y' character has transformed into a '4'.</div>
+                <div class="discovery-step">Keep in mind: 2(4) acts as a shortcut for 2 &times; 4 = 8.</div>
+                <div class="discovery-step">Final Output Balance: 8 + 5 = <b>13</b>.</div>
+            `;
+        }, 400);
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    let sLens = false;
+    function toggleSuppLens() { sLens = !sLens; runSupp(); }
+    function runSupp() {
         const a = parseFloat(document.getElementById('in-a').value) || 0;
         const b = parseFloat(document.getElementById('in-b').value) || 0;
         const c = parseFloat(document.getElementById('in-c').value) || 0;
-        const map = { A: a, B: b, C: c };
-
-        document.getElementById('v-a').innerText = a;
-        document.getElementById('v-b').innerText = b;
-        document.getElementById('v-c').innerText = c;
-
-        let display = activeFormula.join(' ').replace(/\^2/g, '²').replace(/x/g, '×');
+        const f = document.getElementById('in-formula').value;
         
-        if (lensOn) {
-            display = activeFormula.map(token => {
-                if (['+', '-', 'x', '/', '(', ')', '^2'].includes(token)) return token === 'x' ? '×' : token === '^2' ? '²' : token;
-                const match = token.match(/^(\d*)([A-Z])$/);
-                if (match) {
-                    const coeff = match[1] === "" ? "" : match[1] + "×";
-                    return `(${coeff}${map[match[2]]})`;
-                }
-                if (token === '(A+C)') return `(${map.A}+${map.C})`;
-                return token;
-            }).join(' ');
-        }
-        document.getElementById('viz-formula').innerText = display;
+        document.getElementById('s-v-a').innerText = a;
+        document.getElementById('s-v-b').innerText = b;
+        document.getElementById('s-v-c').innerText = c;
 
-        runCalculations(map);
-    }
-
-    function runCalculations(map) {
-        let trace = `<div class="trace-step">→ 1. Swapping letters for: A=${map.A}, B=${map.B}, C=${map.C}</div>`;
-        let result = 0;
-        let steps = [];
-
-        const formulaKey = activeFormula.join('');
-        if (formulaKey === '3A+2B+5C') {
-            result = (3 * map.A) + (2 * map.B) + (5 * map.C);
-            steps = [`3(${map.A}) + 2(${map.B}) + 5(${map.C})`, `${3*map.A} + ${2*map.B} + ${5*map.C}`];
-        } else if (formulaKey === 'A+B^2/C') {
-            result = map.A + (Math.pow(map.B, 2) / map.C);
-            steps = [`${map.A} + (${map.B}²) / ${map.C}`, `${map.A} + ${Math.pow(map.B,2)} / ${map.C}`];
-        } else if (formulaKey === '5C-(AxB)') {
-            result = (5 * map.C) - (map.A * map.B);
-            steps = [`5(${map.C}) - (${map.A} × ${map.B})`, `${5*map.C} - ${map.A*map.B}`];
-        } else if (formulaKey === 'A/B+C^2') {
-            result = (map.A / map.B) + Math.pow(map.C, 2);
-            steps = [`${map.A}/${map.B} + ${map.C}²`, `${(map.A/map.B).toFixed(2)} + ${Math.pow(map.C,2)}`];
-        } else if (formulaKey === '2Ax3B/C') {
-            result = (2 * map.A * 3 * map.B) / map.C;
-            steps = [`(2×${map.A}) × (3×${map.B}) / ${map.C}`, `${2*map.A} × ${3*map.B} / ${map.C}`];
-        } else if (formulaKey === '(A+C)/B') {
-            result = (map.A + map.C) / map.B;
-            steps = [`(${map.A} + ${map.C}) / ${map.B}`, `${map.A+map.C} / ${map.B}`];
+        let res = 0, steps = "";
+        if(f === '3A+2B') {
+            res = (3*a) + (2*b);
+            steps = `3(${a}) + 2(${b}) = ${3*a} + ${2*b}`;
+        } else if(f === 'A/B+C') {
+            res = (a/b) + c;
+            steps = `${a}/${b} + ${c} = ${a/b} + ${c}`;
+        } else if(f === 'B^2+A') {
+            res = Math.pow(b, 2) + a;
+            steps = `${b}² + ${a} = ${b*b} + ${a}`;
+        } else {
+            res = (a+c)/b;
+            steps = `(${a} + ${c}) / ${b} = ${a+c} / ${b}`;
         }
 
-        steps.forEach(s => trace += `<div class="trace-step">→ Processing: ${s}</div>`);
-
-        trace += `
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → FINAL VALUE: ${result.toFixed(2)}
-            </div>
-        `;
-
-        document.getElementById('engine-trace').innerHTML = trace;
+        const displayStr = sLens ? steps.split('=')[0] : f.replace('^2','²');
+        document.getElementById('s-viz-formula').innerText = displayStr;
+        document.getElementById('s-lens-btn').innerText = sLens ? "Reset View Layout" : "Apply Formula Lens";
+        
+        document.getElementById('supp-log').innerHTML = `→ Swapping variables...<br>→ Calculation trail: ${steps}<br>→ <b>Final Calculation Result: ${res.toFixed(1)}</b>`;
     }
 
-    ['in-a', 'in-b', 'in-c'].forEach(id => {
-        document.getElementById(id).addEventListener('input', refresh);
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro();
+        ['in-a','in-b','in-c'].forEach(id => document.getElementById(id).oninput = runSupp);
+        if(document.getElementById('in-a')) runSupp();
+        if(typeof initModule === "function") initModule(20);
     });
-
-    window.onload = refresh;
 </script>
-
 </body>
 </html>

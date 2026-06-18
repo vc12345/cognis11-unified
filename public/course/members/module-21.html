@@ -3,216 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 21: Venn Diagrams (2 Circles) | Cognis 11+</title>
+    <title>Module 21: Sorting with Overlapping Circles | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR VENN INTERACTION */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 40px; 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            border: 2px solid #e2e8f0;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        svg { 
-            background: white; 
-            border-radius: 12px; 
-            box-shadow: inset 0 2px 15px rgba(0,0,0,0.05); 
-            max-width: 100%;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
         }
 
-        circle { 
-            fill: rgba(0, 45, 91, 0.04); 
-            stroke: var(--cognis-blue); 
-            stroke-width: 4; 
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); 
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🍏'; }
 
-        circle.target-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.04); }
+        /* INTRO: FRUIT SORTING */
+        .basket { fill: none; stroke: #94a3b8; stroke-width: 3; stroke-dasharray: 4; }
+        .basket-label { font-size: 10px; font-weight: 800; fill: #64748b; text-transform: uppercase; }
+        .fruit { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; }
 
-        text { 
-            font-family: 'DM Sans', sans-serif; 
-            font-weight: 900; 
-            pointer-events: none; 
-            transition: all 0.8s ease; 
-            text-anchor: middle; 
-            dominant-baseline: middle; 
-        }
+        /* PROGRESSING: THE ROOM SHARE */
+        .room { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.5s; }
+        .room-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.05); }
+        .number-bubble { fill: white; stroke: #cbd5e0; stroke-width: 1; }
 
-        .label-val { fill: var(--cognis-blue); font-size: 22px; }
-        .label-target-b { fill: var(--cognis-gold); }
-        .label-intersect { fill: #e53e3e; font-size: 26px; opacity: 0; }
-        
-        .merged .label-intersect { opacity: 1; }
+        /* SUPPLEMENTAL: OVERLAP VIZ */
+        .venn-circle-s { fill: rgba(0, 45, 91, 0.04); stroke: var(--cognis-blue); stroke-width: 4; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .venn-circle-s.target-b { stroke: var(--cognis-gold); fill: rgba(197, 160, 89, 0.04); }
+        .label-intersect-s { fill: #e53e3e; font-size: 24px; font-weight: 900; opacity: 0; transition: opacity 0.5s; }
+        .merged .label-intersect-s { opacity: 1; }
 
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        .btn-action {
-            margin-top: 25px;
-            background: var(--cognis-gold);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 8px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            border: none;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
-        }
-        .btn-action:hover { background: #b08d4b; transform: translateY(-2px); }
-
-        input[type=number] {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #4a5568;
-            background: #2d3748;
-            color: white;
-            font-weight: 800;
-            margin-top: 5px;
-        }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(21));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 21: Venn Diagrams (2 Circles)</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 21: Sorting with Overlapping Circles</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Land of Both</h2>
+            <p>Overlapping diagrams work just like standard sorting baskets, but with a clever twist. Imagine sorting things where some items fit into a <b>Green</b> basket and others fit into a <b>Small</b> basket. But what happens if an item is both Green AND Small at the same time? It cannot sit in two distant places at once, so we overlap the loops to create a shared middle space called <b>The Shared Zone</b>.</p>
+            
+            <div class="parent-script">
+                "Look at our bowl of fruit below. Some items are Green (like the apple), and some are Small (like the blueberry). But look at the green grape—it checks off both rules simultaneously! Click the 'Sort the Fruit' button to watch the green grape find its proper home right in the middle where the circles overlap."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="250" viewBox="0 0 400 250" id="intro-svg">
+                    <circle cx="130" cy="120" r="80" class="basket" />
+                    <circle cx="270" cy="120" r="80" class="basket" />
+                    <text x="100" y="30" class="basket-label">Green Things</text>
+                    <text x="300" y="30" class="basket-label">Small Things</text>
+                    
+                    <text id="fruit-apple" x="50" y="220" class="fruit" font-size="40">🍏</text>
+                    <text id="fruit-blueberry" x="350" y="220" class="fruit" font-size="30">🫐</text>
+                    <text id="fruit-grape" x="200" y="220" class="fruit" font-size="30">🍇</text>
+                </svg>
+                <button class="btn-action" onclick="sortIntroFruit()">Sort the Fruit!</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntroFruit()">Reset Layout</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting to sort...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Shared Doorway</h2>
+            <p>In competitive 11+ papers, surveyed groups almost always have a sneaky overlap. If Group A contains 10 people total, but 3 of those individuals are also members of Group B, then Group A only has <b>7 people who belong ONLY to Group A</b>. We must slide the circles together and subtract that shared middle group to see the true values.</p>
+            
+            <div class="parent-script">
+                "Imagine two adjoining classrooms. Room A holds 15 children. However, 5 of them are actually sitting right in the middle doorway, sharing space with Room B. If we do not subtract those 5 from our separate room counts, we accidentally count them twice and our overall total breaks! Watch how our 'Only' numbers change when the rooms slide together."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="200" viewBox="0 0 400 200" id="prog-svg">
+                    <circle id="p-circle-a" cx="120" cy="100" r="70" class="room" />
+                    <circle id="p-circle-b" cx="280" cy="100" r="70" class="room room-b" />
+                    <text id="p-txt-a" x="120" y="105" font-weight="900" font-size="20" fill="var(--cognis-blue)">15</text>
+                    <text id="p-txt-b" x="280" y="105" font-weight="900" font-size="20" fill="var(--cognis-gold)">10</text>
+                    <text id="p-txt-int" x="200" y="105" font-weight="900" font-size="20" fill="#ef4444" opacity="0">5</text>
+                </svg>
+                <button id="btn-prog-merge" class="btn-action" onclick="toggleProgVenn()">Slide Rooms Together</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Room A Total: 15 | Room B Total: 10.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of a Venn Diagram as <b>"The Land of Both."</b> In the 11+, examiners love to set traps by giving you two separate group totals that overlap. The secret weapon is the <b>Intersection</b> ($A \cap B$)—the sweet spot where things satisfy both rules at once. If your child can visualize those shared items, they'll realize that simply adding the two groups together creates a "double count" that breaks the logic. To find the truth, we must always subtract the overlap from the totals to see who is <b>"Only"</b> in a group.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Football/Rugby Club</b>
-                "In a class of 12 footballers, 3 also play rugby. How many play football <b>ONLY</b>?"
-            </div>
-            <div class="tier-card">
-                <b>The Group Merge</b>
-                "Group A has 20 people, Group B has 15. If 5 people are in both, how many people are there in total?"
-            </div>
-            <div class="tier-card">
-                <b>The Minimum Secret</b>
-                "Out of 40 students, 25 like Art and 20 like Music. What is the smallest number of students that <b>must</b> like both?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Overlap Shift</b>. Point to the circles below. Right now, they are separate totals. When you click the button, watch them slide together. Notice how the numbers in the main circles <b>shrink</b> as soon as the <b>Intersection</b> (the red number) appears. We haven't lost any people; we've just moved them into the "Both" room to avoid counting them twice.</p>
-        
-        <div class="anatomy-display">
-            <svg id="venn2-svg" width="500" height="300" viewBox="0 0 500 300">
-                <circle id="v2-c-a" cx="130" cy="150" r="110" />
-                <circle id="v2-c-b" cx="370" cy="150" r="110" class="target-b" />
-                <text id="v2-t-oa" x="130" y="150" class="label-val">15</text>
-                <text id="v2-t-ob" x="370" y="150" class="label-val label-target-b">10</text>
-                <text id="v2-t-int" x="250" y="150" class="label-intersect">5</text>
-            </svg>
-            <button class="btn-action" onclick="toggleVenn2()" id="btn-v2">Activate Intersection</button>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the boxes below to change the population. Help your child notice that the <b>Total Union</b> (the whole group) isn't just A + B. Watch the <b>Trace Log</b> to see the "Logic Subtraction" that reveals the true count of people.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Total in Group A</label>
-                    <input type="number" id="v2-in-ta" value="15" oninput="updateV2()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Total in Group B</label>
-                    <input type="number" id="v2-in-tb" value="10" oninput="updateV2()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">The Overlap (A ∩ B)</label>
-                    <input type="number" id="v2-in-int" value="5" oninput="updateV2()">
-                </div>
-            </div>
-            <div class="trace-log" id="v2-trace">Awaiting set analysis...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Blind Addition" Trap:</strong> Most children see "15 Footballers" and "10 Swimmers" and immediately say "25 people total." They are assuming that nobody plays both! If 5 people actually do both, your child has just accidentally invented 5 extra people.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of sorting diagrams as <b>"The Land of Both."</b> Your main tool for unlocking these puzzles is <b>The Shared Zone</b>—the overlapping sweet spot where items fulfill both rules at the exact same time. Blindly adding two separate group totals together sets a dangerous "double counting" trap. To find the absolute truth, always carve the shared overlap away from the grand totals to identify who sits <b>"Only"</b> inside a single loop.</p>
             
-            <p><strong>The Insider Fix: The "Once Only" Rule.</strong> Remind your child: <i>"Each person has one seat."</i> To find the real total, they must subtract the intersection from both sides first. The secret formula is: $Total = (A - Intersection) + (B - Intersection) + Intersection$. <b>Clean the groups first, then add them up.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The School Sports Club:</b> "A club contains 12 football players, but 3 of these players also play rugby. How many children play football <b>ONLY</b>?"</div>
+                <div class="tier-card"><b>The Overlapping Merge:</b> "Group A has a total of 20 members, and Group B has 15 members. If 5 members belong to both, what is the count of unique individuals?"</div>
+                <div class="tier-card"><b>The Minimum Boundary:</b> "Out of 40 students, 25 like Art class and 20 like Music class. What is the smallest possible number of students who <b>must</b> like both subjects?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Circle Overlap Shift</h2>
+            <p>Study the <b>Circle Overlap Shift</b> tracker below. Notice how the values displayed in the primary loops <b>shrink</b> the exact moment our Shared Zone value (the red number) is activated. We haven't lost any members; we have simply shifted them into the shared center room to guarantee no one gets counted twice.</p>
+            <div class="anatomy-display">
+                <svg id="s-venn-svg" width="460" height="260" viewBox="0 0 460 260">
+                    <circle id="s-c-a" cx="130" cy="130" r="100" class="venn-circle-s" />
+                    <circle id="s-c-b" cx="330" cy="130" r="100" class="venn-circle-s target-b" />
+                    <text id="s-t-a" x="130" y="135" class="label-val" font-size="22" font-weight="900">20</text>
+                    <text id="s-t-b" x="330" y="135" class="label-val label-target-b" font-size="22" font-weight="900">15</text>
+                    <text id="s-t-int" x="230" y="135" class="label-intersect-s">5</text>
+                </svg>
+                <button class="btn-action" style="background:var(--cognis-gold);" onclick="toggleSuppVenn()">Shift to Shared Zone View</button>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Diagram Operator Tool</h2>
+            <p style="margin-bottom: 20px;">Adjust the relative population values using the control panels below. Observe the tracking logs to see the logic subtraction step run automatically, protecting your totals from double-counting.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Total Items in Left Group (A)</label><input type="number" id="in-a" value="20" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Total Items in Right Group (B)</label><input type="number" id="in-b" value="15" oninput="runSupp()"></div>
+                    <div class="control-group"><label>The Overlap (Both Zones)</label><input type="number" id="in-int" value="5" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Blind Addition" Speed Trap:</b> Rushed students scan a problem, see "15 Footballers" and "10 Swimmers," and instantly add them to say "25 people total." If 5 of those kids do both activities, the student has accidentally conjured 5 imaginary people out of thin air!</p>
+                <p><b>The Easy Fix: The "Count Once Only" Rule.</b> Teach your child to clean up the groups by subtracting the overlap value from both side counts first. <b>Isolate your clean outer groups before doing any addition.</b> The true total formula follows a clean balance line: <b>Total = (Group A - Overlap) + (Group B - Overlap) + Overlap</b>.</p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(21)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(21)">Complete Module & Update Lattice</button>
-
 <script>
-    let v2Merged = false;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function updateV2() {
-        const ta = parseFloat(document.getElementById('v2-in-ta').value) || 0;
-        const tb = parseFloat(document.getElementById('v2-in-tb').value) || 0;
-        const inter = parseFloat(document.getElementById('v2-in-int').value) || 0;
-        
-        const oa = ta - inter; 
-        const ob = tb - inter;
-        const union = oa + ob + inter;
-
-        document.getElementById('v2-t-oa').textContent = v2Merged ? oa : ta;
-        document.getElementById('v2-t-ob').textContent = v2Merged ? ob : tb;
-        document.getElementById('v2-t-int').textContent = inter;
-
-        document.getElementById('v2-trace').innerHTML = `
-            <div class="trace-step">→ 1. A (Only): ${ta} - ${inter} = <b>${oa}</b></div>
-            <div class="trace-step">→ 2. B (Only): ${tb} - ${inter} = <b>${ob}</b></div>
-            <div class="trace-step">→ 3. The Shared Both: <b>${inter}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → TOTAL UNIQUE PEOPLE: ${union}
-            </div>
-        `;
-    }
-
-    function toggleVenn2() {
-        v2Merged = !v2Merged;
-        const svg = document.getElementById('venn2-svg');
-        const btn = document.getElementById('btn-v2');
-        
-        if (v2Merged) {
-            document.getElementById('v2-c-a').setAttribute('cx', '200');
-            document.getElementById('v2-c-b').setAttribute('cx', '300');
-            document.getElementById('v2-t-oa').setAttribute('x', '140');
-            document.getElementById('v2-t-ob').setAttribute('x', '360');
-            svg.classList.add('merged');
-            btn.innerText = "Pull Totals Apart";
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Data Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
         } else {
-            document.getElementById('v2-c-a').setAttribute('cx', '130');
-            document.getElementById('v2-c-b').setAttribute('cx', '370');
-            document.getElementById('v2-t-oa').setAttribute('x', '130');
-            document.getElementById('v2-t-ob').setAttribute('x', '370');
-            svg.classList.remove('merged');
-            btn.innerText = "Activate Intersection";
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-        updateV2();
     }
 
-    window.onload = updateV2;
-</script>
+    /* --- INTRO: FRUIT --- */
+    function resetIntroFruit() {
+        document.getElementById('fruit-apple').setAttribute("x", "50");
+        document.getElementById('fruit-apple').setAttribute("y", "220");
+        document.getElementById('fruit-blueberry').setAttribute("x", "350");
+        document.getElementById('fruit-blueberry').setAttribute("y", "220");
+        document.getElementById('fruit-grape').setAttribute("x", "200");
+        document.getElementById('fruit-grape').setAttribute("y", "220");
+        document.getElementById('intro-log').innerHTML = "Ready to sort variables...";
+    }
+    function sortIntroFruit() {
+        document.getElementById('fruit-apple').setAttribute("x", "100");
+        document.getElementById('fruit-apple').setAttribute("y", "120");
+        document.getElementById('fruit-blueberry').setAttribute("x", "300");
+        document.getElementById('fruit-blueberry').setAttribute("y", "120");
+        document.getElementById('fruit-grape').setAttribute("x", "200");
+        document.getElementById('fruit-grape').setAttribute("y", "120");
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The Apple belongs <b>ONLY</b> in Green. The Blueberry belongs <b>ONLY</b> in Small. The Grape claims a home in <b>BOTH</b> zones!</div>`;
+    }
 
+    /* --- PROGRESSING: ROOMS --- */
+    let progMerged = false;
+    function toggleProgVenn() {
+        progMerged = !progMerged;
+        const cA = document.getElementById('p-circle-a'), cB = document.getElementById('p-circle-b');
+        const tA = document.getElementById('p-txt-a'), tB = document.getElementById('p-txt-b'), tI = document.getElementById('p-txt-int');
+        if(progMerged) {
+            cA.setAttribute("cx", "170"); cB.setAttribute("cx", "230");
+            tA.setAttribute("x", "140"); tA.textContent = "10";
+            tB.setAttribute("x", "260"); tB.textContent = "5";
+            tI.style.opacity = "1";
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look at the numbers shift! Loop A shrank to 10 and Loop B shrank to 5. The missing 5 are now anchored right in the shared middle space.</div>`;
+        } else {
+            cA.setAttribute("cx", "120"); cB.setAttribute("cx", "280");
+            tA.setAttribute("x", "120"); tA.textContent = "15";
+            tB.setAttribute("x", "280"); tB.textContent = "10";
+            tI.style.opacity = "0";
+            document.getElementById('prog-log').innerHTML = "Totals pulled apart into independent loops.";
+        }
+    }
+
+    /* --- SUPPLEMENTAL: VENN --- */
+    let suppMerged = false;
+    function toggleSuppVenn() {
+        suppMerged = !suppMerged;
+        const svg = document.getElementById('s-venn-svg');
+        if(suppMerged) {
+            document.getElementById('s-c-a').setAttribute("cx", "180");
+            document.getElementById('s-c-b').setAttribute("cx", "280");
+            svg.classList.add('merged');
+        } else {
+            document.getElementById('s-c-a').setAttribute("cx", "130");
+            document.getElementById('s-c-b').setAttribute("cx", "330");
+            svg.classList.remove('merged');
+        }
+        runSupp();
+    }
+    function runSupp() {
+        const a = parseInt(document.getElementById('in-a').value) || 0;
+        const b = parseInt(document.getElementById('in-b').value) || 0;
+        const i = parseInt(document.getElementById('in-int').value) || 0;
+        
+        document.getElementById('s-t-a').textContent = suppMerged ? (a - i) : a;
+        document.getElementById('s-t-b').textContent = suppMerged ? (b - i) : b;
+        document.getElementById('s-t-int').textContent = i;
+        
+        document.getElementById('s-t-a').setAttribute("x", suppMerged ? "140" : "130");
+        document.getElementById('s-t-b').setAttribute("x", suppMerged ? "320" : "330");
+
+        document.getElementById('supp-log').innerHTML = `→ Left Loop (Only): ${a-i}<br>→ Right Loop (Only): ${b-i}<br>→ Shared Overlap Zone: ${i}<br>→ <b>Total Unique Count: ${(a-i)+(b-i)+i}</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntroFruit();
+        if(document.getElementById('in-a')) runSupp();
+        if(typeof initModule === "function") initModule(21);
+    });
+</script>
 </body>
 </html>

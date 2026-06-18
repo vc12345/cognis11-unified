@@ -3,199 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 4: Inverse Proportion | Cognis 11+</title>
+    <title>Module 4: Flipping the Rules (Opposites) | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR CONSTANT AREA RECTANGLE */
-        .anatomy-display { 
-            background: #f8fafc; 
-            padding: 50px 20px; 
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 2px solid #e2e8f0;
-        }
-
-        .work-chart {
-            position: relative;
-            width: 400px;
-            height: 250px;
-            border-left: 3px solid var(--cognis-blue);
-            border-bottom: 3px solid var(--cognis-blue);
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-start;
-        }
-
-        .axis-label {
-            position: absolute;
-            font-weight: 900;
-            font-size: 0.65rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .y-label { transform: rotate(-90deg); left: -45px; top: 50%; }
-        .x-label { bottom: -30px; left: 50%; transform: translateX(-50%); }
-
-        .work-rect {
-            background: rgba(197, 160, 89, 0.15);
-            border: 3px solid var(--cognis-gold);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--cognis-blue);
-            font-weight: 900;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            line-height: 1.4;
-        }
-
-        .label-main { font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 4px; }
-        .label-val { font-size: 1.1rem; color: var(--cognis-gold); }
-        .label-unit { font-size: 0.6rem; opacity: 0.8; }
-
-        .engine-container { grid-template-columns: 1.2fr 1fr; }
-        
-        .control-group label { 
-            display: flex; 
-            justify-content: space-between; 
-            font-weight: 800 !important; 
-        }
-        .val-display { color: var(--cognis-gold); }
-
-        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+        /* UNIQUE COMPONENT STYLES FOR MODULE 4 */
+        .lego-pile { fill: #c5a059; transition: all 0.5s; }
+        .kid-icon { font-size: 2.2rem; transition: transform 0.3s; }
+        .seesaw-group { transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .weight-box { transition: all 0.5s; }
+        .work-chart { position: relative; width: 300px; height: 200px; border-left: 3px solid var(--cognis-blue); border-bottom: 3px solid var(--cognis-blue); display: flex; align-items: flex-end; }
+        .work-rect { background: rgba(197, 160, 89, 0.15); border: 3px solid var(--cognis-gold); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--cognis-blue); font-weight: 900; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .magic-formula { text-align: center; margin: 20px 0; padding: 15px; background: var(--cognis-light); border-radius: 8px; border: 1px dashed var(--cognis-blue); font-weight: 800; color: var(--cognis-blue); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(4));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 4: Inverse Proportion</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 4: Flipping the Rules (Opposites)</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Tidy-Up Race</h2>
+            <p>Usually in math, when one number goes up, the other number goes up too. But sometimes rules flip into <b>opposites</b>: adding more helpers makes the time go <i>down</i>. Think about packing away toys: if you work all by yourself, it takes a long time. But if a few friends join in to help, the job is finished in a flash!</p>
+            
+            <div class="parent-script">
+                "Look at our big messy pile of building blocks. If we have only <b>1 helper</b> working alone, the clock shows it will take 12 long minutes. Let's add more friends to the screen and watch how quickly the timer drops!"
+            </div>
+
+            <div class="viz-container">
+                <div style="font-size: 3rem; margin-bottom: 10px; font-weight: 800; color: var(--cognis-blue);" id="intro-clock">12:00</div>
+                <div style="display:flex; gap:20px; margin-bottom: 20px; min-height: 50px;" id="helper-row">
+                    <div class="kid-icon">👦</div>
+                </div>
+                <svg width="240" height="120" viewBox="0 0 200 100">
+                    <path id="lego-pile" d="M20,90 Q100,20 180,90 Z" class="lego-pile" />
+                </svg>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-reset" style="background:var(--cognis-blue); padding:10px 20px;" onclick="addIntroHelper()">Add a Friend!</button>
+                    <button class="btn-reset" onclick="resetIntro()">Reset</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">One child is working hard... it will take 12 minutes.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Balancing Act</h2>
+            <p>When rules flip like this, there is a secret <b>Magic Number</b> that stays exactly the same. It works just like a see-saw. If you pile more weight on the "Helpers" side, the "Time" side must instantly shrink to keep the see-saw perfectly balanced.</p>
+            
+            <div class="parent-script">
+                "If 1 helper takes 12 hours, our locked Magic Number is 12. Watch what happens if we slide the bar up to 4 helpers. The see-saw shifts because the time automatically drops down to 3 to keep the math balanced!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="450" height="250" viewBox="0 0 450 250">
+                    <path d="M205,220 L225,180 L245,220 Z" fill="#2d3748" /> 
+                    <g id="seesaw-group" class="seesaw-group">
+                        <rect x="50" y="175" width="350" height="12" rx="6" fill="var(--cognis-blue)" />
+                        <rect id="worker-weight" x="80" y="135" width="40" height="40" fill="var(--cognis-blue)" rx="4" class="weight-box" />
+                        <text id="worker-label" x="100" y="160" text-anchor="middle" fill="white" font-weight="900" font-size="14">1</text>
+                        <rect id="time-weight" x="330" y="55" width="40" height="120" fill="var(--cognis-gold)" rx="4" class="weight-box" />
+                        <text id="time-label" x="350" y="120" text-anchor="middle" fill="white" font-weight="900" font-size="14">12</text>
+                    </g>
+                </svg>
+                <div class="magic-formula">Helpers × Hours = <span id="prog-magic">12</span> (The Locked Job Size)</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Number of Helpers</label>
+                        <input type="range" min="1" max="12" value="1" id="prog-w" oninput="updateProg()">
+                        <div class="val-out" id="prog-w-val">1 Helper</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('4-p')">Complete Progressing Step</button>
+            </div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as the <b>"See-Saw" Rule</b>. Usually, in math, if one number goes up, the other follows. Inverse proportion is different: if you double the number of workers, you cut the time in half. The "Secret Weapon" is realizing that the <b>Total Work</b> (the Magic Number) never changes. To solve these, you just find that Magic Number first:</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>The secret weapon for tracking opposite rules is uncovering the <b>Magic Number</b> (the total size of the job), which never changes. Once your child multiplies the starting characters to find that master value, the final step is just one quick division away.</p>
+            <div class="magic-formula">Starting Group × Starting Time = The Locked Magic Number</div>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Clean Up:</b> "If 2 children take 6 minutes to put away the toys, how long will it take 3 children working at the same speed?"</div>
+                <div class="tier-card"><b>The Building Site:</b> "An engineering team of 4 builders takes 10 days to lay a track. How long would it take 5 builders?"</div>
+                <div class="tier-card"><b>The Water Pumps:</b> "6 water pumps take 14 hours to empty a tank completely. If 2 pumps break down, how long does the job take now?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Fixed Job Box</h2>
+            <p>Think of the job as the space inside the box below. The total area of this box never changes. If you stretch the box wider by adding more workers, the shape <i>must</i> become shorter because the time drops down.</p>
+            <div class="anatomy-display">
+                <div class="work-chart">
+                    <div class="work-rect" id="supp-rect">
+                        <div style="font-size: 0.6rem; opacity: 0.7;">TOTAL JOB SIZE</div>
+                        <div id="supp-magic-val" style="font-size: 1.2rem;">40</div>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-weight: 800; color: var(--cognis-blue); font-size: 0.8rem;">TEAM SIZE (Width) &rarr; | TIME TAKEN (Height) &uarr;</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: Interactive Practice</h2>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Initial Team Size</label><input type="range" id="in-w1" min="1" max="10" value="4" oninput="runSupp()"><div class="val-out" id="w1-disp">4</div></div>
+                    <div class="control-group"><label>Initial Time (Hours)</label><input type="range" id="in-t1" min="1" max="20" value="10" oninput="runSupp()"><div class="val-out" id="t1-disp">10</div></div>
+                    <div class="control-group" style="margin-top:20px; border-top:1px solid #4a5568; padding-top:20px;"><label>New Team Size</label><input type="range" id="in-w2" min="1" max="20" value="5" oninput="runSupp()"><div class="val-out" id="w2-disp">5</div></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "More Means More" Trap:</b> Eager children often spot numbers changing and automatically assume that doubling the workforce will double the time taken. **This is an exam trap!**</p>
+                <p><b>The Easy Fix: The "Toy Test."</b> Remind them: more friends back at home means less cleaning time. Always find the locked Magic Number first by multiplying, then **divide** it by the size of the new team.</p>
+            </div>
+        </section>
         
-        <div style="text-align: center; margin: 25px 0; padding: 15px; background: var(--cognis-light); border-radius: 8px; border: 1px dashed var(--cognis-blue);">
-            <b style="color: var(--cognis-blue); font-size: 1.1rem;">Workers × Time = The Magic Number</b>
-        </div>
-
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Tidy-Up</b>
-                "If 2 children take 6 minutes to tidy a room, how long for 3 children?"
-            </div>
-            <div class="tier-card">
-                <b>The Building Site</b>
-                "4 builders take 10 days to build a wall. How many days for 5 builders?"
-            </div>
-            <div class="tier-card">
-                <b>The Water Pump</b>
-                "6 pumps empty a tank in 14 hours. 2 break down. How long for the rest?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Work Rectangle</b>. Imagine the "Job" is the space inside this box. If you make the box wider (add more workers), it <i>must</i> get shorter (less time) to keep the same size. Point to the gold box below—watch how the shape shifts but the "Magic Number" in the middle stays locked.</p>
-        
-        <div class="anatomy-display">
-            <div class="work-chart">
-                <span class="axis-label y-label">Time &rarr;</span>
-                <span class="axis-label x-label">Workers &rarr;</span>
-                <div class="work-rect" id="viz-rect">
-                    <div class="label-main">MAGIC NUMBER</div>
-                    <div class="label-val"><span id="viz-area">40</span></div>
-                    <div class="label-unit">UNITS OF WORK</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the sliders with your child to change the team size. Help them notice that multiplying the "Initial Workers" by the "Initial Time" always gives you that <b>Magic Number</b>. Once you have that, you just divide it by the new team size to get your answer.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Starting Workers: <span class="val-display" id="w1-val">4</span></label>
-                    <input type="range" id="w1-in" min="1" max="10" value="4" oninput="run4()">
-                </div>
-                <div class="control-group" style="margin-top:15px;">
-                    <label>Starting Time: <span class="val-display" id="t1-val">10</span></label>
-                    <input type="range" id="t1-in" min="1" max="20" value="10" oninput="run4()">
-                </div>
-                <div class="control-group" style="margin-top:30px; border-top: 1px solid #e2e8f0; padding-top:20px;">
-                    <label>New Team Size: <span class="val-display" id="w2-val">5</span></label>
-                    <input type="range" id="w2-in" min="1" max="20" value="5" oninput="run4()">
-                </div>
-            </div>
-            <div class="trace-log" id="trace-4">Awaiting proportions...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "More is More" Trap:</strong> Bright children often go on autopilot and think: "If 4 workers take 10 days, then 8 workers must take 20 days." They've doubled the helpers but somehow made the job take twice as long!</p>
-            
-            <p><strong>The Fix: The "Lego Test."</strong> Ask your child: "If more friends come over to help you tidy your Lego, does it take you <i>more</i> time or <i>less</i> time?" Once they realize it's less, remind them that they must <b>divide</b> the Magic Number by the new helpers, not multiply.</p>
-        </div>
-    </section>
+        <button class="btn-complete" onclick="markComplete(4)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(4)">Complete Module & Update Lattice</button>
-
 <script>
-    function run4() {
-        const w1 = parseInt(document.getElementById('w1-in').value);
-        const t1 = parseInt(document.getElementById('t1-in').value);
-        const w2 = parseInt(document.getElementById('w2-in').value);
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        // Update UI Labels
-        document.getElementById('w1-val').innerText = w1;
-        document.getElementById('t1-val').innerText = t1;
-        document.getElementById('w2-val').innerText = w2;
-
-        // Math Logic
-        const constant = w1 * t1;
-        const newTime = constant / w2;
-
-        // Visual Scaling
-        const scaleX = 25;
-        const scaleY = 10;
-        const rect = document.getElementById('viz-rect');
-        
-        rect.style.width = (w2 * scaleX) + "px";
-        rect.style.height = (newTime * scaleY) + "px";
-        document.getElementById('viz-area').innerText = constant;
-
-        // Trace Output
-        document.getElementById('trace-4').innerHTML = `
-            <div class="trace-step">→ 1. Find the Magic Number: ${w1} workers × ${t1} days = <b>${constant}</b></div>
-            <div class="trace-step">→ 2. Total Work stays at <b>${constant}</b></div>
-            <div class="trace-step">→ 3. New Split: ${constant} ÷ ${w2} workers</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → NEW TIME: ${newTime.toFixed(2)} DAYS
-            </div>
-        `;
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Proportion Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
     }
 
-    window.onload = run4;
-</script>
+    /* --- INTRO: LEGO TIDY --- */
+    let introHelpers = 1;
+    function resetIntro() { introHelpers = 1; renderIntro(); }
+    function addIntroHelper() { if(introHelpers < 4) introHelpers++; renderIntro(); }
+    function renderIntro() {
+        const time = 12 / introHelpers;
+        document.getElementById('intro-clock').innerText = Math.round(time) + ":00";
+        const row = document.getElementById('helper-row'); row.innerHTML = '';
+        for(let i=0; i<introHelpers; i++) row.innerHTML += '<div class="kid-icon">👦</div>';
+        const pile = document.getElementById('lego-pile');
+        pile.style.transform = `scale(${1 - (introHelpers * 0.2)})`;
+        pile.style.transformOrigin = "bottom center";
+        document.getElementById('intro-log').innerHTML = `With <b>${introHelpers}</b> helper(s), the time drops to <b>${Math.round(time)} minutes</b>.`;
+    }
 
+    /* --- PROGRESSING: SEE-SAW (Fixed labels) --- */
+    function updateProg() {
+        const w = parseInt(document.getElementById('prog-w').value);
+        const magic = 12; const t = magic / w;
+        document.getElementById('prog-w-val').innerText = w + " Helper" + (w>1?'s':'');
+        const wBox = document.getElementById('worker-weight'); const wLabel = document.getElementById('worker-label');
+        const tBox = document.getElementById('time-weight'); const tLabel = document.getElementById('time-label');
+
+        const workerSize = 25 + (w * 3);
+        wBox.setAttribute("width", workerSize); wBox.setAttribute("height", workerSize);
+        wBox.setAttribute("x", 100 - (workerSize/2)); wBox.setAttribute("y", 175 - workerSize);
+        wLabel.setAttribute("x", 100); wLabel.setAttribute("y", 175 - (workerSize/2) + 5);
+        wLabel.textContent = w;
+
+        const timeHeight = t * 10 + 10;
+        tBox.setAttribute("height", timeHeight); tBox.setAttribute("y", 175 - timeHeight);
+        tLabel.setAttribute("y", 175 - (timeHeight/2) + 5); tLabel.textContent = t.toFixed(1);
+
+        const tilt = (w - t) * 1.5;
+        document.getElementById('seesaw-group').style.transform = `rotate(${tilt}deg)`;
+        document.getElementById('seesaw-group').style.transformOrigin = "225px 181px";
+
+        document.getElementById('prog-log').innerHTML = `The Job Size is locked at <b>12</b>. <b>${w}</b> helper(s) × <b>${t.toFixed(1)}</b> hours = 12.`;
+    }
+
+    /* --- SUPPLEMENTAL: RECTANGLE --- */
+    function runSupp() {
+        const w1 = parseInt(document.getElementById('in-w1').value);
+        const t1 = parseInt(document.getElementById('in-t1').value);
+        const w2 = parseInt(document.getElementById('in-w2').value);
+        
+        // Update slider textual display labels
+        document.getElementById('w1-disp').innerText = w1;
+        document.getElementById('t1-disp').innerText = t1;
+        document.getElementById('w2-disp').innerText = w2;
+        
+        const magic = w1 * t1; const t2 = magic / w2;
+        document.getElementById('supp-rect').style.width = Math.min(280, (w2 * 20)) + "px";
+        document.getElementById('supp-rect').style.height = Math.min(180, (t2 * 12)) + "px";
+        document.getElementById('supp-magic-val').innerText = magic;
+        document.getElementById('supp-log').innerHTML = `&rarr; Magic Number: ${w1} × ${t1} = <b>${magic}</b><br>&rarr; Result: ${magic} ÷ ${w2} = <b>${t2.toFixed(2)} Time</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        if(document.getElementById('in-w1')) runSupp();
+        if(typeof initModule === "function") initModule(4);
+    });
+</script>
 </body>
 </html>

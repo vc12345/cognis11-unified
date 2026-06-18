@@ -3,190 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 24: The Mean Bridge | Cognis 11+</title>
+    <title>Module 24: The Balancing Bridge | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR THE MEAN BRIDGE (LIGHT SCHEME) */
-        .anatomy-display { padding: 40px; background: #f0f4f8; border: 2px solid #e2e8f0; border-radius: 12px; }
-        
-        #bridge-svg { background: white; border-radius: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
-        
-        .stick { fill: var(--cognis-blue); transition: all 0.6s ease; }
-        .target-stick { fill: var(--cognis-blue); opacity: 0.15; stroke: var(--cognis-blue); stroke-dasharray: 4; }
-        
-        .missing-stick { 
-            fill: var(--cognis-gold); 
-            stroke: #fff; 
-            transform: translateY(-350px); 
-            opacity: 0; 
-            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        .merged .missing-stick { transform: translateY(0); opacity: 1; }
-        
-        .stat-text { fill: #94a3b8; font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
-        .stat-val { fill: var(--cognis-blue); font-size: 18px; font-weight: 900; }
-        .stat-val.gold { fill: var(--cognis-gold); }
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
 
-        .btn-action-wrapper { text-align: center; margin-top: 25px; }
-        .btn-bridge { 
-            background: var(--cognis-gold); color: white; border: none; 
-            padding: 14px 30px; border-radius: 8px; font-weight: 800; 
-            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
-            transition: 0.3s;
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .btn-bridge:hover { background: #b08d4b; transform: translateY(-2px); }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
+        }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+        }
+
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🌉'; }
+
+        /* INTRO: TOWER LEVELER */
+        .tower-f { width: 50px; background: var(--cognis-blue); border-radius: 4px 4px 0 0; transition: height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .tower-missing { background: var(--cognis-gold); border: 2px dashed #b45309; }
+        .level-line { stroke: var(--trap-red); stroke-width: 2; stroke-dasharray: 4; }
+
+        /* PROGRESSING: GOAL PILE */
+        .coin-f { fill: var(--cognis-gold); stroke: #b45309; stroke-width: 1; transition: all 0.3s; }
+        .coin-ghost { fill: #e2e8f0; stroke: #cbd5e0; stroke-dasharray: 2; }
+
+        /* SUPPLEMENTAL: EQUALITY BRIDGE */
+        .stick-s { fill: var(--cognis-blue); transition: all 0.6s ease; }
+        .target-stick-s { fill: var(--cognis-blue); opacity: 0.15; stroke: var(--cognis-blue); stroke-dasharray: 4; }
+        .missing-stick-s { fill: var(--cognis-gold); stroke: #fff; transform: translateY(-350px); opacity: 0; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .merged .missing-stick-s { transform: translateY(0); opacity: 1; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .control-group { margin-bottom: 10px; }
+        .val-out { font-weight: 800; color: var(--cognis-blue); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(24));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 24: The Mean Bridge</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 24: The Balancing Bridge</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Tower Leveler</h2>
+            <p>Imagine we have three building block towers standing side by side. We want to adjust them so they finish at the <b>exact same height</b>. If we already know the measurements of two towers, and we have a clear target height in mind, our balancing bridge is simply the missing amount of blocks we need to drop into the third spot to bring everything completely level.</p>
+            
+            <div class="parent-script">
+                "Our target goal is to make all three towers exactly 10 blocks high. Tower 1 stands at 8, and Tower 2 stands up at 12. Click the 'Level Up!' button to see how many extra gold blocks we need to drop into the third empty space to make every single tower perfectly equal."
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <line x1="20" y1="50" x2="280" y2="50" class="level-line" />
+                    <text x="285" y="55" font-size="10" font-weight="800" fill="var(--trap-red)">TARGET HEIGHT: 10</text>
+                    <rect x="50" y="80" width="40" height="120" class="tower-f" />
+                    <rect x="130" y="20" width="40" height="180" class="tower-f" />
+                    <rect id="intro-missing" x="210" y="200" width="40" height="0" class="tower-f tower-missing" />
+                </svg>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="levelIntro()">Level Up!</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Towers</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Towers are uneven. Can you fix the third one?</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Target Sharing Pile</h2>
+            <p>Whenever you want to modify a group's average value, you must first calculate the required change to the <b>Grand Shared Pile</b>. For example, if 4 friends want to maintain a fair share average of 5 points each, you need a combined total of 20 points sitting in the central pile. To find out what the 4th person must score, simply measure the gap between the points you currently have and the points you need.</p>
+            
+            <div class="parent-script">
+                "We currently have 12 coins pooled together by 3 of our friends. We want 4 friends to achieve a fair share average of 5 coins each. That means our absolute 'Target Sharing Pile' must contain 20 coins. Look closely at the gray ghost coin footprints—that represents our missing gap! The 4th friend must contribute exactly 8 coins to fill the pile up to the top."
+            </div>
+
+            <div class="viz-container">
+                <svg width="400" height="150" viewBox="0 0 400 150" id="prog-svg"></svg>
+                <div style="font-weight: 800; color: var(--cognis-blue); margin-top: 15px;">Target Sharing Pile: 20 Coins</div>
+            </div>
+
+            <div class="engine-container">
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Coins in our Shared Pile</label>
+                        <input type="range" min="5" max="15" value="12" id="prog-have" oninput="updateProg()">
+                        <div class="val-out" id="prog-have-val">12</div>
+                    </div>
+                </div>
+                <div class="discovery-log" id="prog-log"></div>
+            </div>
+
+            <div class="foundational-only">
+                <button class="btn-complete" onclick="markComplete('24-p')">Complete Progressing Step</button>
+            </div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of the Mean as the <b>"Fair Share"</b> height. In the 11+, examiners love to give you a group of scores and ask: <i>"What must the next person score to change the average?"</i> The secret is ignoring the average for a moment and looking at the <b>Total Pile</b>. To find the missing person, you just compare the pile you have now against the pile you <b>need</b> to hit that target. The "Bridge" is the number that fills the gap.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Mystery Number</b>
-                "The mean of 3 numbers is 5. Two of the numbers are 4 and 6. What is the 3rd number?"
-            </div>
-            <div class="tier-card">
-                <b>The Test Scorer</b>
-                "Sarah scored 12, 15, and 10. What must she score next to have a mean of 13?"
-            </div>
-            <div class="tier-card">
-                <b>The Weight Shift</b>
-                "5 children weigh 40kg on average. A 6th child joins and the mean becomes 41kg. How heavy is the new child?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Equality Bridge</b>. On the right, you see the "Ghost Set"—this is what the group would look like if everyone scored exactly the target mean. On the left is your real group. Notice the empty space at the end. When you click <b>"Add Missing Data,"</b> the missing score drops in to perfectly level the two sides. The value of that gold bar is the answer to your problem.</p>
-        
-        <div class="anatomy-display" id="stage">
-            <svg id="bridge-svg" width="100%" height="320" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet">
-                <g id="left-group"></g>
-                <g id="right-group"></g>
-
-                <text x="150" y="275" class="stat-text" text-anchor="middle">Current Total Pile</text>
-                <text id="l-sum" x="150" y="300" class="stat-val" text-anchor="middle">0</text>
-                
-                <text x="550" y="275" class="stat-text" text-anchor="middle">Target Total Pile</text>
-                <text id="r-sum" x="550" y="300" class="stat-val gold" text-anchor="middle">0</text>
-            </svg>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of an average as identifying a perfect <b>"Fair Share"</b> balanced height. In competitive 11+ exams, you will frequently be asked: <i>"What value must the next participant score to shift the overall group average?"</i> The master shortcut to solving this lies in evaluating the <b>Grand Shared Pile</b>. To track down the value of the missing person, directly compare the combined pile you hold right now against the total pile size you <b>need</b> to successfully hit the target benchmark. The bridge value is the empty gap separating these two grand totals.</p>
             
-            <div class="btn-action-wrapper">
-                <button class="btn-bridge" onclick="toggleBridge()" id="btn-bridge">Add Missing Data</button>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Missing Element:</b> "The fair share value of 3 mystery numbers is exactly 5. Two of the numbers are confirmed to be 4 and 6. What is the value of the 3rd number?"</div>
+                <div class="tier-card"><b>The Exam Score Challenge:</b> "A student records initial test scores of 12, 15, and 10. What score must they achieve on their 4th test to pull their overall fair share average up to 13?"</div>
+                <div class="tier-card"><b>The Group Weight Shift:</b> "A group of 5 children weighs an average of 40kg. A 6th child joins the scale, and the new fair share average climbs to 41kg. Uncover the exact weight of the 6th child."</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the inputs to build a scenario. Help your child notice Step 3 in the log: we multiply the <b>New Count</b> by the <b>New Mean</b> to find the big "Target Total." This is the master key to every mean problem.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Current Scores (e.g. 12, 15, 10)</label>
-                    <input type="text" id="in-vals" value="12, 15, 10" oninput="updateLogic()">
-                </div>
-                <div class="control-group" style="margin-top: 20px;">
-                    <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">Target Average Required</label>
-                    <input type="number" id="in-mean" value="13" oninput="updateLogic()">
-                </div>
+        <section class="phase">
+            <h2>Phase 2: The Shared Visual Scales</h2>
+            <p>This layout visualizes our <b>Balancing Bridge</b> logic. On the right-hand side stands the balanced 'Target Scale' showing what the row looks like if every single bar matched perfectly. On the left side stands your real-world data tracking group. The exact moment you click the <b>"Fill Missing Data Bar"</b> button, the missing piece drops down into the grid to balance both sides. The scale value of that new gold bar reveals your target answer.</p>
+            <div class="anatomy-display" id="s-stage">
+                <svg id="s-bridge-svg" width="100%" height="280" viewBox="0 0 600 280">
+                    <g id="s-l-group"></g><g id="s-r-group"></g>
+                    <text x="120" y="240" font-size="9" font-weight="800" fill="#94a3b8" text-anchor="middle">CURRENT PILE TOTAL</text>
+                    <text id="s-l-sum" x="120" y="260" font-size="16" font-weight="900" fill="var(--cognis-blue)" text-anchor="middle">0</text>
+                    <text x="480" y="240" font-size="9" font-weight="800" fill="#94a3b8" text-anchor="middle">TARGET PILE NEEDED</text>
+                    <text id="s-r-sum" x="480" y="260" font-size="16" font-weight="900" fill="var(--cognis-gold)" text-anchor="middle">0</text>
+                </svg>
+                <div style="text-align:center;"><button class="btn-action" style="background:var(--cognis-gold);" onclick="toggleSuppBridge()">Fill Missing Data Bar</button></div>
             </div>
-            <div class="trace-log" id="engine-trace">Calculating the bridge...</div>
-        </div>
-    </section>
+        </section>
 
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Average of Averages" Trap:</strong> Most children try to solve this by looking only at the averages. If their current mean is 10 and they want 13, they think: <i>"I just need to add 3 more than the average."</i> <b>Stop!</b> This logic breaks because the group is getting bigger. You aren't just adding 3; you are responsible for lifting the average of the <i>entire</i> new group.</p>
-            
-            <p><strong>The Fix: The "Total Volume" Rule.</strong> Remind your child: <i>"Mean is a mask; Total is the truth."</i> Always find the New Total ($New\ Count \times New\ Mean$) and the Old Total ($Old\ Count \times Old\ Mean$). The difference between those two big piles is always the missing value. <b>Find the big totals first.</b></p>
-        </div>
-    </section>
+        <section class="phase">
+            <h2>Phase 3: The Target Tracker Calculation Engine</h2>
+            <p style="margin-bottom: 20px;">Construct a custom test scenario below. Observe Step 2 carefully: our calculation system automatically multiplies the <b>New Expanded Count</b> by the <b>New Target Average</b> to uncover the grand 'Target Total'. Isolating this large total provides the master key to the puzzle.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Current Scores List (Separated by commas)</label><input type="text" id="in-vals" value="12, 15, 10"></div>
+                    <div class="control-group"><label>Target Average Required</label><input type="number" id="in-mean" value="13"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Average of Averages" Illusion Trap:</b> Rushed children frequently look only at the standalone average figures themselves. If their initial score average sits at 10 and the question says they want to reach 13, they will incorrectly assume the next single score just needs to be a 13. <b>Stop right there!</b> The next entry must be large enough to lift the *entire* historical group up to the new height level.</p>
+                <p><b>The Easy Fix: The "Total Volume" Rule.</b> Remind your child: <i>"The standalone average is just a mask; the combined total pile holds the true value."</i> Always calculate the New Combined Total (</b>New Group Count &times; Target Average</b>) and subtract your Old Combined Total. The difference reveals the exact value of the missing entry. <b>Train your child to discover the grand total values first.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(24)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(24)">Complete Module & Update Lattice</button>
-
 <script>
-    let isApplied = false;
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function updateLogic() {
-        const valStr = document.getElementById('in-vals').value;
-        const targetMean = parseFloat(document.getElementById('in-mean').value) || 0;
-        const knowns = valStr.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Statistics Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
 
-        if (knowns.length === 0) return;
+    /* --- INTRO: LEVELER --- */
+    function resetIntro() {
+        document.getElementById('intro-missing').setAttribute("height", "0");
+        document.getElementById('intro-missing').setAttribute("y", "200");
+        document.getElementById('intro-log').innerHTML = "Fix the third tower!";
+    }
+    function levelIntro() {
+        document.getElementById('intro-missing').setAttribute("height", "100");
+        document.getElementById('intro-missing').setAttribute("y", "100");
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">To draw our fair share average level to 10, the third tower must climb exactly <b>10 blocks</b> high. Now every column matches perfectly!</div>`;
+    }
 
-        const knownSum = knowns.reduce((a, b) => a + b, 0);
-        const targetCount = knowns.length + 1;
-        const targetSum = targetMean * targetCount;
-        const missing = targetSum - knownSum;
+    /* --- PROGRESSING: COINS --- */
+    function updateProg() {
+        const have = parseInt(document.getElementById('prog-have').value);
+        const goal = 20;
+        const missing = goal - have;
+        document.getElementById('prog-have-val').innerText = have;
 
-        const lGroup = document.getElementById('left-group');
-        const rGroup = document.getElementById('right-group');
-        lGroup.innerHTML = ''; rGroup.innerHTML = '';
-
-        const maxVal = Math.max(targetMean, ...knowns, Math.abs(missing), 1);
-        const scale = 180 / maxVal;
-
-        knowns.forEach((v, i) => {
-            const h = v * scale;
-            lGroup.innerHTML += `<rect x="${40 + i*35}" y="${230-h}" width="25" height="${h}" class="stick" />`;
-        });
-
-        const missH = Math.max(0, missing * scale);
-        lGroup.innerHTML += `
-            <g class="missing-stick">
-                <rect x="${40 + knowns.length*35}" y="${230-missH}" width="25" height="${missH}" />
-                <text x="${40 + knowns.length*35 + 12}" y="${230-missH-12}" fill="#C5A059" font-weight="900" font-size="13" text-anchor="middle">${missing.toFixed(1)}</text>
-            </g>`;
-
-        for(let i=0; i < targetCount; i++) {
-            const h = targetMean * scale;
-            rGroup.innerHTML += `<rect x="${420 + i*35}" y="${230-h}" width="25" height="${h}" class="stick target-stick" />`;
+        const svg = document.getElementById('prog-svg');
+        svg.innerHTML = '';
+        for(let i=0; i<20; i++) {
+            const isHave = i < have;
+            const cx = 30 + (i % 10) * 35;
+            const cy = 40 + Math.floor(i / 10) * 45;
+            svg.innerHTML += `<circle cx="${cx}" cy="${cy}" r="15" class="${isHave ? 'coin-f' : 'coin-f coin-ghost'}" />`;
         }
 
-        document.getElementById('l-sum').textContent = isApplied ? (knownSum + missing).toFixed(1) : knownSum.toFixed(1);
-        document.getElementById('r-sum').textContent = targetSum.toFixed(1);
-
-        document.getElementById('engine-trace').innerHTML = `
-            <div class="trace-step">→ 1. Pile You Have: ${knowns.join(' + ')} = <b>${knownSum.toFixed(1)}</b></div>
-            <div class="trace-step">→ 2. New Group Size: <b>${targetCount}</b></div>
-            <div class="trace-step">→ 3. Pile You Need: ${targetCount} × ${targetMean} = <b>${targetSum.toFixed(1)}</b></div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → THE BRIDGE (MISSING VALUE): ${targetSum.toFixed(1)} - ${knownSum.toFixed(1)} = ${missing.toFixed(2)}
-            </div>
+        document.getElementById('prog-log').innerHTML = `
+            <div class="discovery-step">We currently hold <b>${have}</b> coins pooled together. We require <b>20</b> items in total.</div>
+            <div class="discovery-step">The 4th incoming participant must supply exactly <b>${missing}</b> coins to balance the pool.</div>
         `;
     }
 
-    function toggleBridge() {
-        isApplied = !isApplied;
-        document.getElementById('stage').classList.toggle('merged', isApplied);
-        document.getElementById('btn-bridge').innerText = isApplied ? "Reset Bridge" : "Add Missing Data";
-        updateLogic();
+    /* --- SUPPLEMENTAL: BRIDGE --- */
+    let sActive = false;
+    function toggleSuppBridge() { sActive = !sActive; runSupp(); }
+    function runSupp() {
+        const valStr = document.getElementById('in-vals').value;
+        const targetM = parseFloat(document.getElementById('in-mean').value) || 0;
+        const knowns = valStr.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
+        if(knowns.length === 0) return;
+
+        const curSum = knowns.reduce((a,b)=>a+b,0);
+        const count = knowns.length + 1;
+        const targetSum = targetM * count;
+        const missing = targetSum - curSum;
+
+        const lG = document.getElementById('s-l-group');
+        const rG = document.getElementById('s-r-group');
+        lG.innerHTML = ''; rG.innerHTML = '';
+        
+        if(sActive) document.getElementById('s-stage').classList.add('merged');
+        else document.getElementById('s-stage').classList.remove('merged');
+
+        const scale = 150 / Math.max(targetM, ...knowns, missing, 1);
+        knowns.forEach((v, i) => lG.innerHTML += `<rect x="${20+i*30}" y="${200-v*scale}" width="20" height="${v*scale}" class="stick-s" />`);
+        
+        const mH = Math.max(0, missing*scale);
+        lG.innerHTML += `<g class="missing-stick-s"><rect x="${20+knowns.length*30}" y="${200-mH}" width="20" height="${mH}" /><text x="${20+knowns.length*30+10}" y="${200-mH-5}" text-anchor="middle" font-size="10" font-weight="900" fill="var(--cognis-gold)">${missing.toFixed(0)}</text></g>`;
+
+        for(let i=0; i<count; i++) rG.innerHTML += `<rect x="${350+i*30}" y="${200-targetM*scale}" width="20" height="${targetM*scale}" class="stick-s target-stick-s" />`;
+
+        document.getElementById('s-l-sum').textContent = sActive ? targetSum.toFixed(1) : curSum.toFixed(1);
+        document.getElementById('s-r-sum').textContent = targetSum.toFixed(1);
+
+        document.getElementById('supp-log').innerHTML = `→ 1. Combined Pool Size We Have: <b>${curSum.toFixed(1)}</b><br>→ 2. Grand Total Pile Size We Need (${count} items &times; ${targetM} goal): <b>${targetSum.toFixed(1)}</b><br>→ 3. Required Bridge Balance: ${targetSum.toFixed(1)} - ${curSum.toFixed(1)} = <b>${missing.toFixed(2)}</b>`;
     }
 
-    window.onload = updateLogic;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro(); updateProg();
+        ['in-vals', 'in-mean'].forEach(id => {
+            const el = document.getElementById(id); if(el) el.oninput = runSupp;
+        });
+        if(document.getElementById('in-vals')) runSupp();
+        if(typeof initModule === "function") initModule(24);
+    });
 </script>
-
 </body>
 </html>

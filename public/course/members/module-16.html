@@ -3,194 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 16: The "More Than" Trap | Cognis 11+</title>
+    <title>Module 16: The "More Than" Balance Rule | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR PARTITION VIZ */
-        .anatomy-display { padding: 40px; }
-        .partition-visual {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .bar-row { display: flex; align-items: center; height: 50px; }
-        .bar-label { width: 100px; font-weight: 800; font-size: 0.8rem; color: var(--cognis-blue); text-transform: uppercase; }
-        .bar-track { flex-grow: 1; height: 100%; display: flex; background: #e2e8f0; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid var(--cognis-blue); }
-        
-        .part-base { background: var(--cognis-blue); height: 100%; transition: width 0.4s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; }
-        .part-diff { background: var(--cognis-gold); height: 100%; transition: width 0.4s ease; border-left: 2px dashed rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.9rem; }
-
-        .snip-line {
-            position: absolute;
-            top: -10px;
-            height: 70px;
-            border-left: 2px dashed var(--trap-red);
-            z-index: 10;
-            pointer-events: none;
-            transition: left 0.4s ease;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
         }
 
-        .val-out { color: var(--cognis-gold); font-weight: 900; }
-        .engine-container { grid-template-columns: 1fr 1.3fr; }
-        
-        input[type=range] { width: 100%; accent-color: var(--cognis-gold); cursor: pointer; }
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+        }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '✂️'; }
+
+        /* INTRO: STICKER BONUS */
+        .sticker-f { width: 30px; height: 30px; background: white; border: 2px solid var(--cognis-blue); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: transform 0.5s; }
+        .sticker-bonus { border-color: var(--cognis-gold); background: #fffbeb; }
+
+        /* PROGRESSING: HAIRCUT TOWERS */
+        .tower-f { width: 60px; background: var(--cognis-blue); transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; border-radius: 4px 4px 0 0; }
+        .tower-gold { background: var(--cognis-gold); }
+        .cut-line { position: absolute; width: 100%; border-top: 3px dashed var(--trap-red); display: none; }
+
+        /* SUPPLEMENTAL: PARTITION BARS */
+        .partition-visual-s { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 500px; }
+        .bar-row-s { display: flex; align-items: center; height: 40px; }
+        .bar-track-s { flex-grow: 1; height: 100%; display: flex; background: #e2e8f0; border-radius: 6px; overflow: hidden; border: 2px solid var(--cognis-blue); position: relative; }
+        .part-base-s { background: var(--cognis-blue); height: 100%; transition: width 0.4s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.8rem; }
+        .part-diff-s { background: var(--cognis-gold); height: 100%; transition: width 0.4s; border-left: 2px dashed rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.8rem; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(16));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;"> 
-    <div class="header">
-        <h1>Module 16: The "More Than" Trap</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 16: The "More Than" Balance Rule</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Secret Reward</h2>
+            <p>If you have a pile of 10 shiny stickers to hand out, but you want Sarah to finish with <b>2 more</b> than Tom, you cannot simply hand out 5 to each of them. If you make a direct split, neither child has a larger share! The trick is to give Sarah her extra "Reward" first, set it aside, and then share out the remainder completely evenly.</p>
+            
+            <div class="parent-script">
+                "Imagine we are sharing 10 reward stickers. Sarah must finish with 2 more than Tom. First, click the 'Give Reward' button—we slide Sarah's 2 extra stickers onto her plate immediately. Now, look at the 8 stickers left in our main pile. We split those down the middle: 4 for Sarah and 4 for Tom. Sarah finishes with 6 and Tom has 4. Notice how the gap matches perfectly!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:40px;">
+                    <div style="text-align:center;"><div id="bowl-s" style="width:100px; height:100px; border:3px solid var(--cognis-blue); border-radius:50%; display:flex; flex-wrap:wrap; padding:10px; gap:5px; align-content:flex-start;"></div><small>SARAH</small></div>
+                    <div style="text-align:center;"><div id="bowl-t" style="width:100px; height:100px; border:3px solid var(--cognis-blue); border-radius:50%; display:flex; flex-wrap:wrap; padding:10px; gap:5px; align-content:flex-start;"></div><small>TOM</small></div>
+                </div>
+                <div id="intro-pile" style="margin-top:20px; display:flex; gap:5px; flex-wrap:wrap; width:200px; justify-content:center;"></div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button id="intro-btn-1" class="btn-action" onclick="introGiveBonus()">1. Give Reward (2)</button>
+                    <button id="intro-btn-2" class="btn-action" style="display:none;" onclick="introShareRest()">2. Share the Remainder</button>
+                    <button class="btn-action" style="background:#94a3b8;" onclick="resetIntro()">Reset Pile</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Total: 10 stickers. Sarah wants 2 more than Tom.</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Tower Haircut</h2>
+            <p>When you look at two unequal block towers and you are given their <b>Combined Height</b>, sorting out the separate totals looks puzzling at first glance. But if you give the taller tower a visual "Haircut" by snipping off that extra overhang, both towers instantly transform into identical twins. Once they match, you can easily divide the remaining total by 2!</p>
+            
+            <div class="parent-script">
+                "These two towers hold 20 building blocks combined. Tower A is exactly 4 blocks taller than its partner. If we use our 'Snip' tool to slice those 4 extra blocks off, the 16 blocks left behind must be shared perfectly: 8 for each side. Now we know Tower B holds 8, and Tower A holds those same 8 plus the 4 blocks we safely cut off earlier!"
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; align-items:flex-end; gap:40px; height:200px;">
+                    <div id="tower-a" class="tower-f" style="height:140px;"><div id="snip-indicator" class="cut-line" style="top:40px;"></div></div>
+                    <div id="tower-b" class="tower-f tower-gold" style="height:100px;"></div>
+                </div>
+                <button id="btn-snip" class="btn-action" style="margin-top:40px;" onclick="applyHaircut()">Snip the Overhang!</button>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Combined: 20 blocks. Overhang Gap: 4 blocks.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>This is the <b>"Fake 50/50"</b> problem. It occurs when you are given a <b>Combined Total</b> and a <b>Gap</b> (the difference) between two people. Your child's instinct will be to divide the total by 2 immediately—but that is a trap set by the examiner. If you divide first, the math will never balance.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Sticker Swap</b>
-                "Two friends have 12 stickers. Sarah has 4 more than Tom. How many does Tom have?"
-            </div>
-            <div class="tier-card">
-                <b>The Tech Bundle</b>
-                "A tablet and a case cost £250. The tablet is £200 more than the case. What is the cost of the case?"
-            </div>
-            <div class="tier-card">
-                <b>The Family Tree</b>
-                "A father and son are 50 years old combined. The father is 26 years older than the son. How old is the son?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>To beat this trap, we must <b>"Snip the Gap."</b> Imagine Person A and Person B each have a stack of money. Person A has an extra pile (the gap). If we physically snip that extra pile off and put it aside, the two stacks left on the table are exactly equal. Point to the red "Snip" line below—everything to the left of that line is a <b>Fair Share</b>.</p>
-        
-        
-
-        <div class="anatomy-display">
-            <div class="partition-visual">
-                <div class="bar-row">
-                    <div class="bar-label">The Larger</div>
-                    <div class="bar-track">
-                        <div id="vis-a-base" class="part-base">Fair Share</div>
-                        <div id="vis-a-diff" class="part-diff">The Gap</div>
-                        <div id="snip" class="snip-line"></div>
-                    </div>
-                </div>
-                <div class="bar-row">
-                    <div class="bar-label">The Smaller</div>
-                    <div class="bar-track">
-                        <div id="vis-b-base" class="part-base">Fair Share</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the sliders to set the <b>Total Sum</b> and the <b>Gap</b>. Help your child notice Step 2: we subtract the gap <i>before</i> we do any dividing. Watch the <b>Trace Log</b> to see how "Snipping" makes the sharing simple.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Grand Total (A + B): <span class="val-out" id="out-sum">100</span></label>
-                    <input type="range" id="in-sum" min="20" max="500" value="100">
-                </div>
-                <div class="control-group" style="margin-top: 15px;">
-                    <label>The Gap (More Than): <span class="val-out" id="out-diff">20</span></label>
-                    <input type="range" id="in-diff" min="2" max="100" value="20">
-                </div>
-            </div>
-            <div class="trace-log" id="engine-trace"></div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Impulse Split" Trap:</strong> If the tablet and case cost £250, and the tablet is £200 more, most children will say the case is £50 ($250 \div 5$) and the tablet is £200. <b>Stop!</b> If the case is £50 and the tablet is £200, the tablet is only £150 more! The gap is wrong.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>This is famously known in competitive exams as the <b>"Fake Half-and-Half"</b> challenge. It pops up whenever a word problem gives you a <b>Combined Total</b> paired with a specific <b>Gap Value</b> (the difference). The default instinct is to divide the core total by 2 right away—avoid this trap! If you split the total first, your results will never balance. The solution is to isolate the extra reward amount (the gap) entirely before your hand touches the division key.</p>
             
-            <p><strong>The Fix: The "Snip and Share" Rule.</strong> Remind your child: <i>"The Gap is a thief."</i> You must take the thief's portion out of the total first. £250 - £200 = £50. Now share the remaining £50 between the two items (£25 each). The case is £25, and the tablet is £25 + £200 = £225. <b>Always subtract the gap first.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Sticker Share:</b> "Two close classmates have 12 collectible stickers in total. Sarah has 4 more stickers than Tom. How many stickers belong to Tom?"</div>
+                <div class="tier-card"><b>The Computer Tablet:</b> "A multimedia tablet and its protective case cost £250 combined. The tablet is worth £200 more than the case. Find the true cost of the case."</div>
+                <div class="tier-card"><b>The Combined Ages:</b> "A father and his son have a combined age of 50 years. The father is exactly 26 years older than his son. How old is the son?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Shared Balance Map</h2>
+            <p>To beat this exam trap, we use a technique called <b>"Snip the Overhang."</b> If we visually slice the extra gap portion off and lock it away to one side, the two tracking bars left behind become perfectly uniform. Every single segment situated to the left of our red dashed line represents a <b>Fair Share Block</b>. This is the single best way to uncover the smaller value cleanly without any guesswork.</p>
+            <div class="anatomy-display">
+                <div class="partition-visual-s">
+                    <div class="bar-row-s">
+                        <div style="width:80px; font-size:0.6rem; font-weight:800;">LARGER SHARE</div>
+                        <div class="bar-track-s">
+                            <div id="s-bar-a-base" class="part-base-s" style="width:60%;">Fair Share</div>
+                            <div id="s-bar-a-diff" class="part-diff-s" style="width:40%;">+Extra Gap</div>
+                            <div style="position:absolute; left:60%; top:-5px; height:50px; border-left:2px dashed var(--trap-red); z-index:10;"></div>
+                        </div>
+                    </div>
+                    <div class="bar-row-s">
+                        <div style="width:80px; font-size:0.6rem; font-weight:800;">SMALLER SHARE</div>
+                        <div class="bar-track-s"><div id="s-bar-b-base" class="part-base-s" style="width:60%;">Fair Share</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Balance Calculator Tool</h2>
+            <p style="margin-bottom: 20px;">Move the slider controls to modify the shared totals and spacing gaps. Watch the tracking logs below to see the visual haircut step run in real time. Notice how we subtract the extra gap value *before* we allow the engine to divide by 2.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group"><label>Combined Total to Share (A+B)</label><input type="range" id="in-sum" min="20" max="500" value="100" oninput="runSupp()"></div>
+                    <div class="control-group"><label>The Extra Share Gap (More Than)</label><input type="range" id="in-diff" min="2" max="100" value="20" oninput="runSupp()"></div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Impulse Split" Trap:</b> If an exam question states that a £250 total bundle includes a £200 gap difference, children often confidently declare: "The case is £50, and the tablet is £200." <b>This is a classic trap!</b> A price tag of £200 is only £150 larger than £50. Your structural gap failed to hold up!</p>
+                <p><b>The Easy Fix: The "Snip and Share" Rule.</b> Train your child to subtract the gap first: £250 minus £200 leaves £50. Now share out that clean remainder evenly: £50 divided by 2 gives £25. The smaller case is worth exactly £25. The larger tablet is worth £25 plus our £200 gap, which equals £225. <b>Always Snip your gaps before you Split your bars.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(16)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(16)">Complete Module & Update Lattice</button>
-
 <script>
-    const inSum = document.getElementById('in-sum');
-    const inDiff = document.getElementById('in-diff');
-    const engineTrace = document.getElementById('engine-trace');
-    
-    const visABase = document.getElementById('vis-a-base');
-    const visADiff = document.getElementById('vis-a-diff');
-    const visBBase = document.getElementById('vis-b-base');
-    const snip = document.getElementById('snip');
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    function update() {
-        let s = parseInt(inSum.value);
-        let d = parseInt(inDiff.value);
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Logic Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
 
-        // Gap cannot be larger than the Sum
-        if (d >= s) { d = s - 2; inDiff.value = d; }
-        
-        // Gap must be same parity as Sum for whole numbers, but we'll allow decimals in display
-        document.getElementById('out-sum').innerText = s;
-        document.getElementById('out-diff').innerText = d;
+    /* --- INTRO: STICKER BONUS --- */
+    function resetIntro() {
+        document.getElementById('bowl-s').innerHTML = '';
+        document.getElementById('bowl-t').innerHTML = '';
+        const pile = document.getElementById('intro-pile');
+        pile.innerHTML = '';
+        for(let i=0; i<10; i++) pile.innerHTML += `<div class="sticker-f">★</div>`;
+        document.getElementById('intro-btn-1').style.display = 'inline-block';
+        document.getElementById('intro-btn-2').style.display = 'none';
+        document.getElementById('intro-log').innerHTML = "Total: 10 stickers. Ready to share!";
+    }
 
-        // The Snip Logic
-        const equalized = s - d; // Snipping the gap
+    function introGiveBonus() {
+        const pile = document.getElementById('intro-pile');
+        for(let i=0; i<2; i++) {
+            pile.removeChild(pile.lastChild);
+            document.getElementById('bowl-s').innerHTML += `<div class="sticker-f sticker-bonus">★</div>`;
+        }
+        document.getElementById('intro-btn-1').style.display = 'none';
+        document.getElementById('intro-btn-2').style.display = 'inline-block';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Sarah took her <b>2 extra reward</b> stickers first. 8 left in our main tracking pile!</div>`;
+    }
+
+    function introShareRest() {
+        const pile = document.getElementById('intro-pile');
+        pile.innerHTML = '';
+        for(let i=0; i<4; i++) {
+            document.getElementById('bowl-s').innerHTML += `<div class="sticker-f">★</div>`;
+            document.getElementById('bowl-t').innerHTML += `<div class="sticker-f">★</div>`;
+        }
+        document.getElementById('intro-btn-2').style.display = 'none';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Shared the 8 remaining items evenly. Sarah holds 6, Tom holds 4. The separating gap balances at exactly 2!</div>`;
+    }
+
+    /* --- PROGRESSING: HAIRCUT --- */
+    function applyHaircut() {
+        const tA = document.getElementById('tower-a');
+        const line = document.getElementById('snip-indicator');
+        line.style.display = 'block';
+        setTimeout(() => {
+            tA.style.height = "100px";
+            document.getElementById('prog-log').innerHTML = `
+                <div class="discovery-step">Snip tool activated! We safely subtracted the 4 extra blocks.</div>
+                <div class="discovery-step">Now both matching twin towers stand exactly 8 blocks high (16 remainder &divide; 2).</div>
+                <div class="discovery-step">Return the 4 blocks back to Tower A to reveal our true answer: 12 and 8!</div>
+            `;
+        }, 500);
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const s = parseInt(document.getElementById('in-sum').value);
+        let d = parseInt(document.getElementById('in-diff').value);
+        if (d >= s) { d = s - 2; document.getElementById('in-diff').value = d; }
+
+        const equalized = s - d;
         const smaller = equalized / 2;
         const larger = smaller + d;
 
-        // Visual Layout Calc
-        // We use the larger value as the 100% width reference for the rows
         const basePct = (smaller / larger) * 100;
-        const diffPct = (d / larger) * 100;
+        document.getElementById('s-bar-a-base').style.width = basePct + "%";
+        document.getElementById('s-bar-a-diff').style.width = (100 - basePct) + "%";
+        document.getElementById('s-bar-b-base').style.width = basePct + "%";
 
-        visABase.style.width = basePct + "%";
-        visADiff.style.width = diffPct + "%";
-        visBBase.style.width = basePct + "%";
-        
-        snip.style.left = basePct + "%";
-
-        visABase.innerText = smaller % 1 === 0 ? smaller : smaller.toFixed(1);
-        visADiff.innerText = "+" + d;
-        visBBase.innerText = smaller % 1 === 0 ? smaller : smaller.toFixed(1);
-
-        // Update Trace
-        engineTrace.innerHTML = `
-            <div class="trace-step">→ 1. Total Pile: <b>${s}</b></div>
-            <div class="trace-step">→ 2. Snip the Gap: ${s} - ${d} = <b>${equalized}</b></div>
-            <div class="trace-step">→ 3. Share the Rest: ${equalized} ÷ 2 = <b>${smaller}</b></div>
-            <div class="trace-step" style="margin-top: 10px; border-top: 1px dashed #4a5568; padding-top: 10px;">
-                → Smaller Share: <b>${smaller}</b>
-            </div>
-            <div class="trace-step">
-                → Larger Share: ${smaller} + ${d} = <b>${larger}</b>
-            </div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; margin-top:5px;">
-                → Verify: ${smaller} + ${larger} = ${s}
-            </div>
+        document.getElementById('supp-log').innerHTML = `
+            → 1. Combined Shared Pool: <b>${s}</b> | Extra Overhang Gap: <b>${d}</b><br>
+            → 2. Snip the Gap: ${s} - ${d} = <b>${equalized} uniform pieces</b><br>
+            → 3. Distribute Remainder: ${equalized} &divide; 2 = <b>${smaller} each</b><br>
+            → 4. Balanced Results: Smaller share is <b>${smaller}</b>, Larger share is <b>${larger}</b>
         `;
     }
 
-    [inSum, inDiff].forEach(el => el.addEventListener('input', update));
-    window.onload = update;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); resetIntro();
+        if(document.getElementById('in-sum')) runSupp();
+        if(typeof initModule === "function") initModule(16);
+    });
 </script>
-
 </body>
 </html>

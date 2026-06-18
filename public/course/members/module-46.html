@@ -3,239 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 46: Series Progression | Cognis 11+</title>
+    <title>Module 46: The Pattern Film Strip | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR SERIES PROGRESSION */
-        .anatomy-display { 
-            background: #1a202c; 
-            padding: 60px 20px; 
-            text-align: center; 
-            border: 2px solid #2d3748;
-            border-radius: 12px;
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .series-row { 
-            display: flex; 
-            justify-content: center; 
-            gap: 15px; 
-            flex-wrap: wrap;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .frame { 
-            width: 115px; 
-            height: 115px; 
-            background: #2d3748; 
-            border: 2px solid #4a5568; 
-            border-radius: 12px; 
-            position: relative; 
-            overflow: hidden; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '🎞️'; }
 
-        .frame-label { 
-            position: absolute; 
-            bottom: 5px; 
-            left: 0; 
-            width: 100%; 
-            color: #718096; 
-            font-size: 0.55rem; 
-            font-weight: 900; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        /* INTRO: THE FLIPBOOK */
+        .flipbook-frame { width: 140px; height: 140px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; position: relative; transition: all 0.3s; }
+        .flipbook-dot { width: 20px; height: 20px; background: var(--cognis-gold); border-radius: 50%; position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        .target-frame { 
-            border: 2px dashed var(--cognis-gold); 
-            background: rgba(197, 160, 89, 0.08); 
-        }
+        /* PROGRESSING: SPOTLIGHT */
+        .spotlight-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); transition: clip-path 0.5s; pointer-events: none; z-index: 5; }
+        .busy-box { width: 200px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; overflow: hidden; }
 
-        .target-frame .frame-label { color: var(--cognis-gold); }
+        /* SUPPLEMENTAL: SERIES ENGINE */
+        .series-row-s { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .frame-s { width: 100px; height: 100px; background: #2d3748; border: 2px solid #4a5568; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .frame-s.target { border: 2px dashed var(--cognis-gold); background: rgba(197, 160, 89, 0.08); }
+        .element-s { position: absolute; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .dot-s { width: 18px; height: 18px; border-radius: 50%; background: var(--cognis-gold); }
 
-        .element { 
-            position: absolute; 
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-
-        .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--cognis-gold); }
-        .bar { width: 45px; height: 12px; background: white; border-radius: 3px; }
-
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        
-        .btn-logic { 
-            background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; 
-            padding: 12px; border-radius: 8px; cursor: pointer; 
-            font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; 
-            width: 100%; text-align: left; font-weight: 800; 
-            border-left: 4px solid transparent; transition: 0.2s; 
-        }
-        .btn-logic:hover { background: #4a5568; color: white; }
-        .btn-logic.active { 
-            background: var(--cognis-blue); 
-            border-left: 4px solid var(--cognis-gold); 
-            color: var(--cognis-gold); 
-        }
-        
-        .section-label {
-            font-size: 0.6rem; 
-            color: #718096; 
-            text-transform: uppercase; 
-            margin: 15px 0 10px; 
-            display: block; 
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-logic-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 6px; font-size: 0.6rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
+        .btn-logic-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: var(--cognis-blue); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(46));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 46: Series Progression</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 46: The Pattern Film Strip</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Secret Animation</h2>
+            <p>An incremental progression series functions exactly like a classic handheld flipbook. Each sequence box on your test page acts as a single still frame from a movie reel. To track down the missing answer card, your child simply needs to isolate how our "character" inside the frame travels from one illustration cell to the next.</p>
+            
+            <div class="parent-script">
+                "Study our golden indicator dot. Click the 'Advance Movie Frame' button below to watch it travel. Notice how it executes a uniform, identically sized jump with every single click. If it travels a fixed distance from the upper-left corner over to the upper-right corner in frame one, it <b>must</b> sustain that steady structural rhythm through the rest of the film!"
+            </div>
+
+            <div class="viz-container">
+                <div class="flipbook-frame">
+                    <div id="intro-dot" class="flipbook-dot" style="top:20px; left:20px;"></div>
+                    <div style="position:absolute; bottom:5px; width:100%; text-align:center; font-size:0.6rem; font-weight:900; color:var(--cognis-blue);" id="intro-label">FRAME 1</div>
+                </div>
+                <button class="btn-action" onclick="stepIntro()">Advance Movie Frame</button>
+                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Movie Reel</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">Waiting for the first frame...</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Pinhole Focus Method</h2>
+            <p>Inside complex non-verbal questions, examiners pack too many independent items moving simultaneously into a single space. To find the answer calmly, your student must behave like a precision pinhole camera filter—lock onto <b>one individual element</b> at a time and ignore every other surrounding distraction. This technique is known as the tracking method.</p>
+            
+            <div class="parent-script">
+                "This layout box is crowded and confusing! It contains a crescent moon, a blue square, and an active cross symbol all together. Avoid staring at the entire canvas at once. Click 'Isolate Moon Position' below. Watch how everything else vanishes into darkness. Now you can calculate the exact travel path for the moon without getting turned around by the other characters."
+            </div>
+
+            <div class="viz-container">
+                <div class="busy-box" id="prog-box">
+                    <div class="spotlight-mask" id="prog-mask" style="clip-path: circle(100% at 50% 50%);"></div>
+                    <div style="position:absolute; top:20px; left:20px; font-size:1.5rem;" id="prog-dot">🌕</div>
+                    <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem;" id="prog-sq">🟦</div>
+                    <div style="position:absolute; top:80px; left:80px; font-size:1.5rem;">❌</div>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:20px;">
+                    <button class="btn-action" onclick="focusProg('dot')">Isolate Moon Position</button>
+                    <button class="btn-action" onclick="focusProg('sq')">Isolate Square Position</button>
+                    <button class="btn-action" style="background:#4a5568;" onclick="focusProg('all')">Restore Full Frame View</button>
+                </div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Isolate the element to find the rule.</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"The Detective's Film Strip."</b> In the 11+, you are shown a row of boxes where a pattern is evolving step-by-step. The secret weapon is finding the <b>Delta</b>—the exact mathematical rule of change between Frame 1 and Frame 2. If a dot jumps two inches to the right in the first step, it <i>must</i> do the exact same thing in the final step. Instead of looking at the whole picture, your child should track just one tiny piece of the "film" at a time.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Single Jump</b>
-                "A circle moves from the top-left to the bottom-right. Where will it land next?"
-            </div>
-            <div class="tier-card">
-                <b>The Dual Rule</b>
-                "A shape rotates 90° clockwise AND flips its color from black to white in each step."
-            </div>
-            <div class="tier-card">
-                <b>The 11+ Triple Threat</b>
-                "An object changes position, shading, and size all at once. Track them separately!"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>This is the <b>Vector Scan</b>. Point to the frames below. Notice how the elements move independently. Each "character" in the box has its own script to follow. When we isolate them, the complex dance becomes a series of simple, predictable steps. Use the engine below to change the script.</p>
-        
-        <div class="anatomy-display">
-            <div class="series-row" id="series-row">
-                </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Select a <b>Foundational Rule</b> to see basic movement, or challenge your child with a <b>Complex Logic</b> pattern. Watch the <b>Trace Log</b> as it identifies the specific "Deltas" (the change vectors) for each moving part.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <span class="section-label">Foundational Rules</span>
-                <button class="btn-logic active" onclick="loadSeries('slider', this)">Steady Slide (Linear)</button>
-                <button class="btn-logic" onclick="loadSeries('light', this)">The Stoplight (Cycling)</button>
-                <button class="btn-logic" onclick="loadSeries('pingpong', this)">Back & Forth (Binary)</button>
-                
-                <span class="section-label">Complex Logic</span>
-                <button class="btn-logic" onclick="loadSeries('orbit', this)">The Dual Orbit</button>
-                <button class="btn-logic" onclick="loadSeries('binary', this)">Attribute Shifting</button>
-            </div>
-            <div class="trace-log" id="trace-46">Isolate the elements. The answer is in the parts, not the whole...</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Visual Overload" Trap:</strong> Most children try to "feel" the answer by staring at the whole frame until it makes sense. Their brain gets overwhelmed by all the moving parts and misses the one tiny detail that actually solves the puzzle.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of sequential design progressions as working through <b>"The Investigator's Film Strip."</b> Your primary defense strategy is tracking down the underlying mathematical rule of structural change from frame to frame. If an element steps across space in frame one, it <i>must</i> replicate that exact change vector heading into the final blank cell. Train your student to trace just one tiny component of the film at a time to shield themselves from cognitive exhaustion.</p>
             
-            <p><strong>The Insider Fix: The "Pinch" Method.</strong> Tell your child: <i>"Divide and conquer."</i> They should use their fingers to physically cover up everything in the box except for <b>one</b> element (like a tiny dot in the corner). They should solve the rule for that one dot first. Once they have it, they ignore that dot and move to the next shape. <b>Three simple puzzles are easier to solve than one big one.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Linear Vector Jump:</b> "A circle steps from top-left straight to bottom-right. Where must it position itself on the next card?"</div>
+                <div class="tier-card"><b>The Dual Condition Grid:</b> "An asset rotates precisely 90 degrees clockwise AND swaps its color shading value during every single step."</div>
+                <div class="tier-card"><b>The Triple Multiplier Threat:</b> "An object alters its position, color fill, and size simultaneously. Trace each element property completely in isolation!"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Sequence Mapping Lab</h2>
+            <p>Welcome to our interactive <b>Sequence Mapping Lab</b>. Notice how independent geometric tokens travel completely on their own terms. Every single item inside the frame runs on its own private script track. The moment you isolate them from the noise, the complex layout dance resolves into a predictable pattern path. Use our simulation array panel below to toggle distinct structural scripts.</p>
+            <div class="anatomy-display" style="background:#1a202c;">
+                <div id="s-row" class="series-row-s"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Step-by-Step Delta Engine</h2>
+            <p style="margin-bottom: 20px;">Select a pattern logic type from our menu below. Track how our real-time status log calculates the explicit change steps between cards. The final solution is consistently hidden in the individual pieces, never in the frame as a whole look.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Sequence Path Rules</label>
+                    <button class="btn-logic-s active" onclick="loadSupp('slider', this)">Linear Slide Sequence (Steady Directional Step)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('light', this)">Looping State Sequence (Cycling Values)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('ping', this)">Binary Reversal Sequence (Alternating Sides)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Dual Variable Sequence (Compound Travel & Rotation)</button>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
+            <div class="trap-box">
+                <p><b>The "Visual Overload" Guesswork Trap:</b> Children trying to save time often try to "feel" the correct answer by loosely staring at the entire picture frame all at once. Their working memory gets flooded by the competing moving components, causing them to miss the critical change rules entirely.</p>
+                <p><b>The Easy Fix: Enforce the Isolated Analysis Strategy.</b> Give your child this simple habit check: <i>"Divide the layout and conquer the rule."</i> Physically use a finger or scratch card to blind out everything on the screen except for <b>one single feature</b>. Isolate and solve that dot's destination first. Then, intentionally wipe it from focus and move directly to the next feature. <b>Unpacking three separate mini-puzzles is ten times easier than processing one compound storm.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(46)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(46)">Complete Module & Update Lattice</button>
-
 <script>
-    function loadSeries(type, btn) {
-        document.querySelectorAll('.btn-logic').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const row = document.getElementById('series-row');
-        row.innerHTML = '';
-        let traceText = "";
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-        for(let i=0; i<4; i++) {
-            const frame = document.createElement('div');
-            frame.className = `frame ${i === 3 ? 'target-frame' : ''}`;
-            frame.innerHTML = `<div class="frame-label">${i === 3 ? 'PREDICTION' : 'STEP ' + (i+1)}</div>`;
-            
-            if(type === 'slider') {
-                const left = 15 + (i * 25);
-                frame.innerHTML += `<div class="element dot" style="top:45px; left:${left}px"></div>`;
-                traceText = `
-                    <div class="trace-step">→ 1. Tracker: Gold Circle</div>
-                    <div class="trace-step">→ 2. Delta: Moving +25px Right per step</div>
-                    <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                        → RULE: CONSTANT TRANSLATION
-                    </div>`;
-            }
-            if(type === 'light') {
-                const colors = ['#ef4444', '#eab308', '#22c55e', '#ef4444'];
-                frame.innerHTML += `<div class="element dot" style="top:45px; left:45px; width:30px; height:30px; background:${colors[i]}"></div>`;
-                traceText = `
-                    <div class="trace-step">→ 1. Tracker: Central Beacon</div>
-                    <div class="trace-step">→ 2. Delta: Red → Gold → Green → Red</div>
-                    <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                        → RULE: STATE CYCLING
-                    </div>`;
-            }
-            if(type === 'pingpong') {
-                const left = (i % 2 === 0) ? '15px' : '75px';
-                frame.innerHTML += `<div class="element dot" style="top:15px; left:${left}"></div>`;
-                traceText = `
-                    <div class="trace-step">→ 1. Tracker: Corner Dot</div>
-                    <div class="trace-step">→ 2. Delta: Left on Even, Right on Odd</div>
-                    <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                        → RULE: BINARY ALTERNATION
-                    </div>`;
-            }
-            if(type === 'orbit') {
-                const corners = [{t:'15px', l:'15px'}, {t:'15px', l:'75px'}, {t:'75px', l:'75px'}, {t:'75px', l:'15px'}];
-                frame.innerHTML += `<div class="element dot" style="top:${corners[i].t}; left:${corners[i].l}"></div>`;
-                frame.innerHTML += `<div class="element bar" style="top:52px; left:35px; transform:rotate(${i*45}deg); background:var(--cognis-gold)"></div>`;
-                traceText = `
-                    <div class="trace-step">→ 1. Outer Delta: Clockwise Corner Hop</div>
-                    <div class="trace-step">→ 2. Inner Delta: +45° Clockwise Spin</div>
-                    <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                        → RULE: DUAL COMPONENT PROGRESSION
-                    </div>`;
-            }
-            if(type === 'binary') {
-                const color = (i % 2 === 0) ? 'var(--cognis-gold)' : 'white';
-                frame.innerHTML += `<div class="element dot" style="top:35px; left:35px; width:45px; height:45px; background:${color}"></div>`;
-                const barT = 15 + (i * 20);
-                frame.innerHTML += `<div class="element bar" style="top:${barT}px; left:10px; width:20px; background:#22c55e"></div>`;
-                traceText = `
-                    <div class="trace-step">→ 1. Feature A: Alternating Color</div>
-                    <div class="trace-step">→ 2. Feature B: Steady Downward Drop</div>
-                    <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                        → RULE: MULTI-ATTRIBUTE SHIFT
-                    </div>`;
-            }
-
-            row.appendChild(frame);
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 NVR Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
         }
-        document.getElementById('trace-46').innerHTML = traceText;
     }
 
-    window.onload = () => loadSeries('slider', document.querySelector('.btn-logic'));
-</script>
+    /* --- INTRO: FLIPBOOK --- */
+    let introStep = 0;
+    const introPos = [[20,20], [20,80], [80,80], [80,20]];
+    function stepIntro() {
+        introStep = (introStep + 1) % 4;
+        const dot = document.getElementById('intro-dot');
+        dot.style.top = introPos[introStep][0] + 'px';
+        dot.style.left = introPos[introStep][1] + 'px';
+        document.getElementById('intro-label').textContent = 'FRAME ' + (introStep + 1);
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Character position transformed! Target asset resides at coordinates: <b>${introPos[introStep]}</b>.</div>`;
+    }
+    function resetIntro() { introStep = 0; stepIntro(); }
 
+    /* --- PROGRESSING: SPOTLIGHT --- */
+    function focusProg(type) {
+        const mask = document.getElementById('prog-mask');
+        if(type === 'dot') mask.style.clipPath = 'circle(30px at 35px 35px)';
+        else if(type === 'sq') mask.style.clipPath = 'circle(30px at 165px 165px)';
+        else mask.style.clipPath = 'circle(100% at 50% 50%)';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Focus shield engaged! Background components are successfully masked out to guarantee concentrated viewing.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function loadSupp(type, btn) {
+        document.querySelectorAll('.btn-logic-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const row = document.getElementById('s-row'); row.innerHTML = '';
+        let log = "";
+
+        for(let i=0; i<4; i++) {
+            const f = document.createElement('div');
+            f.className = `frame-s ${i===3?'target':''}`;
+            if(type === 'slider') {
+                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:${15 + i*20}px"></div>`;
+                log = "&rarr; Position Tracking Trace: Coordinate Step | Delta Change Map: +20px Rightward shift per frame";
+            } else if(type === 'light') {
+                const cols = ['#ef4444', '#eab308', '#22c55e', '#ef4444'];
+                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:40px; background:${cols[i]}"></div>`;
+                log = "&rarr; Property Shading Trace: Value Modality | Delta Change Map: Red &rarr; Gold &rarr; Green progression cycle";
+            } else if(type === 'ping') {
+                f.innerHTML += `<div class="element-s dot-s" style="top:10px; left:${i%2===0?10:70}px"></div>`;
+                log = "&rarr; Position Tracking Trace: Structural Toggle | Delta Change Map: Horizontal Axis Bounce (Binary Oscillation)";
+            } else if(type === 'orbit') {
+                const pts = [[10,10], [10,70], [70,70], [70,10]];
+                f.innerHTML += `<div class="element-s dot-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px"></div>`;
+                f.innerHTML += `<div class="element-s" style="top:45px; left:30px; width:40px; height:10px; background:white; transform:rotate(${i*45}deg)"></div>`;
+                log = "&rarr; Compound Element Trace: Dual Vectors | Delta Change Map: Perimeter Corner-Hop + 45-degree Axial Rotation Step";
+            }
+            row.appendChild(f);
+        }
+        document.getElementById('supp-log').innerHTML = log + `<br><b>Current Matrix Status: Logic Sequence Fully Dissected</b>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('s-row')) loadSupp('slider', document.querySelector('.btn-logic-s'));
+        if(typeof initModule === "function") initModule(46);
+    });
+</script>
 </body>
 </html>

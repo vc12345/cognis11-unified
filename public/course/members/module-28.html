@@ -3,195 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 28: Net Topology | Cognis 11+</title>
+    <title>Module 28: Unfolded Shapes and Space Capacity | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR NET SIMULATION */
-        .anatomy-display { padding: 40px; background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; }
-        
-        .net-svg-container {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .face { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.3s; }
-        .face-base { fill: rgba(197, 160, 89, 0.2); stroke: var(--cognis-gold); stroke-width: 3; }
-        .face-lid { fill: rgba(49, 130, 206, 0.2); stroke: #3182ce; stroke-width: 3; }
-
-        .face-text {
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 900;
-            font-size: 10px;
-            text-anchor: middle;
-            dominant-baseline: middle;
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
         }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        
-        .preset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .btn-preset { 
-            background: #2d3748; color: #a0aec0; border: none; 
-            padding: 10px; border-radius: 6px; font-size: 0.7rem; 
-            cursor: pointer; text-transform: uppercase; font-weight: 800;
-            transition: 0.2s; 
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
-        .btn-preset:hover { background: #4a5568; color: white; }
-        .btn-preset.active { background: var(--cognis-gold); color: white; box-shadow: 0 4px 10px rgba(197,160,89,0.3); }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📦'; }
 
-        .dim-inputs { display: flex; gap: 10px; margin-top: 20px; }
-        .dim-inputs div { flex: 1; }
-        .dim-inputs input { width: 100% !important; text-align: center; background: #2d3748; color: white; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-weight: 800; }
+        /* INTRO: CUBE FOLDING */
+        .cube-face-f { fill: rgba(0, 45, 91, 0.1); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cube-face-active { fill: var(--cognis-gold); stroke: #b45309; }
+
+        /* PROGRESSING: LEAPFROG */
+        .leap-square { width: 45px; height: 45px; fill: white; stroke: var(--cognis-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
+        .leap-square.selected { fill: var(--cognis-gold); }
+        .leap-square.jumped { fill: rgba(0, 45, 91, 0.05); stroke-dasharray: 4; }
+
+        /* SUPPLEMENTAL: LAB */
+        .face-s { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.3s; }
+        .face-base-s { fill: rgba(197, 160, 89, 0.2); stroke: var(--cognis-gold); stroke-width: 3; }
+        .face-lid-s { fill: rgba(49, 130, 206, 0.2); stroke: #3182ce; stroke-width: 3; }
+        .area-text-s { fill: var(--cognis-gold); font-weight: 900; font-size: 32px; }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .preset-grid-s { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-preset-s { background: #2d3748; color: #a0aec0; border: none; padding: 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; font-weight: 800; }
+        .btn-preset-s.active { background: var(--cognis-gold); color: white; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(28));</script>
+    <script src="../js/module-core-a.js"></script>
 </head>
-<body>
+<body class="user-plan-checking">
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 28: Net Topology & Volume</h1>
+<div class="module-card">
+    <div class="header"><h1>Module 28: Unfolded Shapes and Space Capacity</h1></div>
+
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Folding Box</h2>
+            <p>An <b>Unfolded Flat Pattern</b> is simply a 3D cardboard box that has been carefully sliced open and flattened completely flat onto a table. When we fold the cardboard segments back upward, panels that sat far apart on the flat sheet instantly join up to become direct neighbors, while panels that touched on the paper stay closely connected.</p>
+            
+            <div class="parent-script">
+                "Look closely at this flat arrangement of 6 connected squares. This represents the unfolded blueprint of a perfect cube. Click the 'Fold the Blueprint' button to see how these flat segments hinge upward to lock into a solid 3D box. Notice that the Floor panel and the Roof lid never sit side by side on the flat paper!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="300" height="250" viewBox="0 0 300 250" id="fold-svg">
+                    <rect id="f-base" x="125" y="100" width="50" height="50" class="cube-face-f cube-face-active" />
+                    <rect id="f-left" x="75" y="100" width="50" height="50" class="cube-face-f" />
+                    <rect id="f-right" x="175" y="100" width="50" height="50" class="cube-face-f" />
+                    <rect id="f-back" x="125" y="50" width="50" height="50" class="cube-face-f" />
+                    <rect id="f-front" x="125" y="150" width="50" height="50" class="cube-face-f" />
+                    <rect id="f-lid" x="125" y="200" width="50" height="50" class="cube-face-f" style="stroke-dasharray:4;" />
+                </svg>
+                <button class="btn-action" onclick="toggleFold()">Fold the Blueprint</button>
+            </div>
+
+            <div class="discovery-log" id="intro-log">A flat net has 6 faces. Ready to fold!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Skip-A-Square Rule</h2>
+            <p>During the pressure of a timed 11+ entrance exam, your child won't have enough spare seconds to fold cardboard boxes inside their head. Instead, teach them <b>The Skip-A-Square Rule</b>. On any flat unfolded blueprint, matching opposite panels (like the Roof and the Floor) are always separated by exactly <b>one intermediate square</b>. If you can leapfrog directly over a single neighbor in a straight line, you have successfully discovered its opposite partner!</p>
+            
+            <div class="parent-script">
+                "We want to pinpoint the exact panel that will stand directly opposite the gold panel when folded. We don't need to stress or visualize it folding up in space. Just leap straight over the neighboring middle square in a direct line. Click on the square panel you believe forms the perfect opposite partner!"
+            </div>
+
+            <div class="viz-container">
+                <svg width="350" height="200" viewBox="0 0 350 200" id="leap-svg">
+                    <rect x="50" y="75" width="45" height="45" class="leap-square selected" />
+                    <rect x="100" y="75" width="45" height="45" class="leap-square" id="l-jump" />
+                    <rect x="150" y="75" width="45" height="45" class="leap-square" id="l-target" onclick="checkLeap()" />
+                    <rect x="200" y="75" width="45" height="45" class="leap-square" />
+                    <rect x="100" y="25" width="45" height="45" class="leap-square" />
+                    <rect x="100" y="125" width="45" height="45" class="leap-square" />
+                </svg>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Find the partner for the Gold face. Jump over one!</div>
+        </section>
     </div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"Mental Origami."</b> In the 11+, your child will be shown flat paper shapes (nets) and asked to turn them into 3D boxes in their mind. The secret is that boxes have rules about <b>opposites</b>. A Lid and a Base can never touch; in a flat net, they must always be separated by exactly one "buffer" face. If your child can spot these gaps, they can "fold" any box without ever picking up a pair of scissors.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Cube Core</b>
-                "A cube net has a side of 4cm. What is the total volume when folded?"
-            </div>
-            <div class="tier-card">
-                <b>The Cuboid Capacity</b>
-                "A net has a 5x3 base and a flap height of 2. How much space is inside the box?"
-            </div>
-            <div class="tier-card">
-                <b>The Pattern Spotter</b>
-                "Look at this non-standard Z-pattern. Which face will be directly opposite the Base?"
-            </div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Select a layout below to see how the <b>Base</b> (gold) and <b>Lid</b> (blue) behave. Point out to your child that no matter how weird the pattern looks, the Lid and Base are <b>never neighbors</b>. They always have one face standing between them, acting as the "bridge."</p>
-        
-        <div class="anatomy-display">
-            <div class="net-svg-container">
-                <svg id="net-svg" width="100%" height="320" viewBox="0 0 450 320" preserveAspectRatio="xMidYMid meet"></svg>
-            </div>
-            <p id="net-desc" style="text-align: center; margin-top: 20px; font-weight: 800; color: var(--cognis-blue); text-transform: uppercase; letter-spacing: 1px;">Layout: Standard Cross</p>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Toggle through the <b>Net Patterns</b>. Ask your child to predict which face is the "Lid" before you click. Then, use the <b>Dimensions</b> boxes to see how the total volume is calculated by multiplying the Base area by the "flap" height.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800;">1. Choose your Fold</label>
-                <div class="preset-grid">
-                    <button class="btn-preset active" onclick="setNet('cross', this)">Standard Cross</button>
-                    <button class="btn-preset" onclick="setNet('z-pattern', this)">Z-Pattern</button>
-                    <button class="btn-preset" onclick="setNet('long-row', this)">Long Row</button>
-                    <button class="btn-preset" onclick="setNet('t-shape', this)">T-Shape</button>
-                </div>
-
-                <label style="font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; font-weight: 800; margin-top: 25px; display: block;">2. Box Dimensions</label>
-                <div class="dim-inputs">
-                    <div><small style="color:#a0aec0; font-size:0.6rem;">LENGTH</small><input type="number" id="in-l" value="5" oninput="run28()"></div>
-                    <div><small style="color:#a0aec0; font-size:0.6rem;">WIDTH</small><input type="number" id="in-w" value="4" oninput="run28()"></div>
-                    <div><small style="color:#a0aec0; font-size:0.6rem;">HEIGHT</small><input type="number" id="in-h" value="3" oninput="run28()"></div>
-                </div>
-            </div>
-            <div class="trace-log" id="engine-trace">Toggle layouts to see the "Bridge" rule in action.</div>
-        </div>
-    </section>
-
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Friendly Neighbor" Trap:</strong> Most children assume that if two squares touch (share an edge) on the flat paper, they will be opposite each other in 3D. <b>This is the opposite of the truth!</b> If they touch on paper, they are neighbors in the box.</p>
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>Think of this space puzzle format as a game of <b>"Mental Origami."</b> Unfolded structural boxes must obey strict, unbreakable layout rules regarding their <b>opposite matching faces</b>. A Roof lid and a Floor base panel can never share an edge; on a flat pattern blueprint, they must always be separated by exactly one "buffer" panel. If your student learns to instantly spot these empty bridging spaces, they can resolve any unfolded problem paper instantly. The total internal space capacity is simply calculated by finding the Floor Base Area and multiplying it by the vertical Height.</p>
             
-            <p><strong>The Fix: The "Leapfrog" Rule.</strong> Tell your child: <i>"Opposites never touch."</i> To find a face's partner, you have to jump over exactly one face. If you pick a square and "leapfrog" over the next one, you’ve found its opposite. If they touch on the net, they are <b>perpendicular</b>, not opposite. <b>One jump = One opposite.</b></p>
-        </div>
-    </section>
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Equal Cube Core:</b> "An unfolded cube grid shows an individual side edge measurement of 4cm. What is the total internal space capacity when folded up?"</div>
+                <div class="tier-card"><b>The Box Container Capacity:</b> "An unfolded blueprint layout features a 5x3 floor base panel and a vertical flap height of 2. How much total space capacity exists inside?"</div>
+                <div class="tier-card"><b>The Blueprint Pattern Spotter:</b> "In an alternating Z-pattern blueprint, which specific panel quadrant will stand directly opposite the primary Floor Base?"</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Structure Lab</h2>
+            <p>Select a structural pattern layout from the option grid below to see how the <b>Floor Base</b> (gold) and <b>Roof Lid</b> (blue) adjust position. Notice that no matter how strange or crooked the blueprint layout looks, the Lid and Base are <b>never direct neighbors</b>. They always rely on exactly one intervening face to act as their connecting layout bridge.</p>
+            <div class="anatomy-display">
+                <div style="background:white; border-radius:12px; padding:20px; box-shadow:inset 0 2px 10px rgba(0,0,0,0.05);">
+                    <svg id="s-net-svg" width="100%" height="280" viewBox="0 0 450 280"></svg>
+                </div>
+                <p id="s-net-desc" style="text-align:center; margin-top:15px; font-weight:800; color:var(--cognis-blue); font-size:0.7rem; text-transform:uppercase;">SELECTED BLUEPRINT: STANDARD CROSS</p>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Capacity Calculator</h2>
+            <p style="margin-bottom: 20px;">Toggle between different flat blueprint styles and try to predict where the Roof Lid will land. Use the layout dimension inputs to compute the total internal space capacity: <b>Floor Base Area &times; Height</b>.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Blueprint Layout Variations</label>
+                    <div class="preset-grid-s">
+                        <button class="btn-preset-s active" onclick="setSuppNet('cross', this)">Standard Cross</button>
+                        <button class="btn-preset-s" onclick="setSuppNet('z-pattern', this)">Z-Pattern Layout</button>
+                        <button class="btn-preset-s" onclick="setSuppNet('long-row', this)">Extended Long Row</button>
+                        <button class="btn-preset-s" onclick="setSuppNet('t-shape', this)">T-Shape Layout</button>
+                    </div>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-top:15px; margin-bottom:5px;">Box Box Dimensions (Length / Width / Height)</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="number" id="si-l" value="5" style="width:40px;" oninput="runSupp()">
+                        <input type="number" id="si-w" value="4" style="width:40px;" oninput="runSupp()">
+                        <input type="number" id="si-h" value="3" style="width:40px;" oninput="runSupp()">
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Flat Paper Neighbor" Illusion Trap:</b> Children often look at an unfolded layout, see two panels sharing a print edge on the flat sheet, and mistakenly assume they will face opposite each other in 3D. <b>This is completely wrong!</b> If two panel shapes touch on the flat paper blueprint, they are guaranteed to fold up as side-by-side neighbors in the completed box structure.</p>
+                <p><b>The Easy Fix: Apply the Skip-A-Square Rule.</b> Remember the golden concept: <i>"True opposite faces can never touch edges."</i> To identify a perfect opposite partner on a blueprint sheet, you must leapfrog directly over exactly one intermediate panel section. <b>One direct skip always equals one opposite partner.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(28)">Complete Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(28)">Complete Module & Update Lattice</button>
-
 <script>
-    const S = 50; 
-    let currentLayout = 'cross';
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
 
-    const nets = {
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Shape Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: FOLDING --- */
+    let folded = false;
+    function toggleFold() {
+        folded = !folded;
+        const b = document.getElementById('f-base'), l = document.getElementById('f-left'), r = document.getElementById('f-right'), bk = document.getElementById('f-back'), fr = document.getElementById('f-front'), ld = document.getElementById('f-lid');
+        if(folded) {
+            l.style.transform = "skewY(-20deg) scaleX(0.5) translate(40px, -10px)";
+            r.style.transform = "skewY(20deg) scaleX(0.5) translate(-40px, -10px)";
+            bk.style.transform = "skewX(-20deg) scaleY(0.5) translate(10px, 40px)";
+            fr.style.transform = "skewX(20deg) scaleY(0.5) translate(-10px, -40px)";
+            ld.style.transform = "translateY(-100px)";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The flat blueprint has assembled into a 3D Cube container! Watch how the Roof Lid hinged straight to the top slot.</div>`;
+        } else {
+            [l,r,bk,fr,ld].forEach(el => el.style.transform = "none");
+            document.getElementById('intro-log').innerHTML = "Returned back to a flat blueprint arrangement.";
+        }
+    }
+
+    /* --- PROGRESSING: LEAPFROG --- */
+    function checkLeap() {
+        document.getElementById('l-target').classList.add('selected');
+        document.getElementById('l-jump').classList.add('jumped');
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Sensational! You <b>leapfrogged right over</b> the middle face section. These two components form opposite partners!</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    const S = 45; 
+    let sLayout = 'cross';
+    const sNets = {
         'cross': [{x:2,y:0,t:'lid'},{x:2,y:1,t:'f'},{x:2,y:2,t:'base'},{x:2,y:3,t:'f'},{x:1,y:2,t:'f'},{x:3,y:2,t:'f'}],
         'z-pattern': [{x:1,y:0,t:'lid'},{x:2,y:0,t:'f'},{x:2,y:1,t:'base'},{x:3,y:1,t:'f'},{x:3,y:2,t:'f'},{x:4,y:2,t:'f'}],
         'long-row': [{x:0,y:1,t:'lid'},{x:1,y:1,t:'f'},{x:2,y:1,t:'base'},{x:3,y:1,t:'f'},{x:2,y:0,t:'f'},{x:2,y:2,t:'f'}],
         't-shape': [{x:1,y:0,t:'f'},{x:2,y:0,t:'lid'},{x:3,y:0,t:'f'},{x:2,y:1,t:'f'},{x:2,y:2,t:'base'},{x:2,y:3,t:'f'}]
     };
 
-    function setNet(type, btn) {
-        document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentLayout = type;
-        run28();
+    function setSuppNet(type, btn) {
+        document.querySelectorAll('.btn-preset-s').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active'); sLayout = type; runSupp();
     }
 
-    function run28() {
-        const svg = document.getElementById('net-svg');
+    function runSupp() {
+        const svg = document.getElementById('s-net-svg');
+        if(!svg) return;
         svg.innerHTML = '';
-        
-        nets[currentLayout].forEach(f => {
-            const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            rect.setAttribute('x', f.x * S + 80); 
-            rect.setAttribute('y', f.y * S + 40);
-            rect.setAttribute('width', S); 
-            rect.setAttribute('height', S);
-            rect.setAttribute('class', f.t === 'base' ? 'face face-base' : f.t === 'lid' ? 'face face-lid' : 'face');
-            svg.appendChild(rect);
-            
-            if(f.t !== 'f') {
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute('x', f.x * S + S/2 + 80); 
-                text.setAttribute('y', f.y * S + S/2 + 40);
-                text.setAttribute('class', 'face-text');
-                text.setAttribute('fill', f.t === 'base' ? 'var(--cognis-gold)' : '#3182ce');
-                text.textContent = f.t.toUpperCase();
-                svg.appendChild(text);
-            }
+        sNets[sLayout].forEach(f => {
+            const r = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            r.setAttribute('x', f.x*S+60); r.setAttribute('y', f.y*S+20);
+            r.setAttribute('width', S); r.setAttribute('height', S);
+            r.setAttribute('class', f.t==='base'?'face-s face-base-s':f.t==='lid'?'face-s face-lid-s':'face-s');
+            svg.appendChild(r);
         });
 
-        const l = parseFloat(document.getElementById('in-l').value) || 0;
-        const w = parseFloat(document.getElementById('in-w').value) || 0;
-        const h = parseFloat(document.getElementById('in-h').value) || 0;
+        const l = parseFloat(document.getElementById('si-l').value)||0, w = parseFloat(document.getElementById('si-w').value)||0, h = parseFloat(document.getElementById('si-h').value)||0;
         const vol = l * w * h;
-
-        document.getElementById('net-desc').innerText = `Layout: ${currentLayout.replace('-', ' ')}`;
-        
-        document.getElementById('engine-trace').innerHTML = `
-            <div class="trace-step">→ 1. Floor Space: ${l} × ${w} = <b>${l*w} units²</b></div>
-            <div class="trace-step">→ 2. Stack Height: <b>${h} layers</b></div>
-            <div class="trace-step">→ 3. The Squeeze: ${l*w} × ${h}</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → TOTAL VOLUME: ${vol.toFixed(2)} units³
-            </div>
-            <div style="font-size:0.7rem; color:#a0aec0; margin-top:15px; font-style:italic;">
-                * Leapfrog Rule: In any valid net, opposites like the Lid and Base are separated by exactly one buffer face.
-            </div>
-        `;
+        document.getElementById('s-net-desc').innerText = `SELECTED BLUEPRINT: ${sLayout.replace('-',' ').toUpperCase()}`;
+        document.getElementById('supp-log').innerHTML = `→ Floor Base Dimensions: ${l} &times; ${w} = <b>${l*w} surface units²</b><br>→ Vertical Core Height: <b>${h} units</b><br>→ <b>Total Internal Space Capacity: ${vol.toFixed(1)} space units³</b>`;
     }
 
-    window.onload = run28;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout();
+        if(document.getElementById('si-l')) runSupp();
+        if(typeof initModule === "function") initModule(28);
+    });
 </script>
-
 </body>
 </html>

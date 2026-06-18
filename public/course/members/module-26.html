@@ -3,161 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Module 26: Invariance Lab | Cognis 11+</title>
+    <title>Module 26: Locked Outlines and Shifting Space | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* UNIQUE CSS FOR AREA SIMULATION */
-        .anatomy-display { padding: 40px; background: #1a202c; border: none; border-radius: 12px; }
-        
-        #canvas-26 { 
-            background: #000; 
-            border: 2px solid #334155; 
-            border-radius: 12px; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        /* SUBSCRIPTION DISPLAY LOGIC */
+        .foundational-only, .supplemental-only { display: none; }
+        body.user-plan-foundational .foundational-only { display: block; }
+        body.user-plan-supplemental .supplemental-only { display: block; }
+
+        /* REFRESHER ACCORDION */
+        details.refresher-box {
+            background: #fff; border: 2px solid var(--cognis-blue);
+            border-radius: 16px; margin: 30px 0; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        details.refresher-box summary {
+            font-weight: 800; color: white; background: var(--cognis-blue);
+            cursor: pointer; padding: 20px; outline: none; list-style: none;
         }
 
-        .boundary { 
-            stroke: var(--cognis-gold); 
-            stroke-width: 4; 
-            fill: rgba(197, 160, 89, 0.15); 
-            transition: all 0.2s ease-out; 
+        /* VIZ CONTAINERS */
+        .viz-container { 
+            background: #f8fafc; border: 2px dashed #cbd5e0; 
+            border-radius: 12px; padding: 20px; margin: 25px 0;
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center;
+            min-height: 400px; position: relative;
+            overflow: hidden;
         }
 
-        .label-text { 
-            fill: #a0aec0; 
-            font-family: 'Consolas', monospace; 
-            font-size: 13px; 
-            font-weight: bold;
-            text-transform: uppercase;
+        /* LOGS (Friendly Discoveries) */
+        .discovery-log {
+            background: #fdfbf7; padding: 20px; border-radius: 12px;
+            border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
         }
+        .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
+        .discovery-step::before { content: '📏'; }
 
-        .area-display-text {
-            fill: var(--cognis-gold);
-            font-weight: 900;
-            font-size: 32px;
-            filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.3));
-        }
+        /* INTRO: FLEXIBLE FENCE */
+        .fence-rope { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 4; stroke-linejoin: round; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .grass { fill: #22c55e; opacity: 0.2; transition: opacity 0.5s; }
 
-        .engine-container { grid-template-columns: 1fr 1.2fr; }
-        input[type=range] { margin-top: 15px; }
+        /* PROGRESSING: TILE GRID */
+        .tile-rect { fill: none; stroke: var(--cognis-blue); stroke-width: 2; }
+        .tile-unit { fill: var(--cognis-gold); stroke: white; stroke-width: 1; opacity: 0.8; }
+
+        /* SUPPLEMENTAL: LAB */
+        #canvas-26 { background: #1a202c; border-radius: 12px; }
+        .boundary-s { stroke: var(--cognis-gold); stroke-width: 4; fill: rgba(197, 160, 89, 0.1); transition: all 0.2s; }
+        .area-text-s { fill: var(--cognis-gold); font-weight: 900; font-size: 32px; filter: drop-shadow(0 0 10px rgba(197, 160, 89, 0.3)); }
+
+        /* UTILITY */
+        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
+        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
+        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
-    <script src="../js/module-core.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => initModule(26));</script>
-</head>
-<body>
+    <script src="../js/module-core-a.js"></script>
+</body >
 
-<div class="module-card" style="margin-top: 40px;">
-    <div class="header">
-        <h1>Module 26: Area/Perimeter Invariance</h1>
-    </div>
+<div class="module-card">
+    <div class="header"><h1>Module 26: Locked Outlines and Shifting Space</h1></div>
 
-    <section class="phase">
-        <h2>Phase 1: The X-Ray</h2>
-        <p>Think of this as <b>"The Magic String."</b> The perimeter is the length of your string (the fence), and the area is the grass inside. In the 11+, examiners love to trick children into thinking that if the fence stays the same length, the garden stays the same size. <b>Wrong.</b> By simply changing the shape, you can "leak" or "gain" area. The secret is that a <b>Square</b> is the most efficient shape—it squeezes the most space out of every inch of fence.</p>
-        
-        <div class="question-tiers">
-            <div class="tier-card">
-                <b>The Garden Fence</b>
-                "A garden has a 12m fence. If it's a square, what is the internal area?"
+    <div id="foundation-bundle">
+        <section class="phase" id="sub-intro">
+            <span class="section-tag">Foundation Intro</span>
+            <h2>The Magic Loop of Rope</h2>
+            <p>Imagine holding a continuous loop of twine that is exactly 20cm long from end to end. You can pull it tight into a narrow, skinny rectangle, or adjust it out into a perfectly wide square. The total length of the outline border (<b>The Outline Perimeter</b>) never drops or grows, but the internal space it frames inside (<b>The Covered Area</b>) transforms drastically as you morph its shape!</p>
+            
+            <div class="parent-script">
+                "We are tracking a loop of rope locked at 20cm. Click 'Squash Narrow' to make the profile long and skinny, and select 'Make a Balanced Square' to see it even out. Notice that while our border rope never extends its absolute length, the amount of space captured inside shifts. An equal square layout always encloses the largest possible interior space!"
             </div>
-            <div class="tier-card">
-                <b>The Comparison</b>
-                "Rectangle A is 8cm x 2cm. Rectangle B is 5cm x 5cm. Both have a 20cm perimeter, but which has more grass?"
-            </div>
-            <div class="tier-card">
-                <b>The Wire Challenge</b>
-                "A 40cm wire is bent into a 15x5 rectangle, then a 10x10 square. Which shape creates more space?"
-            </div>
-        </div>
-    </section>
 
-    <section class="phase">
-        <h2>Phase 2: The Anatomy</h2>
-        <p>Welcome to the <b>Invariance Lab</b>. We've locked the perimeter at 40 units. Move the slider to stretch the shape. Watch how the "Skinny" rectangles lose area, while the "Fat" rectangles (closing in on a square) maximize it. Point to the number in the middle: that’s the internal space changing while the boundary stays exactly the same.</p>
-        
-        <div class="anatomy-display">
-            <svg id="canvas-26" width="100%" height="320" viewBox="0 0 500 320" preserveAspectRatio="xMidYMid meet">
-                <rect id="dynamic-rect" x="150" y="60" width="200" height="200" class="boundary" />
-                <text id="dim-w" x="250" y="50" class="label-text" text-anchor="middle">Width: 10.0</text>
-                <text id="dim-h" x="130" y="160" class="label-text" text-anchor="end">Height: 10.0</text>
-                <text x="250" y="170" class="area-display-text" text-anchor="middle" id="area-val">100.0</text>
-                <text x="250" y="195" fill="#4a5568" font-weight="800" font-size="10" text-anchor="middle">UNITS²</text>
-            </svg>
-        </div>
-    </section>
-
-    <section class="phase">
-        <h2>Phase 3: The Engine</h2>
-        <p style="margin-bottom: 20px;">Use the slider to morph the shape with your child. Ask them: <i>"Where does the area go when the rectangle gets skinny?"</i> Notice that at the far left and right, the area almost vanishes, even though the perimeter hasn't moved an inch.</p>
-        <div class="engine-container">
-            <div class="inputs">
-                <div class="control-group">
-                    <label>Morphing the Shape (Perimeter: 40)</label>
-                    <input type="range" id="slider-26" min="1" max="19" value="10" step="0.1" oninput="run26()">
-                    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.6rem; color: #a0aec0; font-weight: bold;">
-                        <span>SKINNY (Weak)</span>
-                        <span>SQUARE (Strong)</span>
-                        <span>SKINNY (Weak)</span>
-                    </div>
+            <div class="viz-container">
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect id="intro-rope" x="100" y="50" width="100" height="100" class="fence-rope" />
+                    <text x="150" y="190" text-anchor="middle" font-weight="800" fill="var(--cognis-blue)">Locked Rope Length: 20cm</text>
+                </svg>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="transformRope(140, 60)">Squash Narrow</button>
+                    <button class="btn-action" onclick="transformRope(100, 100)">Make a Balanced Square</button>
                 </div>
             </div>
-            <div class="trace-log" id="trace-26">Adjust the slider to see the Area-Perimeter paradox.</div>
-        </div>
-    </section>
 
-    <section class="phase">
-        <div class="trap-box">
-            <h3>Phase 4: The Saboteur</h3>
-            <p><strong>The "Shape-Blind" Trap:</strong> Many children think area is a fixed property of perimeter. They believe that if you have 40cm of string, you always get 100cm² of space, no matter how you lay it out on the table.</p>
+            <div class="discovery-log" id="intro-log">The outline boundary is locked. Experiment with different profiles!</div>
+        </section>
+
+        <section class="phase" id="sub-progressing">
+            <span class="section-tag">Foundation Progressing</span>
+            <h2>The Play Block Squeeze</h2>
+            <p>If you are given a set length of wall panels to build a playroom, like 12 meters, you have exactly 12 modular spaces of outline wall to assemble. You could choose to put together a narrow 5x1 layout (framing an interior of 5 spaces) or build a symmetrical 3x3 layout (framing 9 spaces). Even though the outer walls use identical block amounts, the 3x3 layout packs in far more interior play tiles!</p>
             
-            <p><strong>The Fix: The "Square Efficiency" Rule.</strong> Tell your child: <i>"Equality is power."</i> The closer the side lengths are to each other (the more "square" the shape), the larger the area will be. A long, thin rectangle is a space-waster. A balanced square is a space-maker. <b>Same perimeter does NOT mean same area.</b></p>
-        </div>
-    </section>
+            <div class="parent-script">
+                "Look at these two room setups side by side. Both variations require exactly 12 units of outer walling. Yet the narrow, elongated choice only has room to store 5 floor tiles. The square choice holds 9 floor tiles! When all individual sides balance out 'equally', the shape reaches its maximum interior capacity."
+            </div>
+
+            <div class="viz-container">
+                <div style="display:flex; gap:40px; align-items:flex-end;">
+                    <div style="text-align:center;">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <rect x="50" y="20" width="20" height="100" class="tile-rect" />
+                            <g id="tiles-skinny"></g>
+                        </svg>
+                        <small style="font-weight:800; display:block;">Narrow Layout (5x1)<br>Interior Space: 5</small>
+                    </div>
+                    <div style="text-align:center;">
+                        <svg width="150" height="150" viewBox="0 0 150 150">
+                            <rect x="30" y="40" width="60" height="60" class="tile-rect" />
+                            <g id="tiles-square"></g>
+                        </svg>
+                        <small style="font-weight:800; display:block;">Square Layout (3x3)<br>Interior Space: 9</small>
+                    </div>
+                </div>
+                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Outer Wall Pieces Used For Both: 12 units</div>
+            </div>
+
+            <div class="discovery-log" id="prog-log">Compare the tiles inside. Identical outer outline, completely different internal space!</div>
+        </section>
+    </div>
+
+    <div id="sub-supplemental" class="supplemental-only">
+        <section class="phase">
+            <h2>Phase 1: Spotting the Pattern</h2>
+            <p>The perimeter acts just like a <b>"Magic Outlining String"</b>—it defines the physical boundary line of the shape. The covered area is the space trapped inside. In competitive entrance exams, word problems try to trick children into thinking that a locked outer boundary length automatically guarantees a locked amount of internal space.<b>The exact opposite is true.</b> By morphing the outer profile, you either choke or maximize the interior. A true<b>Square</b> layout stands as the most efficient shape profile—it squeezes the greatest possible room out of every single inch of available fencing.</p>
+            
+            <div class="question-tiers">
+                <div class="tier-card"><b>The Outer Fence:</b> "A garden plot is wrapped in a 12m perimeter fence. If the layout is adjusted to form a perfect square, what is the internal covered space?"</div>
+                <div class="tier-card"><b>The Layout Comparison:</b> "Plot A is a narrow rectangle measuring 8x2. Plot B is a balanced layout measuring 5x5. Both variations require a 20cm outer border outline. Which shape encloses a larger space?"</div>
+                <div class="tier-card"><b>The Shifting Craft Wire:</b> "A piece of wire measuring 40cm is bent into a 15x5 rectangle, and then reformed into a 10x10 square. Calculate the net change in internal space."</div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 2: The Shape Transforming Lab</h2>
+            <p>Welcome to our interactive <b>Shape Transforming Lab</b> workspace. The perimeter outline is locked securely at a value of 40. Slide the interactive tracking bar below to change the width and height of the rectangle. Observe how long, "Skinny" shapes lose internal space rapidly, while "Balanced" layouts maximize it. The outer outline perimeter values remain a fixed value, while the internal space stays entirely fluid.</p>
+            <div class="anatomy-display" style="background:#1a202c; text-align:center;">
+                <svg id="canvas-26" width="100%" height="280" viewBox="0 0 500 280">
+                    <rect id="s-rect" x="150" y="40" width="200" height="200" class="boundary-s" />
+                    <text id="s-dim-w" x="250" y="30" fill="#a0aec0" font-size="12" font-weight="800" text-anchor="middle">Width: 10</text>
+                    <text id="s-dim-h" x="130" y="140" fill="#a0aec0" font-size="12" font-weight="800" text-anchor="end">Height: 10</text>
+                    <text id="s-area-val" x="250" y="150" class="area-text-s" text-anchor="middle">100.0</text>
+                </svg>
+            </div>
+        </section>
+
+        <section class="phase">
+            <h2>Phase 3: The Shape Morphing Controls</h2>
+            <p style="margin-bottom: 20px;">Morph the geometry of the box using the control slider. Notice how at the far left and right edges, the internal capacity drop down toward zero, even though the boundary outline wire hasn't changed its length by a single milliliter.</p>
+            <div class="engine-container">
+                <div class="inputs">
+                    <div class="control-group">
+                        <label style="font-weight:800; color:var(--cognis-blue);">Shape Morphing Slider (Outer Outline Locked: 40)</label>
+                        <input type="range" id="in-slider" min="1" max="19" step="0.1" value="10" oninput="runSupp()">
+                        <div style="display:flex; justify-content:space-between; font-size:0.6rem; font-weight:800; color:#a0aec0; margin-top:5px;">
+                            <span>SKINNY PROFILE</span><span>PERFECT SQUARE</span><span>SKINNY PROFILE</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="trace-log" id="supp-log"></div>
+            </div>
+        </section>
+
+        <section class="phase">
+            <div class="trap-box">
+                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <p><b>The "Fixed Geometry" Illusion Trap:</b> Children naturally assume that internal space size is a fixed property tied directly to perimeter length. They mistakenly believe that a 40cm outline will always track down to a single set value of 100cm² of space, no matter how the shape looks.</p>
+                <p><b>The Easy Fix: The "Square Efficiency" Rule.</b> Remind your student: <i>"Balance means internal capacity."</i> The closer the sides of a polygon are to each other in measurement (forming a true square), the larger the internal capacity scales. Elongated, hyper-thin rectangle configurations waste valuable space.<b>An identical perimeter outline does NOT mean identical internal space.</b></p>
+            </div>
+        </section>
+        
+        <button class="btn-complete" onclick="markComplete(26)">Complete Supplemental Module</button>
+    </div>
 </div>
 
-<button class="btn-complete" onclick="markComplete(26)">Complete Module & Update Lattice</button>
-
 <script>
-    function run26() {
-        const w = parseFloat(document.getElementById('slider-26').value);
-        const h = 20 - w; 
+    /* --- SHARED LAYOUT --- */
+    async function applyLayout() {
+        if (!window.supabaseClient) { setTimeout(applyLayout, 100); return; }
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await window.supabaseClient.from('profiles').select('subscription_plan').eq('id', user.id).maybeSingle();
+        const plan = profile ? profile.subscription_plan : 'foundational'; 
+
+        if (plan === 'supplemental') {
+            document.body.className = 'user-plan-supplemental';
+            const acc = document.createElement('details');
+            acc.className = 'refresher-box';
+            acc.innerHTML = `<summary>▼ Need a Refresh? (Years 2-4 Shape Foundations)</summary>`;
+            acc.appendChild(document.getElementById('foundation-bundle'));
+            document.getElementById('sub-supplemental').parentNode.insertBefore(acc, document.getElementById('sub-supplemental'));
+        } else {
+            document.body.className = 'user-plan-foundational';
+            if(document.getElementById('sub-supplemental')) document.getElementById('sub-supplemental').remove();
+        }
+    }
+
+    /* --- INTRO: ROPE --- */
+    function transformRope(w, h) {
+        const r = document.getElementById('intro-rope');
+        r.setAttribute("width", w);
+        r.setAttribute("height", h);
+        r.setAttribute("x", 150 - w/2);
+        r.setAttribute("y", 100 - h/2);
+        const area = (w*h)/100;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Internal Covered Space: <b>${area.toFixed(0)} square units</b>. Shape profile is currently set to ${w > h ? 'Skinny' : 'Symmetrical Square'}.</div>`;
+    }
+
+    /* --- PROGRESSING: TILES --- */
+    function initTiles() {
+        const sG = document.getElementById('tiles-skinny');
+        const sqG = document.getElementById('tiles-square');
+        sG.innerHTML = ''; sqG.innerHTML = '';
+        // 5x1
+        for(let i=0; i<5; i++) sG.innerHTML += `<rect x="52" y="${22 + i*19.5}" width="16" height="16" class="tile-unit" />`;
+        // 3x3
+        for(let r=0; r<3; r++) {
+            for(let c=0; c<3; c++) {
+                sqG.innerHTML += `<rect x="${32 + c*19.5}" y="${42 + r*19.5}" width="16" height="16" class="tile-unit" />`;
+            }
+        }
+    }
+
+    /* --- SUPPLEMENTAL: ENGINE --- */
+    function runSupp() {
+        const w = parseFloat(document.getElementById('in-slider').value);
+        const h = 20 - w;
         const area = w * h;
         
-        const rect = document.getElementById('dynamic-rect');
-        const scale = 12; 
-        const visualW = w * scale;
-        const visualH = h * scale;
-
-        rect.setAttribute('width', visualW);
-        rect.setAttribute('height', visualH);
-        rect.setAttribute('x', 250 - visualW/2);
-        rect.setAttribute('y', 160 - visualH/2);
-
-        document.getElementById('dim-w').textContent = `Width: ${w.toFixed(1)}`;
-        document.getElementById('dim-w').setAttribute('y', 160 - visualH/2 - 15);
-        document.getElementById('dim-h').textContent = `Height: ${h.toFixed(1)}`;
-        document.getElementById('dim-h').setAttribute('x', 250 - visualW/2 - 15);
-        document.getElementById('dim-h').setAttribute('y', 160);
-
-        document.getElementById('area-val').textContent = area.toFixed(1);
-
-        document.getElementById('trace-26').innerHTML = `
-            <div class="trace-step">→ 1. Total Fence: <b>40.0 units</b></div>
-            <div class="trace-step">→ 2. Sum of Width + Height: <b>20.0</b></div>
-            <div class="trace-step">→ 3. Space Calculation: ${w.toFixed(1)} × ${h.toFixed(1)}</div>
-            <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #4a5568; margin-top:10px; padding-top:10px;">
-                → RESULTING AREA: ${area.toFixed(2)} units²
-            </div>
+        const r = document.getElementById('s-rect');
+        const visualScale = 12;
+        const vw = w * visualScale;
+        const vh = h * visualScale;
+        
+        r.setAttribute('width', vw);
+        r.setAttribute('height', vh);
+        r.setAttribute('x', 250 - vw/2);
+        r.setAttribute('y', 140 - vh/2);
+        
+        document.getElementById('s-dim-w').textContent = `Width side measurement: ${w.toFixed(1)}`;
+        document.getElementById('s-dim-h').textContent = `Height side measurement: ${h.toFixed(1)}`;
+        document.getElementById('s-dim-h').setAttribute('x', 250 - vw/2 - 10);
+        document.getElementById('s-area-val').textContent = area.toFixed(1);
+        
+        document.getElementById('supp-log').innerHTML = `
+            → Outline Perimeter Equation: (2 &times; ${w.toFixed(1)}) + (2 &times; ${h.toFixed(1)}) = <b>40.0 absolute units</b><br>
+            → Internal Covered Space Area: ${w.toFixed(1)} &times; ${h.toFixed(1)} = <b>${area.toFixed(1)} Internal Covered Space units²</b>
         `;
     }
 
-    window.onload = run26;
+    document.addEventListener('DOMContentLoaded', () => {
+        applyLayout(); initTiles();
+        if(document.getElementById('in-slider')) runSupp();
+        if(typeof initModule === "function") initModule(26);
+    });
 </script>
-
-</body>
 </html>
