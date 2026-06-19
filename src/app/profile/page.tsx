@@ -53,7 +53,7 @@ function ProfileHubCore() {
   const [dashPinError, setDashPinError] = useState('');
   const [dashPinChecking, setDashPinChecking] = useState(false);
 
-  // State: Onboarding Modal
+  // State: Onboarding Modal Control
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
   const [studentName, setStudentName] = useState('');
@@ -79,12 +79,21 @@ function ProfileHubCore() {
       setProfile(parsedProfile);
       if (parsedProfile.course_type) setSelectedApproach(parsedProfile.course_type);
       
-      // FIX: Ensure clean evaluation against actual database boolean state
-      const forceTrigger = searchParams.get('triggerOnboarding') === 'true';
-      if (!parsedProfile.onboarding_completed || forceTrigger) {
-        setShowOnboardingModal(true);
+      // 1. Evaluate incoming URL onboarding instructions
+      const hasUrlIntent = searchParams.get('triggerOnboarding') === 'true';
+      
+      if (hasUrlIntent) {
+        // 2. MASTER AUTHORITY: Database check takes absolute priority
+        if (!parsedProfile.onboarding_completed) {
+          setShowOnboardingModal(true);
+        } else {
+          // Stale parameter detected; scrub URL clean
+          setShowOnboardingModal(false);
+          router.replace('/profile');
+        }
       } else {
-        setShowOnboardingModal(false); 
+        // Safe, standard parameter-free entry
+        setShowOnboardingModal(false);
       }
     }
 
@@ -118,33 +127,14 @@ function ProfileHubCore() {
       setSuspendedSessions([]);
     }
 
-    // Lock in hydration checklist status flags simultaneously
     setHasCheckedOnboarding(true);
     setLoading(false);
   }
 
-  // Separate initialization sequence from route tracking state mutations
+  // Pure decoupled data hydration hook
   useEffect(() => {
     loadHubData(true); 
-  }, []); // Run exclusively on initial page assembly frameworking mount
-
-  useEffect(() => {
-    // BFCache Unfreeze Protocol
-    const handleVisibilityOrBack = (e: PageTransitionEvent | Event) => {
-      const isBFCache = ('persisted' in e && e.persisted) || 
-                        (window.performance && window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming)?.type === "back_forward";
-      
-      if (isBFCache) {
-        setIsProcessingAction(false); 
-        setIsLaunching(false);
-        loadHubData(false); 
-      }
-    };
-    
-    window.addEventListener('pageshow', handleVisibilityOrBack);
-    return () => window.removeEventListener('pageshow', handleVisibilityOrBack);
-  }, [searchParams, router]);
- 
+  }, []); 
 
   // --- COURSE MODULE ACTIONS ---
   const handleStripeCheckout = async (intent: 'course' | 'diagnostic', plan: string, amount: number) => {
@@ -205,6 +195,9 @@ function ProfileHubCore() {
 
     setProfile({ ...profile, student_name: studentName, onboarding_completed: true });
     setShowOnboardingModal(false);
+
+    // Clean browser history frame parameters instantly
+    router.replace('/profile');
   };
 
   // --- DIAGNOSTIC INITIATION ACTIONS ---
@@ -518,21 +511,21 @@ function ProfileHubCore() {
                 {/* 1. Primary Action: Start or Buy */}
                 {hasCredits ? (
                     <button 
-                    onClick={handleLaunchNewDiagnostic} 
-                    disabled={isLaunching}
-                    className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
+                      onClick={handleLaunchNewDiagnostic} 
+                      disabled={isLaunching}
+                      className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
                     >
-                    {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />} 
-                    Start a diagnostic
+                      {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />} 
+                      Start a diagnostic
                     </button>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button onClick={() => handleStripeCheckout('diagnostic', 'one-off', 29)} disabled={isProcessingAction} className="bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:border-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all">
-                        1 Token (£29)
-                    </button>
-                    <button onClick={() => handleStripeCheckout('diagnostic', '6-month', 89)} disabled={isProcessingAction} className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-500 text-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all relative shadow-sm hover:shadow">
-                        5 Tokens (£89)
-                    </button>
+                      <button onClick={() => handleStripeCheckout('diagnostic', 'one-off', 29)} disabled={isProcessingAction} className="bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:border-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all">
+                          1 Token (£29)
+                      </button>
+                      <button onClick={() => handleStripeCheckout('diagnostic', '6-month', 89)} disabled={isProcessingAction} className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-500 text-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all relative shadow-sm hover:shadow">
+                          5 Tokens (£89)
+                      </button>
                     </div>
                 )}
 
