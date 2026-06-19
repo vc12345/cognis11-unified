@@ -499,30 +499,34 @@ function ProfileHubCore() {
             </div>
 
             <div className="pt-6 mt-8 border-t border-[#E5E3DD] space-y-3">
-              {hasCredits ? (
-                <div className="space-y-3">
-                  <button 
+                {/* 1. Primary Action: Start or Buy */}
+                {hasCredits ? (
+                    <button 
                     onClick={handleLaunchNewDiagnostic} 
                     disabled={isLaunching}
                     className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
-                  >
+                    >
                     {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />} 
                     Start a diagnostic
-                  </button>
-                  <button onClick={handleDashboardAccess} className="w-full bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:bg-slate-50 font-bold text-[10px] uppercase tracking-widest py-3 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                    </button>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onClick={() => handleStripeCheckout('diagnostic', 'one-off', 29)} disabled={isProcessingAction} className="bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:border-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all">
+                        1 Token (£29)
+                    </button>
+                    <button onClick={() => handleStripeCheckout('diagnostic', '6-month', 89)} disabled={isProcessingAction} className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-500 text-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all relative shadow-sm hover:shadow">
+                        5 Tokens (£89)
+                    </button>
+                    </div>
+                )}
+
+                {/* 2. Persistent Secondary Action: Always allow dashboard access */}
+                <button 
+                    onClick={handleDashboardAccess} 
+                    className="w-full bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:bg-slate-50 font-bold text-[10px] uppercase tracking-widest py-3 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                >
                     <BarChart2 className="w-3.5 h-3.5" /> View dashboard
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button onClick={() => handleStripeCheckout('diagnostic', 'one-off', 29)} disabled={isProcessingAction} className="bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:border-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all">
-                    1 Token (£29)
-                  </button>
-                  <button onClick={() => handleStripeCheckout('diagnostic', '6-month', 89)} disabled={isProcessingAction} className="bg-gradient-to-br from-amber-50 to-white border-2 border-amber-500 text-[#1B3A5C] font-bold text-[10px] uppercase tracking-wider p-3 rounded-lg text-center transition-all relative shadow-sm hover:shadow">
-                    5 Tokens (£89)
-                  </button>
-                </div>
-              )}
+                </button>
             </div>
           </div>
 

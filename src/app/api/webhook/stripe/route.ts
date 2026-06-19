@@ -49,7 +49,6 @@ export async function POST(req: Request) {
       // ==========================================
       if (intent === 'course') {
         const { error: updateError } = await supabaseAdmin.from('profiles').update({
-          course_type: plan,
           course_subscription: true,
           course_subscription_start_date: now,
           course_subscription_cancel_date: null,
