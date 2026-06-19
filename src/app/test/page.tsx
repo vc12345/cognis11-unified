@@ -26,13 +26,20 @@ interface TestState {
 
 type UIState = 'IDLE' | 'RECORDING' | 'ANALYZING_AUDIO' | 'SUBMITTING';
 
-// Shared KaTeX Delimiter Configuration
-const latexDelimiters = [
-  { left: '$$', right: '$$', display: true },
-  { left: '\\(', right: '\\)', display: false },
-  { left: '$', right: '$', display: false },
-  { left: '\\[', right: '\\]', display: true },
-];
+// --- CUSTOM MIXED-CONTENT LATEX PARSER ---
+// Safely splits raw strings so normal text uses span and delimiter content uses KaTeX
+const renderLatexString = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('$$') && part.endsWith('$$')) {
+      return <BlockMath key={index} math={part.slice(2, -2)} />;
+    } else if (part.startsWith('$') && part.endsWith('$')) {
+      return <InlineMath key={index} math={part.slice(1, -1)} />;
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
 
 // --- CORE TEST RUNNER COMPONENT ---
 function DiagnosticRunner() {
@@ -219,7 +226,7 @@ function DiagnosticRunner() {
         <div className="text-xs tracking-widest uppercase text-red-600 font-bold border border-red-200 bg-red-50 px-6 py-4">
           SYSTEM FAULT: {testState.errorMessage}
         </div>
-        <button onClick={() => router.push('/test-initiate')} className="text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 underline">
+        <button onClick={() => router.push('/profile')} className="text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 underline">
           Return to Hub
         </button>
       </div>
@@ -236,7 +243,7 @@ function DiagnosticRunner() {
             The assessment is being reviewed.<br/>The telemetry dashboard will update shortly.
           </p>
           <div className="pt-12">
-            <button onClick={() => router.push('/dashboard')} className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
+            <button onClick={() => router.push('/diagnostic/dashboard')} className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
               [ Terminate Session & Return ]
             </button>
           </div>
@@ -250,37 +257,39 @@ function DiagnosticRunner() {
   // --- MAIN EVALUATION CANVAS ---
   return (
     <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-sans">
-      <div className="max-w-2xl w-full">
+      <div className="max-w-3xl w-full">
         
-        {/* Header Block */}
-        <div className="flex justify-between items-center mb-6 opacity-80 text-xs font-bold uppercase tracking-wider text-slate-500">
+        {/* Header Block - Refactored to hide total question count */}
+        <div className="flex justify-between items-center mb-6 text-xs font-bold uppercase tracking-widest text-slate-400">
           <span>Diagnostic Workspace</span>
-          <span>Sequence {testState.currentIndex + 1} / {testState.payload.length}</span>
+          <span className="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm text-slate-500">
+            Question {testState.currentIndex + 1}
+          </span>
         </div>
 
-        {/* Question Container */}
-        <div className={`bg-white rounded-[2rem] shadow-sm border border-slate-200 p-10 md:p-14 transition-all duration-700 ease-in-out ${
-            uiState === 'RECORDING' ? 'shadow-xl shadow-blue-950/5 scale-[1.01] border-blue-100' : ''
+        {/* Question Container - Cleaned up styling for modern look */}
+        <div className={`bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 md:p-14 transition-all duration-500 ease-in-out ${
+            uiState === 'RECORDING' ? 'shadow-[0_8px_30px_rgba(59,130,246,0.12)] scale-[1.005] border-blue-100' : ''
           }`}
         >
-          {/* Question Text */}
-          <h2 className="text-xl md:text-2xl text-slate-800 leading-relaxed font-medium mb-8">
-            <BlockMath math={activeQuestion.question} />
-          </h2>
+          {/* Question Text with Dynamic LaTeX parsing */}
+          <div className="text-xl md:text-[1.65rem] text-slate-800 leading-relaxed font-medium mb-12">
+            {renderLatexString(activeQuestion.question)}
+          </div>
 
           {/* Options Grid */}
           {parsedOptions.length > 0 && (
-            <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {parsedOptions.map((opt) => (
                 <div 
                   key={opt.label} 
-                  className="p-4 bg-slate-50 rounded-xl border border-slate-200/60 text-slate-700 text-sm font-medium flex items-center gap-3 shadow-sm"
+                  className="p-5 bg-white rounded-2xl border-2 border-slate-100 text-slate-700 font-medium flex items-center gap-4 shadow-sm"
                 >
-                  <span className="w-6 h-6 rounded-md bg-white border border-slate-200 shadow-sm flex items-center justify-center font-bold text-slate-500 text-xs shrink-0">
+                  <span className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-center font-bold text-slate-500 text-sm shrink-0">
                     {opt.label}
                   </span>
-                  <div className="overflow-x-auto text-base">
-                    <InlineMath math={opt.value} />
+                  <div className="overflow-x-auto text-lg pt-1">
+                    {renderLatexString(opt.value)}
                   </div>
                 </div>
               ))}
@@ -308,7 +317,7 @@ function DiagnosticRunner() {
               }
               onChange={(e) => setTranscript(e.target.value)}
               disabled={uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-              className="w-full bg-slate-50 text-slate-700 p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-400 focus:bg-white transition-colors resize-none h-28 text-sm leading-relaxed"
+              className="w-full bg-slate-50 text-slate-700 p-5 rounded-2xl border-2 border-slate-100 outline-none focus:border-blue-300 focus:bg-white transition-colors resize-none h-32 text-base leading-relaxed"
             />
           </div>
 
@@ -317,7 +326,7 @@ function DiagnosticRunner() {
             <button 
               onClick={handleMicToggle}
               disabled={uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-              className={`flex-[2] py-5 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-3 ${
+              className={`flex-[2] py-5 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-3 ${
                 uiState === 'RECORDING' 
                   ? 'bg-red-50 text-red-600 border-2 border-red-200 animate-pulse shadow-inner' 
                   : uiState === 'ANALYZING_AUDIO'
@@ -346,7 +355,7 @@ function DiagnosticRunner() {
               <button 
                 onClick={handleCommitAnswer} 
                 disabled={uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-                className="flex-1 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95"
+                className="flex-1 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-base"
               >
                 {uiState === 'SUBMITTING' ? 'Evaluating...' : 'Submit Answer'}
               </button>
@@ -356,15 +365,14 @@ function DiagnosticRunner() {
         </div>
 
         {/* Global Pause Action */}
-        <div className="mt-8 text-center">
+        <div className="mt-10 text-center">
           <button
             onClick={async () => {
-              // Save current session checkpoint states to database here if needed
               window.location.href = '/profile'; 
             }}
-            className="px-5 py-2.5 bg-amber-50 border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold text-[11px] uppercase tracking-widest rounded-lg transition-all shadow-sm flex items-center gap-2"
+            className="px-6 py-3 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 font-bold text-[11px] uppercase tracking-widest rounded-full transition-all shadow-sm inline-flex items-center gap-2"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-slate-400" />
             Pause Diagnostic Session
           </button>
         </div>

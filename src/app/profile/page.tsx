@@ -119,7 +119,7 @@ function ProfileHubCore() {
   }
 
   useEffect(() => {
-    loadHubData(true); // Show loader on initial mount
+    loadHubData(true); 
     
     // BFCache Unfreeze Protocol
     const handleVisibilityOrBack = (e: PageTransitionEvent | Event) => {
@@ -127,9 +127,9 @@ function ProfileHubCore() {
                         (window.performance && window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming)?.type === "back_forward";
       
       if (isBFCache) {
-        setIsProcessingAction(false); // Unfreeze buttons instantly
+        setIsProcessingAction(false); 
         setIsLaunching(false);
-        loadHubData(false); // Reload data silently without the blank loading screen
+        loadHubData(false); 
       }
     };
     
@@ -163,7 +163,6 @@ function ProfileHubCore() {
     }
   };
 
-  // ISSUE 1 FIX: Synchronous Profile update before redirect
   const executeCourseLaunch = async () => {
     if (!profile) return;
     setIsProcessingAction(true);
@@ -176,7 +175,6 @@ function ProfileHubCore() {
         .eq('id', profile.id);
     }
     
-    // Release the UI freeze right before the browser dumps the page into the BFCache
     setTimeout(() => {
       setIsProcessingAction(false);
       window.location.href = '/course/members/dashboard.html';
@@ -185,10 +183,19 @@ function ProfileHubCore() {
 
   const saveOnboarding = async () => {
     if (!profile || !studentName.trim()) return alert('Please enter your child\'s name.');
-    await supabase.from('profiles').update({
+    
+    const { error } = await supabase.from('profiles').update({
       student_name: studentName, academic_year: academicYear,
       baseline_confidence: baselineConfidence, target_tier: targetTier, onboarding_completed: true
     }).eq('id', profile.id);
+
+    // Trap RLS errors so it doesn't fail silently
+    if (error) {
+      console.error("Database Save Error:", error.message);
+      alert("Failed to save profile. Please ensure you have update permissions (RLS).");
+      return;
+    }
+
     setProfile({ ...profile, student_name: studentName, onboarding_completed: true });
     setShowOnboardingModal(false);
   };
@@ -475,12 +482,12 @@ function ProfileHubCore() {
               {/* DYNAMIC PAUSED SESSION RENDER BLOCK */}
               {suspendedSessions.length > 0 && (
                 <div className="space-y-3 pt-2">
-                  <span className="block text-[9px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-1.5"><AlertCircle className="w-3 h-3" /> Suspended Evaluation Data ({suspendedSessions.length})</span>
+                  <span className="block text-[9px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-1.5"><AlertCircle className="w-3 h-3" /> Paused diagnostics ({suspendedSessions.length})</span>
                   {suspendedSessions.map((session, index) => (
                     <div key={session.session_id} className="bg-amber-50/50 border border-amber-200 p-3 rounded-xl flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
                       <div className="space-y-0.5">
                         <span className="text-[10px] font-bold text-amber-900 block">Session Tracker 00{index + 1}</span>
-                        <span className="text-[10px] text-amber-800/80 block">Logged: {new Date(session.created_at).toLocaleDateString()} | Saved: {session.completedCount} / 19</span>
+                        <span className="text-[10px] text-amber-800/80 block">Logged: {new Date(session.created_at).toLocaleDateString()} | Saved: {session.completedCount} questions</span>
                       </div>
                       <Link href={`/test?session=${session.session_id}`} className="shrink-0 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[9px] uppercase tracking-wider py-2 px-3 rounded shadow-sm transition-all flex items-center gap-1">
                         Resume <Play className="w-3 h-3 fill-white" />
@@ -500,10 +507,10 @@ function ProfileHubCore() {
                     className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-40"
                   >
                     {isLaunching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-white" />} 
-                    Initialize New Sweep Sequence
+                    Start a diagnostic
                   </button>
                   <button onClick={handleDashboardAccess} className="w-full bg-white border border-[#E5E3DD] text-[#1B3A5C] hover:bg-slate-50 font-bold text-[10px] uppercase tracking-widest py-3 rounded-lg text-center transition-all flex items-center justify-center gap-1.5 shadow-sm">
-                    <BarChart2 className="w-3.5 h-3.5" /> Access Telemetry Dashboard
+                    <BarChart2 className="w-3.5 h-3.5" /> View dashboard
                   </button>
                 </div>
               ) : (
