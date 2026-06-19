@@ -75,18 +75,17 @@ function ProfileHubCore() {
       .maybeSingle();
 
     if (profileData) {
-      setProfile(profileData as UserProfile);
-      if (profileData.course_type) setSelectedApproach(profileData.course_type);
+      const parsedProfile = profileData as UserProfile;
+      setProfile(parsedProfile);
+      if (parsedProfile.course_type) setSelectedApproach(parsedProfile.course_type);
       
-      // ISSUE 3 FIX: Show modal if not completed, or if trigger is active
-      if (!profileData.onboarding_completed || searchParams.get('triggerOnboarding') === 'true') {
+      // FIX: Ensure clean evaluation against actual database boolean state
+      const forceTrigger = searchParams.get('triggerOnboarding') === 'true';
+      if (!parsedProfile.onboarding_completed || forceTrigger) {
         setShowOnboardingModal(true);
       } else {
-        setShowOnboardingModal(false); // Force close if coming back from BFCache
+        setShowOnboardingModal(false); 
       }
-
-      setHasCheckedOnboarding(true);
-
     }
 
     // Capture Multiple Suspended Tests via diagnostic_sessions table
@@ -119,12 +118,17 @@ function ProfileHubCore() {
       setSuspendedSessions([]);
     }
 
+    // Lock in hydration checklist status flags simultaneously
+    setHasCheckedOnboarding(true);
     setLoading(false);
   }
 
+  // Separate initialization sequence from route tracking state mutations
   useEffect(() => {
     loadHubData(true); 
-    
+  }, []); // Run exclusively on initial page assembly frameworking mount
+
+  useEffect(() => {
     // BFCache Unfreeze Protocol
     const handleVisibilityOrBack = (e: PageTransitionEvent | Event) => {
       const isBFCache = ('persisted' in e && e.persisted) || 
@@ -193,7 +197,6 @@ function ProfileHubCore() {
       baseline_confidence: baselineConfidence, target_tier: targetTier, onboarding_completed: true
     }).eq('id', profile.id);
 
-    // Trap RLS errors so it doesn't fail silently
     if (error) {
       console.error("Database Save Error:", error.message);
       alert("Failed to save profile. Please ensure you have update permissions (RLS).");
