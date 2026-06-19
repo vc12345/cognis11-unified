@@ -445,13 +445,22 @@ function ProfileHubCore() {
                 </button>
                 
                 {isCourseEnrolled && !isCoursePaying && (
-                  <button 
-                    onClick={() => handleStripeCheckout('course', 'voluntary', 5)} 
-                    disabled={isProcessingAction} 
-                    className="w-full bg-white border border-[#E5E3DD] hover:border-amber-500 text-amber-800 text-[10px] font-bold uppercase tracking-wider py-2.5 rounded-lg transition-all text-center"
-                  >
-                    Help us help more parents and kids (£5/mo)
-                  </button>
+                  <div className="space-y-2 pt-2 border-t border-[#E5E3DD]/60">
+                    <span className="block text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                      Choose Voluntary Support Tier
+                    </span>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[3, 5, 10].map((tierAmount) => (
+                        <button
+                          key={tierAmount}
+                          onClick={() => handleStripeCheckout('course', 'voluntary', tierAmount)}
+                          className="bg-white border border-[#E5E3DD] hover:border-amber-500 text-amber-800 text-[10px] font-bold uppercase tracking-wider py-2 rounded-lg transition-all text-center"
+                        >
+                          £{tierAmount}/mo
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
