@@ -55,6 +55,7 @@ function ProfileHubCore() {
 
   // State: Onboarding Modal
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
   const [studentName, setStudentName] = useState('');
   const [academicYear, setAcademicYear] = useState('Year 4');
   const [baselineConfidence, setBaselineConfidence] = useState('on_track');
@@ -83,6 +84,9 @@ function ProfileHubCore() {
       } else {
         setShowOnboardingModal(false); // Force close if coming back from BFCache
       }
+
+      setHasCheckedOnboarding(true);
+
     }
 
     // Capture Multiple Suspended Tests via diagnostic_sessions table
@@ -281,7 +285,7 @@ function ProfileHubCore() {
     <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans px-6 py-12 relative selection:bg-amber-200">
       
       {/* 1. ONBOARDING DIALOG WINDOW */}
-      {showOnboardingModal && (
+      {(hasCheckedOnboarding && showOnboardingModal) && (
         <div className="fixed inset-0 bg-[#0B1121]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#FAFAF6] border border-[#E5E3DD] rounded-2xl max-w-md w-full p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div>
