@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { Mic, Square, Loader2, Sparkles, AlertCircle, CheckCircle2, ArrowRight, PauseCircle } from 'lucide-react';
 
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
@@ -27,10 +28,9 @@ interface TestState {
 type UIState = 'IDLE' | 'RECORDING' | 'ANALYZING_AUDIO' | 'SUBMITTING';
 
 // --- CUSTOM MIXED-CONTENT LATEX PARSER ---
-// Safely splits raw strings so normal text uses span and delimiter content uses KaTeX
 const renderLatexString = (text: string) => {
   if (!text) return null;
-  const parts = text.split(/(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$)/g);
+  const parts = text.split(/(\$\$[\s\S]*?\External APIs|\$[\s\S]*?\$)/g);
   return parts.map((part, index) => {
     if (part.startsWith('$$') && part.endsWith('$$')) {
       return <BlockMath key={index} math={part.slice(2, -2)} />;
@@ -41,12 +41,11 @@ const renderLatexString = (text: string) => {
   });
 };
 
-// --- CORE TEST RUNNER COMPONENT ---
 function DiagnosticRunner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // 1. Core Engine State
+  // Core State Engine
   const [testState, setTestState] = useState<TestState>({
     status: 'INITIALIZING',
     sessionId: null,
@@ -55,12 +54,12 @@ function DiagnosticRunner() {
     errorMessage: '',
   });
 
-  // 2. Interactive UI State
+  // UI Engine
   const [uiState, setUiState] = useState<UIState>('IDLE');
   const [transcript, setTranscript] = useState('');
   const [hasRecordedOnce, setHasRecordedOnce] = useState(false);
   
-  // 3. Telemetry Timers & Audio Hooks
+  // Telemetry Setup
   const questionStartTime = useRef<number>(0);
   const { startRecording, stopRecording } = useAudioRecorder();
 
@@ -69,7 +68,6 @@ function DiagnosticRunner() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
 
-  // --- STAGE 1: HYDRATE THE SESSION NETWORK ---
   useEffect(() => {
     async function initializeSession() {
       const sessionParam = searchParams.get('session');
@@ -113,13 +111,10 @@ function DiagnosticRunner() {
     initializeSession();
   }, [searchParams]);
 
-  // --- STAGE 2: DYNAMIC OPTIONS PARSING ---
   const activeQuestion = testState.payload[testState.currentIndex];
   
   const parsedOptions = useMemo(() => {
     if (!activeQuestion || !activeQuestion.options) return [];
-    
-    // Safely handle both pre-parsed objects and JSON strings from the database
     const optionsObj = typeof activeQuestion.options === 'string' 
       ? JSON.parse(activeQuestion.options) 
       : activeQuestion.options;
@@ -130,7 +125,6 @@ function DiagnosticRunner() {
     })).sort((a, b) => a.label.localeCompare(b.label));
   }, [activeQuestion]);
 
-  // --- STAGE 3: INTERACTIVE HANDLERS ---
   const handleMicToggle = async () => {
     if (uiState === 'IDLE') {
       await startRecording();
@@ -150,16 +144,15 @@ function DiagnosticRunner() {
           });
 
           if (!response.ok) throw new Error("Transcription failed.");
-
           const result = await response.json();
           
-          // Append transcript rather than overwrite, allowing multi-part explanations
+          // Tutor-pattern: Stream appending to preserve iterative thinking adjustments
           setTranscript(prev => prev ? `${prev} ${result.text}` : result.text);
           setHasRecordedOnce(true);
         } catch (err) {
           console.error("Transcription error:", err);
-          alert("Could not process speech. You may type your answer manually.");
-          setHasRecordedOnce(true); // Reveal the box anyway so they aren't stuck
+          alert("Could not catch that audio sample cleanly. You may type directly into the workspace scratchpad.");
+          setHasRecordedOnce(true);
         } finally {
           setUiState('IDLE');
         }
@@ -170,17 +163,12 @@ function DiagnosticRunner() {
   };
 
   const handleCommitAnswer = async () => {
-    if (!transcript.trim()) {
-      alert("Please provide an explanation before submitting.");
-      return;
-    }
-
+    if (!transcript.trim()) return;
     setUiState('SUBMITTING');
 
     const timeSpentMs = Date.now() - questionStartTime.current;
     const timeSpentSeconds = Math.round(timeSpentMs / 1000);
 
-    // Fire Background Telemetry (Does not block UI)
     fetch('/api/save-attempt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -192,14 +180,12 @@ function DiagnosticRunner() {
       })
     }).catch(err => console.error("Telemetry Sync Failure:", err));
 
-    // Advance Engine State
     const nextIndex = testState.currentIndex + 1;
     
     if (nextIndex >= testState.payload.length) {
       setTestState(prev => ({ ...prev, status: 'COMPLETED' }));
     } else {
       setTestState(prev => ({ ...prev, currentIndex: nextIndex }));
-      // Reset Interactive UI for the next question
       setTranscript('');
       setHasRecordedOnce(false);
       setUiState('IDLE');
@@ -207,14 +193,12 @@ function DiagnosticRunner() {
     }
   };
 
-  // --- RENDER ROUTING ---
   if (testState.status === 'INITIALIZING') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
-        <div className="animate-pulse flex gap-2">
-          <div className="w-3 h-3 bg-slate-300 rounded-full"></div>
-          <div className="w-3 h-3 bg-slate-300 rounded-full animate-bounce"></div>
-          <div className="w-3 h-3 bg-slate-300 rounded-full"></div>
+      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 text-[#1B3A5C] animate-spin" />
+          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400">Syncing Diagnostic Room...</span>
         </div>
       </div>
     );
@@ -222,11 +206,11 @@ function DiagnosticRunner() {
 
   if (testState.status === 'ERROR') {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center font-mono space-y-4">
-        <div className="text-xs tracking-widest uppercase text-red-600 font-bold border border-red-200 bg-red-50 px-6 py-4">
-          SYSTEM FAULT: {testState.errorMessage}
+      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center space-y-5 px-6">
+        <div className="text-xs tracking-widest uppercase text-rose-700 font-bold border-2 border-rose-200 bg-rose-50/50 p-6 rounded-2xl max-w-md text-center shadow-sm">
+          System Interruption: {testState.errorMessage}
         </div>
-        <button onClick={() => router.push('/profile')} className="text-[10px] uppercase tracking-widest text-slate-500 hover:text-slate-900 underline">
+        <button onClick={() => router.push('/profile')} className="text-[10px] uppercase font-bold tracking-widest text-slate-400 hover:text-[#1B3A5C] transition-all underline decoration-2">
           Return to Hub
         </button>
       </div>
@@ -235,18 +219,20 @@ function DiagnosticRunner() {
 
   if (testState.status === 'COMPLETED') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">
-        <div className="text-center space-y-4 max-w-md px-6">
-          <div className="w-12 h-12 border-4 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto mb-8"></div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Diagnostic Concluded</h1>
-          <p className="text-sm text-slate-500 leading-relaxed">
-            The assessment is being reviewed.<br/>The telemetry dashboard will update shortly.
-          </p>
-          <div className="pt-12">
-            <button onClick={() => router.push('/diagnostic/dashboard')} className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors">
-              [ Terminate Session & Return ]
-            </button>
+      <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center p-6">
+        <div className="text-center max-w-sm bg-white border border-[#E5E3DD] rounded-3xl p-10 shadow-xl space-y-6">
+          <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
+            <CheckCircle2 className="w-8 h-8" />
           </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold font-serif text-[#1B3A5C]">Workspace Captured</h1>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Your explanation maps and structural reasoning vectors have been compiled into the parental telemetry hub.
+            </p>
+          </div>
+          <button onClick={() => router.push('/profile')} className="w-full bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-4 rounded-xl transition-all shadow-sm">
+            Return to Dashboard
+          </button>
         </div>
       </div>
     );
@@ -254,126 +240,151 @@ function DiagnosticRunner() {
 
   if (!activeQuestion) return null;
 
-  // --- MAIN EVALUATION CANVAS ---
   return (
-    <main className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-sans">
-      <div className="max-w-3xl w-full">
+    <main className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] flex flex-col items-center justify-between p-6 md:p-12 font-sans selection:bg-amber-100">
+      <div className="max-w-3xl w-full flex-1 flex flex-col justify-center space-y-6">
         
-        {/* Header Block - Refactored to hide total question count */}
-        <div className="flex justify-between items-center mb-6 text-xs font-bold uppercase tracking-widest text-slate-400">
-          <span>Diagnostic Workspace</span>
-          <span className="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm text-slate-500">
-            Question {testState.currentIndex + 1}
+        {/* Workspace Context Tracker */}
+        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+            <span>Interactive Diagnostic Space</span>
+          </div>
+          <span className="bg-white px-4 py-1.5 rounded-full border border-[#E5E3DD] shadow-sm text-[#1B3A5C] font-mono">
+            Exercise {testState.currentIndex + 1}
           </span>
         </div>
 
-        {/* Question Container - Cleaned up styling for modern look */}
-        <div className={`bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 md:p-14 transition-all duration-500 ease-in-out ${
-            uiState === 'RECORDING' ? 'shadow-[0_8px_30px_rgba(59,130,246,0.12)] scale-[1.005] border-blue-100' : ''
-          }`}
-        >
-          {/* Question Text with Dynamic LaTeX parsing */}
-          <div className="text-xl md:text-[1.65rem] text-slate-800 leading-relaxed font-medium mb-12">
-            {renderLatexString(activeQuestion.question)}
-          </div>
-
-          {/* Options Grid */}
-          {parsedOptions.length > 0 && (
-            <div className="mb-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {parsedOptions.map((opt) => (
-                <div 
-                  key={opt.label} 
-                  className="p-5 bg-white rounded-2xl border-2 border-slate-100 text-slate-700 font-medium flex items-center gap-4 shadow-sm"
-                >
-                  <span className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-center font-bold text-slate-500 text-sm shrink-0">
-                    {opt.label}
-                  </span>
-                  <div className="overflow-x-auto text-lg pt-1">
-                    {renderLatexString(opt.value)}
-                  </div>
-                </div>
+        {/* Primary Interaction Surface */}
+        <div className={`bg-white rounded-[2.5rem] border border-[#E5E3DD] p-8 md:p-12 shadow-sm transition-all duration-500 relative flex flex-col justify-between overflow-hidden min-h-[500px] ${
+          uiState === 'RECORDING' ? 'border-rose-400 shadow-[0_20px_50px_rgba(225,29,72,0.04)]' : ''
+        }`}>
+          {/* Audio Visualization Line */}
+          {uiState === 'RECORDING' && (
+            <div className="absolute top-0 inset-x-0 h-1 flex gap-1 justify-center overflow-hidden">
+              {[...Array(32)].map((_, i) => (
+                <div key={i} className="w-1 bg-rose-500 h-full rounded-full animate-bounce" style={{ animationDelay: `${i * 0.04}s`, animationDuration: '0.5s' }} />
               ))}
             </div>
           )}
 
-          {/* Transcript / Text Input Area */}
-          <div className={`transition-all duration-500 overflow-hidden ${
-            hasRecordedOnce || uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' 
-              ? 'max-h-64 opacity-100 mb-8' 
-              : 'max-h-0 opacity-0 pointer-events-none'
-          }`}>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex justify-between">
-              <span>Your Explanation:</span>
-              {(uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO') && (
-                <span className="text-blue-500 animate-pulse">Processing...</span>
-              )}
-            </label>
-            <textarea 
-              value={transcript}
-              placeholder={
-                uiState === 'RECORDING' ? "Listening..." : 
-                uiState === 'ANALYZING_AUDIO' ? "Converting voice to text..." : 
-                "Review your text here. You can make adjustments or type changes directly if needed."
-              }
-              onChange={(e) => setTranscript(e.target.value)}
-              disabled={uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-              className="w-full bg-slate-50 text-slate-700 p-5 rounded-2xl border-2 border-slate-100 outline-none focus:border-blue-300 focus:bg-white transition-colors resize-none h-32 text-base leading-relaxed"
-            />
+          <div className="space-y-8">
+            {/* The KaTeX Core Core Query */}
+            <div className="text-xl md:text-2xl text-slate-800 leading-relaxed font-serif font-medium text-balance">
+              {renderLatexString(activeQuestion.question)}
+            </div>
+
+            {/* Static Exhibition Grid (Non-Clickable Displays) */}
+            {parsedOptions.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {parsedOptions.map((opt) => (
+                  <div 
+                    key={opt.label} 
+                    className="p-5 bg-[#FAFAF6]/40 rounded-2xl border border-[#E5E3DD] text-[#1B3A5C] flex items-center gap-4 shadow-sm"
+                  >
+                    <span className="w-7 h-7 rounded-lg bg-white border border-[#E5E3DD] flex items-center justify-center font-bold text-slate-400 text-xs shadow-inner">
+                      {opt.label}
+                    </span>
+                    <div className="text-base font-medium overflow-x-auto pt-0.5">
+                      {renderLatexString(opt.value)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button 
-              onClick={handleMicToggle}
-              disabled={uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-              className={`flex-[2] py-5 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-3 ${
-                uiState === 'RECORDING' 
-                  ? 'bg-red-50 text-red-600 border-2 border-red-200 animate-pulse shadow-inner' 
-                  : uiState === 'ANALYZING_AUDIO'
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed animate-pulse'
-                  : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:shadow-md'
-              }`}
-            >
-              <span className="text-2xl">
-                {uiState === 'RECORDING' ? '⏹' : uiState === 'ANALYZING_AUDIO' ? '⏳' : '🎤'}
-              </span>
-              {uiState === 'RECORDING' ? 'Stop Recording' : uiState === 'ANALYZING_AUDIO' ? 'Transcribing...' : 'Talk us through your working'}
-            </button>
+          {/* Core Input Stack */}
+          <div className="space-y-6 mt-8">
+            
+            {/* The Active Workspace Scratchpad Container */}
+            <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
+              hasRecordedOnce || uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' 
+                ? 'max-h-64 opacity-100' 
+                : 'max-h-0 opacity-0 pointer-events-none'
+            }`}>
+              <div className="bg-[#FAFAF6] border border-[#E5E3DD] rounded-2xl p-5 space-y-2 relative shadow-inner">
+                <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <AlertCircle className="w-3 h-3 text-[#1B3A5C]" />
+                    Tutor Workspace Scratchpad (Review or edit your spoken thought track below)
+                  </span>
+                  {uiState === 'ANALYZING_AUDIO' && <span className="text-amber-600 animate-pulse font-bold">Appending transcription...</span>}
+                </div>
+                
+                <textarea 
+                  value={transcript}
+                  placeholder={
+                    uiState === 'RECORDING' ? "Listening... Talk through your steps, rules, or reasons out loud." : 
+                    uiState === 'ANALYZING_AUDIO' ? "Aligning cognitive audio frames..." : 
+                    "Spoken text compiles here. You can click into this area to type-adjust your ideas before submitting."
+                  }
+                  onChange={(e) => setTranscript(e.target.value)}
+                  disabled={uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
+                  className="w-full bg-transparent text-[#1B3A5C] outline-none resize-none h-24 text-sm leading-relaxed placeholder-slate-300 disabled:opacity-60"
+                />
+              </div>
+            </div>
 
-            {/* If they haven't recorded yet, let them opt to type */}
-            {!hasRecordedOnce && uiState === 'IDLE' && (
+            {/* Interface Control Row */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <button 
-                onClick={() => setHasRecordedOnce(true)}
-                className="flex-1 bg-transparent text-slate-400 font-bold py-5 rounded-2xl transition-all hover:text-slate-600 underline text-sm"
-              >
-                Prefer to type?
-              </button>
-            )}
-
-            {/* Submission Trigger */}
-            {hasRecordedOnce && (
-              <button 
-                onClick={handleCommitAnswer} 
+                onClick={handleMicToggle}
                 disabled={uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING'}
-                className="flex-1 bg-slate-900 hover:bg-black disabled:bg-slate-300 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95 text-base"
+                className={`flex-[2] py-4.5 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2.5 border border-[#E5E3DD] shadow-sm ${
+                  uiState === 'RECORDING' 
+                    ? 'bg-rose-500 text-white border-rose-600 shadow-md' 
+                    : uiState === 'ANALYZING_AUDIO'
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed animate-pulse'
+                    : 'bg-white text-slate-600 hover:border-[#1B3A5C] hover:text-[#1B3A5C] hover:bg-slate-50'
+                }`}
               >
-                {uiState === 'SUBMITTING' ? 'Evaluating...' : 'Submit Answer'}
+                {uiState === 'RECORDING' ? (
+                  <>
+                    <Square className="w-3.5 h-3.5 fill-white text-white" />
+                    Pause & Process Explanation
+                  </>
+                ) : uiState === 'ANALYZING_AUDIO' ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                    Parsing Cognitive Signals
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-3.5 h-3.5 text-[#1B3A5C]" />
+                    {hasRecordedOnce ? 'Talk more to expand your answer' : 'Talk through your working out'}
+                  </>
+                )}
               </button>
-            )}
+
+              {hasRecordedOnce && (
+                <button 
+                  onClick={handleCommitAnswer} 
+                  disabled={uiState === 'ANALYZING_AUDIO' || uiState === 'SUBMITTING' || !transcript.trim()}
+                  className="flex-1 bg-[#1B3A5C] hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold py-4.5 rounded-2xl transition-all shadow-md flex items-center justify-center gap-1 text-xs uppercase tracking-wider"
+                >
+                  {uiState === 'SUBMITTING' ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      Save Thinking Layout <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
         </div>
 
-        {/* Global Pause Action */}
-        <div className="mt-10 text-center">
+        {/* Global Structural Pause Control */}
+        <div className="text-center">
           <button
-            onClick={async () => {
-              window.location.href = '/profile'; 
-            }}
-            className="px-6 py-3 bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-700 font-bold text-[11px] uppercase tracking-widest rounded-full transition-all shadow-sm inline-flex items-center gap-2"
+            onClick={() => window.location.href = '/profile'}
+            className="text-[9px] font-bold uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all inline-flex items-center gap-1.5"
           >
-            <span className="w-2 h-2 rounded-full bg-slate-400" />
-            Pause Diagnostic Session
+            <PauseCircle className="w-3.5 h-3.5" />
+            Pause Intake & Exit Safely
           </button>
         </div>
       </div>
@@ -381,12 +392,11 @@ function DiagnosticRunner() {
   );
 }
 
-// Wrapper to satisfy Next.js client-side Suspense boundary requirements for searchParams
 export default function TestPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-mono text-xs tracking-widest uppercase text-slate-400">
-        Mounting Core...
+      <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center font-mono text-xs tracking-widest uppercase text-slate-400 animate-pulse">
+        Mounting Intake Architecture...
       </div>
     }>
       <DiagnosticRunner />
