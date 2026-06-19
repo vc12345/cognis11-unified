@@ -147,6 +147,15 @@ export default function AccountManagementPage() {
               <span className="text-xs font-bold uppercase tracking-wider text-red-600">{actionLoading ? 'Purging Systems...' : 'Permanently Delete Account'}</span>
               <Trash2 className="w-4 h-4 text-red-500" />
             </button>
+
+            <a 
+                href="https://billing.stripe.com/p/login/test_3cIfZj0ybgFcejO20agUM00" 
+                target="_blank" 
+                className="bg-[#1B3A5C] hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider py-3 px-5 rounded-lg transition-all inline-flex items-center gap-2 shadow-sm"
+                >
+                Manage Billing & Cancel
+            </a>
+
           </div>
         </div>
       </div>
