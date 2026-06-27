@@ -6,7 +6,7 @@
     <title>Module 34: The Interlocking Word Connector | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -43,24 +43,30 @@
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🧲'; }
 
-        /* INTRO: MAGNETIC HINGE */
-        .magnet { width: 100px; height: 60px; background: var(--cognis-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 8px; position: absolute; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .hinge-gold { width: 80px; height: 60px; background: var(--cognis-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 8px; position: absolute; top: 140px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* INTRO: BALANCED ALIGNMENT COUPLING */
+        .magnet-track { display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%; max-width: 400px; height: 120px; position: relative; margin-bottom: 20px; }
+        .magnet { width: 100px; height: 60px; background: var(--cognis-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .hinge-gold { width: 100px; height: 60px; background: var(--cognis-gold); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 8px; position: absolute; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); box-shadow: 0 4px 12px rgba(197,160,89,0.3); transform: translateY(80px); }
 
         /* PROGRESSING: DOUBLE LOCK */
         .lock-container { display: flex; gap: 10px; align-items: center; }
-        .lock-block { background: white; border: 3px solid #cbd5e0; padding: 15px; border-radius: 8px; font-weight: 900; color: #94a3b8; transition: all 0.3s; }
-        .lock-active { border-color: var(--cognis-gold); color: var(--cognis-gold); transform: scale(1.05); }
+        .lock-block { background: white; border: 3px solid #cbd5e0; padding: 15px; border-radius: 8px; font-weight: 900; color: #94a3b8; transition: all 0.3s; min-width: 140px; text-align: center; }
+        .lock-active { border-color: var(--cognis-gold); color: var(--cognis-blue); transform: scale(1.05); background: #fffbeb; }
         .checkmark { color: #10b981; font-weight: 900; opacity: 0; transition: opacity 0.3s; }
 
         /* SUPPLEMENTAL: HINGE LAB */
-        .word-block-s { background: var(--cognis-blue); color: white; padding: 20px; border-radius: 10px; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; width: 130px; text-align: center; }
-        .bridge-input-s { border: 4px solid var(--cognis-gold); padding: 12px; border-radius: 10px; font-size: 1.4rem; font-weight: 900; width: 130px; text-align: center; color: var(--cognis-gold); text-transform: uppercase; outline: none; }
+        .word-block-s { background: var(--cognis-blue); color: white; padding: 20px; border-radius: 10px; font-weight: 900; font-size: 1.4rem; text-transform: uppercase; width: 130px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .bridge-input-s { border: 4px solid var(--cognis-gold); padding: 12px; border-radius: 10px; font-size: 1.4rem; font-weight: 900; width: 130px; text-align: center; color: var(--cognis-gold); text-transform: uppercase; outline: none; background: #ffffff; }
+        .bridge-input-s::placeholder { color: #cbd5e0; font-weight: 400; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        
+        /* Adjusted dark selector fields to resolve typography contrast visibility targets */
+        .input-dark { background: #f1f5f9; color: #1e293b; border: 2px solid var(--cognis-blue); padding: 10px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 1rem; width: 100%; box-sizing: border-box; }
+        .input-dark:focus { outline: none; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -79,16 +85,20 @@
             <p>A true <b>Connector Word</b> acts just like a double-sided magnetic coupling piece on a toy train layout. To succeed, it must attach securely to the word block sitting on its left-hand side AND fuse with the word block sitting on its right-hand side at the exact same moment. If it only snaps onto one side, the bridge line remains broken!</p>
             
             <div class="parent-script">
-                "We are tracking two baseline word anchors here: <b>SEA</b> and <b>SIDE</b>. Click the first test button to lock the word <b>SHELL</b> into position. It assembles a perfect phrase on the left ('SEASHELL'), but how does it blend with the right? 'SHELLSIDE' is not a real standalone term. Let's swap it out and try a more powerful magnetic connector!"
+                "We are tracking two baseline word anchors here: <b>SEA</b> and <b>SIDE</b>. Click the different test buttons to snap candidate hinges into place. Notice how 'SHELL' forms a real compound word on the left ('SEASHELL') but fails on the right ('SHELLSIDE'). Clicking 'SIDE' creates a perfect match on the left ('SEASIDE') but a duplicate error on the right ('SIDESIDE'). Only 'WATER' satisfies both connections perfectly!"
             </div>
 
             <div class="viz-container">
-                <div id="magnet-l" class="magnet" style="left: 20px; top: 60px;">SEA</div>
-                <div id="magnet-r" class="magnet" style="right: 20px; top: 60px;">SIDE</div>
-                <div id="intro-hinge" class="hinge-gold" style="left: 110px;">SHELL</div>
+                <div class="magnet-track">
+                    <div class="magnet">SEA</div>
+                    <!-- Unified positioning box configured inside static flex layouts to ensure no geometric overflow -->
+                    <div id="intro-hinge" class="hinge-gold">????</div>
+                    <div class="magnet">SIDE</div>
+                </div>
                 
-                <div style="margin-top: 200px; display: flex; gap: 10px;">
-                    <button class="btn-action" onclick="tryIntroHinge('SHELL')">Snap 'SHELL'</button>
+                <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <button class="btn-action" style="background:#64748b" onclick="tryIntroHinge('SHELL')">Snap 'SHELL'</button>
+                    <button class="btn-action" style="background:#64748b" onclick="tryIntroHinge('SIDE')">Snap 'SIDE'</button>
                     <button class="btn-action" style="background:var(--cognis-gold)" onclick="tryIntroHinge('WATER')">Snap 'WATER'</button>
                 </div>
             </div>
@@ -102,19 +112,19 @@
             <p>To win this puzzle format, your child's eye must learn to give a firm mental tug to both sides of the center block. Never log an answer choice until both individual locking gates click green. If you only verify one side of the layout, a clever exam trick will capture the point.</p>
             
             <div class="parent-script">
-                "Look closely at this incomplete connector bridge: <b>RAIN [ ____ ] BALL</b>. If we try plugging in the test word <b>BOW</b>, let's inspect the locking gates. RAIN + BOW = RAINBOW (Left gate locks green!). But look at the trailing side: BOW + BALL = BOWBALL? That is an invalid term. The right-hand gate stays locked tight. Let's test the word <b>FALL</b> instead."
+                "Look closely at this incomplete connector bridge: <b>BARE [ ____ ] PATH</b>. If we try plugging in the test word <b>BOW</b>, it fails completely on both sides. If we test the word <b>BALL</b>, it matches the trailing side ('BALLPATH' is not quite right, but think of football fields—still fails on the left!). Let's test the true connector word <b>FOOT</b>."
             </div>
 
             <div class="viz-container">
                 <div class="lock-container">
-                    <div id="lock-l" class="lock-block">RAIN + ?</div>
+                    <div id="lock-l" class="lock-block">BARE + ?</div>
                     <div style="font-size: 1.5rem;">🔗</div>
-                    <div id="lock-r" class="lock-block">? + BALL</div>
+                    <div id="lock-r" class="lock-block">? + PATH</div>
                 </div>
                 
                 <div style="margin-top: 40px; display: flex; gap: 10px;">
-                    <button class="btn-action" onclick="checkLocks('BOW')">Test 'BOW'</button>
-                    <button class="btn-action" onclick="checkLocks('FALL')">Test 'FALL'</button>
+                    <button class="btn-action" onclick="checkLocks('BALL')">Test 'BALL'</button>
+                    <button class="btn-action" onclick="checkLocks('FOOT')">Test 'FOOT'</button>
                 </div>
             </div>
 
@@ -128,7 +138,7 @@
             <p>Think of this question style as mastering a <b>"Double-Sided Vocabulary Hinge."</b> Your objective is to discover one isolated bridge word that locks two independent word blocks together into legitimate compound nouns. This puzzle term must serve simultaneously as the trailing *conclusion* of the first word block and the leading *introduction* of the second. The critical tool to teach your child is the twin scan: a candidate word option is only true if it satisfies both ends of the connector block simultaneously.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Environmental Setup:</b> "Find the center link for: RAIN [ ____ ] BALL. The missing piece must bond seamlessly with both ends."</div>
+                <div class="tier-card"><b>The Environmental Setup:</b> "Find the center link for: BARE [ ____ ] PATH. The missing piece must bond seamlessly with both ends."</div>
                 <div class="tier-card"><b>The Structural Challenge:</b> "Identify the structural bridge: FOOT [ ____ ] ROOM. Both resulting terms must build legitimate real-world compound nouns."</div>
                 <div class="tier-card"><b>The Coastal Riddle:</b> "Pinpoint the master puzzle word for SEA [ ____ ] SIDE. The interlocking vocabulary core must snap into both slots comfortably."</div>
             </div>
@@ -136,16 +146,21 @@
 
         <section class="phase">
             <h2>Phase 2: The Hinge Connector Mechanism</h2>
-            <p>Welcome to our interactive <b>Hinge Connector Mechanism</b> simulation. Type a mystery test word directly into the gold center box, and then adjust the range tracking slider below to shift your word toward the blue anchors. Notice how your entry must survive two completely independent vocabulary combinations. If it fails to build a real word on either flank, the entire structure falls through!</p>
-            <div class="anatomy-display" style="text-align:center;">
+            <p>Welcome to our interactive <b>Hinge Connector Mechanism</b> simulation. Follow the steps below to verify your logic:</p>
+            
+            <div style="background: #fffbeb; border-left: 4px solid var(--cognis-gold); padding: 12px; margin: 15px 0; border-radius: 4px; font-weight: 700; color: #b45309; font-size: 0.9rem;">
+                👉 CRITICAL INSTRUCTION: Type your test connecting word into the center gold box first, then use the slider below to test the compound linkages!
+            </div>
+            
+            <div class="anatomy-display" style="text-align:center; margin-top: 25px;">
                 <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:40px;">
-                    <div id="s-w1" class="word-block-s">RAIN</div>
-                    <div id="s-mover" style="transition: transform 0.2s;"><input type="text" id="si-bridge" class="bridge-input-s" placeholder="????" oninput="runSupp()"></div>
-                    <div id="s-w2" class="word-block-s">BALL</div>
+                    <div id="s-w1" class="word-block-s">BARE</div>
+                    <div id="s-mover" style="transition: transform 0.2s;"><input type="text" id="si-bridge" class="bridge-input-s" placeholder="FOOT" oninput="runSupp()"></div>
+                    <div id="s-w2" class="word-block-s">PATH</div>
                 </div>
                 <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Slide to Test Connection</label>
-                <input type="range" id="si-slider" min="0" max="100" value="50" style="width:250px;" oninput="runSupp()">
-                <div style="display:flex; justify-content:space-between; width:250px; margin:5px auto; font-size:0.6rem; font-weight:800; color:#94a3b8;">
+                <input type="range" id="si-slider" min="0" max="100" value="50" style="width:250px; accent-color:var(--cognis-gold);" oninput="runSupp()">
+                <div style="display:flex; justify-content:space-between; width:280px; margin:5px auto; font-size:0.6rem; font-weight:800; color:#64748b;">
                     <span>LEFT COMPOUND CHECK</span><span>NEUTRAL POSITION</span><span>RIGHT COMPOUND CHECK</span>
                 </div>
             </div>
@@ -153,11 +168,11 @@
 
         <section class="phase">
             <h2>Phase 3: The Compound Word Tester</h2>
-            <p style="margin-bottom: 20px;">Configure a brand new vocabulary puzzle challenge. Input custom side anchors below, type in your connecting link word, and slide the hinge handle back and forth to inspect how the compound terms shape up. Notice that the connector core remains unchanged—it simply alters its matching partner.</p>
+            <p style="margin-bottom: 20px;">Configure a brand new vocabulary puzzle challenge. Input custom side anchors below, type in your connecting link word into the gold center box above, and inspect how the compound terms shape up. Notice that the connector core remains unchanged—it simply alters its matching partner.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Word A (Leading Anchor)</label><input type="text" id="si-in-w1" value="RAIN" class="input-dark" oninput="runSupp()"></div>
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Word B (Trailing Anchor)</label><input type="text" id="si-in-w2" value="BALL" class="input-dark" oninput="runSupp()"></div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Word A (Leading Anchor)</label><input type="text" id="si-in-w1" value="BARE" class="input-dark" oninput="runSupp()"></div>
+                    <div class="control-group" style="margin-top:15px;"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Word B (Trailing Anchor)</label><input type="text" id="si-in-w2" value="PATH" class="input-dark" oninput="runSupp()"></div>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
             </div>
@@ -166,7 +181,7 @@
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The "Half-Match" Illusion Trap:</b> Children under pressure often spot an option that fits perfectly with the first block (like matching RAIN with COAT to build RAINCOAT) and immediately check the success box. They skip over testing the second linkage entirely (COAT + BALL is not a valid real-world word!).</p>
+                <p><b>The "Half-Match" Illusion Trap:</b> Children under pressure often spot an option that fits perfectly with the first block (like matching BARE with FOOT to build BAREFOOT) and immediately check the success box. They skip over testing the second linkage entirely (FOOT + PATH is a valid word, but what if they guessed an option that fails the second half?).</p>
                 <p><b>The Easy Fix: The Tug-of-War Rule.</b> Teach your student: <i>"A secure bridge must stand firm on both riverbanks simultaneously."</i> The very instant they identify a potential word candidate, they must mentally pull it over to cross-check it against the second anchor block. If it doesn't lock in smoothly, it is an exam trick. <b>Both branches must prove valid.</b></p>
             </div>
         </section>
@@ -197,17 +212,21 @@
         }
     }
 
-    /* --- INTRO: MAGNETS --- */
+    /* --- INTRO: MAGNET COUPLING FIXED --- */
     function tryIntroHinge(word) {
         const hinge = document.getElementById('intro-hinge');
-        hinge.textContent = word;
+        if(!hinge) return;
         
+        hinge.textContent = word;
+        hinge.style.transform = "translateY(0px)"; // Perfectly center alignment reset on click
+        
+        const log = document.getElementById('intro-log');
         if(word === 'WATER') {
-            hinge.style.transform = "translateY(-80px)";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Outstanding connection! <b>SEAWATER</b> and <b>WATERSIDE</b> are both perfectly valid, real-world words!</div>`;
+            if(log) log.innerHTML = `<div class="discovery-step">Outstanding connection! <b>SEAWATER</b> and <b>WATERSIDE</b> are both perfectly valid, real-world words!</div>`;
+        } else if(word === 'SIDE') {
+            if(log) log.innerHTML = `<div class="discovery-step">Good try! The word <b>SEASIDE</b> works beautifully, but combining it with the right side forms <b>SIDESIDE</b>, which is a duplicate layout error!</div>`;
         } else {
-            hinge.style.transform = "translateY(-80px) translateX(-40px)";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Very close! The word <b>SEASHELL</b> works beautifully, but <b>SHELLSIDE</b> is an invalid compound match.</div>`;
+            if(log) log.innerHTML = `<div class="discovery-step">Very close! The word <b>SEASHELL</b> works beautifully, but <b>SHELLSIDE</b> is an invalid compound match.</div>`;
         }
     }
 
@@ -215,39 +234,61 @@
     function checkLocks(word) {
         const lockL = document.getElementById('lock-l');
         const lockR = document.getElementById('lock-r');
-        if(word === 'FALL') {
-            lockL.classList.add('lock-active'); lockL.textContent = "RAIN + FALL ✅";
-            lockR.classList.add('lock-active'); lockR.textContent = "FALL + BALL ✅";
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Both individual locks clicked secure! <b>FALL</b> serves as the perfect bridging word.</div>`;
+        const log = document.getElementById('prog-log');
+        if(!lockL || !lockR || !log) return;
+        
+        if(word === 'FOOT') {
+            lockL.classList.add('lock-active'); lockL.textContent = "BARE + FOOT ✅";
+            lockR.classList.add('lock-active'); lockR.textContent = "FOOT + PATH ✅";
+            log.innerHTML = `<div class="discovery-step">Both individual locks clicked secure! <b>FOOT</b> serves as the perfect bridging word.</div>`;
         } else {
-            lockL.classList.add('lock-active'); lockL.textContent = "RAIN + BOW ✅";
-            lockR.classList.remove('lock-active'); lockR.textContent = "BOW + BALL ❌";
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">The trailing right-hand lock failed verification. BOWBALL is not a valid word asset!</div>`;
+            lockL.classList.remove('lock-active'); lockL.textContent = "BARE + BALL ❌";
+            lockR.classList.add('lock-active'); lockR.textContent = "BALL + PATH ❓";
+            log.innerHTML = `<div class="discovery-step">The leading left-hand lock failed verification. BAREBALL is completely invalid!</div>`;
         }
     }
 
     /* --- SUPPLEMENTAL: ENGINE --- */
     function runSupp() {
-        const w1 = document.getElementById('si-in-w1').value.toUpperCase();
-        const w2 = document.getElementById('si-in-w2').value.toUpperCase();
-        const bridge = document.getElementById('si-bridge').value.toUpperCase();
-        const slider = parseInt(document.getElementById('si-slider').value);
+        const w1El = document.getElementById('si-in-w1');
+        const w2El = document.getElementById('si-in-w2');
+        const bridgeEl = document.getElementById('si-bridge');
+        const sliderEl = document.getElementById('si-slider');
+        if(!w1El || !w2El || !bridgeEl || !sliderEl) return;
+
+        const w1 = w1El.value.toUpperCase();
+        const w2 = w2El.value.toUpperCase();
+        const bridge = bridgeEl.value.toUpperCase();
+        const slider = parseInt(sliderEl.value);
         
-        document.getElementById('s-w1').textContent = w1;
-        document.getElementById('s-w2').textContent = w2;
+        const sW1 = document.getElementById('s-w1');
+        const sW2 = document.getElementById('s-w2');
+        if(sW1) sW1.textContent = w1;
+        if(sW2) sW2.textContent = w2;
         
-        const offset = (slider - 50) * 1.2;
-        document.getElementById('s-mover').style.transform = `translateX(${offset}px)`;
+        const offset = (slider - 50) * 1.5;
+        const mover = document.getElementById('s-mover');
+        if(mover) mover.style.transform = `translateX(${offset}px)`;
 
         let status = "Scanning junction alignment...";
         if(slider < 30) status = `Assembled Form: <b>${w1}${bridge || '____'}</b>`;
         else if(slider > 70) status = `Assembled Form: <b>${bridge || '____'}${w2}</b>`;
 
-        document.getElementById('supp-log').innerHTML = `→ Left-Hand Anchor: ${w1}<br>→ Right-Hand Anchor: ${w2}<br>→ Connecting Core: <b style="color:var(--cognis-gold)">${bridge || '...'}</b><br>→ <b>Current Status: ${status}</b>`;
+        const log = document.getElementById('supp-log');
+        if(log) {
+            log.innerHTML = `&rarr; Left-Hand Anchor: ${w1}<br>&rarr; Right-Hand Anchor: ${w2}<br>&rarr; Connecting Core: <b style="color:var(--cognis-gold)">${bridge || 'FOOT'}</b><br>&rarr; <b>Current Status: ${status}</b>`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();
+        ['si-in-w1', 'si-in-w2', 'si-bridge'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', runSupp);
+                el.addEventListener('change', runSupp);
+            }
+        });
         if(document.getElementById('si-bridge')) runSupp();
         if(typeof initModule === "function") initModule(34);
     });

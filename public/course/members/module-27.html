@@ -115,8 +115,8 @@
                     <line x1="110" y1="220" x2="290" y2="40" stroke="var(--cognis-blue)" stroke-width="4" />
                     
                     <g id="angle-stamp" class="stamp-active">
-                        <path d="M225,80 A25,25 0 0 1 232,62" fill="none" stroke="var(--cognis-gold)" stroke-width="3" />
-                        <text x="250" y="70" font-weight="900" fill="var(--cognis-gold)">60°</text>
+                        <path d="M275,80 A25,25 0 0 1 268,98" fill="none" stroke="var(--cognis-gold)" stroke-width="3" />
+                        <text x="285" y="105" font-weight="900" fill="var(--cognis-gold)">60°</text>
                     </g>
                 </svg>
                 <button class="btn-action" onclick="runStamp()">Stamp the Pattern!</button>
@@ -213,7 +213,7 @@
         const l1 = document.getElementById('sci-1');
         const l2 = document.getElementById('sci-2');
         
-        // Pivot structural layout lines around central origin coordinates (150, 100)
+        // Pivot structural layout lines directly around fixed origin coordinates (150, 100)
         if(l1) l1.setAttribute("transform", `rotate(${theta}, 150, 100)`);
         if(l2) l2.setAttribute("transform", `rotate(${-theta}, 150, 100)`);
         
@@ -231,7 +231,7 @@
         const stamp = document.getElementById('angle-stamp');
         if(!stamp) return;
         
-        // If state is un-stamped, slide -100px along X and +100px along Y to accurately track the slanted axis intercept
+        // Translate -100px on X axis and +100px on Y axis to travel along the true acute path angle slope
         stampPos = (stampPos === 0) ? 100 : 0;
         if(stampPos === 100) {
             stamp.style.transform = `translate(-100px, 100px)`;

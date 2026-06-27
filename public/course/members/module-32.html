@@ -54,7 +54,7 @@
         .skeleton-slot.repeat { background: var(--cognis-gold); color: white; }
 
         /* SUPPLEMENTAL: LAB */
-        .rosetta-stone-s { background: #1a202c; padding: 30px; border-radius: 16px; width: 100%; max-width: 500px; }
+        .rosetta-stone-s { background: #1a202c; padding: 30px; border-radius: 16px; width: 100%; max-width: 500px; margin: 0 auto; }
         .code-display-s { display: flex; justify-content: center; gap: 8px; margin-bottom: 30px; }
         .slot-s { display: flex; flex-direction: column; align-items: center; width: 40px; }
         .slot-s .sym { font-size: 1.8rem; color: var(--cognis-gold); }
@@ -66,7 +66,11 @@
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         .key-bank-s { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
         .key-pair-s { background: #2d3748; padding: 8px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; }
-        .key-pair-s input { width: 30px; height: 30px; text-align: center; font-weight: 800; text-transform: uppercase; border-radius: 4px; border: none; }
+        .key-pair-s input { width: 30px; height: 30px; text-align: center; font-weight: 800; text-transform: uppercase; border-radius: 4px; border: none; background: #f1f5f9; color: #1e293b; }
+        
+        /* High contrast selector rule override */
+        .input-dark { background: #f1f5f9; color: #1e293b; border: 2px solid var(--cognis-blue); padding: 10px; border-radius: 8px; font-weight: 800; font-size: 1rem; box-sizing: border-box; }
+        .input-dark:focus { outline: none; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,22 +86,24 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Picture Stamps</h2>
-            <p>Imagine working inside a custom craft stamp factory. If you select a rubber <b>Star</b> stamp, it will press down that exact silhouette every single time. If our coding key states that the Star stand in place of the letter 'S', then every single time that Star pops up in a puzzle, it *must* lock in as an 'S'. This is the golden rule of code matching!</p>
+            <p>Imagine working inside a custom craft stamp factory. If you select a rubber <b>Star</b> stamp, it will press down that exact silhouette every single time. If our coding key states that the Star stands in place of the letter 'S', then every single time that Star pops up in a puzzle, it *must* lock in as an 'S'. This is the golden rule of code matching!</p>
             
             <div class="parent-script">
                 "We are tracking three craft stamps below: a Star, a Circle, and a Triangle. Click a shape box to link it to a specific letter character. Notice that you cannot change your layout mind halfway through! The very instant your Star is declared an 'A', every matching Star in our hidden word strip updates to an 'A' uniformly."
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:20px;">
+                <div style="display:flex; gap:20px; margin-bottom: 10px;">
                     <div class="stamp-f" id="s-1" onclick="assignIntro('s-1', 'A')"><span class="stamp-icon">★</span></div>
                     <div class="stamp-f" id="s-2" onclick="assignIntro('s-2', 'B')"><span class="stamp-icon">●</span></div>
                     <div class="stamp-f" id="s-3" onclick="assignIntro('s-3', 'C')"><span class="stamp-icon">▲</span></div>
                 </div>
-                <div style="margin-top:40px; display:flex; gap:10px;" id="intro-code-row">
-                    <div class="stamp-f"><span class="stamp-icon">★</span></div>
-                    <div class="stamp-f"><span class="stamp-icon">▲</span></div>
-                    <div class="stamp-f"><span class="stamp-icon">★</span></div>
+                
+                <div style="margin-top:35px; font-size:0.75rem; font-weight:800; color:var(--cognis-blue); text-transform:uppercase; letter-spacing:0.5px;">Hidden Word Pattern Strip:</div>
+                <div style="margin-top:10px; display:flex; gap:10px;" id="intro-code-row">
+                    <div class="stamp-f" data-sym="★"><span class="stamp-icon">★</span></div>
+                    <div class="stamp-f" data-sym="▲"><span class="stamp-icon">▲</span></div>
+                    <div class="stamp-f" data-sym="★"><span class="stamp-icon">★</span></div>
                 </div>
             </div>
 
@@ -145,12 +151,14 @@
         <section class="phase">
             <h2>Phase 2: The Global Code Matcher</h2>
             <p>Welcome to our interactive <b>Global Code Matcher</b> workstation. Enter sample letter translations into our custom Key Bank fields below. Watch how typing a letter into a single symbol slot instantly updates every matching copy across the entire message string. This unified global transformation mirrors exactly how a detective's brain scans a crime scene.</p>
-            <div class="anatomy-display" style="background:#1a202c;">
+            <div class="anatomy-display" style="background:#1a202c; padding: 25px; border-radius: 12px;">
                 <div class="rosetta-stone-s">
                     <div id="s-display" class="code-display-s"></div>
                     <div id="s-bank" class="key-bank-s"></div>
                 </div>
-                <button class="btn-action" style="background:var(--cognis-gold); margin-top:20px;" onclick="resetSupp()">Reset Code Matcher</button>
+                <div style="text-align: center;">
+                    <button class="btn-action" style="background:var(--cognis-gold); margin-top:20px;" onclick="resetSupp()">Reset Code Matcher</button>
+                </div>
             </div>
         </section>
 
@@ -161,7 +169,7 @@
                 <div class="inputs">
                     <div class="control-group">
                         <label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Choose a Code Template</label>
-                        <select id="si-template" onchange="initSupp()" class="input-dark" style="width:100%;">
+                        <select id="si-template" class="input-dark" style="width:100%;">
                             <option value="PUPPY">Double Structural Repeat (PUPPY)</option>
                             <option value="BANANAS">Alternating Pattern Chain (BANANAS)</option>
                             <option value="ICE COLD">Multi-Word Phrase Layout (ICE COLD)</option>
@@ -173,6 +181,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Visual Guesswork" Illusion Trap:</b> Children naturally assume that a circle icon *must* always equal the letter 'O', or a lightning bolt *must* stand for 'S' because they look similar. Exam designers purposefully plant these lookalike elements to guide hasty guessers straight into the wrong answer column!</p>
@@ -209,26 +218,33 @@
     /* --- INTRO: STAMPS --- */
     const introMap = {};
     function assignIntro(id, letter) {
-        document.getElementById(id).classList.add('active');
-        const icon = document.getElementById(id).innerText;
+        const sourceBtn = document.getElementById(id);
+        if(!sourceBtn) return;
+        
+        sourceBtn.classList.add('active');
+        const icon = sourceBtn.innerText.trim();
         introMap[icon] = letter;
+        
         const row = document.getElementById('intro-code-row');
-        row.querySelectorAll('.stamp-f').forEach(slot => {
-            const sym = slot.innerText;
-            if(introMap[sym]) slot.innerHTML = `<b style="font-size:1.2rem; color:var(--cognis-blue);">${introMap[sym]}</b>`;
-        });
+        if(row) {
+            row.querySelectorAll('.stamp-f').forEach(slot => {
+                const sym = slot.getAttribute('data-sym') || slot.innerText.trim();
+                if(introMap[sym]) {
+                    slot.innerHTML = `<b style="font-size:1.2rem; color:var(--cognis-blue);">${introMap[sym]}</b>`;
+                }
+            });
+        }
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">You paired icon symbol <b>${icon}</b> with target letter <b>${letter}</b>. The word skeleton updated!</div>`;
-    }
-    function resetIntro() {
-        location.reload();
     }
 
     /* --- PROGRESSING: SKELETON --- */
     function checkSkeleton(word, isCorrect) {
+        const log = document.getElementById('prog-log');
+        if(!log) return;
         if(isCorrect) {
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Brilliant! The choice <b>BEE</b> shares the exact same structural layout (two matching duplicate letters anchored at the end) as our question skeleton.</div>`;
+            log.innerHTML = `<div class="discovery-step">Brilliant! The choice <b>BEE</b> shares the exact same structural layout (two matching duplicate letters anchored at the end) as our question skeleton.</div>`;
         } else {
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Hold on! The choice <b>${word}</b> does not possess identical matching duplicate letters sitting in those slots. Try once more!</div>`;
+            log.innerHTML = `<div class="discovery-step">Hold on! The choice <b>${word}</b> does not possess identical matching duplicate letters sitting in those slots. Try once more!</div>`;
         }
     }
 
@@ -238,14 +254,19 @@
     let sUserMap = {};
 
     function initSupp() {
-        sWord = document.getElementById('si-template').value;
+        const templateSelect = document.getElementById('si-template');
+        if(!templateSelect) return;
+        
+        sWord = templateSelect.value;
         sUserMap = {};
         const display = document.getElementById('s-display');
         const bank = document.getElementById('s-bank');
+        if(!display || !bank) return;
+        
         display.innerHTML = ''; bank.innerHTML = '';
 
         const unique = [...new Set(sWord.replace(' ',''))];
-        const map = {}; unique.forEach((c,i) => map[c] = sSyms[i]);
+        const map = {}; unique.forEach((c,i) => map[c] = sSyms[i % sSyms.length]);
 
         for(let c of sWord) {
             if(c === ' ') { display.innerHTML += '<div style="width:20px;"></div>'; continue; }
@@ -262,20 +283,28 @@
 
     function updateSuppMap(sym, val) {
         sUserMap[sym] = val.toUpperCase();
+        // Dynamic search routing filter escaping brackets safely
         document.querySelectorAll(`[id="sv-${sym}"]`).forEach(el => el.innerText = val.toUpperCase());
         updateSuppLog();
     }
 
     function updateSuppLog() {
         const count = Object.values(sUserMap).filter(v => v !== '').length;
-        document.getElementById('supp-log').innerHTML = `→ Structural Skeleton Identified: <b>${sWord.replace(/./g, '_')}</b><br>→ Symbol Translation Progress: <b>${count}</b> unique characters mapped successfully.`;
+        const log = document.getElementById('supp-log');
+        if(log) {
+            log.innerHTML = `&rarr; Structural Skeleton Identified: <b>${sWord.replace(/./g, '_')}</b><br>&rarr; Symbol Translation Progress: <b>${count}</b> unique characters mapped successfully.`;
+        }
     }
     
     function resetSupp() { initSupp(); }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();
-        if(document.getElementById('si-template')) initSupp();
+        const templateSelect = document.getElementById('si-template');
+        if(templateSelect) {
+            initSupp();
+            templateSelect.addEventListener('change', initSupp);
+        }
         if(typeof initModule === "function") initModule(32);
     });
 </script>

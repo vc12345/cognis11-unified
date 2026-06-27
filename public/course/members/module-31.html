@@ -6,7 +6,7 @@
     <title>Module 31: The Letter-Type Sorting Office | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -65,7 +65,10 @@
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .input-dark { background: #2d3748; color: white; border: 1px solid #4a5568; padding: 8px; border-radius: 6px; font-weight: 800; text-align: center; }
+        
+        /* Adjusted dark input override styles to optimize screen readability benchmarks */
+        .input-dark { background: #f1f5f9; color: #1e293b; border: 2px solid var(--cognis-blue); padding: 10px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 1rem; box-sizing: border-box; }
+        .input-dark:focus { outline: none; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -143,7 +146,7 @@
         <section class="phase">
             <h2>Phase 2: The Split-Tracking View</h2>
             <p>Study the behavior of our <b>Split-Tracking View</b> container. Notice the absolute color discipline: Blue borders denote Vowels, while Red borders track Consonants. A single word can travel down two entirely different mathematical branches at the exact same moment. A vowel will leap forward while its direct neighbor steps back.</p>
-            <div class="anatomy-display" style="background:#1a202c;">
+            <div class="anatomy-display" style="background:#1a202c; padding:25px; border-radius:12px;">
                 <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;" id="s-tiles-cont"></div>
             </div>
         </section>
@@ -153,10 +156,10 @@
             <p style="margin-bottom: 20px;">Type a custom sample word and configure independent shift properties using the inputs below. Watch how our tracking console separates the string elements and reveals the precise moment the arithmetic rule flips as the characters swap categories.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Enter Your Sample Word</label><input type="text" id="si-word" class="input-dark" value="BRAIN" maxlength="10" style="width:100%;" oninput="runSupp()"></div>
-                    <div style="display:flex; gap:10px; margin-top:10px;">
-                        <div class="control-group" style="flex:1;"><label style="color:#3182ce; font-weight:800;">VOWEL JUMP DISTANCE</label><input type="number" id="si-v" value="1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
-                        <div class="control-group" style="flex:1;"><label style="color:#e53e3e; font-weight:800;">CONSONANT JUMP DISTANCE</label><input type="number" id="si-c" value="-1" class="input-dark" style="width:100%;" oninput="runSupp()"></div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Enter Your Sample Word</label><input type="text" id="si-word" class="input-dark" value="BRAIN" maxlength="10" style="width:100%;"></div>
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <div class="control-group" style="flex:1;"><label style="color:#3182ce; font-weight:800; display:block; margin-bottom:5px;">VOWEL JUMP DISTANCE</label><input type="number" id="si-v" value="1" class="input-dark" style="width:100%;"></div>
+                        <div class="control-group" style="flex:1;"><label style="color:#e53e3e; font-weight:800; display:block; margin-bottom:5px;">CONSONANT JUMP DISTANCE</label><input type="number" id="si-c" value="-1" class="input-dark" style="width:100%;"></div>
                     </div>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
@@ -164,6 +167,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Single-Track Autopilot" Speed Trap:</b> Children naturally slip into a repetitive calculation rhythm. If they successfully move the first few consonants backward by -1 space, they will often accidentally apply that same -1 rule to the upcoming vowels without thinking.</p>
@@ -205,6 +209,7 @@
         const isV = vowels.includes(char);
         const p = document.getElementById('intro-letter');
         const gV = document.getElementById('gate-v'), gC = document.getElementById('gate-c');
+        if(!p || !gV || !gC) return;
         
         p.style.transition = 'none'; p.setAttribute("x", "200"); p.setAttribute("y", "180"); p.textContent = char;
         gV.classList.remove('gate-active'); gC.classList.remove('gate-active');
@@ -223,24 +228,31 @@
     function runProgShift() {
         const vChars = document.getElementById('prog-v-chars');
         const cChars = document.getElementById('prog-c-chars');
+        if(!vChars || !cChars) return;
+        
         if(!progShifted) {
             vChars.textContent = "B J"; // A+1, I+1
             cChars.textContent = "A Q M"; // B-1, R-1, N-1
             document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Tracks shifted! Vowels advanced forward, while Consonants dropped backward.</div>`;
         } else {
             vChars.textContent = "A I"; cChars.textContent = "B R N";
+            document.getElementById('prog-log').innerHTML = `Word: BRAIN. Rules: Vowels +1, Consonants -1.`;
         }
         progShifted = !progShifted;
     }
 
     /* --- SUPPLEMENTAL: TILES --- */
     function runSupp() {
-        const word = document.getElementById('si-word').value.toUpperCase().replace(/[^A-Z]/g, '');
+        const wordEl = document.getElementById('si-word');
+        if(!wordEl) return;
+        
+        const word = wordEl.value.toUpperCase().replace(/[^A-Z]/g, '');
         const vS = parseInt(document.getElementById('si-v').value) || 0;
         const cS = parseInt(document.getElementById('si-c').value) || 0;
         const cont = document.getElementById('s-tiles-cont');
-        cont.innerHTML = '';
+        if(!cont) return;
         
+        cont.innerHTML = '';
         let res = "";
         for(let c of word) {
             const isV = vowels.includes(c);
@@ -249,11 +261,20 @@
             res += next;
             cont.innerHTML += `<div class="char-tile-s ${isV?'vowel':'consonant'}"><small>${isV?'VOWEL':'CONS.'}</small><div>${c} &rarr; ${next}</div></div>`;
         }
-        document.getElementById('supp-log').innerHTML = `→ Transformation Rules: Vowels ${vS>=0?'+':''}${vS}, Consonants ${cS>=0?'+':''}${cS}<br>→ <b>Final Encrypted Output: ${res}</b>`;
+        document.getElementById('supp-log').innerHTML = `&rarr; Transformation Rules: Vowels ${vS>=0?'+':''}${vS}, Consonants ${cS>=0?'+':''}${cS}<br>&rarr; <b>Final Encrypted Output: ${res || 'Waiting for input...'}</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();
+        
+        ['si-word', 'si-v', 'si-c'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', runSupp);
+                el.addEventListener('change', runSupp);
+            }
+        });
+        
         if(document.getElementById('si-word')) runSupp();
         if(typeof initModule === "function") initModule(31);
     });

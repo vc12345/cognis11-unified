@@ -6,7 +6,7 @@
     <title>Module 33: The Hidden Word Safari | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -53,17 +53,21 @@
         .letter-box { display: inline-block; transition: all 0.4s; }
         .highlight-bridge { color: var(--cognis-gold); transform: scale(1.1); }
 
-        /* SUPPLEMENTAL: SEAM SCANNER */
-        .anatomy-display-s { background: #1a202c; padding: 60px 20px; border-radius: 12px; position: relative; width: 100%; overflow: hidden; }
-        .word-display-s { font-family: 'Consolas', monospace; font-size: 3rem; letter-spacing: 10px; font-weight: 900; color: rgba(255,255,255,0.1); }
-        .scanner-beam-s { position: absolute; height: 120%; top: -10%; background: rgba(197, 160, 89, 0.1); border-left: 2px solid var(--cognis-gold); border-right: 2px solid var(--cognis-gold); pointer-events: none; transition: all 0.2s; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
-        .overlay-s { position: absolute; top: 50%; left: 0; transform: translateY(-50%); width: 100%; color: white; font-family: 'Consolas', monospace; font-size: 3rem; letter-spacing: 10px; font-weight: 900; pointer-events: none; }
+        /* SUPPLEMENTAL: SEAM SCANNER - Standardized via unified coordinate space */
+        .anatomy-display-s { background: #0f172a; padding: 20px; border-radius: 12px; width: 100%; box-sizing: border-box; display: flex; justify-content: center; }
+        #s-scanner-canvas { background: #1e293b; border-radius: 8px; max-width: 100%; height: auto; }
+        .scan-text-base { font-family: 'Consolas', monospace; font-size: 38px; font-weight: 900; fill: rgba(255, 255, 255, 0.08); letter-spacing: 6px; }
+        .scan-text-lit { font-family: 'Consolas', monospace; font-size: 38px; font-weight: 900; fill: #ffffff; letter-spacing: 6px; }
+        .beam-rect { fill: rgba(197, 160, 89, 0.15); stroke: var(--cognis-gold); stroke-width: 2; filter: drop-shadow(0 0 4px rgba(197,160,89,0.4)); }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .input-dark { background: #2d3748; color: white; border: 1px solid #4a5568; padding: 8px; border-radius: 6px; font-weight: 800; text-align: center; }
+        
+        /* Fixed entry nodes color contrast fields to secure high contrast accessibility rules */
+        .input-dark { background: #f1f5f9; color: #1e293b; border: 2px solid var(--cognis-blue); padding: 10px; border-radius: 8px; font-weight: 800; text-align: center; font-size: 1rem; width: 100%; box-sizing: border-box; }
+        .input-dark:focus { outline: none; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -86,14 +90,14 @@
             </div>
 
             <div class="viz-container" style="height: 250px;">
-                <div id="carriage-1" class="train-carriage" style="left: 20px; top: 80px;">
+                <div id="carriage-1" class="train-carriage" style="left: 20px; top: 40px;">
                     FISH <div class="train-wheels"><div class="wheel"></div><div class="wheel"></div></div>
                 </div>
-                <div id="carriage-2" class="train-carriage" style="left: 240px; top: 80px;">
+                <div id="carriage-2" class="train-carriage" style="left: 240px; top: 40px;">
                     ARE <div class="train-wheels"><div class="wheel"></div><div class="wheel"></div></div>
                 </div>
-                <div id="intro-reveal" style="position: absolute; bottom: 30px; font-size: 2rem; font-weight: 900; color: var(--cognis-gold); opacity: 0; transition: 0.5s;">HARE</div>
-                <button class="btn-action" style="margin-top: 160px;" onclick="coupleTrain()">Couple the Train Carriages!</button>
+                <div id="intro-reveal" style="position: absolute; bottom: 80px; font-size: 2rem; font-weight: 900; color: var(--cognis-gold); opacity: 0; transition: 0.5s;">HARE</div>
+                <button class="btn-action" style="margin-top: 140px;" onclick="coupleTrain()">Couple the Train Carriages!</button>
             </div>
 
             <div class="discovery-log" id="intro-log">Carriages are separate. No secret words yet.</div>
@@ -139,9 +143,20 @@
             <h2>Phase 2: The Seam Searchlights</h2>
             <p>Study our interactive <b>Seam Searchlights</b> analysis panel. Drag your focus view across the fused character stream. Notice that the glowing "ghost word" indicator ignores the original sentence meaning entirely. It focuses with absolute discipline on the tight structural sequence of letters resting directly at the text junctions.</p>
             <div class="anatomy-display-s">
-                <div id="s-scanner-beam" class="scanner-beam-s"></div>
-                <div id="s-bg" class="word-display-s" style="text-align:center;">THEATOM</div>
-                <div id="s-fg" class="overlay-s" style="text-align:center;">THEATOM</div>
+                <svg id="s-scanner-canvas" width="520" height="100" viewBox="0 0 520 100">
+                    <defs>
+                        <clipPath id="beam-clip">
+                            <rect id="clip-rect" x="180" y="0" width="120" height="100" />
+                        </clipPath>
+                    </defs>
+                    <text id="s-base-text" x="260" y="60" text-anchor="middle" class="scan-text-base">THEATOM</text>
+                    
+                    <g clip-path="url(#beam-clip)">
+                        <text id="s-lit-text" x="260" y="60" text-anchor="middle" class="scan-text-lit">THEATOM</text>
+                    </g>
+                    
+                    <rect id="clip-beam" x="180" y="5" width="120" height="90" rx="4" class="beam-rect" />
+                </svg>
             </div>
         </section>
 
@@ -150,15 +165,16 @@
             <p style="margin-bottom: 20px;">Type a custom test sentence and slide the <b>Searchlight Position</b> control handle to hunt down hidden intersections. Expand or contract the scanner width to search for longer words. Watch for the exact moment a legitimate word lights up under the gold beam illumination filter.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Enter Your Test Phrase Sentence</label><input type="text" id="si-phrase" value="FISH ARE DEEP" class="input-dark" oninput="runSupp()"></div>
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Text Scanner Searchlight Position</label><input type="range" id="si-pos" min="0" max="100" value="40" oninput="runSupp()"></div>
-                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue);">Mystery Word Target Length</label><input type="range" id="si-width" min="2" max="5" value="4" oninput="runSupp()"></div>
+                    <div class="control-group"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Enter Your Test Phrase Sentence</label><input type="text" id="si-phrase" value="FISH ARE DEEP" class="input-dark"></div>
+                    <div class="control-group" style="margin-top:10px;"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Text Scanner Searchlight Position</label><input type="range" id="si-pos" min="5" max="95" value="45" style="width:100%;"></div>
+                    <div class="control-group" style="margin-top:10px;"><label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Mystery Word Target Length</label><input type="range" id="si-width" min="2" max="5" value="4" style="width:100%;"></div>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
             </div>
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Internal Nesting" Illusion Trap:</b> Most children scan exclusively *inside* the borders of a single large word looking for an internal match (like spotting CAT inside the word S<b>CAT</b>TER). In competitive 11+ papers, the target answer is almost <b>never</b> tucked inside a single standalone word.</p>
@@ -197,6 +213,7 @@
         const c1 = document.getElementById('carriage-1');
         const c2 = document.getElementById('carriage-2');
         const reveal = document.getElementById('intro-reveal');
+        if(!c1 || !c2 || !reveal) return;
         
         c1.style.left = "90px";
         c2.style.left = "185px";
@@ -207,56 +224,90 @@
         }, 600);
     }
 
-    function resetIntro() {
-        location.reload();
-    }
-
     /* --- PROGRESSING: ERASER --- */
     function eraseSpaces() {
-        document.getElementById('gap-1').style.width = "0px";
-        document.getElementById('gap-2').style.width = "0px";
-        const letters = document.querySelectorAll('.letter-box');
+        const g1 = document.getElementById('gap-1');
+        const g2 = document.getElementById('gap-2');
+        if(g1 && g2) { g1.style.width = "0px"; g2.style.width = "0px"; }
         
+        const letters = document.querySelectorAll('.letter-box');
         setTimeout(() => {
-            // Highlight 'DEAF' (indices 2,3,4,5 in the collapsed stream MADEAFOUL)
-            letters[2].classList.add('highlight-bridge');
-            letters[3].classList.add('highlight-bridge');
-            letters[4].classList.add('highlight-bridge');
-            letters[5].classList.add('highlight-bridge');
+            if(letters.length >= 6) {
+                // Highlight 'DEAF' (indices 2,3,4,5 in the collapsed stream MADEAFOUL)
+                letters[2].classList.add('highlight-bridge');
+                letters[3].classList.add('highlight-bridge');
+                letters[4].classList.add('highlight-bridge');
+                letters[5].classList.add('highlight-bridge');
+            }
             document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Spaces completely erased! Now we can see the word <b>DEAF</b> bridging the center gap beautifully.</div>`;
         }, 500);
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: SCANNED ENGINE --- */
     function runSupp() {
-        const phrase = document.getElementById('si-phrase').value.toUpperCase();
+        const phraseIn = document.getElementById('si-phrase');
+        if(!phraseIn) return;
+        
+        const phrase = phraseIn.value.toUpperCase();
         const collapsed = phrase.replace(/\s/g, '');
-        const pos = parseInt(document.getElementById('si-pos').value);
-        const width = parseInt(document.getElementById('si-width').value);
+        if(collapsed.length === 0) return;
+        
+        const posVal = parseInt(document.getElementById('si-pos').value);
+        const widthVal = parseInt(document.getElementById('si-width').value);
 
-        const bg = document.getElementById('s-bg');
-        const fg = document.getElementById('s-fg');
-        const beam = document.getElementById('s-scanner-beam');
+        const baseText = document.getElementById('s-base-text');
+        const litText = document.getElementById('s-lit-text');
+        const clipRect = document.getElementById('clip-rect');
+        const clipBeam = document.getElementById('clip-beam');
+        if(!baseText || !litText || !clipRect || !clipBeam) return;
 
-        bg.textContent = collapsed;
-        fg.textContent = collapsed;
+        // Repopulate text nodes synchronously across internal structures
+        baseText.textContent = collapsed;
+        litText.textContent = collapsed;
 
-        const totalChars = collapsed.length;
-        const leftPct = Math.max(0, pos - (width/totalChars * 50));
-        const rightPct = Math.min(100, pos + (width/totalChars * 50));
+        // High precision calculations for character grid widths
+        // Total canvas horizontal axis allocation bounds are standard 520px
+        const canvasWidth = 520;
+        const fontCharWidth = 28; // Approximated Consolas 38px character metrics including tracking spacers
+        
+        const stringVisualWidth = collapsed.length * fontCharWidth;
+        const startX = (canvasWidth - stringVisualWidth) / 2;
+        
+        // Pin dynamic indexing anchors along character sequence boundaries safely
+        const indexStep = stringVisualWidth / 100;
+        const beamCenter = startX + (posVal * indexStep);
+        
+        const beamWidth = widthVal * fontCharWidth;
+        const beamLeft = beamCenter - (beamWidth / 2);
 
-        fg.style.clipPath = `inset(0 ${100 - rightPct}% 0 ${leftPct}%)`;
-        beam.style.left = pos + "%";
-        beam.style.width = (width / totalChars * 100) + "%";
+        // Re-align and translate structural vectors
+        clipRect.setAttribute('x', beamLeft);
+        clipRect.setAttribute('width', beamWidth);
+        
+        clipBeam.setAttribute('x', beamLeft);
+        clipBeam.setAttribute('width', beamWidth);
 
-        const startIdx = Math.floor(leftPct/100 * totalChars);
-        const scanWord = collapsed.substring(startIdx, startIdx + width);
-
-        document.getElementById('supp-log').innerHTML = `→ Fused Character Stream: ${collapsed}<br>→ Currently Captured Segment: <b style="color:var(--cognis-gold)">${scanWord}</b>`;
+        // Isolate exact string segment characters matching standard index slices
+        const charRatio = posVal / 100;
+        let startIdx = Math.floor(charRatio * collapsed.length) - Math.floor(widthVal / 2);
+        if(startIdx < 0) startIdx = 0;
+        if(startIdx + widthVal > collapsed.length) startIdx = collapsed.length - widthVal;
+        
+        const scanWord = collapsed.substring(startIdx, startIdx + widthVal);
+        document.getElementById('supp-log').innerHTML = `&rarr; Fused Character Stream: <b>${collapsed}</b><br>&rarr; Currently Captured Segment: <b style="color:var(--cognis-gold)">${scanWord || '...'}</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();
+        
+        ['si-phrase', 'si-pos', 'si-width'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', runSupp);
+                el.addEventListener('change', runSupp);
+            }
+        });
+        
         if(document.getElementById('si-phrase')) runSupp();
         if(typeof initModule === "function") initModule(33);
     });
