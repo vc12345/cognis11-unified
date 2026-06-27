@@ -10,7 +10,7 @@ const COGNIS_MODULES = [
     { id: 7, pillar: "Math", cat: "A", title: "Reverse Percentages", path: "module-7.html", fID: "7-p", sID: "7" },
     { id: 8, pillar: "Math", cat: "A", title: "Fractions of Amounts", path: "module-8.html", fID: "8-p", sID: "8" },
     { id: 9, pillar: "Math", cat: "A", title: "Sequential Fractions", path: "module-9.html", fID: "9-p", sID: "9" },
-    { id: 10, pillar: "Math", cat: "B", title: "Constant Speed ($D = S \\times T$)", path: "module-10.html", fID: "10-p", sID: "10" },
+    { id: 10, pillar: "Math", cat: "B", title: "Constant Speed (D = S &times; T)", path: "module-10.html", fID: "10-p", sID: "10" },
     { id: 11, pillar: "Math", cat: "B", title: "Average Speed", path: "module-11.html", fID: "11-p", sID: "11" },
     { id: 12, pillar: "Math", cat: "B", title: "Relative Speed", path: "module-12.html", fID: "12-p", sID: "12" },
     { id: 13, pillar: "Math", cat: "B", title: "Train/Tunnel Problems", path: "module-13.html", fID: "13-p", sID: "13" },

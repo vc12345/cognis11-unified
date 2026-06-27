@@ -166,16 +166,17 @@
 
         <section class="phase">
             <h2>Phase 3: The Conversion Tool</h2>
-            <p style="margin-bottom: 20px;">Type a total minute count below to see how our calculation tool processes the values out of 60. We use division ($\div 60$) to harvest the whole hour values, and we keep the remaining balance for our leftover minutes.</p>
+            <p style="margin-bottom: 20px;">Type a total minute count below to see how our calculation tool processes the values out of 60. We use division (&times; 60) to harvest the whole hour values, and we keep the remaining balance for our leftover minutes.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <div class="control-group"><label>Minutes Counter</label><input type="number" id="in-m" value="145" oninput="runSupp()"></div>
+                    <div class="control-group"><label>Run Mathematical Conversion</label><input type="number" id="in-m" value="145" oninput="runSupp()"></div>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
             </div>
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Decimal Illusion" Trap:</b> Rushed students read a speed question mentioning 1.5 hours and instantly jump to the conclusion that it means 1 hour and 50 minutes. They are accidentally forcing base-10 rules onto a clock face!</p>
@@ -229,6 +230,7 @@
         jar.innerHTML = '';
         for(let i=0; i<introH; i++) jar.innerHTML += '<div class="hour-block"></div>';
         document.getElementById('intro-h-count').innerText = introH;
+        document.body.className.includes('user-plan-supplemental');
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Current Clock Count: <b>${introH}h ${introM}m</b>.</div>`;
     }
 
@@ -252,23 +254,34 @@
         while(sM >= 60) { 
             sM -= 60; sH++; 
             const p = document.getElementById('s-pipe');
-            p.classList.add('overflow-active');
-            setTimeout(() => p.classList.remove('overflow-active'), 500);
+            if(p) {
+                p.classList.add('overflow-active');
+                setTimeout(() => p.classList.remove('overflow-active'), 500);
+            }
         }
         updateSuppViz();
     }
     function updateSuppViz() {
-        document.getElementById('s-h-val').innerText = sH;
-        document.getElementById('s-m-val').innerText = sM;
-        document.getElementById('s-h-fill').style.height = Math.min(sH*10, 100) + "%";
-        document.getElementById('s-m-fill').style.height = (sM/60*100) + "%";
-        document.getElementById('s-digital').innerText = `${String(sH).padStart(2,'0')}:${String(sM).padStart(2,'0')}`;
+        const hVal = document.getElementById('s-h-val');
+        const mVal = document.getElementById('s-m-val');
+        const hFill = document.getElementById('s-h-fill');
+        const mFill = document.getElementById('s-m-fill');
+        const dig = document.getElementById('s-digital');
+        
+        if(hVal) hVal.innerText = sH;
+        if(mVal) mVal.innerText = sM;
+        if(hFill) hFill.style.height = Math.min(sH*10, 100) + "%";
+        if(mFill) mFill.style.height = (sM/60*100) + "%";
+        if(dig) dig.innerText = `${String(sH).padStart(2,'0')}:${String(sM).padStart(2,'0')}`;
     }
     function runSupp() {
         const total = parseInt(document.getElementById('in-m').value) || 0;
         const h = Math.floor(total / 60);
         const m = total % 60;
-        document.getElementById('supp-log').innerHTML = `→ ${total} minutes ÷ 60 boundary step = <b>${h} whole hours</b><br>→ Leftover Remainder: <b>${m} minutes</b><br>→ Combined Conversion Result: <b>${h}h ${m}m</b>`;
+        const log = document.getElementById('supp-log');
+        if(log) {
+            log.innerHTML = `&rarr; Conversion Calculation Trace Log:<br>&bull; ${total} total minutes &divide; 60 minute capacity ceiling = <b>${h} whole hours</b><br>&bull; Remaining leftover minutes remainder: <b>${m} minutes</b><br>&bull; Combined result: <b>${h}h ${m}m</b>`;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
