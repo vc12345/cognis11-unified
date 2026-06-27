@@ -292,8 +292,8 @@
         if(log) {
             log.innerHTML = `
                 &rarr; 1. Plant Anchor at Destination: <b>${res}</b><br>
-                &rarr; 2. Reverse End Step: ${res} ${o2t==='add'?'-':'&divide;'} ${o2v} = <b>${undo2.toFixed(1)}</b><br>
-                &rarr; 3. Reverse Start Step: ${undo2.toFixed(1)} ${o1t==='add'?'-':'&divide;'} ${o1v} = <b>${undo1.toFixed(1)}</b>
+                &rarr; 2. Reverse End Step: ${res} ${o2t==='add'?'-':'÷'} ${o2v} = <b>${undo2.toFixed(1)}</b><br>
+                &rarr; 3. Reverse Start Step: ${undo2.toFixed(1)} ${o1t==='add'?'-':'÷'} ${o1v} = <b>${undo1.toFixed(1)}</b>
             `;
         }
         
@@ -310,9 +310,9 @@
         const ot2 = document.getElementById('s-op2-top');
         const ob2 = document.getElementById('s-op2-bot');
         if(ot1) ot1.innerText = (o1t==='add'?'+':'x') + o1v;
-        if(ob1) ob1.innerText = (o1t==='add'?'-':'&divide;') + o1v;
+        if(ob1) ob1.innerText = (o1t==='add'?'-':'÷') + o1v;
         if(ot2) ot2.innerText = (o2t==='add'?'+':'x') + o2v;
-        if(ob2) ob2.innerText = (o2t==='add'?'-':'&divide;') + o2v;
+        if(ob2) ob2.innerText = (o2t==='add'?'-':'÷') + o2v;
     }
 
     function runSuppReverse() {

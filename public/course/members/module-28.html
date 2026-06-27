@@ -43,8 +43,11 @@
         .discovery-step::before { content: '📦'; }
 
         /* INTRO: CUBE FOLDING */
-        .cube-face-f { fill: rgba(0, 45, 91, 0.1); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        .cube-face-active { fill: var(--cognis-gold); stroke: #b45309; }
+        .cube-face-f { fill: rgba(0, 45, 91, 0.05); stroke: var(--cognis-blue); stroke-width: 2; transition: fill 0.3s, stroke 0.3s; }
+        .cube-face-f.is-base { fill: rgba(197, 160, 89, 0.15); stroke: var(--cognis-gold); stroke-width: 3; }
+        .cube-face-f.pair-active { fill: var(--cognis-gold); stroke: #b45309; }
+        .cube-face-f.pair-lid-active { fill: #6366f1; stroke: #4f46e5; }
+        .face-lbl { font-size: 10px; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 
         /* PROGRESSING: LEAPFROG */
         .leap-square { width: 45px; height: 45px; fill: white; stroke: var(--cognis-blue); stroke-width: 2; cursor: pointer; transition: 0.3s; }
@@ -79,25 +82,38 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Folding Box</h2>
-            <p>An <b>Unfolded Flat Pattern</b> is simply a 3D cardboard box that has been carefully sliced open and flattened completely flat onto a table. When we fold the cardboard segments back upward, panels that sat far apart on the flat sheet instantly join up to become direct neighbors, while panels that touched on the paper stay closely connected.</p>
+            <p>An <b>Unfolded Flat Pattern</b> is simply a 3D cardboard box that has been carefully sliced open and flattened completely flat onto a table. When we analyze these shapes mentally, panels that sat far apart on the flat sheet instantly join up to become direct neighbors, while panels that touched on the paper stay closely connected.</p>
             
             <div class="parent-script">
-                "Look closely at this flat arrangement of 6 connected squares. This represents the unfolded blueprint of a perfect cube. Click the 'Fold the Blueprint' button to see how these flat segments hinge upward to lock into a solid 3D box. Notice that the Floor panel and the Roof lid never sit side by side on the flat paper!"
+                "Look closely at this flat arrangement of 6 connected squares. This represents the unfolded blueprint of a perfect cube. Click the 'Identify Opposite Pairs' button to see how these flat segments match up into opposite parallel pairings. Notice that the Floor panel and the Roof lid never sit side by side on the flat paper—they always stay separated by exactly one buffer square!"
             </div>
 
             <div class="viz-container">
-                <svg width="300" height="250" viewBox="0 0 300 250" id="fold-svg">
-                    <rect id="f-base" x="125" y="100" width="50" height="50" class="cube-face-f cube-face-active" />
-                    <rect id="f-left" x="75" y="100" width="50" height="50" class="cube-face-f" />
-                    <rect id="f-right" x="175" y="100" width="50" height="50" class="cube-face-f" />
-                    <rect id="f-back" x="125" y="50" width="50" height="50" class="cube-face-f" />
-                    <rect id="f-front" x="125" y="150" width="50" height="50" class="cube-face-f" />
-                    <rect id="f-lid" x="125" y="200" width="50" height="50" class="cube-face-f" style="stroke-dasharray:4;" />
+                <svg width="300" height="270" viewBox="0 0 300 270" id="fold-svg">
+                    <g transform="translate(0, 5)">
+                        <rect id="f-back" x="125" y="50" width="50" height="50" class="cube-face-f" />
+                        <text x="150" y="75" class="face-lbl" fill="var(--cognis-blue)">BACK</text>
+
+                        <rect id="f-left" x="75" y="100" width="50" height="50" class="cube-face-f" />
+                        <text x="100" y="125" class="face-lbl" fill="var(--cognis-blue)">LEFT</text>
+
+                        <rect id="f-base" x="125" y="100" width="50" height="50" class="cube-face-f is-base" />
+                        <text x="150" y="125" class="face-lbl" fill="#b45309">BASE</text>
+
+                        <rect id="f-right" x="175" y="100" width="50" height="50" class="cube-face-f" />
+                        <text x="200" y="125" class="face-lbl" fill="var(--cognis-blue)">RIGHT</text>
+
+                        <rect id="f-front" x="125" y="150" width="50" height="50" class="cube-face-f" />
+                        <text x="150" y="175" class="face-lbl" fill="var(--cognis-blue)">FRONT</text>
+
+                        <rect id="f-lid" x="125" y="200" width="50" height="50" class="cube-face-f" style="stroke-dasharray:4;" />
+                        <text x="150" y="225" class="face-lbl" fill="#4f46e5">LID</text>
+                    </g>
                 </svg>
-                <button class="btn-action" onclick="toggleFold()">Fold the Blueprint</button>
+                <button class="btn-action" onclick="toggleFold()">Identify Opposite Pairs</button>
             </div>
 
-            <div class="discovery-log" id="intro-log">A flat net has 6 faces. Ready to fold!</div>
+            <div class="discovery-log" id="intro-log">A flat net has 6 faces. Ready to analyze pairings!</div>
         </section>
 
         <section class="phase" id="sub-progressing">
@@ -171,6 +187,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Flat Paper Neighbor" Illusion Trap:</b> Children often look at an unfolded layout, see two panels sharing a print edge on the flat sheet, and mistakenly assume they will face opposite each other in 3D. <b>This is completely wrong!</b> If two panel shapes touch on the flat paper blueprint, they are guaranteed to fold up as side-by-side neighbors in the completed box structure.</p>
@@ -204,29 +221,47 @@
         }
     }
 
-    /* --- INTRO: FOLDING --- */
-    let folded = false;
+    /* --- INTRO: PAIR COUPLING ANATOMY --- */
+    let highlighted = false;
     function toggleFold() {
-        folded = !folded;
-        const b = document.getElementById('f-base'), l = document.getElementById('f-left'), r = document.getElementById('f-right'), bk = document.getElementById('f-back'), fr = document.getElementById('f-front'), ld = document.getElementById('f-lid');
-        if(folded) {
-            l.style.transform = "skewY(-20deg) scaleX(0.5) translate(40px, -10px)";
-            r.style.transform = "skewY(20deg) scaleX(0.5) translate(-40px, -10px)";
-            bk.style.transform = "skewX(-20deg) scaleY(0.5) translate(10px, 40px)";
-            fr.style.transform = "skewX(20deg) scaleY(0.5) translate(-10px, -40px)";
-            ld.style.transform = "translateY(-100px)";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The flat blueprint has assembled into a 3D Cube container! Watch how the Roof Lid hinged straight to the top slot.</div>`;
+        highlighted = !highlighted;
+        const base = document.getElementById('f-base');
+        const lid = document.getElementById('f-lid');
+        const left = document.getElementById('f-left');
+        const right = document.getElementById('f-right');
+        const front = document.getElementById('f-front');
+        const back = document.getElementById('f-back');
+        const log = document.getElementById('intro-log');
+        
+        if(highlighted) {
+            // Pair 1: Base + Lid (Gold and Indigo split markers)
+            if(base) base.classList.add('pair-active');
+            if(lid) lid.classList.add('pair-lid-active');
+            
+            // Pair 2 & 3: Secondary subtle visual borders
+            if(left) left.style.stroke = '#ef4444';
+            if(right) right.style.stroke = '#ef4444';
+            if(front) front.style.stroke = '#10b981';
+            if(back) back.style.stroke = '#10b981';
+
+            if(log) log.innerHTML = `<div class="discovery-step">Opposite pairings isolated! The <b>BASE</b> maps directly to the <b>LID</b> because they are separated by one intervening square. Left matches Right, and Front matches Back!</div>`;
         } else {
-            [l,r,bk,fr,ld].forEach(el => el.style.transform = "none");
-            document.getElementById('intro-log').innerHTML = "Returned back to a flat blueprint arrangement.";
+            // Restore clean blueprint state parameters
+            [base, lid].forEach(el => { if(el) { el.classList.remove('pair-active'); el.classList.remove('pair-lid-active'); } });
+            [left, right, front, back].forEach(el => { if(el) el.style.stroke = 'var(--cognis-blue)'; });
+            if(log) log.innerHTML = "Returned back to standard net blueprint layout overview mode.";
         }
     }
 
     /* --- PROGRESSING: LEAPFROG --- */
     function checkLeap() {
-        document.getElementById('l-target').classList.add('selected');
-        document.getElementById('l-jump').classList.add('jumped');
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Sensational! You <b>leapfrogged right over</b> the middle face section. These two components form opposite partners!</div>`;
+        const target = document.getElementById('l-target');
+        const jump = document.getElementById('l-jump');
+        if(target) target.classList.add('selected');
+        if(jump) jump.classList.add('jumped');
+        
+        const log = document.getElementById('prog-log');
+        if(log) log.innerHTML = `<div class="discovery-step">Sensational! You <b>leapfrogged right over</b> the middle face section. These two components form opposite partners!</div>`;
     }
 
     /* --- SUPPLEMENTAL: ENGINE --- */
@@ -241,7 +276,9 @@
 
     function setSuppNet(type, btn) {
         document.querySelectorAll('.btn-preset-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active'); sLayout = type; runSupp();
+        if(btn) btn.classList.add('active'); 
+        sLayout = type; 
+        runSupp();
     }
 
     function runSupp() {
@@ -256,10 +293,15 @@
             svg.appendChild(r);
         });
 
-        const l = parseFloat(document.getElementById('si-l').value)||0, w = parseFloat(document.getElementById('si-w').value)||0, h = parseFloat(document.getElementById('si-h').value)||0;
+        const l = parseFloat(document.getElementById('si-l').value)||0;
+        const w = parseFloat(document.getElementById('si-w').value)||0;
+        const h = parseFloat(document.getElementById('si-h').value)||0;
         const vol = l * w * h;
-        document.getElementById('s-net-desc').innerText = `SELECTED BLUEPRINT: ${sLayout.replace('-',' ').toUpperCase()}`;
-        document.getElementById('supp-log').innerHTML = `→ Floor Base Dimensions: ${l} &times; ${w} = <b>${l*w} surface units²</b><br>→ Vertical Core Height: <b>${h} units</b><br>→ <b>Total Internal Space Capacity: ${vol.toFixed(1)} space units³</b>`;
+        
+        const desc = document.getElementById('s-net-desc');
+        const log = document.getElementById('supp-log');
+        if(desc) desc.innerText = `SELECTED BLUEPRINT: ${sLayout.replace('-',' ').toUpperCase()}`;
+        if(log) log.innerHTML = `&rarr; Floor Base Dimensions: ${l} &times; ${w} = <b>${l*w} surface units²</b><br>&rarr; Vertical Core Height: <b>${h} units</b><br>&rarr; <b>Total Internal Space Capacity: ${vol.toFixed(1)} space units³</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
