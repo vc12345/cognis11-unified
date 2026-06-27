@@ -89,6 +89,10 @@
         .phase { border: 1px solid var(--border-light); margin-bottom: 30px !important; }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         
+        /* NAVIGATION CONTROLS BAR */
+        .module-nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; padding-top: 20px; border-top: 2px solid #e2e8f0; gap: 15px; }
+        .btn-nav-link { background: #f1f5f9; color: var(--cognis-blue); border: 1px solid #cbd5e0; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 0.8rem; }
+        .btn-nav-link:hover { background: #e2e8f0; }
         .foundational-only .btn-complete { margin-top: 20px; width: 100%; }
     </style>
 
@@ -141,7 +145,7 @@
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Balancing Scale</h2>
+            <h2>The Balancing Scale Check</h2>
             <p>In 11+ papers, the overall pace of a journey is rarely situated perfectly in the middle of your two speeds. It is affected by <b>gravity</b>. If a vehicle travels quite slowly for 5 hours and sprints quickly for only 1 hour, the final shared pace will be forcefully dragged down toward the slow speed side.</p>
             
             <div class="parent-script">
@@ -152,7 +156,7 @@
                 <div class="scale-wrap">
                     <div class="scale-beam" id="beam">
                         <div class="weight" style="left:15px; background:var(--trap-red);" id="w-slow">CRAWL</div>
-                        <div class="weight" style="right:15px; background:var(--cognis-gold);" id="SPRINT">SPRINT</div>
+                        <div class="weight" style="right:15px; background:var(--cognis-gold);" id="w-fast">SPRINT</div>
                     </div>
                     <div class="scale-pivot"></div>
                 </div>
@@ -230,13 +234,19 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <h3>Phase 4: Common Mistake to Watch For</h3>
+                <h3>The "Speed Splitting" Trap:</h3>
                 <p><b>The "Speed Splitting" Trap:</b> If a vehicle journeys along at 40mph for a while and then speeds up to 60mph, enthusiastic kids will often instantly declare the answer to be "50mph!" It feels completely logical because 50 sits perfectly right in the center. <b>This is a classic 11+ speed trap.</b> <br><br><b>The Insider Solution:</b> Tell your child directly: <i>"The separate speeds on the page do not matter at all until the very final step."</i> You can only calculate the true shared pace by dividing your <b>Master Grand Totals</b>. Unless the exact time spent driving at each speed is a perfect match (which is almost never the case in entrance exams), simply adding the speeds together will run you straight into a wrong answer.</p>
             </div>
         </section>
         
         <button class="btn-complete" onclick="markComplete(11)">Complete Supplemental Module</button>
+    </div>
+
+    <div class="module-nav-bar">
+        <a class="btn-nav-link" href="module-10.html">&larr; Previous Module (10)</a>
+        <a class="btn-nav-link" href="module-12.html">Next Module (12) &rarr;</a>
     </div>
 </div>
 
@@ -288,43 +298,56 @@
         const container = document.getElementById('box-display-intro');
         container.innerHTML = '';
         for(let i=0; i<t; i++) container.innerHTML += `<div class="hour-box"><span>Hour ${i+1}</span>${share}</div>`;
-        document.getElementById('intro-log').innerHTML = `→ <b>Action Steps:</b> Sharing out ${d} total miles evenly across ${t} hour boxes.<br>→ <b>Result:</b> Each individual hour block receives ${share} miles. That is our Fair-Share Speed!`;
+        document.getElementById('intro-log').innerHTML = `&rarr; <b>Action Steps:</b> Sharing out ${d} total miles evenly across ${t} hour boxes.<br>&rarr; <b>Result:</b> Each individual hour block receives ${share} miles. That is our Fair-Share Speed!`;
     }
 
     function updateProg() {
         const s = parseInt(document.getElementById('prog-slow').value);
         const f = parseInt(document.getElementById('prog-fast').value);
         const total = s + f;
-        document.getElementById('w-slow').style.width = (s * 15) + "px";
-        document.getElementById('w-slow').style.height = (s * 15) + "px";
-        document.getElementById('w-fast').style.width = (f * 15) + "px";
-        document.getElementById('w-fast').style.height = (f * 15) + "px";
+        
+        const wSlow = document.getElementById('w-slow');
+        const wFast = document.getElementById('w-fast');
+        
+        if (wSlow) {
+            wSlow.style.width = (s * 15) + "px";
+            wSlow.style.height = (s * 15) + "px";
+        }
+        if (wFast) {
+            wFast.style.width = (f * 15) + "px";
+            wFast.style.height = (f * 15) + "px";
+        }
+        
         document.getElementById('beam').style.transform = `rotate(${(f - s) * 2}deg)`;
         
         let winnerText = s === f ? "It is a perfect tie!" : (s > f ? "The Crawl side is winning the pull!" : "The Sprint side is winning the pull!");
         let logWinner = s > f ? "Crawl Speed" : (f > s ? "Sprint Speed" : "Neither side (it is a Dead Tie)");
         document.getElementById('scale-status').innerText = winnerText;
-        document.getElementById('prog-log').innerHTML = `→ <b>Gravity Check:</b> Crawl holds ${s} weight units vs Sprint holding ${f} weight units.<br>→ <b>The Winner:</b> Our shared pace is pulled heavily toward: <b>${logWinner}</b>.`;
+        document.getElementById('prog-log').innerHTML = `&rarr; <b>Gravity Check:</b> Crawl holds ${s} weight units vs Sprint holding ${f} weight units.<br>&rarr; <b>The Winner:</b> Our shared pace is pulled heavily toward: <b>${logWinner}</b>.`;
     }
 
     function updateSupp() {
         const inputs = ['d1-in', 't1-in', 'd2-in', 't2-in'].map(id => document.getElementById(id));
-        const [d1, t1, d2, t2] = inputs.map(i => parseFloat(i.value) || 0);
+        const [d1, t1, d2, t2] = inputs.map(i => i ? parseFloat(i.value) || 0 : 0);
         const totalDist = d1 + d2; const totalTime = t1 + t2;
         const avgSpeed = totalTime > 0 ? (totalDist / totalTime) : 0;
         const p1 = totalDist > 0 ? (d1 / totalDist) * 100 : 50;
-        document.getElementById('visual-leg-1').style.width = `${p1}%`;
-        document.getElementById('visual-leg-2').style.width = `${100-p1}%`;
+        
+        const leg1 = document.getElementById('visual-leg-1');
+        const leg2 = document.getElementById('visual-leg-2');
+        if (leg1) leg1.style.width = `${p1}%`;
+        if (leg2) leg2.style.width = `${100-p1}%`;
+        
         document.getElementById('label-d1').innerText = `${d1.toFixed(2)} km`;
         document.getElementById('label-t1').innerText = `${t1.toFixed(2)} hrs`;
         document.getElementById('label-d2').innerText = `${d2.toFixed(2)} km`;
         document.getElementById('label-t2').innerText = `${t2.toFixed(2)} hrs`;
         document.getElementById('total-summary').innerText = `COMBINED SUMMARY: ${totalDist.toFixed(2)} km in ${totalTime.toFixed(2)} hours`;
         document.getElementById('logic-trace').innerHTML = `
-            <div class="trace-step">→ 1. Combined Master Distance: ${d1} + ${d2} = <b>${totalDist.toFixed(2)} km</b></div>
-            <div class="trace-step">→ 2. Combined Master Time: ${t1} + ${t2} = <b>${totalTime.toFixed(2)} hrs</b></div>
+            <div class="trace-step">&rarr; 1. Combined Master Distance: ${d1} + ${d2} = <b>${totalDist.toFixed(2)} km</b></div>
+            <div class="trace-step">&rarr; 2. Combined Master Time: ${t1} + ${t2} = <b>${totalTime.toFixed(2)} hrs</b></div>
             <div class="trace-step" style="color:var(--cognis-gold); font-weight:bold; border-top:1px solid #e2e8f0; margin-top:10px; padding-top:10px;">
-                → FINAL FAIR-SHARE SPEED: ${avgSpeed.toFixed(2)} km/h
+                &rarr; FINAL FAIR-SHARE SPEED: ${avgSpeed.toFixed(2)} km/h
             </div>
         `;
     }
