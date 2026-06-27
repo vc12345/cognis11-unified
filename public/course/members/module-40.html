@@ -6,7 +6,7 @@
     <title>Module 40: The Category Outlier Detective | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -43,29 +43,29 @@
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🧐'; }
 
-        /* INTRO: SORTING HAT */
-        .item-f { width: 60px; height: 60px; background: var(--cognis-blue); border-radius: 12px; transition: all 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .item-odd { background: var(--cognis-gold); border-radius: 50%; }
+        /* INTRO: SHAPE DESIGN VARIATION REALIGNMENT */
+        .item-f { width: 60px; height: 60px; background: #3182ce; border-radius: 8px; transition: all 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(49,130,206,0.2); }
+        .item-odd { background: #e59b24; border-radius: 50%; box-shadow: 0 4px 8px rgba(229,155,36,0.3); }
 
         /* PROGRESSING: PROPERTY TAG */
-        .subject-f { width: 100px; padding: 15px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; text-align: center; position: relative; transition: all 0.3s; }
+        .subject-f { width: 100px; padding: 15px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; text-align: center; position: relative; transition: all 0.3s; font-weight: 700; }
         .property-tag { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: var(--cognis-gold); color: white; font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; opacity: 0; transition: opacity 0.3s; }
         .tag-active { opacity: 1; }
-        .fail-border { border-color: var(--trap-red); border-style: dashed; }
+        .fail-border { border-color: var(--trap-red); border-style: dashed; background: #fff5f5; }
 
         /* SUPPLEMENTAL: LOGIC SIEVE */
-        .anatomy-display-s { background: #1a202c; padding: 40px; border-radius: 12px; text-align: center; }
-        .word-box-s { width: 70px; height: 70px; background: #2d3748; border: 2px dashed #4a5568; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: transparent; font-weight: 900; margin: 0 5px; transition: 0.4s; }
-        .word-box-s.revealed { color: #e2e8f0; border-style: solid; background: #3d495d; }
-        .word-box-s.majority { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.1); }
-        .word-box-s.outlier { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .anatomy-display-s { background: #0f172a; padding: 40px; border-radius: 12px; text-align: center; }
+        .word-box-s { width: 85px; height: 55px; background: #1e293b; border: 2px dashed #4a5568; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: transparent; font-weight: 800; font-size: 0.9rem; margin: 0 5px; transition: all 0.3s ease; box-sizing: border-box; }
+        .word-box-s.revealed { color: #cbd5e1; border-style: solid; background: #334155; border-color: #64748b; }
+        .word-box-s.majority { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.15); font-weight: 900; }
+        .word-box-s.outlier { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.15); font-weight: 900; transform: scale(1.05); }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-scenario-s { background: #2d3748; border: 1px solid #4a5568; color: #a0aec0; padding: 8px; border-radius: 6px; font-size: 0.6rem; cursor: pointer; font-weight: 800; }
-        .btn-scenario-s.active { background: var(--cognis-gold); color: white; }
+        .btn-scenario-s { background: #1e293b; border: 1px solid #4a5568; color: #94a3b8; padding: 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; font-weight: 800; transition: 0.2s; }
+        .btn-scenario-s.active { background: var(--cognis-gold); color: white; border-color: var(--cognis-gold); }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -88,11 +88,11 @@
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:20px;">
-                    <div class="item-f"></div>
-                    <div class="item-f item-odd" onclick="revealIntroOdd()"></div>
-                    <div class="item-f"></div>
-                    <div class="item-f"></div>
+                <div style="display:flex; gap:20px; align-items:center; justify-content:center;">
+                    <div class="item-f" id="intro-sh-1"></div>
+                    <div class="item-f item-odd" id="intro-sh-2" onclick="revealIntroOdd()"></div>
+                    <div class="item-f" id="intro-sh-3"></div>
+                    <div class="item-f" id="intro-sh-4"></div>
                 </div>
                 <button class="btn-action" style="background:#94a3b8; font-size:0.7rem; margin-top:40px;" onclick="resetIntro()">Reset Board Shapes</button>
             </div>
@@ -110,7 +110,7 @@
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:15px;">
+                <div style="display:flex; gap:15px; flex-wrap: wrap; justify-content: center;">
                     <div class="subject-f"><div class="property-tag" id="tag-1">FRUIT</div>Apple</div>
                     <div class="subject-f"><div class="property-tag" id="tag-2">FRUIT</div>Pear</div>
                     <div class="subject-f"><div class="property-tag" id="tag-3">FRUIT</div>Peach</div>
@@ -139,17 +139,17 @@
             <h2>Phase 2: The Progressive Sieve Simulator</h2>
             <p>Welcome to our interactive <b>Progressive Sieve Simulator</b>. We construct our sorting rule step-by-step, one hidden vocabulary tile at a time. The absolute moment we hit a clear <b>2 versus 1</b> category pattern threshold, the true answer is logically locked in. The trailing unrevealed "?" blocks are simply time-wasting distractions planted to steal your clock speed.</p>
             <div class="anatomy-display-s">
-                <div id="s-sieve-row" style="margin-bottom:30px;"></div>
+                <div id="s-sieve-row" style="margin-bottom:30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;"></div>
                 <button class="btn-action" style="background:var(--cognis-gold);" id="s-unmask-btn" onclick="unmaskSupp()">Scan Next Word Node</button>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Progressive Sieve Simulator</h2>
+            <h2>Phase 3: Stop-Point Logic Explorer</h2>
             <p style="margin-bottom: 20px;">Shift our outlier exception element to completely different tracking positions below. Observe that no matter where it masks itself in the row, we can logically stop processing new entries by the third or fourth box. Mastering this <b>Stop-Point Logic</b> is the number one secret to completing the exam on time.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Outlier Hidden Position</label>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Select Outlier Hidden Position</label>
                     <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:5px;">
                         <button class="btn-scenario-s active" onclick="loadSuppScenario(0, this)">Index 1</button>
                         <button class="btn-scenario-s" onclick="loadSuppScenario(1, this)">Index 2</button>
@@ -198,18 +198,26 @@
 
     /* --- INTRO: SHAPES --- */
     function revealIntroOdd() {
+        const oddTarget = document.getElementById('intro-sh-2');
+        if(oddTarget) oddTarget.style.transform = "scale(1.1)";
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Excellent catch! The <b>Gold Circle</b> breaks our sorting criteria. The baseline rule requires 'Blue Squares'.</div>`;
     }
-    function resetIntro() { location.reload(); }
+    
+    function resetIntro() {
+        const oddTarget = document.getElementById('intro-sh-2');
+        if(oddTarget) oddTarget.style.transform = "none";
+        document.getElementById('intro-log').innerHTML = "Find the shape that breaks the pattern.";
+    }
 
     /* --- PROGRESSING: AUDIT --- */
     function runAudit() {
         document.querySelectorAll('.property-tag').forEach(t => t.classList.add('tag-active'));
-        document.getElementById('odd-target').classList.add('fail-border');
+        const target = document.getElementById('odd-target');
+        if(target) target.classList.add('fail-border');
         document.getElementById('prog-log').innerHTML = `<div class="discovery-step">The <b>Onion</b> breaks the active 'Fruit' criteria. It belongs exclusively to the 'Vegetable' club layout!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: ENGINE CORRECTION --- */
     const sScenarios = [
         {words:["OVEN","SPOON","FORK","KNIFE","TONGS"], out:0, reason:"Kitchen Appliance vs Table Utensils"},
         {words:["IRON","WOOD","GOLD","SILVER","COPPER"], out:1, reason:"Elemental Metals vs Organic Compound"},
@@ -222,22 +230,28 @@
     function loadSuppScenario(idx, btn) {
         sCur = idx; sRev = 0; sM = 0; sO = 0; sLock = false;
         document.querySelectorAll('.btn-scenario-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
+        
         const row = document.getElementById('s-sieve-row');
-        row.innerHTML = sScenarios[idx].words.map(() => `<div class="word-box-s">?</div>`).join('');
-        document.getElementById('supp-log').innerHTML = `&rarr; Active Sorting Criteria: ${sScenarios[idx].reason}<br>&rarr; Scanner Status: Ready to execute progressive trace.`;
+        if(row) {
+            row.innerHTML = sScenarios[idx].words.map(() => `<div class="word-box-s">?</div>`).join('');
+        }
+        document.getElementById('supp-log').innerHTML = `&rarr; Active Sorting Criteria: <b>${sScenarios[idx].reason}</b><br>&rarr; Scanner Status: Ready to execute progressive trace.`;
     }
 
     function unmaskSupp() {
         if(sLock) return;
         const boxes = document.querySelectorAll('.word-box-s');
         if(sRev >= boxes.length) return;
+        
         const word = sScenarios[sCur].words[sRev];
-        boxes[sRev].textContent = word; boxes[sRev].classList.add('revealed');
+        boxes[sRev].textContent = word; 
+        boxes[sRev].classList.add('revealed');
 
         if(sRev === sScenarios[sCur].out) sO++; else sM++;
 
-        if((sM >= 2 && sO >= 1) || (sM >= 3 && sRev >= 2)) {
+        // Revised condition criteria to only seal locks when the anomaly is definitively found
+        if(sO >= 1 && sM >= 2) {
             sLock = true;
             const outlierIdx = sScenarios[sCur].out;
             for(let i=0; i <= sRev; i++) {
@@ -245,6 +259,8 @@
                 else boxes[i].classList.add('majority');
             }
             document.getElementById('supp-log').innerHTML = `&rarr; <b>Category Exception Scan Progress: ${sScenarios[sCur].words[outlierIdx]} is confirmed as the Outlier Exception.</b><br>&rarr; Time Efficiency Check: Only ${sRev+1}/5 entries evaluated. ACTIVE SCAN COMPLETED!`;
+        } else {
+            document.getElementById('supp-log').innerHTML = `&rarr; Scanned node index ${sRev+1}: <b>${word}</b><br>&rarr; Accumulating diagnostic variables... continue scanning row.`;
         }
         sRev++;
     }

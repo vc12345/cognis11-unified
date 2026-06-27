@@ -52,7 +52,7 @@
         .trace-dot { fill: var(--cognis-gold); transition: transform 0.5s; transform-origin: center; }
 
         /* SUPPLEMENTAL: SPIN CHAMBER */
-        .spin-chamber-s { width: 180px; height: 180px; border: 2px dashed #cbd5e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .spin-chamber-s { width: 180px; height: 180px; border: 2px dashed #cbd5e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .flag-s { width: 12px; height: 80px; background: var(--cognis-gold); border-radius: 4px; position: relative; }
         .flag-arm-s { width: 40px; height: 30px; background: var(--cognis-gold); position: absolute; top: 10px; left: 10px; border-radius: 4px; }
         .anchor-dot-s { width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid white; position: absolute; top: -5px; right: -5px; }
@@ -122,20 +122,20 @@
             <div class="question-tiers">
                 <div class="tier-card"><b>The Clock Face Test:</b> "Track a target triangle after a 90-degree clockwise turn. Does the internal dot remain nested in the exact same corner?"</div>
                 <div class="tier-card"><b>Spins vs. Flips:</b> "Learn to instantly distinguish between a naturally turned 'L' block and its backwards, mirrored twin."</div>
-                <div class="tier-card"><b>The Eleven-Plus Master:</b> "Isolate a multi-layered shape after a 135-degree rotation by locking your focus onto a single structural landmark."</div>
+                <div class="tier-card"><b>The Next-Level Master:</b> "Isolate a multi-layered shape after a 135-degree rotation by locking your focus onto a single structural landmark."</div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 2: The Shape Identification Lab</h2>
             <p>Study our interactive <b>Shape Identification Lab</b>. Focus on the red indicator dot riding the outer tip of the flag banner. As the entire shape spins around its core axis, that indicator <i>must</i> remain anchored to the outer rim. If it ever teleports onto the inner rim, the shape has been flipped. A genuine rotation preserves the exact alignment relationships between all components.</p>
-            <div class="anatomy-display" style="background:#1a202c;">
+            <div class="anatomy-display" style="background:#1a202c; padding: 30px; border-radius: 12px; display: flex; flex-direction: column; align-items: center;">
                 <div id="s-chamber" class="spin-chamber-s">
                     <div class="flag-s">
                         <div class="flag-arm-s"><div class="anchor-dot-s"></div></div>
                     </div>
                 </div>
-                <div style="margin-top:30px; font-weight:800; color:#94a3b8; font-size:0.7rem; letter-spacing:1px; text-transform:uppercase;">
+                <div style="margin-top:20px; font-weight:800; color:#94a3b8; font-size:0.75rem; letter-spacing:1px; text-transform:uppercase;">
                     Identity Check: Dot is on the arm's "Tip"
                 </div>
             </div>
@@ -146,11 +146,11 @@
             <p style="margin-bottom: 20px;">Spin the simulator platform below. Notice that no matter how steep the calibration angle becomes, the red tracker dot never swaps sides relative to the gold pole. This represents our absolute 'Identity Lock' rule.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Calibrate Rotation Angle</label>
+                    <label style="font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Calibrate Rotation Angle</label>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button class="btn-action" style="font-size:0.6rem; padding:10px;" onclick="runSuppRotate(90)">+ 90° Clockwise Turn</button>
-                        <button class="btn-action" style="font-size:0.6rem; padding:10px;" onclick="runSuppRotate(180)">+ 180° Half-Circle Spin</button>
-                        <button class="btn-action" style="font-size:0.6rem; padding:10px; background:#4a5568;" onclick="runSuppRotate(0)">Reset to Baseline</button>
+                        <button class="btn-action" style="font-size:0.65rem; padding:12px; margin-top:0;" onclick="runSuppRotate(90)">+ 90° Clockwise Turn</button>
+                        <button class="btn-action" style="font-size:0.65rem; padding:12px; margin-top:0;" onclick="runSuppRotate(180)">+ 180° Half-Circle Spin</button>
+                        <button class="btn-action" style="font-size:0.65rem; padding:12px; grid-column: span 2; background:#4a5568;" onclick="runSuppRotate(0)">Reset to Baseline</button>
                     </div>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
@@ -209,11 +209,21 @@
         document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Turned 90 degrees. Our landmark dot remains fixed to the <b>Long Vertical Arm</b>. Authenticity verified!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: MULTI-CLICK ROTATION ENGINE FIXED --- */
+    let suppDeg = 0;
     function runSuppRotate(deg) {
-        document.getElementById('s-chamber').style.transform = `rotate(${deg}deg)`;
+        // Accumulate rotation value vectors dynamically over multiple clicks
+        if (deg === 0) {
+            suppDeg = 0;
+        } else {
+            suppDeg += deg;
+        }
+        
+        const chamber = document.getElementById('s-chamber');
+        if(chamber) chamber.style.transform = `rotate(${suppDeg}deg)`;
+        
         document.getElementById('supp-log').innerHTML = `
-            &rarr; Orientation Calibration History: Spun to <b>${deg}°</b><br>
+            &rarr; Orientation Calibration History: Spun to <b>${suppDeg % 360}°</b> (Accumulated: ${suppDeg}°)<br>
             &rarr; Landmark Audit: Measuring Tracker Dot distance to central Pole...<br>
             &rarr; Spatial Alignment Check: <b>Component layout preserved.</b><br>
             &rarr; <b>Current Status: Verified Authentic Rotation ✅</b>

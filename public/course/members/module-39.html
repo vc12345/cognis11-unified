@@ -50,15 +50,13 @@
         /* PROGRESSING: RELATIONSHIP PIPE */
         .pipe-f { fill: none; stroke: #cbd5e0; stroke-width: 15; stroke-linecap: round; }
         .pipe-glow { stroke: var(--cognis-gold); stroke-width: 18; opacity: 0; transition: opacity 0.4s; }
+        .letter-node-f { fill: white; stroke: var(--cognis-blue); stroke-width: 3; }
 
         /* SUPPLEMENTAL: LOGIC MIRROR */
         .node-s { width: 120px; height: 50px; background: white; border: 3px solid var(--cognis-blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--cognis-blue); font-size: 0.9rem; transition: 0.3s; }
         .verb-slot-s { color: var(--cognis-gold); font-weight: 800; font-size: 0.7rem; border-bottom: 2px dashed var(--cognis-gold); padding: 5px; min-width: 100px; text-align: center; text-transform: uppercase; }
-
-        /* UTILITY */
-        .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
-        .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
-        .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-preset-s { background: #2d3748; color: #a0aec0; border: none; padding: 10px; border-radius: 6px; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; font-weight: 800; margin: 4px; }
+        .btn-preset-s.active { background: var(--cognis-gold); color: white; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -85,13 +83,13 @@
                     <path d="M150,180 L200,180 L175,140 Z" fill="#cbd5e0" />
                     <g id="intro-seesaw" class="seesaw-beam" transform="translate(175, 140)">
                         <line x1="-150" y1="0" x2="150" y2="0" stroke="var(--cognis-blue)" stroke-width="6" />
-                        <text x="-120" y="-40" text-anchor="middle" font-size="30">🐘</text>
-                        <text x="-60" y="-10" text-anchor="middle" font-size="15">🐭</text>
-                        <text id="intro-r1" x="60" y="-10" text-anchor="middle" font-size="15" opacity="0.3">?</text>
-                        <text id="intro-r2" x="120" y="-40" text-anchor="middle" font-size="30" opacity="0.3">?</text>
+                        <text x="-120" y="-30" text-anchor="middle" font-size="32">🐘</text>
+                        <text x="-50" y="-10" text-anchor="middle" font-size="18">🐭</text>
+                        <text id="intro-r1" x="50" y="-10" text-anchor="middle" font-size="18" opacity="0.3">?</text>
+                        <text id="intro-r2" x="120" y="-30" text-anchor="middle" font-size="32" opacity="0.3">?</text>
                     </g>
                 </svg>
-                <div style="display:flex; gap:10px; margin-top:20px;">
+                <div style="display:flex; gap:10px; margin-top:20px; flex-wrap: wrap; justify-content: center;">
                     <button class="btn-action" onclick="testIntroAnalog(true)">Test Valid Fit: Whale to Ant</button>
                     <button class="btn-action" style="background:var(--trap-red)" onclick="testIntroAnalog(false)">Test Swapped Fit: Ant to Whale</button>
                 </div>
@@ -110,16 +108,29 @@
             </div>
 
             <div class="viz-container">
-                <svg width="400" height="200" viewBox="0 0 400 200">
-                    <path id="prog-pipe" d="M50,100 Q200,20 350,100" class="pipe-f" />
-                    <path id="prog-glow" d="M50,100 Q200,20 350,100" class="pipe-f pipe-glow" />
-                    <circle cx="50" cy="100" r="25" class="letter-node-f" /><text x="50" y="105" text-anchor="middle" font-weight="900" font-size="10">FINGER</text>
-                    <circle cx="350" cy="100" r="25" class="letter-node-f" /><text x="350" y="105" text-anchor="middle" font-weight="900" font-size="10">HAND</text>
-                    <text x="200" y="50" text-anchor="middle" font-weight="800" fill="var(--cognis-gold)" font-size="12">"PART OF A"</text>
+                <svg width="400" height="240" viewBox="0 0 400 240">
+                    <path d="M60,60 Q200,10 340,60" class="pipe-f" />
+                    <path id="prog-glow-1" d="M60,60 Q200,10 340,60" class="pipe-f pipe-glow" />
                     
-                    <g transform="translate(0, 80)">
-                        <circle cx="50" cy="100" r="25" class="letter-node-f" /><text x="50" y="105" text-anchor="middle" font-weight="900" font-size="10">TOE</text>
-                        <circle cx="350" cy="100" r="25" class="letter-node-f" style="stroke:var(--cognis-gold)" /><text x="350" y="105" text-anchor="middle" font-weight="900" font-size="10">?</text>
+                    <path d="M60,160 Q200,110 340,160" class="pipe-f" style="stroke: #e2e8f0;" />
+                    <path id="prog-glow-2" d="M60,160 Q200,110 340,160" class="pipe-f pipe-glow" />
+
+                    <circle cx="60" cy="60" r="28" class="letter-node-f" />
+                    <text x="60" y="64" text-anchor="middle" font-weight="900" font-size="10" fill="var(--cognis-blue)">FINGER</text>
+                    
+                    <circle cx="340" cy="60" r="28" class="letter-node-f" />
+                    <text x="340" y="64" text-anchor="middle" font-weight="900" font-size="10" fill="var(--cognis-blue)">HAND</text>
+                    
+                    <text x="200" y="35" text-anchor="middle" font-weight="800" fill="var(--cognis-gold)" font-size="11">"PART OF A"</text>
+                    
+                    <g transform="translate(0, 100)">
+                        <circle cx="60" cy="60" r="28" class="letter-node-f" />
+                        <text x="60" y="64" text-anchor="middle" font-weight="900" font-size="11" fill="var(--cognis-blue)">TOE</text>
+                        
+                        <circle cx="340" cy="60" r="28" class="letter-node-f" style="stroke: var(--cognis-gold);" />
+                        <text id="prog-target-node" x="340" y="64" text-anchor="middle" font-weight="900" font-size="14" fill="#b45309">?</text>
+                        
+                        <text x="200" y="35" text-anchor="middle" font-weight="800" fill="#94a3b8" font-size="11">"PART OF A"</text>
                     </g>
                 </svg>
                 <button class="btn-action" onclick="runProgBridge()">Construct the Sentence Link</button>
@@ -146,11 +157,11 @@
             <p>Welcome to our <b>Word Connection Mirror</b> dashboard. The gold dashed template line acts as a permanent, unyielding blueprint. You can refresh the vocabulary blocks inside the slots, but you <b>cannot</b> warp the core sentence link itself. The structural rule defined by the upper pair must reflect down into the lower row with absolute uniformity.</p>
             <div class="anatomy-display">
                 <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap; justify-content: center;">
                         <div class="node-s" id="s-n1">HAND</div><div class="verb-slot-s" id="s-v1">HAS A</div><div class="node-s" id="s-n2">FINGER</div>
                     </div>
-                    <div style="font-weight:900; color:#cbd5e0; font-size:0.6rem; letter-spacing:2px;">▼ PATTERN REFLECTION ▼</div>
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="font-weight:900; color:#cbd5e0; font-size:0.6rem; letter-spacing:2px; margin: 5px 0;">▼ PATTERN REFLECTION ▼</div>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap: wrap; justify-content: center;">
                         <div class="node-s" style="border-color:var(--cognis-gold)" id="s-n3">FOOT</div>
                         <div class="verb-slot-s" style="color:var(--cognis-blue); border-color:var(--cognis-blue)" id="s-v2">HAS A</div>
                         <div class="node-s" style="border-color:var(--cognis-gold)" id="s-n4">TOE</div>
@@ -163,8 +174,8 @@
             <h2>Phase 3: The Relationship Rule Explorer</h2>
             <p style="margin-bottom: 20px;">Pick a relationship style from our presets below. Practice reading the resulting sentence link out loud for both halves of the pair. If the sentence structure flows naturally and truthfully for both teams, your analogy pattern is verified.</p>
             <div class="engine-container">
-                <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select a Relationship Blueprint Type</label>
+                <div class="inputs" style="text-align: center;">
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Select a Relationship Blueprint Type</label>
                     <button class="btn-preset-s active" onclick="setSuppLogic('HAND','HAS A','FINGER','FOOT','TOE', this)">Part-to-Whole Link</button>
                     <button class="btn-preset-s" onclick="setSuppLogic('FISH','HAS','SCALES','BIRD','FEATHERS', this)">Outer Covering Link</button>
                     <button class="btn-preset-s" onclick="setSuppLogic('PUPPY','BECOMES','DOG','KITTEN','CAT', this)">Growth Progression Link</button>
@@ -211,30 +222,44 @@
     /* --- INTRO: SEESAW --- */
     function testIntroAnalog(correct) {
         const seesaw = document.getElementById('intro-seesaw');
-        const r1 = document.getElementById('intro-r1'), r2 = document.getElementById('intro-r2');
+        const r1 = document.getElementById('intro-r1');
+        const r2 = document.getElementById('intro-r2');
+        if(!seesaw || !r1 || !r2) return;
+        
         if(correct) {
             seesaw.style.transform = "translate(175px, 140px) rotate(0deg)";
-            r1.textContent = "Ant"; r2.textContent = "Whale";
+            r1.textContent = "🐜"; r2.textContent = "🐋"; // r1 is right-inner (Small), r2 is right-outer (Big) to perfectly mirror left-side layout positions
             r1.style.opacity = "1"; r2.style.opacity = "1";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Perfectly Balanced! Both sides follow the exact <b>Big : Small</b> alignment logic.</div>`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Perfectly Balanced! Both sides follow the exact <b>Big : Small</b> alignment logic (Whale to Ant).</div>`;
         } else {
             seesaw.style.transform = "translate(175px, 140px) rotate(15deg)";
-            r1.textContent = "Whale"; r2.textContent = "Ant";
+            r1.textContent = "🐋"; r2.textContent = "🐜";
             r1.style.opacity = "1"; r2.style.opacity = "1";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Scale Tipped! You mistakenly tried balancing a <b>Big : Small</b> pair with a <b>Small : Big</b> configuration.</div>`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Scale Tipped! You mistakenly tried balancing a <b>Big : Small</b> pair with a reversed <b>Small : Big</b> configuration (Ant to Whale).</div>`;
         }
     }
 
-    /* --- PROGRESSING: PIPE --- */
+    /* --- PROGRESSING: FIXED BRIDGE REALIGNMENT --- */
     function runProgBridge() {
-        document.getElementById('prog-glow').style.opacity = "1";
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Sentence Link Locked! Since a Hand contains a Finger, it matches perfectly that a Foot contains a <b>Toe</b>.</div>`;
+        const g1 = document.getElementById('prog-glow-1');
+        const g2 = document.getElementById('prog-glow-2');
+        const targetTxt = document.getElementById('prog-target-node');
+        
+        if(g1) g1.style.opacity = "1";
+        if(g2) g2.style.opacity = "1";
+        if(targetTxt) {
+            targetTxt.textContent = "FOOT";
+            targetTxt.style.fontSize = "10px";
+        }
+        
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Sentence Link Locked! Since a Hand contains a Finger, it matches perfectly that a <b>FOOT</b> contains a Toe. The graphic balances flawlessly!</div>`;
     }
 
     /* --- SUPPLEMENTAL: MIRROR --- */
     function setSuppLogic(w1, verb, w2, w3, w4, btn) {
         document.querySelectorAll('.btn-preset-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
+        
         document.getElementById('s-n1').textContent = w1;
         document.getElementById('s-v1').textContent = verb;
         document.getElementById('s-n2').textContent = w2;
