@@ -43,9 +43,10 @@
         .discovery-step::before { content: '🌉'; }
 
         /* INTRO: TOWER LEVELER */
-        .tower-f { width: 50px; background: var(--cognis-blue); border-radius: 4px 4px 0 0; transition: height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .tower-missing { background: var(--cognis-gold); border: 2px dashed #b45309; }
+        .tower-f { width: 40px; fill: var(--cognis-blue); border-radius: 4px 4px 0 0; transition: y 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .tower-missing { fill: var(--cognis-gold); stroke: #b45309; stroke-width: 2; stroke-dasharray: 4; }
         .level-line { stroke: var(--trap-red); stroke-width: 2; stroke-dasharray: 4; }
+        .base-floor { stroke: var(--cognis-blue); stroke-width: 3; }
 
         /* PROGRESSING: GOAL PILE */
         .coin-f { fill: var(--cognis-gold); stroke: #b45309; stroke-width: 1; transition: all 0.3s; }
@@ -85,12 +86,20 @@
             </div>
 
             <div class="viz-container">
-                <svg width="300" height="200" viewBox="0 0 300 200">
-                    <line x1="20" y1="50" x2="280" y2="50" class="level-line" />
-                    <text x="285" y="55" font-size="10" font-weight="800" fill="var(--trap-red)">TARGET HEIGHT: 10</text>
-                    <rect x="50" y="80" width="40" height="120" class="tower-f" />
-                    <rect x="130" y="20" width="40" height="180" class="tower-f" />
-                    <rect id="intro-missing" x="210" y="200" width="40" height="0" class="tower-f tower-missing" />
+                <svg width="340" height="220" viewBox="0 0 340 220">
+                    <line x1="20" y1="180" x2="320" y2="180" class="base-floor" />
+                    
+                    <line x1="20" y1="80" x2="260" y2="80" class="level-line" />
+                    <text x="265" y="84" font-size="10" font-weight="800" fill="var(--trap-red)">TARGET HEIGHT: 10</text>
+                    
+                    <rect x="50" y="100" height="80" class="tower-f" />
+                    <text x="70" y="195" text-anchor="middle" font-size="11" font-weight="800" fill="var(--cognis-blue)">Tower 1 (8)</text>
+                    
+                    <rect x="130" y="60" height="120" class="tower-f" />
+                    <text x="150" y="195" text-anchor="middle" font-size="11" font-weight="800" fill="var(--cognis-blue)">Tower 2 (12)</text>
+                    
+                    <rect id="intro-missing" x="210" y="180" height="0" class="tower-f tower-missing" />
+                    <text x="230" y="195" text-anchor="middle" font-size="11" font-weight="800" fill="var(--cognis-gold)">Tower 3</text>
                 </svg>
                 <div style="display:flex; gap:10px;">
                     <button class="btn-action" onclick="levelIntro()">Level Up!</button>
@@ -150,10 +159,12 @@
             <div class="anatomy-display" id="s-stage">
                 <svg id="s-bridge-svg" width="100%" height="280" viewBox="0 0 600 280">
                     <g id="s-l-group"></g><g id="s-r-group"></g>
-                    <text x="120" y="240" font-size="9" font-weight="800" fill="#94a3b8" text-anchor="middle">CURRENT PILE TOTAL</text>
-                    <text id="s-l-sum" x="120" y="260" font-size="16" font-weight="900" fill="var(--cognis-blue)" text-anchor="middle">0</text>
-                    <text x="480" y="240" font-size="9" font-weight="800" fill="#94a3b8" text-anchor="middle">TARGET PILE NEEDED</text>
-                    <text id="s-r-sum" x="480" y="260" font-size="16" font-weight="900" fill="var(--cognis-gold)" text-anchor="middle">0</text>
+                    <line x1="20" y1="200" x2="280" y2="200" stroke="#cbd5e0" stroke-width="2" />
+                    <line x1="320" y1="200" x2="580" y2="200" stroke="#cbd5e0" stroke-width="2" />
+                    <text x="150" y="235" font-size="10" font-weight="800" fill="#94a3b8" text-anchor="middle">CURRENT PILE TOTAL</text>
+                    <text id="s-l-sum" x="150" y="258" font-size="18" font-weight="900" fill="var(--cognis-blue)" text-anchor="middle">0</text>
+                    <text x="450" y="235" font-size="10" font-weight="800" fill="#94a3b8" text-anchor="middle">TARGET PILE NEEDED</text>
+                    <text id="s-r-sum" x="450" y="258" font-size="18" font-weight="900" fill="var(--cognis-gold)" text-anchor="middle">0</text>
                 </svg>
                 <div style="text-align:center;"><button class="btn-action" style="background:var(--cognis-gold);" onclick="toggleSuppBridge()">Fill Missing Data Bar</button></div>
             </div>
@@ -172,10 +183,11 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Average of Averages" Illusion Trap:</b> Rushed children frequently look only at the standalone average figures themselves. If their initial score average sits at 10 and the question says they want to reach 13, they will incorrectly assume the next single score just needs to be a 13. <b>Stop right there!</b> The next entry must be large enough to lift the *entire* historical group up to the new height level.</p>
-                <p><b>The Easy Fix: The "Total Volume" Rule.</b> Remind your child: <i>"The standalone average is just a mask; the combined total pile holds the true value."</i> Always calculate the New Combined Total (</b>New Group Count &times; Target Average</b>) and subtract your Old Combined Total. The difference reveals the exact value of the missing entry. <b>Train your child to discover the grand total values first.</b></p>
+                <p><b>The Easy Fix: The "Total Volume" Rule.</b> Remind your child: <i>"The standalone average is just a mask; the combined total pile holds the true value."</i> Always calculate the New Combined Total (New Group Count &times; Target Average) and subtract your Old Combined Total. The difference reveals the exact value of the missing entry. <b>Train your child to discover the grand total values first.</b></p>
             </div>
         </section>
         
@@ -207,28 +219,38 @@
 
     /* --- INTRO: LEVELER --- */
     function resetIntro() {
-        document.getElementById('intro-missing').setAttribute("height", "0");
-        document.getElementById('intro-missing').setAttribute("y", "200");
+        const missing = document.getElementById('intro-missing');
+        if(missing) {
+            missing.setAttribute("height", "0");
+            missing.setAttribute("y", "180");
+        }
         document.getElementById('intro-log').innerHTML = "Fix the third tower!";
     }
     function levelIntro() {
-        document.getElementById('intro-missing').setAttribute("height", "100");
-        document.getElementById('intro-missing').setAttribute("y", "100");
+        const missing = document.getElementById('intro-missing');
+        if(missing) {
+            // Target height of 10 mapped to 100px. Y pos = 180 - 100 = 80.
+            missing.setAttribute("height", "100");
+            missing.setAttribute("y", "80");
+        }
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">To draw our fair share average level to 10, the third tower must climb exactly <b>10 blocks</b> high. Now every column matches perfectly!</div>`;
     }
 
     /* --- PROGRESSING: COINS --- */
     function updateProg() {
-        const have = parseInt(document.getElementById('prog-have').value);
+        const haveInput = document.getElementById('prog-have');
+        if(!haveInput) return;
+        const have = parseInt(haveInput.value);
         const goal = 20;
         const missing = goal - have;
         document.getElementById('prog-have-val').innerText = have;
 
         const svg = document.getElementById('prog-svg');
+        if(!svg) return;
         svg.innerHTML = '';
         for(let i=0; i<20; i++) {
             const isHave = i < have;
-            const cx = 30 + (i % 10) * 35;
+            const cx = 35 + (i % 10) * 36;
             const cy = 40 + Math.floor(i / 10) * 45;
             svg.innerHTML += `<circle cx="${cx}" cy="${cy}" r="15" class="${isHave ? 'coin-f' : 'coin-f coin-ghost'}" />`;
         }
@@ -243,7 +265,10 @@
     let sActive = false;
     function toggleSuppBridge() { sActive = !sActive; runSupp(); }
     function runSupp() {
-        const valStr = document.getElementById('in-vals').value;
+        const inputVals = document.getElementById('in-vals');
+        if(!inputVals) return;
+        
+        const valStr = inputVals.value;
         const targetM = parseFloat(document.getElementById('in-mean').value) || 0;
         const knowns = valStr.split(',').map(v => parseFloat(v.trim())).filter(v => !isNaN(v));
         if(knowns.length === 0) return;
@@ -255,29 +280,38 @@
 
         const lG = document.getElementById('s-l-group');
         const rG = document.getElementById('s-r-group');
+        if(!lG || !rG) return;
+        
         lG.innerHTML = ''; rG.innerHTML = '';
         
-        if(sActive) document.getElementById('s-stage').classList.add('merged');
-        else document.getElementById('s-stage').classList.remove('merged');
+        const stage = document.getElementById('s-stage');
+        if(stage) {
+            if(sActive) stage.classList.add('merged');
+            else stage.classList.remove('merged');
+        }
 
-        const scale = 150 / Math.max(targetM, ...knowns, missing, 1);
-        knowns.forEach((v, i) => lG.innerHTML += `<rect x="${20+i*30}" y="${200-v*scale}" width="20" height="${v*scale}" class="stick-s" />`);
+        const scale = 130 / Math.max(targetM, ...knowns, missing, 1);
+        knowns.forEach((v, i) => lG.innerHTML += `<rect x="${30+i*35}" y="${200-v*scale}" width="20" height="${v*scale}" class="stick-s" />`);
         
         const mH = Math.max(0, missing*scale);
-        lG.innerHTML += `<g class="missing-stick-s"><rect x="${20+knowns.length*30}" y="${200-mH}" width="20" height="${mH}" /><text x="${20+knowns.length*30+10}" y="${200-mH-5}" text-anchor="middle" font-size="10" font-weight="900" fill="var(--cognis-gold)">${missing.toFixed(0)}</text></g>`;
+        lG.innerHTML += `<g class="missing-stick-s"><rect x="${30+knowns.length*35}" y="${200-mH}" width="20" height="${mH}" /><text x="${30+knowns.length*35+10}" y="${200-mH-8}" text-anchor="middle" font-size="10" font-weight="900" fill="var(--cognis-gold)">${missing.toFixed(0)}</text></g>`;
 
-        for(let i=0; i<count; i++) rG.innerHTML += `<rect x="${350+i*30}" y="${200-targetM*scale}" width="20" height="${targetM*scale}" class="stick-s target-stick-s" />`;
+        for(let i=0; i<count; i++) rG.innerHTML += `<rect x="${340+i*35}" y="${200-targetM*scale}" width="20" height="${targetM*scale}" class="stick-s target-stick-s" />`;
 
         document.getElementById('s-l-sum').textContent = sActive ? targetSum.toFixed(1) : curSum.toFixed(1);
         document.getElementById('s-r-sum').textContent = targetSum.toFixed(1);
 
-        document.getElementById('supp-log').innerHTML = `→ 1. Combined Pool Size We Have: <b>${curSum.toFixed(1)}</b><br>→ 2. Grand Total Pile Size We Need (${count} items &times; ${targetM} goal): <b>${targetSum.toFixed(1)}</b><br>→ 3. Required Bridge Balance: ${targetSum.toFixed(1)} - ${curSum.toFixed(1)} = <b>${missing.toFixed(2)}</b>`;
+        document.getElementById('supp-log').innerHTML = `&rarr; 1. Combined Pool Size We Have: <b>${curSum.toFixed(1)}</b><br>&rarr; 2. Grand Total Pile Size We Need (${count} items &times; ${targetM} goal): <b>${targetSum.toFixed(1)}</b><br>&rarr; 3. Required Bridge Balance: ${targetSum.toFixed(1)} - ${curSum.toFixed(1)} = <b>${missing.toFixed(1)}</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout(); resetIntro(); updateProg();
         ['in-vals', 'in-mean'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.oninput = runSupp;
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', runSupp);
+                el.addEventListener('change', runSupp);
+            }
         });
         if(document.getElementById('in-vals')) runSupp();
         if(typeof initModule === "function") initModule(24);

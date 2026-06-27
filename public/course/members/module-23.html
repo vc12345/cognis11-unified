@@ -53,7 +53,7 @@
 
         /* SUPPLEMENTAL: DATA BARS */
         .chart-area-s { display: flex; align-items: flex-end; justify-content: center; gap: 10px; height: 180px; width: 100%; border-bottom: 2px solid var(--cognis-blue); padding-bottom: 5px; }
-        .bar-s { background: var(--cognis-blue); border-radius: 4px 4px 0 0; position: relative; transition: all 0.5s; }
+        .bar-s { background: var(--cognis-blue); border-radius: 4px 4px 0 0; position: relative; transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
         .bar-s span { position: absolute; top: -22px; width: 100%; text-align: center; font-size: 0.7rem; font-weight: 800; color: var(--cognis-blue); }
         .bar-s.is-median { background: var(--cognis-gold); }
         .bar-s.is-mean { background: #10b981; }
@@ -161,6 +161,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Jumbled Middle" Speed Trap:</b> Rushed children look at an unsorted list like "8, 2, 5" and instantly pick 2 simply because it sits physically in the middle of the typed text line. <b>This is an exam disaster!</b> The middle value is meaningless unless the row is organized.</p>
@@ -200,8 +201,10 @@
         document.getElementById('intro-log').innerHTML = "Piles: 5, 1, and 6. Ready to share!";
     }
     function renderCandy(id, count) {
-        const el = document.getElementById(id); el.innerHTML = '';
-        for(let i=0; i<count; i++) el.innerHTML += '<div class="candy-piece"></div>';
+        const el = document.getElementById(id); if(el) el.innerHTML = '';
+        for(let i=0; i<count; i++) {
+            if(el) el.innerHTML += '<div class="candy-piece"></div>';
+        }
     }
     function makeFairShare() {
         renderCandy('pile-1', 4); renderCandy('pile-2', 4); renderCandy('pile-3', 4);
@@ -211,14 +214,16 @@
     /* --- PROGRESSING: PARADE --- */
     let paradeData = [8, 2, 5, 9, 3];
     function resetParade() {
-        const cont = document.getElementById('parade-container'); cont.innerHTML = '';
+        const cont = document.getElementById('parade-container'); if(!cont) return;
+        cont.innerHTML = '';
         paradeData.forEach(h => {
             cont.innerHTML += `<div class="person-f" style="height:${h*15}px"><div class="height-label">${h}</div></div>`;
         });
     }
     function sortParade() {
         const sorted = [...paradeData].sort((a,b)=>a-b);
-        const cont = document.getElementById('parade-container'); cont.innerHTML = '';
+        const cont = document.getElementById('parade-container'); if(!cont) return;
+        cont.innerHTML = '';
         sorted.forEach((h, i) => {
             const isMedian = (i === 2);
             cont.innerHTML += `<div class="person-f ${isMedian?'median':''}" style="height:${h*15}px"><div class="height-label">${h}</div></div>`;
@@ -228,42 +233,69 @@
 
     /* --- SUPPLEMENTAL: ENGINE --- */
     let sData = [];
+    let sOriginalMaxHeight = 1; // Explicit global reference state to capture original canvas max baseline
+
     function runSupp() {
-        const val = document.getElementById('in-data-s').value;
+        const inputEl = document.getElementById('in-data-s');
+        if(!inputEl) return;
+        
+        const val = inputEl.value;
         sData = val.split(',').map(n=>parseFloat(n.trim())).filter(n=>!isNaN(n));
         if(sData.length === 0) return;
+
+        sOriginalMaxHeight = Math.max(...sData, 1); // Set static scale limits derived from input parameters
 
         const sum = sData.reduce((a,b)=>a+b,0);
         const mean = sum/sData.length;
         const sorted = [...sData].sort((a,b)=>a-b);
+        
+        // Mode strategy execution
+        const counts = {}; let maxCount = 0; let mode = "None";
+        sData.forEach(n => { counts[n] = (counts[n] || 0) + 1; if(counts[n] > maxCount) maxCount = counts[n]; });
+        const modes = Object.keys(counts).filter(k => counts[k] === maxCount);
+        if(modes.length > 0 && maxCount > 1 && modes.length < sData.length) mode = modes.join(', ');
+
         const median = sData.length%2===0 ? (sorted[sData.length/2-1]+sorted[sData.length/2])/2 : sorted[Math.floor(sData.length/2)];
         
         document.getElementById('s-out-mean').innerText = mean.toFixed(1);
         document.getElementById('s-out-median').innerText = median.toFixed(1);
+        document.getElementById('s-out-mode').innerText = mode;
         document.getElementById('s-out-range').innerText = (sorted[sorted.length-1]-sorted[0]);
 
-        document.getElementById('supp-log').innerHTML = `→ Sorted Line: [${sorted.join(', ')}]<br>→ Fair Share Calculation: ${sum} total &divide; ${sData.length} items = <b>${mean.toFixed(1)}</b>`;
+        document.getElementById('supp-log').innerHTML = `&rarr; Sorted Line: [${sorted.join(', ')}]<br>&rarr; Fair Share Calculation: ${sum} total weight &divide; ${sData.length} entries = <b>${mean.toFixed(1)}</b>`;
         sRender(sData);
     }
+    
     function sRender(data, highlightMedian=false, forceMean=false) {
-        const chart = document.getElementById('s-chart'); chart.innerHTML = '';
-        const max = Math.max(...data, 1);
+        const chart = document.getElementById('s-chart'); if(!chart) return;
+        chart.innerHTML = '';
+        
         data.forEach((v, i) => {
             const b = document.createElement('div'); b.className = 'bar-s';
             if(highlightMedian && i === Math.floor(data.length/2)) b.classList.add('is-median');
-            if(forceMean && b) b.classList.add('is-mean');
-            b.style.height = (v/max*100) + "%"; b.style.width = "30px";
+            if(forceMean) b.classList.add('is-mean');
+            
+            // Map element height scale directly against original data frame metric to prevent visual distortion
+            b.style.height = (v / sOriginalMaxHeight * 100) + "%"; 
+            b.style.width = "30px";
             b.innerHTML = `<span>${v.toFixed(0)}</span>`;
             chart.appendChild(b);
         });
     }
+    
     function sSort() { sRender([...sData].sort((a,b)=>a-b), true); }
-    function sLevel() { const mean = sData.reduce((a,b)=>a+b,0)/sData.length; sRender(sData.map(()=>mean), false, true); }
+    function sLevel() { 
+        const mean = sData.reduce((a,b)=>a+b,0)/sData.length; 
+        sRender(sData.map(()=>mean), false, true); 
+    }
     function sReset() { runSupp(); }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout(); resetIntro(); resetParade();
-        if(document.getElementById('in-data-s')) runSupp();
+        if(document.getElementById('in-data-s')) {
+            runSupp();
+            document.getElementById('in-data-s').addEventListener('input', runSupp);
+        }
         if(typeof initModule === "function") initModule(23);
     });
 </script>

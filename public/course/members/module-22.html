@@ -48,9 +48,10 @@
         .sundae { cursor: pointer; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
         /* PROGRESSING: ONION PEELER */
-        .layer-circle { fill: white; stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.6s; }
-        .peel-active { fill: #fef3c7; stroke: var(--cognis-gold); transform: scale(1.05); }
-        .math-text { font-family: monospace; font-weight: 800; font-size: 14px; fill: var(--cognis-blue); }
+        .layer-circle { fill: rgba(0, 45, 91, 0.02); stroke: var(--cognis-blue); stroke-width: 2; transition: all 0.6s; }
+        .peel-active { fill: #fef3c7; stroke: var(--cognis-gold); }
+        .math-text { font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 16px; fill: var(--cognis-blue); }
+        .label-val { font-weight: 900; text-anchor: middle; dominant-baseline: central; }
 
         /* SUPPLEMENTAL: MERGER VIZ */
         #v3-svg-s circle { fill: rgba(0, 45, 91, 0.04); stroke: var(--cognis-blue); stroke-width: 3; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -115,13 +116,21 @@
             </div>
 
             <div class="viz-container">
-                <svg width="400" height="300" viewBox="0 0 400 300">
-                    <path d="M150,100 Q200,50 250,100 Q200,150 150,100" class="layer-circle" id="petal-ab" />
-                    <circle cx="200" cy="115" r="30" class="layer-circle" id="core-f" style="fill:var(--trap-red); stroke:white;" />
-                    <circle cx="200" cy="115" r="30" class="layer-circle" id="core-f" style="fill:var(--trap-red); stroke:white;" />
-                    <text x="200" y="120" text-anchor="middle" fill="white" font-weight="900">4</text>
-                    <text x="200" y="85" text-anchor="middle" class="math-text" id="petal-text">10</text>
-                    <text x="200" y="25" text-anchor="middle" font-weight="800" font-size="12" fill="var(--cognis-blue)">OVERLAP ZONE A & B</text>
+                <svg width="400" height="300" viewBox="0 0 400 300" id="peeler-svg">
+                    <circle cx="160" cy="110" r="75" class="layer-circle" />
+                    <circle cx="240" cy="110" r="75" class="layer-circle" />
+                    <circle cx="200" cy="175" r="75" class="layer-circle" />
+                    
+                    <path id="petal-ab" d="M 200,64 A 75,75 0 0,1 235,110 A 75,75 0 0,1 200,156 A 75,75 0 0,1 165,110 A 75,75 0 0,1 200,64 Z" fill="rgba(0,45,91,0.05)" stroke="var(--cognis-blue)" stroke-width="2" />
+                    
+                    <circle cx="200" cy="132" r="22" style="fill:var(--trap-red); stroke:white; stroke-width:2;" />
+                    <text x="200" y="132" class="label-val" fill="white" font-size="14">4</text>
+                    
+                    <text x="200" y="92" class="label-val math-text" id="petal-text">10</text>
+                    
+                    <text x="110" y="50" font-size="10" font-weight="800" fill="#94a3b8">LOOP A</text>
+                    <text x="290" y="50" font-size="10" font-weight="800" fill="#94a3b8">LOOP B</text>
+                    <text x="200" y="270" font-size="10" font-weight="800" fill="#94a3b8">LOOP C</text>
                 </svg>
                 <button class="btn-action" onclick="peelOnion()">Peel the Core Layer</button>
             </div>
@@ -182,6 +191,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "Triple-Counting" Speed Trap:</b> If students simply add the big raw circle totals together directly (25 + 25 + 25), the individuals resting inside the center core get accidentally added <b>three separate times</b>! You have inadvertently created imaginary students who do not exist.</p>
@@ -217,23 +227,36 @@
 
     /* --- INTRO: SUNDAE --- */
     function resetIntro() {
-        document.getElementById('intro-sundae').style.transform = "translate(200px, 350px)";
+        const sundae = document.getElementById('intro-sundae');
+        if(sundae) sundae.style.transform = "translate(200px, 350px)";
         document.querySelectorAll('.topping-zone').forEach(z => z.classList.remove('active'));
+        
+        // Reset peeler text states safely at the same time
+        const petal = document.getElementById('petal-ab');
+        const pTxt = document.getElementById('petal-text');
+        if(petal) petal.classList.remove('peel-active');
+        if(pTxt) pTxt.textContent = "10";
+        
         document.getElementById('intro-log').innerHTML = "Ready to sort elements...";
+        document.getElementById('prog-log').innerHTML = "The overlap looks like 10... but is it \"Clean\"?";
     }
+    
     function placeSundae() {
-        document.getElementById('intro-sundae').style.transform = "translate(200px, 140px)";
+        const sundae = document.getElementById('intro-sundae');
+        if(sundae) sundae.style.transform = "translate(200px, 140px)";
         document.querySelectorAll('.topping-zone').forEach(z => z.classList.add('active'));
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">The Sundae balances inside ALL 3 circles simultaneously. It sits right in the shared center core!</div>`;
     }
 
     /* --- PROGRESSING: PEELER --- */
     function peelOnion() {
-        document.getElementById('petal-ab').classList.add('peel-active');
-        document.getElementById('petal-text').textContent = "10 - 4 = 6";
+        const petal = document.getElementById('petal-ab');
+        const txt = document.getElementById('petal-text');
+        if(petal) petal.classList.add('peel-active');
+        if(txt) txt.textContent = "10 - 4 = 6";
         document.getElementById('prog-log').innerHTML = `
             <div class="discovery-step">We successfully subtracted the 4 people who belong to 'All 3'.</div>
-            <div class="discovery-step">Now we know that only <b>6</b> unique people like ONLY categories A and B.</div>
+            <div class="discovery-step">Now we can see that there are actually only <b>6</b> unique people who like ONLY categories A and B.</div>
         `;
     }
 
@@ -243,15 +266,23 @@
         sMerged = !sMerged;
         const svg = document.getElementById('v3-svg-s');
         const btn = document.getElementById('btn-s-merge');
+        if(!svg || !btn) return;
+        
         const pos = sMerged ? 
             { a:[170,140], b:[290,140], c:[230,230], ta:[120,100], tb:[340,100], tc:[230,310] } :
             { a:[120,120], b:[340,120], c:[230,260], ta:[120,120], tb:[340,120], tc:[230,260] };
 
         ['a','b','c'].forEach(id => {
-            document.getElementById('s-c-'+id).setAttribute('cx', pos[id][0]);
-            document.getElementById('s-c-'+id).setAttribute('cy', pos[id][1]);
-            document.getElementById('s-t-o'+id).setAttribute('x', pos['t'+id][0]);
-            document.getElementById('s-t-o'+id).setAttribute('y', pos['t'+id][1]);
+            const circ = document.getElementById('s-c-'+id);
+            const txt = document.getElementById('s-t-o'+id);
+            if(circ) {
+                circ.setAttribute('cx', pos[id][0]);
+                circ.setAttribute('cy', pos[id][1]);
+            }
+            if(txt) {
+                txt.setAttribute('x', pos['t'+id][0]);
+                txt.setAttribute('y', pos['t'+id][1]);
+            }
         });
 
         if(sMerged) svg.classList.add('merged'); else svg.classList.remove('merged');
@@ -260,27 +291,42 @@
     }
 
     function runSupp() {
+        const log = document.getElementById('supp-log');
+        if(!log) return;
+        
         const ids = ['in-ta','in-tb','in-tc','in-ab','in-bc','in-ac','in-all'];
         const [ta, tb, tc, ab, bc, ac, all] = ids.map(id => parseFloat(document.getElementById(id).value) || 0);
 
         const pAB = ab - all; const pBC = bc - all; const pAC = ac - all;
         const oA = ta - pAB - pAC - all; const oB = tb - pAB - pBC - all; const oC = tc - pAC - pBC - all;
 
-        document.getElementById('s-t-oa').textContent = sMerged ? oA : ta;
-        document.getElementById('s-t-ob').textContent = sMerged ? oB : tb;
-        document.getElementById('s-t-oc').textContent = sMerged ? oC : tc;
-        document.getElementById('s-t-ab').textContent = pAB;
-        document.getElementById('s-t-bc').textContent = pBC;
-        document.getElementById('s-t-ac').textContent = pAC;
-        document.getElementById('s-t-all').textContent = all;
+        const tOA = document.getElementById('s-t-oa');
+        const tOB = document.getElementById('s-t-ob');
+        const tOC = document.getElementById('s-t-oc');
+        if(tOA) tOA.textContent = sMerged ? oA : ta;
+        if(tOB) tOB.textContent = sMerged ? oB : tb;
+        if(tOC) tOC.textContent = sMerged ? oC : tc;
+        
+        const tAB = document.getElementById('s-t-ab');
+        const tBC = document.getElementById('s-t-bc');
+        const tAC = document.getElementById('s-t-ac');
+        const tAll = document.getElementById('s-t-all');
+        if(tAB) tAB.textContent = pAB;
+        if(tBC) tBC.textContent = pBC;
+        if(tAC) tAC.textContent = pAC;
+        if(tAll) tAll.textContent = all;
 
-        document.getElementById('supp-log').innerHTML = `→ 1. Anchor Center Core: <b>${all}</b><br>→ 2. Clean Double Overlaps (e.g. AB): ${ab} - ${all} = <b>${pAB} clean items</b><br>→ 3. Clean Independent 'Only' A Zone: ${ta} - ${pAB} - ${pAC} - ${all} = <b>${oA} clean items</b><br>→ <b>Total Combined Unique Count: ${oA+oB+oC+pAB+pBC+pAC+all}</b>`;
+        log.innerHTML = `&rarr; Run Venn Data Calculation Sweep:<br>&bull; Anchor Central Core: <b>${all}</b><br>&bull; Clean Double Overlaps (AB Intersection): ${ab} - ${all} = <b>${pAB} clean items</b><br>&bull; Isolate Clean Independent 'Only' A Zone: ${ta} - ${pAB} - ${pAC} - ${all} = <b>${oA} clean items</b><br>&bull; <b>Total Combined Unique Population Count: ${(oA+oB+oC+pAB+pBC+pAC+all)}</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout(); resetIntro();
         ['in-ta','in-tb','in-tc','in-ab','in-bc','in-ac','in-all'].forEach(id => {
-            const el = document.getElementById(id); if(el) el.oninput = runSupp;
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', runSupp);
+                el.addEventListener('change', runSupp);
+            }
         });
         if(document.getElementById('in-ta')) runSupp();
         if(typeof initModule === "function") initModule(22);

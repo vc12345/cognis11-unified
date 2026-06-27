@@ -86,7 +86,7 @@
                 <svg width="300" height="200" viewBox="0 0 300 200">
                     <rect x="100" y="50" width="100" height="100" rx="10" class="machine-frame" />
                     <circle cx="150" cy="100" r="35" class="door-glass" />
-                    <text id="intro-num-display" x="150" y="110" text-anchor="middle" font-size="24" font-weight="900" fill="var(--cognis-blue)">?</text>
+                    <text id="intro-num-display" x="150" y="108" text-anchor="middle" font-size="24" font-weight="900" fill="var(--cognis-blue)">?</text>
                     <text x="40" y="105" font-size="20">➡️</text>
                     <text x="230" y="105" font-size="20">➡️</text>
                 </svg>
@@ -114,9 +114,9 @@
                     <circle id="p-node-1" cx="80" cy="75" r="30" class="op-circle" />
                     <circle id="p-node-2" cx="200" cy="75" r="30" class="op-circle" />
                     <circle id="p-node-3" cx="320" cy="75" r="30" class="op-circle" />
-                    <text x="80" y="82" text-anchor="middle" id="p-val-1" font-weight="900">?</text>
-                    <text x="200" y="82" text-anchor="middle" id="p-val-2" font-weight="900">?</text>
-                    <text x="320" y="82" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">20</text>
+                    <text x="80" y="81" text-anchor="middle" id="p-val-1" font-weight="900">?</text>
+                    <text x="200" y="81" text-anchor="middle" id="p-val-2" font-weight="900">?</text>
+                    <text x="320" y="81" text-anchor="middle" font-weight="900" fill="var(--cognis-gold)">20</text>
                     
                     <g transform="translate(140, 30)">
                         <rect width="40" height="20" rx="10" fill="var(--cognis-blue)" />
@@ -127,7 +127,10 @@
                         <text x="20" y="15" text-anchor="middle" fill="white" font-size="12" font-weight="900">+10</text>
                     </g>
                 </svg>
-                <button class="btn-action" onclick="stepBackward()">Use Backtrack Code 🗝️</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="stepBackward()">Use Backtrack Code 🗝️</button>
+                    <button class="btn-action" style="background:#94a3b8;" onclick="resetProg()">Reset Path</button>
+                </div>
             </div>
 
             <div class="discovery-log" id="prog-log">Retrace from 20...</div>
@@ -159,11 +162,11 @@
                     <div class="node-s" id="s-node-2">?</div>
                     <div class="bridge-path">
                         <div class="op-bubble-s" style="top:-30px; background:var(--cognis-blue);" id="s-op2-top">x2</div>
-                        <div class="op-bubble-s" style="bottom:-30px; background:var(--cognis-gold);" id="s-op2-bot">÷2</div>
+                        <div class="op-bubble-s" style="bottom:-30px; background:var(--cognis-gold);" id="s-op2-bot">&divide;2</div>
                     </div>
                     <div class="node-s" style="border-color:var(--cognis-gold);" id="s-node-3">20</div>
                 </div>
-                <button class="btn-action" style="background:var(--cognis-gold); margin-top:50px;" onclick="runSuppReverse()">Execute Rewind</button>
+                <button class="btn-action" style="background:var(--cognis-gold); margin-top:50px;" onclick="runSuppReverse()">Execute Manual Rewind</button>
             </div>
         </section>
 
@@ -187,6 +190,7 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
                 <p><b>The "First-Read" Speed Trap:</b> Children working under test conditions frequently try to reverse the very first instruction they read at the beginning of the text sentence. This is exactly like trying to pull off your socks before you unlace your shoes—it is physically impossible!</p>
@@ -224,34 +228,58 @@
     function runIntro(forward) {
         const display = document.getElementById('intro-num-display');
         const log = document.getElementById('intro-log');
+        if(!display || !log) return;
+        
         if(forward) {
-            display.innerText = "15";
+            display.textContent = "15";
             log.innerHTML = `<div class="discovery-step">We dropped in 10 and <b>Added 5</b>. The machine tracking screen output shows 15!</div>`;
         } else {
-            display.innerText = "10";
+            display.textContent = "10";
             log.innerHTML = `<div class="discovery-step">We dropped in 15 and <b>Subtracted 5</b>. We are returned safely back to 10!</div>`;
         }
     }
 
     /* --- PROGRESSING: RETRACE --- */
     let progStep = 0;
+    function resetProg() {
+        progStep = 0;
+        const v1 = document.getElementById('p-val-1');
+        const v2 = document.getElementById('p-val-2');
+        const n1 = document.getElementById('p-node-1');
+        const n2 = document.getElementById('p-node-2');
+        if(v1) v1.textContent = "?";
+        if(v2) v2.textContent = "?";
+        if(n1) n1.classList.remove('active');
+        if(n2) n2.classList.remove('active');
+        document.getElementById('prog-log').textContent = "Retrace from 20...";
+    }
+    
     function stepBackward() {
-        if(progStep === 0) {
-            document.getElementById('p-val-2').innerText = "10";
-            document.getElementById('p-node-2').classList.add('active');
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Dismantling Junction 1: 20 minus 10 leaves <b>10</b>.</div>`;
+        const val1 = document.getElementById('p-val-1');
+        const val2 = document.getElementById('p-val-2');
+        const node1 = document.getElementById('p-node-1');
+        const node2 = document.getElementById('p-node-2');
+        const log = document.getElementById('prog-log');
+        
+        if(progStep === 0 && val2 && node2 && log) {
+            val2.textContent = "10";
+            node2.classList.add('active');
+            log.innerHTML = `<div class="discovery-step">Dismantling Junction 1: 20 minus 10 leaves <b>10</b>.</div>`;
             progStep++;
-        } else if(progStep === 1) {
-            document.getElementById('p-val-1').innerText = "5";
-            document.getElementById('p-node-1').classList.add('active');
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Dismantling Junction 2: 10 divided by 2 leaves <b>5</b>. We tracked down our mystery start point!</div>`;
+        } else if(progStep === 1 && val1 && node1 && log) {
+            val1.textContent = "5";
+            node1.classList.add('active');
+            log.innerHTML = `<div class="discovery-step">Dismantling Junction 2: 10 divided by 2 leaves <b>5</b>. We tracked down our mystery start point!</div>`;
             progStep++;
         }
     }
 
     /* --- SUPPLEMENTAL: LOGIC --- */
     function runSuppLogic() {
-        const res = parseFloat(document.getElementById('in-res').value) || 0;
+        const resEl = document.getElementById('in-res');
+        if(!resEl) return;
+        
+        const res = parseFloat(resEl.value) || 0;
         const o1v = parseFloat(document.getElementById('in-o1v').value) || 1;
         const o2v = parseFloat(document.getElementById('in-o2v').value) || 1;
         const o1t = document.getElementById('in-o1t').value;
@@ -260,36 +288,45 @@
         const undo2 = (o2t === 'add') ? res - o2v : res / o2v;
         const undo1 = (o1t === 'add') ? undo2 - o1v : undo2 / o1v;
 
-        document.getElementById('supp-log').innerHTML = `
-            → 1. Plant Anchor at Destination: <b>${res}</b><br>
-            → 2. Reverse End Step: ${res} ${o2t==='add'?'-':'&divide;'} ${o2v} = <b>${undo2.toFixed(1)}</b><br>
-            → 3. Reverse Start Step: ${undo2.toFixed(1)} ${o1t==='add'?'-':'&divide;'} ${o1v} = <b>${undo1.toFixed(1)}</b>
-        `;
+        const log = document.getElementById('supp-log');
+        if(log) {
+            log.innerHTML = `
+                &rarr; 1. Plant Anchor at Destination: <b>${res}</b><br>
+                &rarr; 2. Reverse End Step: ${res} ${o2t==='add'?'-':'&divide;'} ${o2v} = <b>${undo2.toFixed(1)}</b><br>
+                &rarr; 3. Reverse Start Step: ${undo2.toFixed(1)} ${o1t==='add'?'-':'&divide;'} ${o1v} = <b>${undo1.toFixed(1)}</b>
+            `;
+        }
+        
+        // Sync graphics result directly to ensure tool elements reflect changes instantly
+        const n1 = document.getElementById('s-node-1');
+        const n2 = document.getElementById('s-node-2');
+        const n3 = document.getElementById('s-node-3');
+        if(n1) n1.innerText = undo1.toFixed(0);
+        if(n2) n2.innerText = undo2.toFixed(0);
+        if(n3) n3.innerText = res.toFixed(0);
+        
+        const ot1 = document.getElementById('s-op-top');
+        const ob1 = document.getElementById('s-op-bot');
+        const ot2 = document.getElementById('s-op2-top');
+        const ob2 = document.getElementById('s-op2-bot');
+        if(ot1) ot1.innerText = (o1t==='add'?'+':'x') + o1v;
+        if(ob1) ob1.innerText = (o1t==='add'?'-':'&divide;') + o1v;
+        if(ot2) ot2.innerText = (o2t==='add'?'+':'x') + o2v;
+        if(ob2) ob2.innerText = (o2t==='add'?'-':'&divide;') + o2v;
     }
 
     function runSuppReverse() {
-        const res = parseFloat(document.getElementById('in-res').value) || 20;
-        const o1v = parseFloat(document.getElementById('in-o1v').value) || 5;
-        const o2v = parseFloat(document.getElementById('in-o2v').value) || 10;
-        const o1t = document.getElementById('in-o1t').value;
-        const o2t = document.getElementById('in-o2t').value;
-
-        const undo2 = (o2t === 'add') ? res - o2v : res / o2v;
-        const undo1 = (o1t === 'add') ? undo2 - o1v : undo2 / o1v;
-
-        document.getElementById('s-node-2').innerText = undo2.toFixed(0);
-        document.getElementById('s-node-1').innerText = undo1.toFixed(0);
-        document.getElementById('s-op-top').innerText = (o1t==='add'?'+':'x') + o1v;
-        document.getElementById('s-op-bot').innerText = (o1t==='add'?'-':'&divide;') + o1v;
-        document.getElementById('s-op2-top').innerText = (o2t==='add'?'+':'x') + o2v;
-        document.getElementById('s-op2-bot').innerText = (o2t==='add'?'-':'&divide;') + o2v;
+        runSuppLogic(); // Directly link button mechanism back to master sync step
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        applyLayout();
+        applyLayout(); resetProg();
         ['in-res', 'in-o1t', 'in-o1v', 'in-o2t', 'in-o2v'].forEach(id => {
             const el = document.getElementById(id);
-            if(el) el.oninput = runSuppLogic;
+            if(el) {
+                el.addEventListener('input', runSuppLogic);
+                el.addEventListener('change', runSuppLogic);
+            }
         });
         if(document.getElementById('in-res')) runSuppLogic();
         if(typeof initModule === "function") initModule(17);

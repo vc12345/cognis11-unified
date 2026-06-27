@@ -44,9 +44,10 @@
 
         /* INTRO: STRENGTH-O-METER */
         .meter-bg { fill: #e2e8f0; stroke: #cbd5e0; stroke-width: 2; }
-        .meter-fill { transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .op-button { cursor: pointer; transition: transform 0.2s; }
-        .op-button:hover { transform: scale(1.1); }
+        .meter-fill { transition: y 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .op-button { cursor: pointer; transform-origin: 30px center; transition: opacity 0.2s; }
+        .op-button:hover { opacity: 0.85; }
+        .op-button.selected-op circle { stroke: #10b981; stroke-width: 3; }
 
         /* PROGRESSING: PRIORITY LADDER */
         .ladder-rail { stroke: #94a3b8; stroke-width: 4; stroke-linecap: round; }
@@ -83,7 +84,7 @@
             <p>In a math sentence, symbols are not born equal. Some characters carry far more muscular energy than others. If a high-energy champion like <b>Multiplication (x)</b> bumps into a low-energy symbol like <b>Addition (+)</b>, the high-energy one will always push straight to the front of the calculation line.</p>
             
             <div class="parent-script">
-                "Click on the different circular symbols below. Watch our Strength-O-Meter gauge their muscle power! Simple Addition is an easy lightweight, but Multiplication is a certified heavyweight champion. Whenever we solve a math sentence, the heaviest symbol always demands to be answered first."
+                "Click on the different circular symbols below one after another. Watch our Strength-O-Meter gauge their muscle power sequentially! Simple Addition is an easy lightweight, but Multiplication is a certified heavyweight champion. Whenever we solve a math sentence, the heaviest symbol always demands to be answered first."
             </div>
 
             <div class="viz-container">
@@ -91,15 +92,15 @@
                     <rect x="120" y="20" width="60" height="200" rx="30" class="meter-bg" />
                     <rect id="intro-meter-fill" x="120" y="220" width="60" height="0" rx="30" fill="var(--cognis-gold)" class="meter-fill" />
                     
-                    <g transform="translate(30, 50)" class="op-button" onclick="testStrength('as', '+')">
+                    <g id="btn-as" transform="translate(30, 50)" class="op-button" onclick="testStrength('as', '+', this)">
                         <circle r="25" fill="var(--cognis-blue)" />
                         <text text-anchor="middle" y="8" fill="white" font-size="24" font-weight="900">+</text>
                     </g>
-                    <g transform="translate(30, 120)" class="op-button" onclick="testStrength('dm', 'x')">
+                    <g id="btn-dm" transform="translate(30, 120)" class="op-button" onclick="testStrength('dm', 'x', this)">
                         <circle r="25" fill="var(--cognis-gold)" />
                         <text text-anchor="middle" y="8" fill="white" font-size="24" font-weight="900">x</text>
                     </g>
-                    <g transform="translate(30, 190)" class="op-button" onclick="testStrength('b', '()')">
+                    <g id="btn-b" transform="translate(30, 190)" class="op-button" onclick="testStrength('b', '()', this)">
                         <circle r="25" fill="#6366f1" />
                         <text text-anchor="middle" y="6" fill="white" font-size="18" font-weight="900">()</text>
                     </g>
@@ -135,7 +136,10 @@
                     <circle id="token-plus" cx="70" cy="112" r="15" fill="none" stroke="var(--cognis-blue)" stroke-width="2" class="token-f" />
                     <circle id="token-mult" cx="132" cy="112" r="15" fill="none" stroke="var(--cognis-gold)" stroke-width="2" class="token-f" />
                 </svg>
-                <button class="btn-action" onclick="climbLadder()">Scan for Importance</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" onclick="climbLadder()">Scan for Importance</button>
+                    <button class="btn-action" style="background:#94a3b8;" onclick="resetLadder()">Reset Position</button>
+                </div>
             </div>
 
             <div class="discovery-log" id="prog-log">Ready to scan the hierarchy...</div>
@@ -148,9 +152,9 @@
             <p>This rule is known as the <b>"Hierarchy of Power."</b> Signs possess internal energy rankings. High-energy actions (like Multiplication or Powers) will always override low-energy partners (like Addition and Subtraction), forcing them to wait. Never read a long math statement from left to right—read it like a high-priority checklist.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Basic Trap:</b> "$5 + 3 \times 2$. Does our addition step or our multiplication step claim first priority?"</div>
-                <div class="tier-card"><b>The Shield Block:</b> "$(15 - 5) \div 2 + 4$. The bracket rings form a protective shield around the subtraction sign, moving it straight to the front."</div>
-                <div class="tier-card"><b>The Downward Path:</b> "$10 + 2^3 \div (6 - 2)$. Map your route all the way from the top power value down to the base addition sign."</div>
+                <div class="tier-card"><b>The Basic Trap:</b> "5 + 3 &times; 2. Does our addition step or our multiplication step claim first priority?"</div>
+                <div class="tier-card"><b>The Shield Block:</b> "(15 - 5) &divide; 2 + 4. The bracket rings form a protective shield around the subtraction sign, moving it straight to the front."</div>
+                <div class="tier-card"><b>The Downward Path:</b> "10 + 2<sup>3</sup> &divide; (6 - 2). Map your route all the way from the top power value down to the base addition sign."</div>
             </div>
         </section>
 
@@ -182,10 +186,11 @@
         </section>
 
         <section class="phase">
+            <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>Phase 4: Common Mistake to Watch For</h3>
-                <p><b>The "Left-to-Right Bookworm" Trap:</b> Children naturally read from left to right. When faced with a string like $10 - 2 \times 3$, they will almost always try to compute $10 - 2 = 8$ first. <b>This runs straight into an exam trap!</b></p>
-                <p><b>The Easy Fix: The "Eyes Scan First" Rule.</b> Tell your child: <i>"Your pencil must stay perfectly still until your eyes have scanned the entire line."</i> Always hunt down your heavyweights first. In the string $10 - 2 \times 3$, our multiplication sign is heavier. Compute $2 \times 3 = 6$ first. Then finish with $10 - 6 = 4$.</p>
+                <p><b>The "Left-to-Right Bookworm" Trap:</b> Children naturally read from left to right. When faced with a string like 10 - 2 &times; 3, they will almost always try to compute 10 - 2 = 8 first. <b>This runs straight into an exam trap!</b></p>
+                <p><b>The Easy Fix: The "Eyes Scan First" Rule.</b> Tell your child: <i>"Your pencil must stay perfectly still until your eyes have scanned the entire line."</i> Always hunt down your heavyweights first. In the string 10 - 2 &times; 3, our multiplication sign is heavier. Compute 2 &times; 3 = 6 first. Then finish with 10 - 6 = 4.</p>
             </div>
         </section>
         
@@ -216,11 +221,17 @@
     }
 
     /* --- INTRO: STRENGTH METER --- */
-    function testStrength(cat, sym) {
+    function testStrength(cat, sym, element) {
         const fill = document.getElementById('intro-meter-fill');
         const log = document.getElementById('intro-log');
+        if(!fill || !log) return;
+
         const heights = { as: 60, dm: 140, b: 200 };
         const titles = { as: 'Lightweight', dm: 'Heavyweight Champion', b: 'VIP Super Champion' };
+        
+        // Remove selection highlight from siblings, apply to current element safely
+        document.querySelectorAll('.op-button').forEach(btn => btn.classList.remove('selected-op'));
+        if(element) element.classList.add('selected-op');
         
         fill.style.height = heights[cat] + "px";
         fill.style.y = (220 - heights[cat]) + "px";
@@ -230,9 +241,18 @@
     }
 
     /* --- PROGRESSING: LADDER --- */
+    function resetLadder() {
+        const plus = document.getElementById('token-plus');
+        const mult = document.getElementById('token-mult');
+        if(plus) plus.style.transform = "none";
+        if(mult) mult.style.transform = "none";
+        document.getElementById('prog-log').textContent = "Ready to scan the hierarchy...";
+    }
+
     function climbLadder() {
         const plus = document.getElementById('token-plus');
         const mult = document.getElementById('token-mult');
+        if(!plus || !mult) return;
         
         mult.style.transform = "translate(183px, 8px)";
         setTimeout(() => {
@@ -249,6 +269,7 @@
     function addSuppTerm() { if(sTerms.length < 5) { sTerms[sTerms.length-1].o = '+'; sTerms.push({v:4}); renderSupp(); } }
     function renderSupp() {
         const b = document.getElementById('supp-builder');
+        if(!b) return;
         b.innerHTML = '';
         sTerms.forEach((t, i) => {
             const wrap = document.createElement('div');
@@ -256,7 +277,7 @@
             if(t.o) wrap.innerHTML += `<select style="background:#2d3748; color:white; border:none;" onchange="sTerms[${i}].o=this.value; updateSEq()">
                 <option value="+" ${t.o==='+'?'selected':''}>+</option>
                 <option value="x" ${t.o==='x'?'selected':''}>x</option>
-                <option value="/" ${t.o==='/'?'selected':''}>÷</option>
+                <option value="/" ${t.o==='/'?'selected':''}>&divide;</option>
                 <option value="^" ${t.o==='^'?'selected':''}>^</option>
             </select>`;
             b.appendChild(wrap);
@@ -264,18 +285,23 @@
         updateSEq();
     }
     function updateSEq() {
-        document.getElementById('s-eq-display').innerText = sTerms.map(t => t.o ? `${t.v} ${t.o==='/'?'÷':t.o}` : t.v).join(' ');
+        const eq = document.getElementById('s-eq-display');
+        if(eq) {
+            eq.innerText = sTerms.map(t => t.o ? `${t.v} ${t.o==='/'?'&divide;':t.o}` : t.v).join(' ');
+        }
     }
     function runSuppFilter() {
         const bins = { b:[], o:[], dm:[], as:[] };
         const prio = { '^':'o', 'x':'dm', '/':'dm', '+': 'as', '-': 'as' };
-        sTerms.forEach(t => { if(t.o) bins[prio[t.o]].push(t.o==='/'?'÷':t.o); });
+        sTerms.forEach(t => { if(t.o) bins[prio[t.o]].push(t.o==='/'?'&divide;':t.o); });
 
         ['o','dm','as'].forEach(c => {
-            document.getElementById('s-bin-'+c).innerHTML = bins[c].map(op => `<span class="token ${c}">${op}</span>`).join('');
-            document.getElementById('s-layer-'+c).classList.toggle('active', bins[c].length > 0);
+            const bin = document.getElementById('s-bin-'+c);
+            const layer = document.getElementById('s-layer-'+c);
+            if(bin) bin.innerHTML = bins[c].map(op => `<span class="token ${c}">${op}</span>`).join('');
+            if(layer) layer.classList.toggle('active', bins[c].length > 0);
         });
-        document.getElementById('supp-log').innerHTML = `→ Scan complete. Solve your structural layers in priority order: 1 down to 4.`;
+        document.getElementById('supp-log').innerHTML = `&larr; Scan complete. Solve your structural layers in priority order: 1 down to 4.`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {
