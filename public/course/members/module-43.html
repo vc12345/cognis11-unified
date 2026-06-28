@@ -45,7 +45,9 @@
 
         /* INTRO: INK FOLD */
         .paper-half { fill: #fff; stroke: #cbd5e0; stroke-width: 2; }
-        .ink-shape { fill: var(--cognis-blue); transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .ink-shape { fill: var(--cognis-blue); }
+        /* Dynamic reflection transition using stable transform scales */
+        .ink-reflected { fill: var(--cognis-blue); opacity: 0; transform: scaleX(0); transform-origin: 160px 100px; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
         .mirror-line-intro { stroke: #ef4444; stroke-width: 2; stroke-dasharray: 4; }
 
         /* PROGRESSING: DISTANCE TWINS */
@@ -96,7 +98,8 @@
                     <line x1="160" y1="10" x2="160" y2="190" class="mirror-line-intro" />
                     
                     <path d="M160,50 C120,20 80,60 110,110 L160,160 Z" class="ink-shape" />
-                    <path id="intro-reflection" d="M160,50 C120,20 80,60 110,110 L160,160 Z" class="ink-shape" style="opacity:0; transform-origin: 160px 100px;" />
+                    
+                    <path id="intro-reflection" d="M160,50 C200,20 240,60 210,110 L160,160 Z" class="ink-reflected" />
                 </svg>
                 <button class="btn-action" onclick="runIntroFold()">Press & Fold Sheet</button>
             </div>
@@ -211,17 +214,17 @@
         }
     }
 
-    /* --- INTRO: FOLD ALIGNMENT PATCH --- */
+    /* --- INTRO: FOLD ENGINE FIXED --- */
     function runIntroFold() {
         const refl = document.getElementById('intro-reflection');
         if(!refl) return;
         
+        // Triggers clean fade-in and scale unfolding relative to mirror line origin axis (160px)
         refl.style.opacity = "1";
-        // Apply high precision reflection transform metrics across standard X-axis coordinate mirrors
-        refl.style.transform = "matrix(-1, 0, 0, 1, 320, 0)";
+        refl.style.transform = "scaleX(1)";
         
         const log = document.getElementById('intro-log');
-        if(log) log.innerHTML = `<div class="discovery-step">Symmetry Enforced! The paint printed across the folding line. The completed shapes fuse into a balanced <b>Heart Profile</b>!</div>`;
+        if(log) log.innerHTML = `<div class="discovery-step">Symmetry Enforced! The paint printed across the folding line. The completed halves fuse into a balanced <b>Heart Profile</b>!</div>`;
     }
 
     /* --- PROGRESSING: TWIN --- */

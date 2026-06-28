@@ -47,23 +47,24 @@
         .flipbook-frame { width: 140px; height: 140px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; position: relative; transition: all 0.3s; }
         .flipbook-dot { width: 20px; height: 20px; background: var(--cognis-gold); border-radius: 50%; position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* PROGRESSING: SPOTLIGHT */
-        .spotlight-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); transition: clip-path 0.5s; pointer-events: none; z-index: 5; }
-        .busy-box { width: 200px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; overflow: hidden; }
+        /* PROGRESSING: SPOTLIGHT FIXED ALIGNMENTS */
+        .spotlight-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.92); transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 5; }
+        .busy-box { width: 200px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; overflow: hidden; border-radius: 8px; }
 
-        /* SUPPLEMENTAL: SERIES ENGINE */
-        .series-row-s { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        .frame-s { width: 100px; height: 100px; background: #2d3748; border: 2px solid #4a5568; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .frame-s.target { border: 2px dashed var(--cognis-gold); background: rgba(197, 160, 89, 0.08); }
-        .element-s { position: absolute; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* SUPPLEMENTAL: SERIES ENGINE WITH ASYMMETRIC FLAGS */
+        .series-row-s { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .frame-s { width: 100px; height: 100px; background: #0f172a; border: 2px solid #334155; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .frame-s.target { border: 2px dashed var(--cognis-gold); background: rgba(197, 160, 89, 0.05); }
+        .element-s { position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; }
         .dot-s { width: 18px; height: 18px; border-radius: 50%; background: var(--cognis-gold); }
+        .asym-flag-s { font-size: 1.6rem; line-height: 1; color: var(--cognis-gold); }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-logic-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 6px; font-size: 0.6rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; }
-        .btn-logic-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: var(--cognis-blue); }
+        .btn-logic-s { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 6px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
+        .btn-logic-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: var(--cognis-blue); border-color: #334155; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -90,11 +91,13 @@
                     <div id="intro-dot" class="flipbook-dot" style="top:20px; left:20px;"></div>
                     <div style="position:absolute; bottom:5px; width:100%; text-align:center; font-size:0.6rem; font-weight:900; color:var(--cognis-blue);" id="intro-label">FRAME 1</div>
                 </div>
-                <button class="btn-action" onclick="stepIntro()">Advance Movie Frame</button>
-                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Movie Reel</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-action" onclick="stepIntro()">Advance Movie Frame</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Movie Reel</button>
+                </div>
             </div>
 
-            <div class="discovery-log" id="intro-log">Waiting for the first frame...</div>
+            <div class="discovery-log" id="intro-log">The movie is parked at Frame 1. Click advance to trace the pattern.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
@@ -103,20 +106,21 @@
             <p>Inside complex non-verbal questions, examiners pack too many independent items moving simultaneously into a single space. To find the answer calmly, your student must behave like a precision pinhole camera filter—lock onto <b>one individual element</b> at a time and ignore every other surrounding distraction. This technique is known as the tracking method.</p>
             
             <div class="parent-script">
-                "This layout box is crowded and confusing! It contains a crescent moon, a blue square, and an active cross symbol all together. Avoid staring at the entire canvas at once. Click 'Isolate Moon Position' below. Watch how everything else vanishes into darkness. Now you can calculate the exact travel path for the moon without getting turned around by the other characters."
+                "This layout box is crowded and confusing! It contains a moon, a blue square, and an active cross symbol all together. Avoid staring at the entire canvas at once. Click 'Isolate Moon Position' below. Watch how everything else vanishes into darkness. Now you can calculate the exact travel path for the moon without getting turned around by the other characters."
             </div>
 
             <div class="viz-container">
                 <div class="busy-box" id="prog-box">
                     <div class="spotlight-mask" id="prog-mask" style="clip-path: circle(100% at 50% 50%);"></div>
-                    <div style="position:absolute; top:20px; left:20px; font-size:1.5rem;" id="prog-dot">🌕</div>
-                    <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem;" id="prog-sq">🟦</div>
-                    <div style="position:absolute; top:80px; left:80px; font-size:1.5rem;">❌</div>
+                    <div style="position:absolute; top:20px; left:20px; font-size:1.5rem; z-index: 2;" id="prog-dot">🌕</div>
+                    <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem; z-index: 2;" id="prog-sq">🟦</div>
+                    <div style="position:absolute; top:85px; left:85px; font-size:1.5rem; line-height:1; z-index: 2;" id="prog-cross">✖</div>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:20px;">
-                    <button class="btn-action" onclick="focusProg('dot')">Isolate Moon Position</button>
-                    <button class="btn-action" onclick="focusProg('sq')">Isolate Square Position</button>
-                    <button class="btn-action" style="background:#4a5568;" onclick="focusProg('all')">Restore Full Frame View</button>
+                <div style="display:flex; gap:8px; margin-top:20px; flex-wrap: wrap; justify-content: center;">
+                    <button class="btn-action" style="font-size: 0.65rem; padding: 10px 15px;" onclick="focusProg('dot')">Isolate Moon Position</button>
+                    <button class="btn-action" style="font-size: 0.65rem; padding: 10px 15px;" onclick="focusProg('sq')">Isolate Square Position</button>
+                    <button class="btn-action" style="font-size: 0.65rem; padding: 10px 15px;" onclick="focusProg('cross')">Isolate Cross Position</button>
+                    <button class="btn-action" style="background:#4a5568; font-size: 0.65rem; padding: 10px 15px;" onclick="focusProg('all')">Restore Full View</button>
                 </div>
             </div>
 
@@ -139,7 +143,7 @@
         <section class="phase">
             <h2>Phase 2: The Sequence Mapping Lab</h2>
             <p>Welcome to our interactive <b>Sequence Mapping Lab</b>. Notice how independent geometric tokens travel completely on their own terms. Every single item inside the frame runs on its own private script track. The moment you isolate them from the noise, the complex layout dance resolves into a predictable pattern path. Use our simulation array panel below to toggle distinct structural scripts.</p>
-            <div class="anatomy-display" style="background:#1a202c;">
+            <div class="anatomy-display" style="background:#0f172a; padding: 30px; border-radius: 8px; display: flex; justify-content: center;">
                 <div id="s-row" class="series-row-s"></div>
             </div>
         </section>
@@ -149,11 +153,11 @@
             <p style="margin-bottom: 20px;">Select a pattern logic type from our menu below. Track how our real-time status log calculates the explicit change steps between cards. The final solution is consistently hidden in the individual pieces, never in the frame as a whole look.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Sequence Path Rules</label>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Select Sequence Path Rules</label>
                     <button class="btn-logic-s active" onclick="loadSupp('slider', this)">Linear Slide Sequence (Steady Directional Step)</button>
                     <button class="btn-logic-s" onclick="loadSupp('light', this)">Looping State Sequence (Cycling Values)</button>
                     <button class="btn-logic-s" onclick="loadSupp('ping', this)">Binary Reversal Sequence (Alternating Sides)</button>
-                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Dual Variable Sequence (Compound Travel & Rotation)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Dual Variable Sequence (Asymmetric Corner-Hop & Directional Rotation)</button>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
             </div>
@@ -193,57 +197,90 @@
         }
     }
 
-    /* --- INTRO: FLIPBOOK --- */
+    /* --- INTRO: FLIPBOOK STABLE BOUNDARY FIXED --- */
     let introStep = 0;
-    const introPos = [[20,20], [20,80], [80,80], [80,20]];
+    const introPos = [[20,20], [20,100], [100,100], [100,20]];
+    
+    function updateIntroView() {
+        const dot = document.getElementById('intro-dot');
+        const label = document.getElementById('intro-label');
+        const log = document.getElementById('intro-log');
+        
+        if(dot) {
+            dot.style.top = introPos[introStep][0] + 'px';
+            dot.style.left = introPos[introStep][1] + 'px';
+        }
+        if(label) label.textContent = 'FRAME ' + (introStep + 1);
+        if(log) log.innerHTML = `<div class="discovery-step">Movie sequence advanced! Target indicator dot resides at coordinates: <b>[Y: ${introPos[introStep][0]}px, X: ${introPos[introStep][1]}px]</b> inside Frame ${introStep + 1}.</div>`;
+    }
+
     function stepIntro() {
         introStep = (introStep + 1) % 4;
-        const dot = document.getElementById('intro-dot');
-        dot.style.top = introPos[introStep][0] + 'px';
-        dot.style.left = introPos[introStep][1] + 'px';
-        document.getElementById('intro-label').textContent = 'FRAME ' + (introStep + 1);
-        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Character position transformed! Target asset resides at coordinates: <b>${introPos[introStep]}</b>.</div>`;
+        updateIntroView();
     }
-    function resetIntro() { introStep = 0; stepIntro(); }
+    
+    function resetIntro() { 
+        introStep = 0; // Explicitly points to index boundary 0 (Frame 1)
+        updateIntroView(); 
+    }
 
-    /* --- PROGRESSING: SPOTLIGHT --- */
+    /* --- PROGRESSING: SPOTLIGHT EXTENSION --- */
     function focusProg(type) {
         const mask = document.getElementById('prog-mask');
-        if(type === 'dot') mask.style.clipPath = 'circle(30px at 35px 35px)';
-        else if(type === 'sq') mask.style.clipPath = 'circle(30px at 165px 165px)';
-        else mask.style.clipPath = 'circle(100% at 50% 50%)';
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Focus shield engaged! Background components are successfully masked out to guarantee concentrated viewing.</div>`;
+        const log = document.getElementById('prog-log');
+        if(!mask || !log) return;
+        
+        if(type === 'dot') {
+            mask.style.clipPath = 'circle(32px at 32px 32px)';
+            log.innerHTML = `<div class="discovery-step">Focus filter locked on <b>MOON Profile</b>. Vector path checks out cleanly!</div>`;
+        } else if(type === 'sq') {
+            mask.style.clipPath = 'circle(32px at 168px 168px)';
+            log.innerHTML = `<div class="discovery-step">Focus filter locked on <b>BLUE SQUARE Profile</b>. Outer track isolates completely.</div>`;
+        } else if(type === 'cross') {
+            mask.style.clipPath = 'circle(32px at 100px 100px)';
+            log.innerHTML = `<div class="discovery-step">Focus filter locked on central <b>CROSS Glyph Profile</b>. Center orientation verified.</div>`;
+        } else {
+            mask.style.clipPath = 'circle(100% at 50% 50%)';
+            log.innerHTML = `<div class="discovery-step">Focus shield disengaged. Full layout composition restored seamlessly!</div>`;
+        }
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: ASYMMETRIC DELTA SERIES ENGINE --- */
     function loadSupp(type, btn) {
         document.querySelectorAll('.btn-logic-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const row = document.getElementById('s-row'); row.innerHTML = '';
+        if(btn) btn.classList.add('active');
+        
+        const row = document.getElementById('s-row'); 
+        if(!row) return;
+        row.innerHTML = '';
         let log = "";
 
         for(let i=0; i<4; i++) {
             const f = document.createElement('div');
             f.className = `frame-s ${i===3?'target':''}`;
+            
             if(type === 'slider') {
-                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:${15 + i*20}px"></div>`;
+                f.innerHTML = `<div class="element-s dot-s" style="top:40px; left:${15 + i*20}px"></div>`;
                 log = "&rarr; Position Tracking Trace: Coordinate Step | Delta Change Map: +20px Rightward shift per frame";
             } else if(type === 'light') {
                 const cols = ['#ef4444', '#eab308', '#22c55e', '#ef4444'];
-                f.innerHTML += `<div class="element-s dot-s" style="top:40px; left:40px; background:${cols[i]}"></div>`;
+                f.innerHTML = `<div class="element-s dot-s" style="top:40px; left:40px; background:${cols[i]}"></div>`;
                 log = "&rarr; Property Shading Trace: Value Modality | Delta Change Map: Red &rarr; Gold &rarr; Green progression cycle";
             } else if(type === 'ping') {
-                f.innerHTML += `<div class="element-s dot-s" style="top:10px; left:${i%2===0?10:70}px"></div>`;
+                f.innerHTML = `<div class="element-s dot-s" style="top:15px; left:${i%2===0?15:65}px"></div>`;
                 log = "&rarr; Position Tracking Trace: Structural Toggle | Delta Change Map: Horizontal Axis Bounce (Binary Oscillation)";
             } else if(type === 'orbit') {
-                const pts = [[10,10], [10,70], [70,70], [70,10]];
-                f.innerHTML += `<div class="element-s dot-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px"></div>`;
-                f.innerHTML += `<div class="element-s" style="top:45px; left:30px; width:40px; height:10px; background:white; transform:rotate(${i*45}deg)"></div>`;
-                log = "&rarr; Compound Element Trace: Dual Vectors | Delta Change Map: Perimeter Corner-Hop + 45-degree Axial Rotation Step";
+                const pts = [[12,12], [12,68], [68,68], [68,12]];
+                // Swapped symmetrical circle token with an asymmetrical flag icon to verify 90° progressive step turns clearly
+                const flagRotation = i * 90;
+                f.innerHTML = `<div class="element-s asym-flag-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px; transform: rotate(${flagRotation}deg);">⚑</div>`;
+                log = "&rarr; Asymmetric Element Trace: Dual Delta Vectors | Delta Change Map: Perimeter Corner-Hop + 90° Clockwise Angular Rotation Step";
             }
             row.appendChild(f);
         }
-        document.getElementById('supp-log').innerHTML = log + `<br><b>Current Matrix Status: Logic Sequence Fully Dissected</b>`;
+        
+        const logBox = document.getElementById('supp-log');
+        if(logBox) logBox.innerHTML = log + `<br><b>Current Matrix Status: Logic Sequence Fully Dissected</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

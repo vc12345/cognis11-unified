@@ -6,7 +6,7 @@
     <title>Module 44: The Shape Stacking Order | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -50,8 +50,8 @@
 
         /* PROGRESSING: T-JUNCTIONS */
         .junction-path { fill: none; stroke: #cbd5e0; stroke-width: 4; }
-        .junction-highlight { stroke: var(--cognis-gold); stroke-width: 8; opacity: 0; transition: opacity 0.3s; }
-        .t-point { fill: #ef4444; opacity: 0; transition: opacity 0.3s; }
+        .junction-highlight { stroke: var(--cognis-gold); stroke-width: 6; opacity: 0; transition: opacity 0.3s; fill: none; }
+        .t-point { fill: #ef4444; stroke: white; stroke-width: 1.5; opacity: 0; transition: opacity 0.3s; }
 
         /* SUPPLEMENTAL: 3D SCANNER */
         .anatomy-display-s { background: #0f172a; padding: 60px 20px; perspective: 1200px; border-radius: 12px; }
@@ -105,13 +105,14 @@
             </div>
 
             <div class="viz-container">
-                <svg width="250" height="250" viewBox="0 0 200 200">
+                <svg width="250" height="250" viewBox="0 0 220 220">
                     <rect x="40" y="40" width="120" height="120" class="junction-path" />
-                    <circle cx="100" cy="100" r="50" fill="white" stroke="#cbd5e0" stroke-width="4" />
+                    <circle cx="140" cy="140" r="55" fill="white" stroke="#cbd5e0" stroke-width="4" />
                     
-                    <circle cx="50" cy="100" r="5" class="t-point" id="tp-1" />
-                    <circle cx="150" cy="100" r="5" class="t-point" id="tp-2" />
-                    <path d="M100,50 L100,60" class="junction-highlight" id="th-1" />
+                    <circle cx="140" cy="85" r="6" class="t-point" id="tp-1" />
+                    <circle cx="85" cy="140" r="6" class="t-point" id="tp-2" />
+                    
+                    <path d="M85,140 A55,55 0 0,1 140,85" class="junction-highlight" id="th-1" />
                 </svg>
                 <button class="btn-action" onclick="showJunctions()">Find Line Intersections</button>
             </div>
@@ -145,7 +146,7 @@
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#94a3b8; font-size:0.6rem; font-weight:800;">
                         <span>2D OVERVIEW</span><span>3D LAYER SEPARATION</span>
                     </div>
-                    <input type="range" id="si-depth" min="0" max="1" step="1" value="0" style="width:100%;" oninput="renderSuppStack()">
+                    <input type="range" id="si-depth" min="0" max="1" step="1" value="0" style="width:100%; accent-color:var(--cognis-gold);" oninput="renderSuppStack()">
                 </div>
             </div>
         </section>
@@ -207,10 +208,13 @@
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Layers Adjusted! The <b>${redOnTop?'Red':'Blue'}</b> square now holds an unbroken outline border.</div>`;
     }
 
-    /* --- PROGRESSING: JUNCTIONS --- */
+    /* --- PROGRESSING: JUNCTIONS FIXED --- */
     function showJunctions() {
         document.querySelectorAll('.t-point').forEach(p => p.style.opacity = '1');
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look closely at the Red indicator nodes! The square's outline hits a boundary wall and stops. The circle is <b>On Top</b>.</div>`;
+        const highlightPath = document.getElementById('th-1');
+        if(highlightPath) highlightPath.style.opacity = '1';
+        
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look closely at the Red indicator nodes! The square's background outline hits a boundary wall and stops dead, forming perfect 'T' stems. The circle is clearly <b>On Top</b>.</div>`;
     }
 
     /* --- SUPPLEMENTAL: ENGINE --- */
@@ -224,21 +228,30 @@
     }
 
     function renderSuppStack() {
-        const is3D = document.getElementById('si-depth').value === "1";
-        document.getElementById('s-stage').classList.toggle('view-3d-s', is3D);
+        const depthSelect = document.getElementById('si-depth');
+        if(!depthSelect) return;
+        
+        const is3D = depthSelect.value === "1";
+        const stage = document.getElementById('s-stage');
+        if(stage) stage.classList.toggle('view-3d-s', is3D);
         
         sOrder.forEach((k, i) => {
             const el = document.getElementById('s-'+k);
-            el.style.zIndex = i + 10;
-            el.textContent = 3 - i;
-            el.style.transform = is3D ? `translateZ(${(i-1)*80}px)` : `translateZ(0px)`;
+            if(el) {
+                el.style.zIndex = i + 10;
+                el.textContent = 3 - i;
+                el.style.transform = is3D ? `translateZ(${(i-1)*80}px)` : `translateZ(0px)`;
+            }
         });
 
-        document.getElementById('supp-log').innerHTML = `
-            &rarr; Top Position: <b>${sNames[sOrder[2]]}</b><br>
-            &rarr; Intermediate Position: <b>${sNames[sOrder[1]]}</b><br>
-            &rarr; Bottom Position: <b>${sNames[sOrder[0]]}</b>
-        `;
+        const log = document.getElementById('supp-log');
+        if(log) {
+            log.innerHTML = `
+                &rarr; Top Position: <b>${sNames[sOrder[2]]}</b><br>
+                &rarr; Intermediate Position: <b>${sNames[sOrder[1]]}</b><br>
+                &rarr; Bottom Position: <b>${sNames[sOrder[0]]}</b>
+            `;
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

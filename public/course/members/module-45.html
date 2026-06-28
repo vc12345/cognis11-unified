@@ -44,20 +44,20 @@
         .discovery-step::before { content: '🏗️'; }
 
         /* INTRO: TOY FACTORY */
-        .factory-grid { display: grid; grid-template-columns: 50px 80px 80px; gap: 10px; align-items: center; }
-        .mold-label { font-weight: 800; color: var(--cognis-blue); font-size: 0.8rem; }
-        .paint-label { font-weight: 800; color: var(--cognis-gold); font-size: 0.7rem; text-align: center; }
-        .factory-cell { width: 80px; height: 80px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.5s; }
+        .factory-grid { display: grid; grid-template-columns: 80px 90px 90px; gap: 10px; align-items: center; }
+        .mold-label { font-weight: 800; color: var(--cognis-blue); font-size: 0.75rem; text-transform: uppercase; }
+        .paint-label { font-weight: 800; color: var(--cognis-gold); font-size: 0.7rem; text-align: center; text-transform: uppercase; }
+        .factory-cell { width: 90px; height: 90px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; transition: all 0.5s; font-weight: normal; }
 
         /* PROGRESSING: CROSS-HAIR */
-        .crosshair-target { position: relative; border: 3px solid var(--cognis-gold); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); }
-        .crosshair-line-h { position: absolute; left: -100px; width: 300px; height: 2px; background: rgba(197, 160, 89, 0.3); pointer-events: none; }
-        .crosshair-line-v { position: absolute; top: -100px; height: 300px; width: 2px; background: rgba(197, 160, 89, 0.3); pointer-events: none; }
+        .crosshair-target { position: relative; border: 3px solid var(--cognis-gold); box-shadow: 0 0 20px rgba(197, 160, 89, 0.4); background: #fffaf0 !important; }
+        .crosshair-line-h { position: absolute; left: -120px; width: 320px; height: 2px; background: rgba(197, 160, 89, 0.4); pointer-events: none; }
+        .crosshair-line-v { position: absolute; top: -120px; height: 320px; width: 2px; background: rgba(197, 160, 89, 0.4); pointer-events: none; }
 
-        /* SUPPLEMENTAL: MATRIX */
-        .matrix-container-s { display: grid; grid-template-columns: repeat(3, 80px); gap: 10px; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .matrix-cell-s { width: 80px; height: 80px; background: #f1f5f9; border: 1px solid #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: all 0.4s; }
-        .matrix-cell-s.target { border: 2px dashed var(--cognis-gold); color: var(--cognis-gold); background: #fffaf0; }
+        /* SUPPLEMENTAL: MATRIX - Standardized layout utilizing asymmetric rotational vectors */
+        .matrix-container-s { display: grid; grid-template-columns: repeat(3, 85px); gap: 12px; background: #0f172a; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .matrix-cell-s { width: 85px; height: 85px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #cbd5e1; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s; }
+        .matrix-cell-s.target { border: 2px dashed var(--cognis-gold); color: var(--cognis-gold); background: rgba(197, 160, 89, 0.05); font-weight: bold; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
@@ -78,17 +78,17 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Toy Assembly Factory</h2>
-            <p>Imagine a smart factory machine built to manufacture custom toys. The layout <b>Rows</b> select which physical cookie mold to press down (Stars or Circles), while the layout <b>Columns</b> dictate which bright paint color to spray (Red or Blue). To find out what object slides down the conveyor belt, you simply trace the intersection where that row and column cross paths!</p>
+            <p>Imagine a smart factory machine built to manufacture custom toys. The layout <b>Rows</b> select which physical cookie mold to press down (Asymmetric Flags or Pointers), while the layout <b>Columns</b> dictate which bright paint color to spray (Red or Blue). To find out what object slides down the conveyor belt, you simply trace the intersection where that row and column cross paths!</p>
             
             <div class="parent-script">
-                "We are viewing a Star shape mold along the upper row and a Blue paint bucket standing over the second column. When the engine starts up, it fuses both specifications together to forge a perfect <b>Blue Star</b>. Click 'Engage Assembly Line' to watch the toys print exactly where our rules meet!"
+                "We are viewing a Flag shape mold along the upper row and a Blue paint bucket standing over the second column. When the engine starts up, it fuses both specifications together to forge a perfect <b>Blue Flag</b>. Click 'Engage Assembly Line' to watch the toys print exactly where our rules meet!"
             </div>
 
             <div class="viz-container">
                 <div class="factory-grid">
                     <div></div><div class="paint-label">RED PAINT</div><div class="paint-label">BLUE PAINT</div>
-                    <div class="mold-label">STAR MOLD</div><div class="factory-cell" id="f-1">?</div><div class="factory-cell" id="f-2">?</div>
-                    <div class="mold-label">CIRCLE MOLD</div><div class="factory-cell" id="f-3">?</div><div class="factory-cell" id="f-4">?</div>
+                    <div class="mold-label">FLAG MOLD</div><div class="factory-cell" id="f-1">?</div><div class="factory-cell" id="f-2">?</div>
+                    <div class="mold-label">HAND MOLD</div><div class="factory-cell" id="f-3">?</div><div class="factory-cell" id="f-4">?</div>
                 </div>
                 <button class="btn-action" onclick="runFactory()">Engage Assembly Line</button>
             </div>
@@ -102,14 +102,14 @@
             <p>When solving large three-by-three design grids, avoid looking over the entire puzzle canvas all at once. Use a narrow "Laser Sight" view to track down exactly one row and one column independently. Your missing piece is simply the flawless combination of those two paths.</p>
             
             <div class="parent-script">
-                "Look closely at our target blank box nested in the bottom right corner. Let's trace out the horizontal path first. Row 3 reveals itself as the exclusive <b>Square Row</b>. Now let's track the vertical path. Column 3 serves as the <b>Green Column</b>. Click 'Align Laser Filters' to watch our cross-hair lines pinpoint the correct answer!"
+                "Look closely at our target blank box nested in the bottom right corner. Let's trace out the horizontal path first. Row 3 reveals itself as the exclusive <b>Hand Pointer Row</b>. Now let's track the vertical path. Column 3 serves as the <b>Green Column</b>. Click 'Align Laser Filters' to watch our cross-hair lines pinpoint the correct answer!"
             </div>
 
             <div class="viz-container">
-                <div style="display:grid; grid-template-columns:repeat(3, 60px); gap:10px;">
-                    <div class="factory-cell" style="color:red">▲</div><div class="factory-cell" style="color:blue">▲</div><div class="factory-cell" style="color:green">▲</div>
-                    <div class="factory-cell" style="color:red">●</div><div class="factory-cell" style="color:blue">●</div><div class="factory-cell" style="color:green">●</div>
-                    <div class="factory-cell" style="color:red">■</div><div class="factory-cell" style="color:blue">■</div><div class="factory-cell" id="prog-target">?</div>
+                <div style="display:grid; grid-template-columns:repeat(3, 65px); gap:12px;">
+                    <div class="factory-cell" style="color:#ef4444">🖿</div><div class="factory-cell" style="color:#3b82f6">🖿</div><div class="factory-cell" style="color:#22c55e">🖿</div>
+                    <div class="factory-cell" style="color:#ef4444">⚑</div><div class="factory-cell" style="color:#3b82f6">⚑</div><div class="factory-cell" style="color:#22c55e">⚑</div>
+                    <div class="factory-cell" style="color:#ef4444">🫵</div><div class="factory-cell" style="color:#3b82f6">🫵</div><div class="factory-cell" id="prog-target">?</div>
                 </div>
                 <button class="btn-action" onclick="runCrosshair()">Align Laser Filters</button>
             </div>
@@ -121,36 +121,36 @@
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Think of a geometric pattern grid as managing <b>"The Logical Intersection Rule."</b> Every individual cell box is governed simultaneously by two separate design laws: the horizontal <b>Row Rule</b> (controlling how details change sideways) and the vertical <b>Column Rule</b> (controlling properties up and down). The missing element is the flawless blend of these two matching vectors. If Row 3 locks in "Circles" and Column 3 filters for "Green," the identity of your solution is secure.</p>
+            <p>Think of a geometric pattern grid as managing <b>"The Logical Intersection Rule."</b> Every individual cell box is governed simultaneously by two separate design laws: the horizontal <b>Row Rule</b> (controlling how details change sideways or spin) and the vertical <b>Column Rule</b> (controlling properties up and down like color fill). The missing element is the flawless blend of these two matching vectors. Because we use asymmetric shapes, rotations can be easily tracked at a single glance!</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Shape Mapping Track:</b> "Row 1: Red Sq, Blue Sq, Green Sq. Row 2: Red Tr, Blue Tr, [?]. (Deduce the missing color and item block)."</div>
-                <div class="tier-card"><b>The Rotational Shift Grid:</b> "Geometric elements spin exactly 90 degrees clockwise inside every successive cell block across the row."</div>
-                <div class="tier-card"><b>The Eleven-Plus Dual Fusion:</b> "Overall shape size escalates down columns, while color shading alternates across structural rows."</div>
+                <div class="tier-card"><b>The Shape Mapping Track:</b> "Row 1: Red L-Shape, Blue L-Shape, Green L-Shape. Row 2: Red Flag, Blue Flag, [?]. (Deduce the missing color and item block)."</div>
+                <div class="tier-card"><b>The Rotational Shift Grid:</b> "Asymmetric icons spin exactly 90 degrees clockwise inside every successive cell block across the row, making orientation shifts distinct."</div>
+                <div class="tier-card"><b>The Eleven-Plus Dual Fusion:</b> "Overall shape orientation rotates down columns, while color shading alternates across structural rows."</div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 2: The Shape Fusion Lab</h2>
-            <p>Welcome to our interactive <b>Shape Fusion Lab</b>. Notice how base geometric shapes remain totally uniform along each specific row (Triangles, Squares, and then Circles). The target blank cell must satisfy Row 3's required shape layout while simultaneously inheriting the matching property of its column. The solution is locked firmly in place by both geometric axes.</p>
-            <div class="anatomy-display" style="background:#f1f5f9;">
+            <p>Welcome to our interactive <b>Shape Fusion Lab</b>. Notice how base asymmetric geometric shapes remain totally uniform along each specific row (L-shapes, Flags, and then Pointers). The target blank cell must satisfy Row 3's required shape layout while simultaneously inheriting the matching property of its column. The solution is locked firmly in place by both geometric axes.</p>
+            <div class="anatomy-display" style="background:#f8fafc; display: flex; justify-content: center; padding: 20px; border-radius: 8px;">
                 <div class="matrix-container-s" id="s-matrix">
-                    <div class="matrix-cell-s">▲</div><div class="matrix-cell-s">▲</div><div class="matrix-cell-s">▲</div>
-                    <div class="matrix-cell-s">■</div><div class="matrix-cell-s">■</div><div class="matrix-cell-s">■</div>
-                    <div class="matrix-cell-s">●</div><div class="matrix-cell-s">●</div><div class="matrix-cell-s target">?</div>
+                    <div class="matrix-cell-s">🖿</div><div class="matrix-cell-s">🖿</div><div class="matrix-cell-s">🖿</div>
+                    <div class="matrix-cell-s">⚑</div><div class="matrix-cell-s">⚑</div><div class="matrix-cell-s">⚑</div>
+                    <div class="matrix-cell-s">🫵</div><div class="matrix-cell-s">🫵</div><div class="matrix-cell-s target">?</div>
                 </div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 3: The Multi-Layer Rule Simulator</h2>
-            <p style="margin-bottom: 20px;">Activate our logic layers below. Track how our layout blocks change states instantly when both matching rules are toggled on. Managing this "Double-Locked" environment is a landmark challenge in eleven-plus spatial exams.</p>
+            <p style="margin-bottom: 20px;">Activate our logic layers below. Track how our layout blocks change states instantly when both matching rules are toggled on. Notice how the asymmetrical flag and L-shape profiles make the 90° and 180° rotation rules instantly distinguishable!</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Activate Matrix Logic Layers</label>
-                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="applySuppRule('color')">Inject Rule A: Column Color Fill</button>
-                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="applySuppRule('rotate')">Inject Rule B: Row Incremental Rotation</button>
-                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="resetSupp()">Reset Matrix Layers</button>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Activate Matrix Logic Layers</label>
+                    <button class="btn-action" style="width:100%; font-size:0.75rem;" onclick="applySuppRule('color')">Inject Rule A: Column Color Fill</button>
+                    <button class="btn-action" style="width:100%; font-size:0.75rem; margin-top: 10px;" onclick="applySuppRule('rotate')">Inject Rule B: Row Incremental Rotation</button>
+                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.65rem; margin-top:15px;" onclick="resetSupp()">Reset Matrix Layers</button>
                 </div>
                 <div class="trace-log" id="supp-log"></div>
             </div>
@@ -159,7 +159,7 @@
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The "Single-Track Focus" Speed Trap:</b> Children racing against the clock frequently identify one basic pattern rule (such as "this bottom row must contain circles") and instantly circle the first circle option they spot on their answer paper—completely ignoring changes in color or rotation angle.</p>
+                <p><b>The "Single-Track Focus" Speed Trap:</b> Children racing against the clock frequently identify one basic pattern rule (such as "this bottom row must contain pointers") and instantly circle the first option they spot on their answer paper—completely ignoring changes in color or rotation angle.</p>
                 <p><b>The Easy Fix: Apply the Isolated Cross-Hair Method.</b> Train your student with this shortcut: <i>"Isolate the evidence details."</i> Filter out Attribute 1 (Base Shape outline) by scanning the rows alone. Next, isolate Attribute 2 (Color Fill or Angular Tilt) by evaluating the column paths. <b>The correct answer must be the exact sum of both distinct facts.</b></p>
             </div>
         </section>
@@ -192,22 +192,23 @@
 
     /* --- INTRO: FACTORY --- */
     function runFactory() {
-        document.getElementById('f-1').innerHTML = '<span style="color:#ef4444">★</span>';
-        document.getElementById('f-2').innerHTML = '<span style="color:#3b82f6">★</span>';
-        document.getElementById('f-3').innerHTML = '<span style="color:#ef4444">●</span>';
-        document.getElementById('f-4').innerHTML = '<span style="color:#3b82f6">●</span>';
-        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Assembly Complete! Each item has cleanly fused its base <b>Mold Shape</b> with its matching <b>Paint Color</b>.</div>`;
+        document.getElementById('f-1').innerHTML = '<span style="color:#ef4444">⚑</span>';
+        document.getElementById('f-2').innerHTML = '<span style="color:#3b82f6">⚑</span>';
+        document.getElementById('f-3').innerHTML = '<span style="color:#ef4444">🫵</span>';
+        document.getElementById('f-4').innerHTML = '<span style="color:#3b82f6">🫵</span>';
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Assembly Complete! Each item has cleanly fused its asymmetric <b>Mold Shape</b> with its matching <b>Paint Color</b>.</div>`;
     }
 
     /* --- PROGRESSING: CROSSHAIR --- */
     function runCrosshair() {
         const target = document.getElementById('prog-target');
+        if(!target) return;
         target.classList.add('crosshair-target');
-        target.innerHTML = '<div class="crosshair-line-h"></div><div class="crosshair-line-v"></div><span style="color:green">■</span>';
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Intersection Verified! Row 3 (Square Blueprint) + Column 3 (Green Tint) = <b>Green Square Element</b>.</div>`;
+        target.innerHTML = '<div class="crosshair-line-h"></div><div class="crosshair-line-v"></div><span style="color:#22c55e">🫵</span>';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Intersection Verified! Row 3 (Hand Blueprint) + Column 3 (Green Tint) = <b>Green Hand Element</b>.</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: ENGINE RE-ENGINEERED WITH ASYMMETRIC MAPPINGS --- */
     let sRules = { color: false, rotate: false };
     const sPalette = ['#ef4444', '#3b82f6', '#22c55e'];
 
@@ -217,23 +218,45 @@
     }
 
     function updateSuppMatrix() {
+        // Target cells excluding the empty riddle placeholder slot
         const cells = document.querySelectorAll('.matrix-cell-s:not(.target)');
         cells.forEach((cell, i) => {
             const row = Math.floor(i / 3);
             const col = i % 3;
             if (sRules.color) cell.style.color = sPalette[col];
-            if (sRules.rotate) cell.style.transform = `rotate(${row * 90}deg)`;
+            
+            // Incremental rotation across cell columns/rows is now clearly distinguishable
+            if (sRules.rotate) {
+                const rotationDeg = (row * 90) + (col * 45); 
+                cell.style.transform = `rotate(${rotationDeg}deg)`;
+            }
         });
+        
+        // Render target solution properties programmatically to mirror actual final cell data
+        const targetCell = document.querySelector('.matrix-cell-s.target');
+        if(targetCell) {
+            if(sRules.color) targetCell.style.color = sPalette[2]; // Column 3 -> Green
+            if(sRules.rotate) {
+                targetCell.style.transform = 'rotate(270deg)'; // Row 3 Column 3 calculation vector
+                targetCell.textContent = '🫵';
+            }
+        }
+
         document.getElementById('supp-log').innerHTML = `
-            &rarr; Active Transformation Layers: ${sRules.color?'Column-Color-Map ':''}${sRules.rotate?'Row-Angle-Step':''}<br>
-            &rarr; <b>Isolate Element Properties: Row-Base-Shape (●) + Column-Tint-Property (Green) + Row-Incremental-Rotation (180°)</b>
+            &rarr; Active Transformation Layers: <b>${sRules.color?'Column-Color-Map ':''} ${sRules.rotate?'Row-Angle-Step':''}</b><br>
+            &rarr; <b>Isolate Element Properties: Row-Base-Shape (🫵 Pointers) + Column-Tint-Property (Green) + Row-Incremental-Rotation (270° Counter-Clockwise Facing)</b>
         `;
     }
 
     function resetSupp() {
         sRules = { color: false, rotate: false };
         const cells = document.querySelectorAll('.matrix-cell-s');
-        cells.forEach(c => { c.style.color = '#1a202c'; c.style.transform = 'none'; });
+        cells.forEach(c => { 
+            c.style.color = '#cbd5e1'; 
+            c.style.transform = 'none'; 
+        });
+        const targetCell = document.querySelector('.matrix-cell-s.target');
+        if(targetCell) targetCell.textContent = '?';
         document.getElementById('supp-log').innerHTML = "Ready for new logic scan.";
     }
 
