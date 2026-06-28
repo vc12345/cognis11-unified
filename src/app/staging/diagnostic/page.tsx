@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Brain, Microscope, HeartHandshake, Target, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Brain, HeartHandshake, Target, ArrowRight, ShieldCheck, CheckCircle2, AlertTriangle, ChevronRight } from 'lucide-react';
 
 export default function DiagnosticSalesPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans selection:bg-blue-200">
+    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans selection:bg-amber-200">
       
       {/* ======================================================== */}
       {/* HERO SECTION                                             */}
@@ -15,13 +15,13 @@ export default function DiagnosticSalesPage() {
       <header className="relative pt-20 pb-24 px-6 md:px-12 overflow-hidden border-b border-[#E5E3DD] bg-white">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-800 text-[10px] font-bold uppercase tracking-widest mb-8 border border-blue-200">
-            <Target className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-widest mb-8 border border-amber-200">
+            <Target className="w-3.5 h-3.5 text-amber-600" />
             Year 6 / Final Push Strategy
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-[#1B3A5C] leading-[1.1] mb-6 tracking-tight">
-            Stop guessing <span className="italic text-blue-700">why</span> they lost the marks.
+            Stop guessing <span className="italic text-amber-600">why</span> they lost the marks.
           </h1>
           
           <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto mb-10">
@@ -56,7 +56,7 @@ export default function DiagnosticSalesPage() {
             {/* The Old Way */}
             <div className="bg-white border border-[#E5E3DD] p-8 rounded-2xl shadow-sm opacity-80">
               <div className="flex items-center gap-3 mb-6">
-                <AlertTriangle className="w-6 h-6 text-amber-600" />
+                <AlertTriangle className="w-6 h-6 text-slate-400" />
                 <h3 className="text-lg font-bold">The Expensive Tutor Route</h3>
               </div>
               <ul className="space-y-4">
@@ -73,24 +73,24 @@ export default function DiagnosticSalesPage() {
             </div>
 
             {/* The Cognis Way */}
-            <div className="bg-[#1B3A5C] text-white p-8 rounded-2xl shadow-xl relative overflow-hidden">
+            <div className="bg-[#1B3A5C] text-white p-8 rounded-2xl shadow-xl relative overflow-hidden border border-amber-500/20">
               <div className="absolute top-0 right-0 p-8 opacity-10">
-                <HeartHandshake className="w-32 h-32" />
+                <HeartHandshake className="w-32 h-32 text-amber-400" />
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <Brain className="w-6 h-6 text-blue-400" />
+                  <Brain className="w-6 h-6 text-amber-400" />
                   <h3 className="text-lg font-bold">The Cognis11 Tactical Shortcut</h3>
                 </div>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-slate-300 text-sm leading-relaxed">
-                    <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" /> **Captures Their Thinking Process:** Focuses on how your child verbalises their logic, catching out hidden errors that numbers-only metrics miss.
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" /> <span><strong className="text-white">Captures Their Thinking Process:</strong> Focuses on how your child verbalises their logic, catching out hidden errors that numbers-only metrics miss.</span>
                   </li>
                   <li className="flex items-start gap-3 text-slate-300 text-sm leading-relaxed">
-                    <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" /> **Bypasses the Sunk Cost:** Pinpoints exact logical gaps instantly, saving you weeks of introductory tutor fees.
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" /> <span><strong className="text-white">Bypasses the Sunk Cost:</strong> Pinpoints exact logical gaps instantly, saving you weeks of introductory tutor fees.</span>
                   </li>
                   <li className="flex items-start gap-3 text-slate-300 text-sm leading-relaxed">
-                    <CheckCircle2 className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" /> **A Handover-Ready Map:** Gives you an immediate, precise breakdown action plan you can instantly pass to a tutor or use yourself at home.
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" /> <span><strong className="text-white">A Handover-Ready Map:</strong> Gives you an immediate, precise breakdown action plan you can instantly pass to a tutor or use yourself at home.</span>
                   </li>
                 </ul>
               </div>
@@ -116,7 +116,7 @@ export default function DiagnosticSalesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             {/* TIER 1: ONE-OFF */}
-            <div className="border border-[#E5E3DD] bg-[#FAFAF6] rounded-2xl p-8 flex flex-col hover:border-blue-200 transition-colors">
+            <div className="border border-[#E5E3DD] bg-[#FAFAF6] rounded-2xl p-8 flex flex-col hover:border-amber-200 transition-colors">
               <div className="mb-8">
                 <h3 className="text-xl font-bold font-serif mb-2">Single Targeted Check-Up</h3>
                 <p className="text-sm text-slate-500 mb-6">Perfect for parents wanting an immediate, honest look at exactly where their child stands right now.</p>
@@ -126,13 +126,13 @@ export default function DiagnosticSalesPage() {
               
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-center gap-3 text-sm text-slate-600">
-                  <ShieldCheck className="w-4 h-4 text-[#1B3A5C]" /> 1 Full Core Diagnostic Assessment
+                  <ShieldCheck className="w-4 h-4 text-amber-600" /> 1 Full Core Diagnostic Assessment
                 </li>
                 <li className="flex items-center gap-3 text-sm text-slate-600">
-                  <ShieldCheck className="w-4 h-4 text-[#1B3A5C]" /> Instant Logical Blind Spot Report
+                  <ShieldCheck className="w-4 h-4 text-amber-600" /> Instant Logical Blind Spot Report
                 </li>
                 <li className="flex items-center gap-3 text-sm text-slate-600">
-                  <ShieldCheck className="w-4 h-4 text-[#1B3A5C]" /> Tutor-ready target plan
+                  <ShieldCheck className="w-4 h-4 text-amber-600" /> Tutor-ready target plan
                 </li>
               </ul>
 
@@ -145,35 +145,35 @@ export default function DiagnosticSalesPage() {
             </div>
 
             {/* TIER 2: 6-MONTH ACCESS */}
-            <div className="border-2 border-blue-600 bg-blue-50/30 rounded-2xl p-8 flex flex-col relative shadow-lg">
-              <div className="absolute top-0 right-6 -translate-y-1/2 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+            <div className="border-2 border-amber-500 bg-amber-50/20 rounded-2xl p-8 flex flex-col relative shadow-lg">
+              <div className="absolute top-0 right-6 -translate-y-1/2 bg-amber-600 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
                 Most Tactical Value
               </div>
               
               <div className="mb-8">
-                <h3 className="text-xl font-bold font-serif mb-2 text-blue-900">Exam-Cycle Tracking</h3>
+                <h3 className="text-xl font-bold font-serif mb-2 text-[#1B3A5C]">Exam-Cycle Tracking</h3>
                 <p className="text-sm text-slate-600 mb-6">For families navigating the high-pressure final 6 months. Run assessments over time to check that gaps are actually closing.</p>
                 <div className="flex items-end gap-2">
-                  <div className="text-4xl font-black text-blue-900">£59</div>
+                  <div className="text-4xl font-black text-[#1B3A5C]">£59</div>
                 </div>
                 <div className="text-[10px] uppercase tracking-widest text-slate-500 mt-2 font-bold">Full 6-Month Platform Access</div>
               </div>
               
               <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-center gap-3 text-sm text-blue-900 font-medium">
-                  <Target className="w-4 h-4 text-blue-600" /> 5 Full Diagnostic Assessments
+                <li className="flex items-center gap-3 text-sm text-[#1B3A5C] font-medium">
+                  <Target className="w-4 h-4 text-amber-600" /> 5 Full Diagnostic Assessments
                 </li>
                 <li className="flex items-center gap-3 text-sm text-slate-600">
-                  <Target className="w-4 h-4 text-blue-600" /> Track genuine progress, not just memorisation
+                  <Target className="w-4 h-4 text-amber-600" /> Track genuine progress, not just memorisation
                 </li>
                 <li className="flex items-center gap-3 text-sm text-slate-600">
-                  <Target className="w-4 h-4 text-blue-600" /> Dynamically adapt your study focus over time
+                  <Target className="w-4 h-4 text-amber-600" /> Dynamically adapt your study focus over time
                 </li>
               </ul>
 
               <button 
                 onClick={() => router.push('/register?intent=diagnostic&plan=6-month')}
-                className="w-full bg-blue-600 text-white hover:bg-blue-700 font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-900/10"
+                className="w-full bg-[#1B3A5C] text-white hover:bg-slate-800 font-bold text-xs uppercase tracking-wider py-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-md shadow-amber-900/10"
               >
                 Secure 6-Month Tactical Pass <ArrowRight className="w-4 h-4" />
               </button>

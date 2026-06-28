@@ -39,7 +39,7 @@ export default function LocalhostSplitLanding() {
         <div className="flex-1 bg-[#FAFAF6] flex flex-col justify-center px-8 md:px-16 py-16 border-b md:border-b-0 md:border-r border-[#E5E3DD]">
           <div className="max-w-md w-full mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-widest mb-6 border border-amber-200">
-              <Sparkles className="w-3 h-3" /> Years 2 — 5
+              <Sparkles className="w-3 h-3 text-amber-600 fill-amber-500" /> Years 2 — 5
             </div>
             <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">Build the Foundation Early</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8">
@@ -58,8 +58,8 @@ export default function LocalhostSplitLanding() {
         {/* CTA 2: Diagnostic Evaluation Path */}
         <div className="flex-1 bg-[#F5F4EE] flex flex-col justify-center px-8 md:px-16 py-16">
           <div className="max-w-md w-full mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-900 text-[10px] font-bold uppercase tracking-widest mb-6 border border-blue-200">
-              <Target className="w-3 h-3" /> Year 6 / Final Push
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-widest mb-6 border border-amber-200">
+              <Target className="w-3 h-3 text-amber-600" /> Year 6 / Final Push
             </div>
             <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">Skip the Tutor Trial & Error</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8">
@@ -67,7 +67,7 @@ export default function LocalhostSplitLanding() {
             </p>
             <button 
               onClick={() => router.push('/diagnostic/')}
-              className="inline-flex items-center gap-2 bg-[#1B3A5C] hover:bg-slate-800 text-white font-medium text-xs uppercase tracking-wider px-6 py-3.5 rounded-md shadow-sm transition-all"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs uppercase tracking-wider px-6 py-3.5 rounded-md shadow-sm transition-all"
             >
               Run the 11+ Diagnostic
               <ArrowRight className="w-4 h-4" />
