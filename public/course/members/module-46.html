@@ -48,7 +48,7 @@
         .flipbook-frame { width: 140px; height: 140px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; position: relative; transition: all 0.3s; }
         .flipbook-dot { width: 20px; height: 20px; background: var(--cognis-gold); border-radius: 50%; position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* PROGRESSING: SPOTLIGHT FIXED INVERTED MASK */
+        /* PROGRESSING: SPOTLIGHT INVERTED MASK FIXED FOR INITIAL VISIBILITY */
         .spotlight-mask { 
             position: absolute; 
             top: 0; 
@@ -74,6 +74,7 @@
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-action:hover { opacity: 0.9; }
         .btn-logic-s { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 6px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 700; transition: 0.2s; }
         .btn-logic-s.active { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: var(--cognis-blue); border-color: #334155; }
     </style>
@@ -91,10 +92,10 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Secret Animation</h2>
-            <p>An incremental progression series functions exactly like a classic handheld flipbook. Each sequence box on your test page acts as a single still frame from a movie reel. To track down the missing answer card, your child simply needs to isolate how our "character" inside the frame travels from one illustration cell to the next.</p>
+            <p>A pattern series works exactly like a handheld flipbook animation. Each picture box on your test paper acts like a single frame from a moving cartoon reel. To solve the puzzle and pick the missing end box, your child simply needs to watch how the item inside the box travels from one cell to the next.</p>
             
             <div class="parent-script">
-                "Study our golden indicator dot. Click the 'Advance Movie Frame' button below to watch it travel. Notice how it executes a uniform, identically sized jump with every single click. If it travels a fixed distance from the upper-left corner over to the upper-right corner in frame one, it <b>must</b> sustain that steady structural rhythm through the rest of the film!"
+                "Look at our golden dot below. Click 'Advance Movie Frame' to watch it step forward. Notice how it takes an identical, equal-sized jump with every single click. If it moves a set distance from corner to corner in the first step, it must keep that same steady rhythm all the way to the end of the film strip!"
             </div>
 
             <div class="viz-container">
@@ -108,22 +109,21 @@
                 </div>
             </div>
 
-            <div class="discovery-log" id="intro-log">The movie is parked at Frame 1. Click advance to trace the pattern.</div>
+            <div class="discovery-log" id="intro-log">The movie is parked at Frame 1. Click advance to track the pattern.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Pinhole Focus Method</h2>
-            <p>Inside complex non-verbal questions, examiners pack too many independent items moving simultaneously into a single space. To find the answer calmly, your student must behave like a precision pinhole camera filter—lock onto <b>one individual element</b> at a time and ignore every other surrounding distraction. This technique is known as the tracking method.</p>
+            <h2>The Spotlight Shield Trick</h2>
+            <p>In complex non-verbal puzzles, exam writers pack way too many moving shapes into a single box. To find the answer easily, train your child to act like a spotlight—look at <b>only one item</b> at a time and ignore everything else that is happening around it. This keeps your working memory completely clear!</p>
             
             <div class="parent-script">
-                "This layout box is crowded and confusing! It contains a moon, a blue square, and an active cross symbol all together. Avoid staring at the entire canvas at once. Click 'Isolate Moon Position' below. Watch how everything else vanishes into darkness. Now you can calculate the exact travel path for the moon without getting turned around by the other characters."
+                "This layout box is crowded and confusing! It contains a moon, a blue square, and a cross symbol all mixed up. Let's look at one piece at a time. Click 'Isolate Moon Position' to hide the other shapes. Now you can find the moon's exact movement rule without getting distracted by the other elements!"
             </div>
 
             <div class="viz-container">
                 <div class="busy-box" id="prog-box">
-                    <!-- Configured an inverted polygon mask track to safely clear out positive active spaces while blinding negative clutter spaces -->
-                    <div class="spotlight-mask" id="prog-mask" style="clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);"></div>
+                    <div class="spotlight-mask" id="prog-mask" style="clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%);"></div>
                     <div style="position:absolute; top:20px; left:20px; font-size:1.5rem; z-index: 2;" id="prog-dot">🌕</div>
                     <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem; z-index: 2;" id="prog-sq">🟦</div>
                     <div style="position:absolute; top:85px; left:85px; font-size:1.5rem; line-height:1; z-index: 2;" id="prog-cross">✖</div>
@@ -136,25 +136,25 @@
                 </div>
             </div>
 
-            <div class="discovery-log" id="prog-log">Isolate the element to find the rule.</div>
+            <div class="discovery-log" id="prog-log">All shapes are currently visible. Click an isolate button to focus your tracker.</div>
         </section>
     </div>
 
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Think of sequential design progressions as working through <b>"The Investigator's Film Strip."</b> Your primary defense strategy is tracking down the underlying mathematical rule of structural change from frame to frame. If an element steps across space in frame one, it <i>must</i> replicate that exact change vector heading into the final blank cell. Train your student to trace just one tiny component of the film at a time to shield themselves from cognitive exhaustion.</p>
+            <p>Think of sequential design progressions as working through a <b>Film Strip Series</b>. Your main strategy is finding the matching mathematical rule that governs the change from box to box. If a dot takes a single step right in frame one, it *must* take that exact same step right in the next frames. Train your child to trace just one tiny part of the layout at a time to shield themselves from confusion.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Linear Vector Jump:</b> "A circle steps from top-left straight to bottom-right. Where must it position itself on the next card?"</div>
-                <div class="tier-card"><b>The Dual Condition Grid:</b> "An asset rotates precisely 90 degrees clockwise AND swaps its color shading value during every single step."</div>
-                <div class="tier-card"><b>The Triple Multiplier Threat:</b> "An object alters its position, color fill, and size simultaneously. Trace each element property completely in isolation!"</div>
+                <div class="tier-card"><b>The Straight Step:</b> A circle jumps from top-left straight to bottom-right across the grid. Where must it go in the final frame box?</div>
+                <div class="tier-card"><b>The Double Rule:</b> A shape spins exactly 90 degrees clockwise AND swaps its color from dark to light on every single step.</div>
+                <div class="tier-card"><b>The Triple Threat:</b> An object changes its location, its color fill, and its size all at once. Trace each profile property completely on its own!</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Sequence Mapping Lab</h2>
-            <p>Welcome to our interactive <b>Sequence Mapping Lab</b>. Notice how independent geometric tokens travel completely on their own terms. Every single item inside the frame runs on its own private script track. The moment you isolate them from the noise, the complex layout dance resolves into a predictable pattern path. Use our simulation array panel below to toggle distinct structural scripts.</p>
+            <h2>Phase 2: The Step Mapping Lab</h2>
+            <p>Welcome to our interactive **Step Mapping Lab**. Notice how independent design items travel completely on their own terms. Every single piece inside the frame box runs on its own private pattern path. The moment you look at them one by one, the confusing dance resolves into a predictable sequence. Use our menu below to test different layout styles.</p>
             <div class="anatomy-display" style="background:#0f172a; padding: 30px; border-radius: 8px; display: flex; justify-content: center;">
                 <div id="s-row" class="series-row-s"></div>
             </div>
@@ -162,24 +162,24 @@
 
         <section class="phase">
             <h2>Phase 3: The Step-by-Step Delta Engine</h2>
-            <p style="margin-bottom: 20px;">Select a pattern logic type from our menu below. Track how our real-time status log calculates the explicit change steps between cards. The final solution is consistently hidden in the individual pieces, never in the frame as a whole look.</p>
+            <p style="margin-bottom: 20px;">Select a pattern logic type from the menu selections below. Track how our real-time feedback log counts the exact changes made between frames. The final answer is always hidden in the individual pieces, never in the whole box look.</p>
             <div class="engine-container">
                 <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px;">Select Sequence Path Rules</label>
-                    <button class="btn-logic-s active" onclick="loadSupp('slider', this)">Linear Slide Sequence (Steady Directional Step)</button>
-                    <button class="btn-logic-s" onclick="loadSupp('light', this)">Looping State Sequence (Cycling Values)</button>
-                    <button class="btn-logic-s" onclick="loadSupp('ping', this)">Binary Reversal Sequence (Alternating Sides)</button>
-                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Dual Variable Sequence (Asymmetric Corner-Hop & Directional Rotation)</button>
+                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Select a Sequence Track Rule</label>
+                    <button class="btn-logic-s active" onclick="loadSupp('slider', this)">Linear Slide Track (Steady directional steps across the box)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('light', this)">Color Cycle Track (Shading changes step-by-step)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('ping', this)">Binary Reversal Track (Bouncing back and forth between two sides)</button>
+                    <button class="btn-logic-s" onclick="loadSupp('orbit', this)">Complex Twin Track (Corner jumps combined with a flag rotation step)</button>
                 </div>
-                <div class="trace-log" id="supp-log"></div>
+                <div class="trace-log" id="supp-log" style="margin-top: 15px; font-weight: 600;"></div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The "Visual Overload" Guesswork Trap:</b> Children trying to save time often try to "feel" the correct answer by loosely staring at the entire picture frame all at once. Their working memory gets flooded by the competing moving components, causing them to miss the critical change rules entirely.</p>
-                <p><b>The Easy Fix: Enforce the Isolated Analysis Strategy.</b> Give your child this simple habit check: <i>"Divide the layout and conquer the rule."</i> Physically use a finger or scratch card to blind out everything on the screen except for <b>one single feature</b>. Isolate and solve that dot's destination first. Then, intentionally wipe it from focus and move directly to the next feature. <b>Unpacking three separate mini-puzzles is ten times easier than processing one compound storm.</b></p>
+                <p><b>The "Whole Picture Guessing" Trap:</b> Children trying to save time often try to guess the answer by loosely staring at the entire picture frame all at once. Their brain gets flooded by all the different moving parts, causing them to miss the exact stepping rules entirely.</p>
+                <p><b>The Easy Fix: Divide and Conquer.</b> Give your child this simple rule: <i>"Hide the noise, solve the piece."</i> Use a finger or index scratch card to cover up everything in the box except for <b>one single shape feature</b>. Solve that shape's target destination first. Then, cover it up and move directly to the next item. <b>Solving three tiny puzzles one-by-one is much easier than tackling one giant storm!</b></p>
             </div>
         </section>
         
@@ -223,10 +223,8 @@
             dot.style.left = introPos[introStep][1] + 'px';
         }
         if(label) label.textContent = 'FRAME ' + (introStep + 1);
-        if(log) log.innerHTML = `<div class="discovery-step">Movie sequence advanced! Target indicator dot resides at coordinates: <b>[Y: ${introPos[introStep][0]}px, X: ${introPos[introStep][1]}px]</b> inside Frame ${introStep + 1}.</div>`;
+        if(log) log.innerHTML = `<div class="discovery-step">Film sequence advanced! The golden dot jumps to position inside Frame ${introStep + 1}.</div>`;
     }
-
-    style = window.getComputedStyle ? getComputedStyle(document.body) : null;
 
     stepIntro = function() {
         introStep = (introStep + 1) % 4;
@@ -238,30 +236,28 @@
         updateIntroView(); 
     }
 
-    /* --- PROGRESSING: COVERS NEGATIVE SPACE, TRANSPARENT POSITIVE SPACE --- */
+    /* --- PROGRESSING: COVERS ONLY RELEVANT SPACE FIXED FOR ORIGINAL VISIBILITY --- */
     function focusProg(type) {
         const mask = document.getElementById('prog-mask');
         const log = document.getElementById('prog-log');
         if(!mask || !log) return;
         
-        // standard outer bounding layout coordinates for a 200x200 pixel block box container
-        // Uses sub-pathing vectors via clip-path polygon architecture to leave a 60px viewport square completely transparent over active targets
         if(type === 'dot') {
-            // Hole over upper left corner (Top: 20px, Left: 20px) -> window boundary x[10 to 70], y[10 to 70]
+            // Hole over moon top-left corner
             mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 10px 10px, 10px 70px, 70px 70px, 70px 10px, 10px 10px)';
-            log.innerHTML = `<div class="discovery-step">Focus shield engaged! Negative clutter spaces are covered up. The isolated <b>MOON Profile</b> remains completely clear.</div>`;
+            log.innerHTML = `<div class="discovery-step">Spotlight engaged! Surrounding shapes are hidden. The <b>MOON</b> track is now easy to isolate.</div>`;
         } else if(type === 'sq') {
-            // Hole over bottom right corner (Bottom: 20px, Right: 20px) -> container limits x[130 to 190], y[130 to 190]
+            // Hole over blue square bottom-right corner
             mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 130px 130px, 130px 190px, 190px 190px, 190px 130px, 130px 130px)';
-            log.innerHTML = `<div class="discovery-step">Focus shield engaged! All distracting noise is covered up. The isolated <b>BLUE SQUARE Profile</b> remains completely clear.</div>`;
+            log.innerHTML = `<div class="discovery-step">Spotlight engaged! Surrounding shapes are hidden. The <b>BLUE SQUARE</b> track is now easy to isolate.</div>`;
         } else if(type === 'cross') {
-            // Hole over structural center point (Center: 85px, 85px) -> coordinate limits x[70 to 130], y[70 to 130]
+            // Hole over center cross symbol
             mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 70px 70px, 70px 130px, 130px 130px, 130px 70px, 70px 70px)';
-            log.innerHTML = `<div class="discovery-step">Focus shield engaged! Background layout maps are hidden. The central <b>CROSS Glyph Profile</b> remains completely clear.</div>`;
+            log.innerHTML = `<div class="discovery-step">Spotlight engaged! Surrounding shapes are hidden. The center <b>CROSS</b> track is now easy to isolate.</div>`;
         } else {
-            // Zero masking footprint -> full transparency layer tracking layout configuration
-            mask.style.clipPath = 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)';
-            log.innerHTML = `<div class="discovery-step">Focus shield disengaged. Full layout composition restored seamlessly!</div>`;
+            // Empty mask shape -> everything is perfectly visible
+            mask.style.clipPath = 'polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%)';
+            log.innerHTML = `<div class="discovery-step">Spotlight cleared! Full layout view has been completely restored.</div>`;
         }
     }
 
@@ -281,25 +277,25 @@
             
             if(type === 'slider') {
                 f.innerHTML = `<div class="element-s dot-s" style="top:40px; left:${15 + i*20}px"></div>`;
-                log = "&rarr; Position Tracking Trace: Coordinate Step | Delta Change Map: +20px Rightward shift per frame";
+                log = "&rarr; Tracking Step: Move right by +20 pixels on every single frame.";
             } else if(type === 'light') {
                 const cols = ['#ef4444', '#eab308', '#22c55e', '#ef4444'];
                 f.innerHTML = `<div class="element-s dot-s" style="top:40px; left:40px; background:${cols[i]}"></div>`;
-                log = "&rarr; Property Shading Trace: Value Modality | Delta Change Map: Red &rarr; Gold &rarr; Green progression cycle";
+                log = "&rarr; Tracking Shading: Cycles consistently through Red &rarr; Gold &rarr; Green.";
             } else if(type === 'ping') {
-                f.innerHTML = `<div class="element-s dot-s" style="top:15px; left:${i%2===0?15:65}px"></div>`;
-                log = "&rarr; Position Tracking Trace: Structural Toggle | Delta Change Map: Horizontal Axis Bounce (Binary Oscillation)";
+                f.innerHTML = `<div class="element-s dot-s" style="top:40px; left:${i%2===0?20:60}px"></div>`;
+                log = "&rarr; Tracking Toggle: Bounces horizontally back and forth between left and right sides.";
             } else if(type === 'orbit') {
-                const pts = [[12,12], [12,68], [68,68], [68,12]];
+                const pts = [[15,15], [15,65], [65,65], [65,15]];
                 const flagRotation = i * 90;
                 f.innerHTML = `<div class="element-s asym-flag-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px; transform: rotate(${flagRotation}deg);">⚑</div>`;
-                log = "&rarr; Asymmetric Element Trace: Dual Delta Vectors | Delta Change Map: Perimeter Corner-Hop + 90° Clockwise Angular Rotation Step";
+                log = "&rarr; Tracking Combined Items: Follows a clockwise corner-hop path while rotating +90° clockwise.";
             }
             row.appendChild(f);
         }
         
         const logBox = document.getElementById('supp-log');
-        if(logBox) logBox.innerHTML = log + `<br><b>Current Matrix Status: Logic Sequence Fully Dissected</b>`;
+        if(logBox) logBox.innerHTML = log + `<br><b>Current Status: Pattern track completely mapped out!</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

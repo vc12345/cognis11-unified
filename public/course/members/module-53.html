@@ -55,18 +55,19 @@
 
         /* SUPPLEMENTAL: HUD */
         .simulation-area-s { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; width: 100%; box-sizing: border-box; }
-        .evidence-well-s { background: #0f172a; border: 1px solid #334155; padding: 25px; border-radius: 8px; font-size: 1.1rem; color: #cbd5e0; line-height: 1.8; text-align: center; margin-bottom: 20px; }
-        .clue-node-s { cursor: pointer; border-bottom: 2px dashed var(--cognis-gold); color: white; transition: all 0.2s; padding: 2px 4px; border-radius: 4px; display: inline-block; font-weight: 700; }
-        .clue-node-s:hover { background: rgba(197, 160, 89, 0.15); }
+        .evidence-well-s { background: #0f172a; border: 1px solid #334155; padding: 25px; border-radius: 8px; font-size: 1.1rem; color: #cbd5e0; line-height: 1.9; text-align: center; margin-bottom: 20px; }
+        .clue-node-s { cursor: pointer; border-bottom: 2px dashed var(--cognis-gold); color: #fcd34d; transition: all 0.2s; padding: 2px 6px; border-radius: 4px; display: inline-block; font-weight: 700; }
+        .clue-node-s:hover { background: rgba(251, 191, 36, 0.15); color: white; }
         .clue-node-s.active { background: var(--cognis-gold); color: #0f172a; border-bottom-style: solid; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-action:hover { opacity: 0.9; }
         .btn-inference-s { background: #0f172a; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-size: 0.75rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
         .btn-inference-s:hover { background: #1e293b; color: #f8fafc; }
-        .btn-inference-s.selected { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: #0f172a; border-color: #334155; }
+        .btn-inference-s.selected { border-left: 4px solid var(--cognis-gold); color: var(--cognis-gold); background: #1e293b; border-color: #475569; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,7 +83,7 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Detective's Clue Bag</h2>
-            <p>Finding hidden clues means acting exactly like a real detective. The author might not tell you directly where a scene takes place, but they will leave clues behind. For example, if a story mentions muddy footprints tracking across a doormat, you know for sure that someone just walked inside. We call this <b>making an inference</b>—using clues to discover the unwritten truth.</p>
+            <p>Finding hidden clues means acting exactly like a real investigator. The author might not tell you directly where a scene takes place, but they leave signs behind. For example, if a story mentions muddy footprints tracking across a doormat, you know for sure that someone just walked inside. We call this <b>making an inference</b>—using text clues to discover the unwritten truth.</p>
             
             <div class="parent-script">
                 "Look at this detective bag. We pulled out three items hiding inside: <b>A Sea Shell</b>, <b>A Plastic Bucket</b>, and <b>Fine Sand</b>. The word 'beach' isn't written anywhere, but your brain instantly figures out the location! Click directly on the bag to reveal the hidden setting."
@@ -102,7 +103,7 @@
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
             <h2>The Reading Secret Equation</h2>
-            <p>To solve tricky reading questions, coach your child to use this simple formula: Take the <b>Text Evidence</b> (the exact words written on the page) and add your own <b>Real-World Knowledge</b> (what you already know about life). Putting them together unlocks the hidden meaning.</p>
+            <p>To solve tricky reading questions, use this simple formula: Take the <b>Text Evidence</b> (the exact words written on the page) and add your own <b>Real-World Knowledge</b> (what you already know about real life). Putting them together unlocks the hidden meaning.</p>
             
             <div class="parent-script">
                 "Let's look at this sentence: 'The wind howled through the leafless trees.' The page tells us there are no leaves on the branches. Our real-world knowledge tells us that trees drop their leaves when it gets cold. Click 'Blend Evidence and Logic' to watch the hidden truth appear!"
@@ -126,12 +127,12 @@
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Approach advanced reading questions by teaching your child to hunt for <b>"The Double Clue Lock."</b> A safe guess is never based on just one lonely word. You want to match a text clue directly with what you know about life. If you can find <b>two independent clues</b> pointing to the same answer, you have locked in a successful deduction!</p>
+            <p>Approach advanced reading questions by teaching your child to hunt for <b>"The Double Clue Lock."</b> A safe answer choice is never based on just one lonely word. You want to match a text clue directly with what you know about life. If you can find <b>two independent clues</b> pointing to the same answer, you have locked in a successful deduction!</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>Weather Clues:</b> "Leo grabbed his umbrella and zipped his rubber boots up tight." (Two clues match life knowledge = It is raining).</div>
-                <div class="tier-card"><b>Time Clues:</b> "Long shadows stretched across the grass as the street lamps flickered on." (Two clues match life knowledge = It is late evening).</div>
-                <div class="tier-card"><b>Feeling Clues:</b> "Sarah's handwriting looked shaky on the note, and her fingers began to tremble." (Two clues match life knowledge = She is terrified).</div>
+                <div class="tier-card"><b>Weather Clues:</b> "Leo grabbed his umbrella and zipped his rubber boots up tight." (Two separate items match life knowledge = It is raining).</div>
+                <div class="tier-card"><b>Time Clues:</b> "Long shadows stretched across the grass as the street lamps flickered on." (Two descriptors match life knowledge = It is late evening).</div>
+                <div class="tier-card"><b>Feeling Clues:</b> "Sarah's handwriting looked shaky on the note, and her fingers began to tremble." (Two physical actions match life knowledge = She is terrified).</div>
             </div>
         </section>
 
@@ -146,19 +147,19 @@
 
         <section class="phase">
             <h2>Phase 3: The Clue Evaluation System</h2>
-            <p style="margin-bottom: 20px;">Use our interactive simulator below. First, click directly on the underlined text clues to collect them. Once you have saved a <b>Double Clue Set</b>, click one of the deduction paths below to test your theory.</p>
+            <p style="margin-bottom: 20px;">Use our interactive simulator below. First, click directly on the underlined text clues to collect them. Once you have saved a **Double Clue Set** (at least 2 clues), click one of the deduction path buttons below to test your theory.</p>
             <div class="simulation-area-s">
                 <div class="evidence-well-s" id="clue-well-container">
-                    "Sarah's <span class="clue-node-s" data-clue="somersaulted">stomach somersaulted</span> as she stood behind the <span class="clue-node-s" data-clue="curtain">heavy velvet curtain</span>. She gripped her <span class="clue-node-s" data-clue="bow">violin bow</span> so tightly her knuckles turned white."
+                    "Sarah's <span class="clue-node-s" data-clue="somersaulted">stomach somersaulted</span> as she stood behind the <span class="clue-node-s" data-clue="curtain">heavy velvet curtain</span>. She gripped her <span class="clue-node-s" data-clue="bow">violin bow</span> so tightly her <span class="clue-node-s" data-clue="knuckles">knuckles turned white</span>."
                 </div>
                 <div class="engine-container">
                     <div class="inputs">
-                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px; text-transform: uppercase;">Select a Conclusion to Test</label>
-                        <button class="btn-inference-s" data-target="holiday" onclick="testSuppInference('holiday', this)">Deduction Path: She is packing for a summer holiday</button>
-                        <button class="btn-inference-s" data-target="concert" onclick="testSuppInference('concert', this)">Deduction Path: She is walking out to play a musical solo</button>
-                        <button class="btn-inference-s" data-target="nervous" onclick="testSuppInference('nervous', this)">Deduction Path: She is feeling incredibly nervous about performing</button>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Select a Conclusion to Test</label>
+                        <button class="btn-inference-s" data-target="holiday" onclick="testSuppInference('holiday', this)">Deduction Path: She is packing for a summer beach holiday</button>
+                        <button class="btn-inference-s" data-target="concert" onclick="testSuppInference('concert', this)">Deduction Path: She is getting ready to perform a musical solo</button>
+                        <button class="btn-inference-s" data-target="nervous" onclick="testSuppInference('nervous', this)">Deduction Path: She is feeling incredibly anxious and scared</button>
                     </div>
-                    <div class="trace-log" id="supp-log" style="margin-top: 15px;">Click clues to find the Double Anchor...</div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 15px; font-weight: 600; color: #94a3b8;">Click at least two text clues above to find the Double Anchor...</div>
                 </div>
             </div>
         </section>
@@ -201,17 +202,17 @@
     function revealIntroInference() {
         const ans = document.getElementById('intro-ans');
         if(ans) ans.style.opacity = '1';
-        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Setting Unlocked! You solved the hidden location using clue tokens.</div>`;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Setting Unlocked!</b> You solved the hidden location using your clue tracking skills.</div>`;
     }
 
     /* --- PROGRESSING: EQUATION --- */
     function runProgInference() {
         const res = document.getElementById('prog-result');
         if(res) res.style.opacity = '1';
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Equation Solved: No Leaves + Real Life Rules = <b>Winter Setting</b>!</div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Equation Solved:</b> No Leaves + Real Life Rules = <b>Winter Setting</b>!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: RESPONSIVE INTERACTION SYSTEM FIXED --- */
+    /* --- SUPPLEMENTAL: RESPONSIVE INTERACTION SYSTEM --- */
     let sClues = [];
     let currentSelectedStrat = null;
     
@@ -227,8 +228,9 @@
     }
     
     function testSuppInference(type, btn) {
+        // Clear selection highlights accurately
         document.querySelectorAll('.btn-inference-s').forEach(b => b.classList.remove('selected'));
-        if(btn) btn.classList.add('active');
+        if(btn) btn.classList.add('selected');
         currentSelectedStrat = type;
         updateSuppTrace(type);
     }
@@ -237,20 +239,20 @@
         const log = document.getElementById('supp-log'); 
         if(!log) return;
         
-        let html = `&rarr; Active Clues Collected: <b>${sClues.length} selected</b><br>`;
+        let html = `&bull; Clues Collected: <b>${sClues.length} selected</b><br>`;
         if(sClues.length < 2) {
-            html += `<span style="color:#f87171; font-weight:bold; font-size:0.75rem;">&times; Not Enough Evidence: Click at least 2 separate underlined text clues first!</span>`;
+            html += `<span style="color:#f87171; font-weight:bold; font-size:0.8rem;">&times; Not Enough Evidence: Click at least 2 separate yellow underlined words above first!</span>`;
         } else {
-            html += `<span style="color:#10b981; font-weight:bold; font-size:0.75rem;">&check; Double Clue Lock Established!</span><br>`;
+            html += `<span style="color:#10b981; font-weight:bold; font-size:0.8rem;">&check; Double Clue Lock Established!</span><br>`;
             if(testType) {
                 const isCorrect = (testType === 'concert' || testType === 'nervous');
                 if(isCorrect) {
-                    html += `<span style="color:#10b981; font-weight:bold;">&rarr; Deduction Valid: These clues fully lock into this truth! ✅</span>`;
+                    html += `<span style="color:#10b981; font-weight:bold;">&rarr; Deduction Valid: These clues connect perfectly to this conclusion track! ✅</span>`;
                 } else {
-                    html += `<span style="color:#f87171; font-weight:bold;">&rarr; Speculative Guess: The text clues don't support this story track at all. ❌</span>`;
+                    html += `<span style="color:#f87171; font-weight:bold;">&rarr; Wild Guess: The text evidence doesn't support this story conclusion. ❌</span>`;
                 }
             } else {
-                html += `Select a path below to test your theory.`;
+                html += `Now choose a Deduction Path option below to test your theory!`;
             }
         }
         log.innerHTML = html;

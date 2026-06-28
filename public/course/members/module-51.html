@@ -49,16 +49,24 @@
         .block-f { width: 50px; height: 40px; background: var(--cognis-blue); border: 2px solid white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; position: absolute; }
         .support-hidden { background: #e5e7eb; border: 1px dashed #cbd5e0; color: #94a3b8; }
 
-        /* PROGRESSING: BLUEPRINT RE-ENGINEERED */
-        .blueprint-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 5px; background: #f1f5f9; padding: 10px; border-radius: 8px; border: 2px solid var(--cognis-blue); }
-        .blueprint-cell { width: 50px; height: 50px; background: white; border: 1px solid #cbd5e0; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; font-size: 1.1rem; transition: all 0.4s ease; }
-        .blueprint-cell.mapped { color: var(--cognis-gold); border-color: var(--cognis-gold); background: #fffdf5; transform: scale(1.05); }
+        /* PROGRESSING: BLUEPRINT RE-ENGINEERED WITH HARMONIZED COLORS */
+        .blueprint-grid { display: grid; grid-template-columns: repeat(3, 52px); gap: 6px; background: #f1f5f9; padding: 12px; border-radius: 10px; border: 2px solid var(--cognis-blue); }
+        .blueprint-cell { width: 52px; height: 52px; background: white; border: 1px solid #cbd5e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #cbd5e1; font-size: 1.2rem; transition: all 0.3s ease; }
         
-        /* Isometric mini visualizer paths */
-        .mini-iso-block { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 1.5; transition: fill 0.4s; }
-        .mini-iso-block.accent-3 { fill: #93c5fd; }
-        .mini-iso-block.accent-1 { fill: #fed7aa; }
-        .mini-iso-block.accent-4 { fill: #a7f3d0; }
+        /* Matching color sets for mapping sync */
+        .blueprint-cell.mapped-3 { background: #dbeafe !important; color: #1e40af !important; border-color: #3b82f6 !important; transform: scale(1.05); }
+        .blueprint-cell.mapped-1 { background: #ffedd5 !important; color: #c2410c !important; border-color: #f97316 !important; transform: scale(1.05); }
+        .blueprint-cell.mapped-4 { background: #d1fae5 !important; color: #065f46 !important; border-color: #10b981 !important; transform: scale(1.05); }
+        .blueprint-cell.mapped-0 { background: #f8fafc !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; }
+
+        /* Isometric grid visualizer details */
+        .grid-tile-base { fill: #f8fafc; stroke: #e2e8f0; stroke-width: 1; }
+        .mini-iso-block { fill: #f1f5f9; stroke: #cbd5e0; stroke-width: 1; }
+        .mini-iso-block.accent-3 { fill: #93c5fd; stroke: #2563eb; stroke-width: 1.5; }
+        .mini-iso-block.accent-1 { fill: #fed7aa; stroke: #ea580c; stroke-width: 1.5; }
+        .mini-iso-block.accent-4 { fill: #a7f3d0; stroke: #059669; stroke-width: 1.5; }
+        .iso-side-dark { fill: #cbd5e0; stroke: #94a3b8; }
+        .iso-side-light { fill: #e2e8f0; stroke: #cbd5e0; }
 
         /* SUPPLEMENTAL: ISOMETRIC LAB */
         .anatomy-display-s { background: #0f172a; padding: 20px; border-radius: 12px; text-align: center; }
@@ -73,6 +81,7 @@
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-action:hover { opacity: 0.9; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -88,10 +97,10 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Tower Elevator Test</h2>
-            <p>Imagine 3D blocks behave exactly like apartment rooms inside a high-rise building. Because gravity is always active, a room cannot physically sit on Floor 3 unless there is a Floor 1 and a Floor 2 locked directly beneath it to hold it up. Even when the lowest support rooms are completely blocked from view, they <b>must</b> exist in space.</p>
+            <p>Imagine 3D building blocks work exactly like apartment rooms inside a high-rise tower. Because gravity is always active, a block cannot sit up on Floor 3 unless there is a Floor 1 and a Floor 2 locked directly underneath it to hold it up! Even when support blocks are completely blocked from view, they <b>must</b> exist in space.</p>
             
             <div class="parent-script">
-                "Look closely at our single golden block sitting way up on Floor 3. Right now, it appears to be floating in thin air! To make this tower structurally realistic, we must include its hidden foundation support. Click 'Reveal Foundation Support' to uncover the hidden background blocks that allow our tower to stand upright."
+                "Look closely at our single golden block sitting up on Floor 3. Right now, it looks like it's floating in thin air! To make this tower solid and realistic, we have to find its hidden foundation blocks. Click 'Reveal Foundation Support' to uncover the hidden pieces that hold the tower up."
             </div>
 
             <div class="viz-container">
@@ -110,58 +119,71 @@
                 </div>
             </div>
 
-            <div class="discovery-log" id="intro-log">A block on Floor 3 needs 2 supports.</div>
+            <div class="discovery-log" id="intro-log">A block on Floor 3 always needs 2 support blocks underneath.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
             <h2>The Bird's-Eye Grid Map</h2>
-            <p>To count blocks calmly without losing your place, focus exclusively on the <b>Rooftops</b>. If we map out the specific floor height value of every independent vertical stack on a flat grid card, we can simply add those integers together. This is just like evaluating a mini-city layout from a bird's-eye perspective.</p>
+            <p>To count blocks calmly without losing your place, focus strictly on the <b>Rooftops</b>. If we write down the exact floor height number of every vertical block column onto a flat grid map sheet, we can just add those numbers together. This works exactly like looking down at a city layout from an airplane perspective!</p>
             
             <div class="parent-script">
-                "Study this cluster of stacked blocks. Let's sketch a grid map of its heights. This pillar measures 3 levels high, that front unit measures 1 level high, and our tall anchor unit rises 4 levels high. Click 'Map Roof Heights' to translate these 3D objects into flat grid values. Adding 3 + 1 + 4 is vastly quicker and cleaner than trying to guess every hidden cube!"
+                "Look at our 3D block group below. Notice how the ground space is a matching 3x3 layout grid. The Blue pillar sits in the top-left box and is 3 blocks high. The Orange block sits in the middle-left box and is 1 block high. The tall Green pillar sits right in the center and is 4 blocks high. Click 'Map Roof Heights' to drop these height scores into the matching grid positions!"
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:30px; align-items:center; flex-wrap: wrap; justify-content: center;">
-                    <!-- Accurate Isometric Projection Representation SVG instead of text strings -->
+                <div style="display:flex; gap:35px; align-items:center; flex-wrap: wrap; justify-content: center; width: 100%;">
+                    
                     <div style="text-align: center;">
-                        <span style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:5px;">3D Stack Model</span>
-                        <svg width="140" height="140" viewBox="0 0 140 140" style="background:#fff; border-radius:8px; border:1px solid #e2e8f0;">
-                            <!-- Column 1 (Height 3) -->
-                            <polygon points="35,55 55,65 35,75 15,65" class="mini-iso-block accent-3" />
-                            <polygon points="15,65 35,75 35,115 15,105" class="mini-iso-block" />
-                            <polygon points="35,75 55,65 55,105 35,115" class="mini-iso-block" />
-                            
-                            <!-- Column 2 (Height 1) -->
-                            <polygon points="65,85 85,95 65,105 45,95" class="mini-iso-block accent-1" />
-                            <polygon points="45,95 65,105 65,125 45,115" class="mini-iso-block" />
-                            <polygon points="65,105 85,95 85,115 65,125" class="mini-iso-block" />
+                        <span style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:8px; letter-spacing:0.5px;">3D Stack Model</span>
+                        <svg width="180" height="180" viewBox="0 0 180 180" style="background:#ffffff; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                            <polygon points="90,150 120,135 90,120 60,135" class="grid-tile-base" />
+                            <polygon points="120,135 150,120 120,105 90,120" class="grid-tile-base" />
+                            <polygon points="60,135 90,120 60,105 30,120" class="grid-tile-base" />
+                            <polygon points="90,120 120,105 90,90 60,105" class="grid-tile-base" />
+                            <polygon points="120,105 150,90 120,75 90,90" class="grid-tile-base" />
+                            <polygon points="90,90 120,75 90,60 60,75" class="grid-tile-base" />
+                            <polygon points="120,75 150,60 120,45 90,60" class="grid-tile-base" />
 
-                            <!-- Column 3 (Height 4) -->
-                            <polygon points="85,35 105,45 85,55 65,45" class="mini-iso-block accent-4" />
-                            <polygon points="65,45 85,55 85,105 65,95" class="mini-iso-block" />
-                            <polygon points="85,55 105,45 105,95 85,105" class="mini-iso-block" />
+                            <polygon points="30,100 60,115 60,135 30,120" class="iso-side-dark" />
+                            <polygon points="60,115 90,100 90,120 60,135" class="iso-side-light" />
+                            <polygon points="60,95 90,85 60,75 30,85" class="mini-iso-block accent-1" style="transform: translateY(15px);"/>
+
+                            <polygon points="60,75 90,90 90,120 60,105" class="iso-side-dark" style="transform: translateY(-30px);" />
+                            <polygon points="90,90 120,75 120,105 90,120" class="iso-side-light" style="transform: translateY(-30px);" />
+                            <polygon points="90,45 120,55 90,65 60,55" class="mini-iso-block accent-3" />
+
+                            <polygon points="60,105 90,120 90,140 60,125" class="iso-side-dark" style="transform: translateY(-50px);" />
+                            <polygon points="90,120 120,105 120,125 90,140" class="iso-side-light" style="transform: translateY(-50px);" />
+                            <polygon points="90,55 120,65 90,75 60,65" class="mini-iso-block accent-4" />
                         </svg>
                     </div>
 
-                    <div style="font-size: 1.5rem; color:#cbd5e1; font-weight:900;">&rarr;</div>
+                    <div style="font-size: 1.6rem; color:#cbd5e1; font-weight:900;">&rarr;</div>
 
                     <div style="text-align: center;">
-                        <span style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:5px;">2D Blueprint Map</span>
+                        <span style="font-size:0.7rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:8px; letter-spacing:0.5px;">2D Blueprint Map</span>
                         <div class="blueprint-grid" id="blueprint-cont">
-                            <div class="blueprint-cell" id="bc-0">?</div><div class="blueprint-cell" id="bc-1">?</div><div class="blueprint-cell" id="bc-2">?</div>
-                            <div class="blueprint-cell" id="bc-3">?</div><div class="blueprint-cell" id="bc-4">?</div><div class="blueprint-cell" id="bc-5">?</div>
-                            <div class="blueprint-cell" id="bc-6">?</div><div class="blueprint-cell" id="bc-7">?</div><div class="blueprint-cell" id="bc-8">?</div>
+                            <div class="blueprint-cell" id="bc-0" title="Top-Left (Blue)">?</div>
+                            <div class="blueprint-cell" id="bc-1" title="Top-Middle">?</div>
+                            <div class="blueprint-cell" id="bc-2" title="Top-Right">?</div>
+                            
+                            <div class="blueprint-cell" id="bc-3" title="Middle-Left (Orange)">?</div>
+                            <div class="blueprint-cell" id="bc-4" title="Center (Green)">?</div>
+                            <div class="blueprint-cell" id="bc-5" title="Middle-Right">?</div>
+                            
+                            <div class="blueprint-cell" id="bc-6" title="Bottom-Left">?</div>
+                            <div class="blueprint-cell" id="bc-7" title="Bottom-Middle">?</div>
+                            <div class="blueprint-cell" id="bc-8" title="Bottom-Right">?</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue); font-size: 0.9rem;">Total Volume Score: <span id="blueprint-total" style="color:#94a3b8;">?</span></div>
+                <div style="margin-top:25px; font-weight:800; color:var(--cognis-blue); font-size: 1rem;">Total Block Count: <span id="blueprint-total" style="color:#94a3b8; font-size: 1.15rem;">?</span></div>
                 
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; margin-top: 5px;">
                     <button class="btn-action" id="map-roofs-btn" onclick="runProgressingMap()">Map Roof Heights</button>
-                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetProgressingMap()">Clear Grid</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.75rem;" onclick="resetProgressingMap()">Clear Grid</button>
                 </div>
             </div>
 
@@ -172,42 +194,41 @@
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Approach block-stacking challenges by searching out <b>"Invisible Foundations."</b> Gravity is a fixed physical constraint. If a target cube sits exposed on layer three, two structural blocks <i>must</i> reside hidden inside the layout below it. Winning non-verbal reasoning marks isn't about haphazardly counting visible surface panel faces—it is about correctly deducing the total hidden volume required to sustain the building framework.</p>
+            <p>Approach block-stacking challenges by looking for the **Hidden Floor Layers**. Gravity is a fixed rule. If a block sits exposed on layer three, two structural support blocks *must* sit hidden inside the layout below it to support the weight. Scoring high marks on non-verbal papers isn't about counting visible outer wall faces—it is about correctly calculating the total hidden volume required to hold the columns up.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Level-2 L-Stack:</b> Audit a stacked block array. Ensure your student accounts for the shared corner support element tucked out of view!</div>
-                <div class="tier-card"><b>The Three-Tier Column:</b> A standalone pillar rises 3 blocks high. How many background foundation blocks hide directly behind neighboring units to brace the apex?</div>
-                <div class="tier-card"><b>The Irregular Skyline:</b> Calculate the exact structural volume of an asymmetrical cube matrix packed with hidden baseline columns.</div>
+                <div class="tier-card"><b>The Level-2 Corner Stack:</b> Look closely at a stacked layout. Make sure your child counts the hidden shared support blocks that are fully covered by front rows!</div>
+                <div class="tier-card"><b>The Three-Tier Pillar:</b> A single column stands 3 blocks high. How many background foundation blocks hide directly behind other units to support that top block?</div>
+                <div class="tier-card"><b>The Asymmetric Grid:</b> Find the exact block total of an uneven stack by scanning it column-by-column from back to front.</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Volumetric Breakdown Lab</h2>
-            <p>Welcome to our interactive <b>Volumetric Breakdown Lab</b>. Toggle our X-Ray lens tool below to illuminate all hidden foundation <b>Support Blocks</b> in bright Red. These elements form the critical structural pillars buried directly behind front-facing neighbors. Notice how the absolute calculation totals must always integrate these hidden items.</p>
+            <h2>Phase 2: The Block Structure Breakdown Lab</h2>
+            <p>Welcome to our interactive **Block Structure Lab**. Turn on our X-Ray view tool below to light up all hidden foundation **Support Blocks** in bright Red. These are the crucial blocks hidden directly behind the front-row shapes. Notice how your final block counts must always include these hidden pieces.</p>
             <div class="anatomy-display-s">
                 <svg id="s-stack-svg" viewBox="0 0 400 400"></svg>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Architectural Stack Generator</h2>
-            <p style="margin-bottom: 20px;">Generate a random block model below. Estimate the volume count mentally, then activate our scanner to verify hidden columns. Our simulator executes an automated column height verification step, tracking values smoothly from the floor to each rooftop.</p>
+            <h2>Phase 3: The Architectural Column Simulator</h2>
+            <p style="margin-bottom: 20px;">Generate a random block tower layout below. Guess the volume count mentally, then turn on our scanner tool to verify hidden column layers from the floor up to the roof.</p>
             <div class="engine-container">
-                <div class="inputs">
-                    <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Calibrate Internal Scanning Matrix</label>
-                    <button class="btn-action" style="width:100%;" onclick="toggleSuppXRay()">Toggle X-Ray Lens Vision</button>
-                    <button class="btn-action" style="width:100%; background:#4a5568; font-size:0.6rem; margin-top:5px;" onclick="renderSupp()">Generate Random Stack Model</button>
+                <div class="inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn-action" style="margin: 0;" onclick="toggleSuppXRay()">Toggle X-Ray View</button>
+                    <button class="btn-action" style="margin: 0; background:#64748b;" onclick="renderSupp()">Generate New Stack</button>
                 </div>
-                <div class="trace-log" id="supp-log"></div>
+                <div class="trace-log" id="supp-log" style="margin-top: 15px; background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; color: #cbd5e0; font-size: 0.85rem; line-height: 1.6;"></div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <h3>The "Surface Face-Value" Overcounting Trap</h3>
-                <p>When themes work quickly, they frequently fall victim to counting every single visible diamond face panel they spot. An individual corner block sticking out from the stack exposes 3 separate face directions simultaneously (its Top, its Left, and its Right). Tallying every face creates a massive overcount!</p>
-                <p><b>The Easy Fix: Practice the Rooftop Floor Tally Method.</b> Train your student with this shortcut rule: <i>"Isolate only the topmost roof diamonds."</i> Select one golden top face. Ask explicitly: <i>"Which floor level does this specific column rise to?"</i> Write that height integer directly over the diamond face. <b>Summing up the floor numbers of the roofs completely prevents double-counting.</b></p>
+                <h3>The "Visible Side-Face" Overcounting Trap</h3>
+                <p>When working through block questions quickly, children often fall into the trap of counting every single visible flat face they see. A single block sticking out at a corner exposes 3 separate faces at once (its Top face, Left face, and Right face). Counting every face will create a massive overcount score!</p>
+                <p><b>The Easy Fix: Count Only the Rooftops.</b> Train your student with this shortcut rule: <i>"Isolate only the flat roof diamonds."</i> Pick one top roof face. Ask clearly: <i>"How many blocks are stacked in this exact pillar?"</i> Write that height number directly inside that roof space on the sheet. <b>Adding up the pillar numbers from the roof entirely prevents double-counting!</b></p>
             </div>
         </section>
         
@@ -243,17 +264,22 @@
         const s2 = document.getElementById('support-2');
         if(s1) s1.style.opacity = '1';
         if(s2) s2.style.opacity = '1';
-        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Foundation bracing confirmed! The column tower is verified at exactly 3 blocks tall.</div>`;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Hidden blocks revealed!</b> The tower column is verified to be exactly 3 blocks high.</div>`;
     }
     function resetIntro() { 
         const s1 = document.getElementById('support-1');
         const s2 = document.getElementById('support-2');
         if(s1) s1.style.opacity = '0';
         if(s2) s2.style.opacity = '0';
-        document.getElementById('intro-log').innerHTML = "A block on Floor 3 needs 2 supports.";
+        document.getElementById('intro-log').innerHTML = "A block on Floor 3 always needs 2 support blocks underneath.";
     }
 
-    /* --- PROGRESSING: BLUEPRINT INTERACTION ENGINE --- */
+    /* --- PROGRESSING: BLUEPRINT INTERACTION PIPELINE (CORRELATED HARMONY) --- */
+    // Matrices position mapping rules:
+    // bc-0 = Blue Pillar (3)
+    // bc-3 = Orange Block (1)
+    // bc-4 = Center Green Pillar (4)
+    // Rest are empty ground spaces (0)
     const heightMatrix = ['3', '0', '0', '1', '4', '0', '0', '0', '0'];
     
     function runProgressingMap() {
@@ -261,15 +287,21 @@
             const cell = document.getElementById('bc-' + index);
             if(cell) {
                 cell.textContent = val;
-                cell.classList.add('mapped');
+                cell.className = 'blueprint-cell'; // reset classes
+                
+                // Color-code the 2D blueprint map cells to match the 3D isometric stack colors
+                if(val === '3') cell.classList.add('mapped-3');
+                else if(val === '1') cell.classList.add('mapped-1');
+                else if(val === '4') cell.classList.add('mapped-4');
+                else cell.classList.add('mapped-0');
             }
         });
         const totalSpan = document.getElementById('blueprint-total');
         if(totalSpan) {
-            totalSpan.textContent = '8';
-            totalSpan.style.color = 'var(--cognis-gold)';
+            totalSpan.textContent = '8 Blocks';
+            totalSpan.style.color = '#10b981';
         }
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Mapping complete! 3D pillars scanned: Left column = <b>3</b>, Front column = <b>1</b>, Center apex = <b>4</b>. Formula: 3 + 1 + 4 = 8.</div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Grid Mapping Complete!</b> The 3D pillars match your map boxes: Blue Column = <b>3</b>, Orange Column = <b>1</b>, Green Column = <b>4</b>. Formula: 3 + 1 + 4 = 8 blocks total!</div>`;
     }
 
     function resetProgressingMap() {
@@ -277,7 +309,7 @@
             const cell = document.getElementById('bc-' + i);
             if(cell) {
                 cell.textContent = '?';
-                cell.classList.remove('mapped');
+                cell.className = 'blueprint-cell';
             }
         }
         const totalSpan = document.getElementById('blueprint-total');
@@ -285,10 +317,10 @@
             totalSpan.textContent = '?';
             totalSpan.style.color = '#94a3b8';
         }
-        document.getElementById('prog-log').innerHTML = "The blueprint sheet has been cleared. Ready for verification.";
+        document.getElementById('prog-log').innerHTML = "The blueprint sheet has been cleared. Ready to calibrate again.";
     }
 
-    /* --- SUPPLEMENTAL: ISOMETRIC --- */
+    /* --- SUPPLEMENTAL: ISOMETRIC BLOCK MAKER --- */
     function drawSuppCube(svg, x, y, z, isHidden) {
         const isoX = 200 + (x - y) * 35;
         const isoY = 220 + (x + y) * 20 - z * 40;
@@ -317,7 +349,7 @@
                 }
             }
         }
-        document.getElementById('supp-log').innerHTML = `&rarr; Audit Foundation Support Log: <br>&bull; Surface Scan: 9 visible roofs mapped.<br>&bull; Adjacency Logic: Structural foundations required = <b>${hidden} hidden units</b>.<br>&rarr; <b>Total Calculated Stack Volume: ${total} Blocks</b>`;
+        document.getElementById('supp-log').innerHTML = `&bull; Visible Roofs Mapped: 9 Stack Tops.<br>&bull; Hidden Support Units Discovered: <b>${hidden} blocks</b> underneath.<br>&rarr; <b>Total Real Volume Count: ${total} Blocks</b>`;
     }
 
     function toggleSuppXRay() { 

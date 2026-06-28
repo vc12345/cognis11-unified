@@ -45,23 +45,24 @@
         .discovery-step::before { content: '🥞'; }
 
         /* INTRO: PAPER PILE */
-        .paper-layer { width: 150px; height: 150px; position: absolute; border: 3px solid rgba(0,0,0,0.1); transition: all 0.5s; cursor: grab; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 2rem; }
-        #paper-red { background: #ef4444; transform: translate(-30px, -30px); }
-        #paper-blue { background: #3b82f6; transform: translate(30px, 30px); }
+        .paper-layer { width: 130px; height: 130px; position: absolute; border: 3px solid rgba(0,0,0,0.1); transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 1.5rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #paper-red { background: #ef4444; transform: translate(-35px, -35px); }
+        #paper-blue { background: #3b82f6; transform: translate(35px, 35px); }
 
-        /* PROGRESSING: T-JUNCTIONS RE-ENGINEERED */
-        .t-point { fill: #ef4444; stroke: white; stroke-width: 1.5; opacity: 0; transition: opacity 0.3s, fill 0.3s; }
+        /* PROGRESSING: T-JUNCTIONS HIGHLIGHTS */
+        .t-point { fill: #ef4444; stroke: white; stroke-width: 2; opacity: 0; transition: all 0.4s ease; }
 
         /* SUPPLEMENTAL: 3D SCANNER */
-        .anatomy-display-s { background: #0f172a; padding: 60px 20px; perspective: 1200px; border-radius: 12px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
-        .stack-stage-s { width: 300px; height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.8s; }
-        .view-3d-s .stack-stage-s { transform: rotateX(50deg) rotateZ(-30deg); }
-        .shape-layer-s { position: absolute; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); cursor: pointer; }
+        .anatomy-display-s { background: #0f172a; padding: 50px 20px; perspective: 1000px; border-radius: 12px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+        .stack-stage-s { width: 260px; height: 260px; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .view-3d-s .stack-stage-s { transform: rotateX(55deg) rotateZ(-35deg); }
+        .shape-layer-s { position: absolute; width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; transition: all 0.5s ease; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 8px 25px rgba(0,0,0,0.3); cursor: pointer; font-size: 1.2rem; }
         
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-action:hover { opacity: 0.9; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -77,87 +78,87 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Paper Desk Pile</h2>
-            <p>Imagine your child dropping colored card sheets onto a desk. The sheet that falls onto the pile last will naturally overlap and hide a section of the paper that was already lying there. To calculate which item sits on top, we trace which outline is completely <b>Unbroken</b> and which one is <b>Hidden</b> underneath.</p>
+            <p>Imagine your child dropping colored paper sheets onto a study desk. The sheet that lands on the pile last will naturally overlap and cover a corner of the paper that was already lying down. To figure out which shape is on top, we look for the one with a completely **Unbroken Outline**, meaning its borders are never cut short by another piece.</p>
             
             <div class="parent-script">
-                "Look at our Red card and Blue card overlapping. Right now, the Blue square rules the top layer because its entire outline remains visible to your eye. Click 'Rearrange Overlap Order'. Notice how the Red square now jumps to the top. In eleven-plus spatial tests, the 'winning' shape is always the one whose borders are never cut short by another piece."
+                "Look at our Red card and Blue card overlapping below. Right now, the Blue square rules the top layer because you can see its whole border. Click 'Rearrange Overlap Order'. Notice how the Red square jumps to the front! In 11+ non-verbal tests, the winning top shape is always the one with smooth, uncut outer lines."
             </div>
 
             <div class="viz-container">
-                <div style="position:relative; width:250px; height:250px;">
+                <div style="position:relative; width:220px; height:220px; display: flex; align-items: center; justify-content: center;">
                     <div id="paper-red" class="paper-layer" style="z-index:10;">RED</div>
                     <div id="paper-blue" class="paper-layer" style="z-index:11;">BLUE</div>
                 </div>
                 <button class="btn-action" onclick="swapIntroLayers()">Rearrange Overlap Order</button>
             </div>
 
-            <div class="discovery-log" id="intro-log">The Blue square is currently on top.</div>
+            <div class="discovery-log" id="intro-log">The Blue card block is currently sitting on the top layer.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The T-Junction Rule</h2>
-            <p>When shapes overlap on a test page, their lines collide to form a visual letter <b>T</b>. Think of it like a mini traffic stop: the smooth crossbar line at the top of the <b>T</b> belongs to the front shape. The vertical stem line that crashes into it and stops dead belongs to the shape hiding underneath!</p>
+            <h2>The Letter "T" Clue Rule</h2>
+            <p>When flat shapes overlap on a page, their lines meet to form a visible capital letter <b>T</b>. Think of this intersection like a traffic sign: the smooth crossbar at the top of the <b>T</b> belongs to the front shape. The vertical stem line that crashes into it and stops dead belongs to the background shape hiding underneath!</p>
             
             <div class="parent-script">
-                "Look at where the square and circle cross paths. Right now, it's hard to tell who is on top. Click 'Spot the T-Junctions' below. Notice how the square's lines stop dead the exact moment they touch the circle's smooth, unbroken rim? The golden 'T' anchors show you exactly which shape's line was cut short. If its line breaks, it's at the back!"
+                "Look at our square and circle layout below. It's tough to tell who is on top at first glance. Click 'Spot the T-Junctions' to scan the intersections. See those golden targets? Notice how the square's lines hit a wall against the circle's round rim and stop dead? Because its line breaks, the square is trapped at the back!"
             </div>
 
             <div class="viz-container">
-                <svg width="250" height="250" viewBox="0 0 220 220" style="background: #ffffff; border-radius: 8px;">
+                <svg width="220" height="220" viewBox="0 0 220 220" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
                     <!-- Background Grid for spatial context -->
                     <defs>
                         <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f8fafc" stroke-width="1"/>
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#grid)" />
 
-                    <!-- Background Shape: Square (Outlines only, explicitly broken at the intersections) -->
+                    <!-- Background Shape: Square (Outlines only, broken at intersections to simulate depth) -->
                     <path d="M 40,40 L 160,40 L 160,115 M 160,115 M 85,40 L 40,40 L 40,160 L 160,160 L 160,115" fill="none" stroke="#cbd5e0" stroke-width="3" id="prog-square-line" />
-                    <!-- The hidden lines inside the circle drawn as dashed to show they are trapped behind -->
-                    <path d="M 160,40 L 160,115 M 85,40 L 160,40" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4" style="opacity: 0.4;" />
+                    <!-- Hidden lines behind the circle drawn as faint dashes -->
+                    <path d="M 160,40 L 160,115 M 85,40 L 160,40" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4" style="opacity: 0.3;" />
 
-                    <!-- Foreground Shape: Circle (Perfect, unbroken boundary path) -->
+                    <!-- Foreground Shape: Circle (Perfect, unbroken boundary rim) -->
                     <circle cx="120" cy="120" r="55" fill="none" stroke="#64748b" stroke-width="4" />
                     
-                    <!-- Golden T-Junction Crossbars that light up to prove continuity -->
+                    <!-- Golden T-Junction Crossbars highlighting the letter T shape -->
                     <path d="M 75,47 L 95,33 M 167,105 L 153,125" fill="none" stroke="var(--cognis-gold)" stroke-width="5" stroke-linecap="round" id="t-crossbars" style="opacity: 0; transition: opacity 0.3s;" />
-                    <!-- Intersecting stem indicator points -->
-                    <circle cx="85" cy="40" r="6" class="t-point" id="tp-1" />
-                    <circle cx="160" cy="115" r="6" class="t-point" id="tp-2" />
+                    <!-- Intersection stem marker target dots -->
+                    <circle cx="85" cy="40" r="7" class="t-point" id="tp-1" />
+                    <circle cx="160" cy="115" r="7" class="t-point" id="tp-2" />
                 </svg>
                 <button class="btn-action" onclick="showJunctions()">Spot the T-Junctions</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">Click the button to trace where the borders collide.</div>
+            <div class="discovery-log" id="prog-log">Click the scanner button above to track where the lines collide.</div>
         </section>
     </div>
 
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Think of layer depth identification as mastering <b>"The Pancake Rule."</b> Non-verbal exam designers intentionally merge geometric elements to see if your student can isolate the "last dropped" item. The ultimate shortcut here is verifying <b>Border Continuity</b>. If an item maintains a totally uncompromised border, it owns the top slot. If its border is interrupted, it resides on a deeper layer. Train your child to peel back the layout layers by scanning for blocked lines.</p>
+            <p>Identifying layer order follows a basic strategy: **The Layer Rule**. Test designers deliberately combine shapes to see if your child can find the "last dropped" item. The absolute fastest shortcut is looking for **Line Continuity**. If a shape has a perfectly clean, uncut border, it sits in the top slot. If its border gets interrupted, it is trapped on a deeper back layer.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Overlapping Pair:</b> "A red circle overlaps a blue square. The circle's edge is perfect, while the square is interrupted. Which sits on top?"</div>
-                <div class="tier-card"><b>The Three-Layer Pile:</b> "An overlapping trio of tokens. Rank their order from 'Deepest Layer' to 'Top Layer'."</div>
-                <div class="tier-card"><b>The Fragmented Sliver:</b> "Identify a hidden center shape that is heavily covered by two other items, leaving only a tiny visible sliver."</div>
+                <div class="tier-card"><b>The Overlapping Pair:</b> A red circle overlaps a blue square. The circle's edge is completely perfect, while the square's outline stops against it. The circle wins the top slot!</div>
+                <div class="tier-card"><b>The Multi-Shape Pile:</b> When multiple items cross paths, find the one shape that has zero cuts to its borders. That is your definitive starting point for peel-back tracking.</div>
+                <div class="tier-card"><b>The Hidden Center Shape:</b> A shape that is buried deep underneath other layers will show multiple line cuts and letter "T" stop marks around its tiny visible patches.</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Layer Stacking Lab</h2>
-            <p>Welcome to our interactive <b>Layer Stacking Lab</b>. Toggle the selection tracker below to separate our shape pile in 3D space. Watch how the layers peel apart. The element labeled <b>1</b> (the top layer) is the lone shape whose outlines are never cut short by an overlapping neighbor. This showcases the <b>Unbroken Outlines</b> strategy in action.</p>
+            <h2>Phase 2: The Shape Stacking Lab</h2>
+            <p>Welcome to our interactive **Shape Stacking Lab**. Use the sliding range tracker below to pull our shape pile apart into 3D space. Watch how the pile separates! The shape marked with a **1** sits on the front layer because its boundaries are completely untouched by its neighbors.</p>
             <div class="anatomy-display-s" id="s-stage">
                 <div class="stack-stage-s" id="s-container">
                     <div class="shape-layer-s" id="s-circle" style="background:#ef4444; border-radius:50%; top:20px; left:20px;" onclick="reorderSupp('circle')">1</div>
                     <div class="shape-layer-s" id="s-square" style="background:#3b82f6; border-radius:12px; top:80px; left:80px;" onclick="reorderSupp('square')">2</div>
                     <div class="shape-layer-s" id="s-tri" style="background:#eab308; clip-path:polygon(50% 0%, 0% 100%, 100% 100%); top:50px; left:120px;" onclick="reorderSupp('tri')">3</div>
                 </div>
-                <div style="margin-top:60px; width:100%; text-align:center;">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#94a3b8; font-size:0.6rem; font-weight:800;">
-                        <span>2D OVERVIEW</span><span>3D LAYER SEPARATION</span>
+                <div style="margin-top:50px; width:100%; text-align:center;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px; color:#94a3b8; font-size:0.65rem; font-weight:800; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <span>Standard 2D View</span><span>Separate Layers (3D View)</span>
                     </div>
                     <input type="range" id="si-depth" min="0" max="1" step="1" value="0" style="width:100%; accent-color:var(--cognis-gold);" oninput="renderSuppStack()">
                 </div>
@@ -165,24 +166,24 @@
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Depth Arrangement Simulator</h2>
-            <p style="margin-bottom: 20px;">Reorder the digital stack. Click directly on any colored layer shape above to bring it to the absolute front of the pile, and track how our order logs adapt to the new arrangement details.</p>
+            <h2>Phase 3: The Order Arrangement Simulator</h2>
+            <p style="margin-bottom: 20px;">Change the stacking layout. Click directly on any colored layer shape above or use the command buttons below to pull a shape to the absolute front, and watch the position list update.</p>
             <div class="engine-container">
-                <div class="inputs">
-                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('circle')">Bring Red to Front</button>
-                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('square')">Bring Blue to Front</button>
-                    <button class="btn-action" style="width:100%; font-size:0.7rem;" onclick="reorderSupp('tri')">Bring Gold to Front</button>
+                <div class="inputs" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 15px;">
+                    <button class="btn-action" style="margin: 0; padding: 10px; font-size:0.7rem;" onclick="reorderSupp('circle')">Red to Front</button>
+                    <button class="btn-action" style="margin: 0; padding: 10px; font-size:0.7rem;" onclick="reorderSupp('square')">Blue to Front</button>
+                    <button class="btn-action" style="margin: 0; padding: 10px; font-size:0.7rem; background: var(--cognis-gold); color: #0f172a;" onclick="reorderSupp('tri')">Gold to Front</button>
                 </div>
-                <div class="trace-log" id="supp-log"></div>
+                <div class="trace-log" id="supp-log" style="background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; color: #cbd5e0; line-height: 1.6; font-size: 0.85rem;"></div>
             </div>
         </section>
 
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <h3>The "Shared Color" Camouflage Trap</h3>
-                <p>When two overlapping shapes happen to share the exact same color fill, a child's brain automatically blends them into a single blob. They fail to notice that one shape is actually lurking behind the other.</p>
-                <p><b>The Easy Fix: Isolate the Line Intersections.</b> Coach your child with this method: <i>"Look for where the borders collide."</i> Ignore the color fills entirely and follow the outline tracks. If Shape A's line breaks off suddenly against Shape B's rim (creating that classic 'T' stop), Shape A is trapped at the back. <b>The true top shape never breaks its line.</b></p>
+                <h3>The "Same Color" Camouflage Trap</h3>
+                <p>When two overlapping shapes share the exact same color fill, a child's eyes can blend them into a single big blob. They might miss the fact that one shape is actually standing behind the other.</p>
+                <p><b>The Easy Fix: Trace the Letter "T" Stops.</b> Coach your child with this step: <i>"Look for where the borders collide."</i> Ignore the color fills completely and follow the line paths. If Shape A's line hits a wall and stops dead against Shape B's rim, it creates a letter **T**. That proves Shape A is trapped at the back. <b>The true top shape never breaks its border lines!</b></p>
             </div>
         </section>
         
@@ -218,29 +219,29 @@
         redOnTop = !redOnTop;
         document.getElementById('paper-red').style.zIndex = redOnTop ? 12 : 10;
         document.getElementById('paper-blue').style.zIndex = redOnTop ? 10 : 12;
-        document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Layers Adjusted! The <b>${redOnTop?'Red':'Blue'}</b> square now holds an unbroken outline border.</div>`;
+        document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Layers Swapped!</b> The <b>${redOnTop?'Red':'Blue'}</b> square now holds the clean, unbroken outline border.</div>`;
     }
 
-    /* --- PROGRESSING: JUNCTIONS FIXED --- */
+    /* --- PROGRESSING: JUNCTIONS ILLUMINATED --- */
     function showJunctions() {
-        // Illuminate the exact collision points
+        // Illuminate the letter T target nodes
         document.querySelectorAll('.t-point').forEach(p => {
             p.style.opacity = '1';
             p.style.fill = 'var(--cognis-gold)';
         });
         
-        // Reveal the dominant crossbars of the T-junctions
+        // Make the top bar of the T-junction light up golden
         const crossbars = document.getElementById('t-crossbars');
         if(crossbars) crossbars.style.opacity = '1';
         
-        // Highlight the background line that got cut off
+        // Turn the interrupted background line red to show where it gets cut short
         const squareLine = document.getElementById('prog-square-line');
         if(squareLine) squareLine.style.stroke = '#ef4444';
         
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look at the red lines and gold targets! The square's outline hits the wall of the circle and stops dead, creating a perfect <b>T-stop</b>. The circle's line is completely clean, meaning it is <b>On Top</b>!</div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Look at the red lines and golden dots!</b> The square's outline hits a wall against the circle's rim and stops dead. This creates a perfect <b>letter T shape</b>. The circle's line runs completely clean, proving it is <b>On Top</b>!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: STACK ENGINE --- */
     let sOrder = ['tri', 'square', 'circle'];
     const sNames = { circle: 'Red Circle Layer', square: 'Blue Square Layer', tri: 'Gold Triangle Layer' };
     
@@ -263,16 +264,16 @@
             if(el) {
                 el.style.zIndex = i + 10;
                 el.textContent = 3 - i;
-                el.style.transform = is3D ? `translateZ(${(i-1)*80}px)` : `translateZ(0px)`;
+                el.style.transform = is3D ? `translateZ(${(i-1)*75}px)` : `translateZ(0px)`;
             }
         });
 
         const log = document.getElementById('supp-log');
         if(log) {
             log.innerHTML = `
-                &rarr; Top Position: <b>${sNames[sOrder[2]]}</b><br>
-                &rarr; Intermediate Position: <b>${sNames[sOrder[1]]}</b><br>
-                &rarr; Bottom Position: <b>${sNames[sOrder[0]]}</b>
+                &bull; Front Position (Unbroken): <b>${sNames[sOrder[2]]}</b><br>
+                &bull; Middle Position (1 Cut): <b>${sNames[sOrder[1]]}</b><br>
+                &bull; Back Position (Buried): <b>${sNames[sOrder[0]]}</b>
             `;
         }
     }
