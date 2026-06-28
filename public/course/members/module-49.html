@@ -52,9 +52,40 @@
         .iso-edge-line { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .iso-face-fill { transition: all 0.4s ease; }
 
-        /* SUPPLEMENTAL: CENTERING & SAFETY LAYER BUFFER */
-        .anatomy-display-s { background: #0f172a; padding: 80px 20px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 280px; box-sizing: border-box; width: 100%; position: relative; }
-        .cube-viewport-s { width: 120px; height: 120px; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform: rotateX(-20deg) rotateY(-30deg); }
+        /* SUPPLEMENTAL: CENTERING & SAFETY LAYER BUFFER FIXED */
+        .anatomy-display-s { 
+            background: #0f172a; 
+            padding: 40px 20px; 
+            border-radius: 12px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 240px; 
+            box-sizing: border-box; 
+            width: 100%; 
+            position: relative;
+            margin: 20px 0;
+        }
+        /* Added a dedicated wrapper to hold the 3D origin layout inside standard document flow */
+        .cube-stage-3d-s {
+            width: 120px;
+            height: 120px;
+            perspective: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .cube-viewport-s { 
+            width: 120px; 
+            height: 120px; 
+            position: relative; 
+            transform-style: preserve-3d; 
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+            transform: rotateX(-20deg) rotateY(-30deg); 
+        }
         .face-s { position: absolute; width: 120px; height: 120px; border: 2px solid rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; backface-visibility: visible; box-sizing: border-box; border-radius: 6px; }
         .f-front-s { transform: rotateY(0deg) translateZ(60px); background: var(--cognis-gold); color: #0f172a; }
         .f-back-s { transform: rotateY(180deg) translateZ(60px); background: #3182ce; color: white; }
@@ -166,17 +197,19 @@
             <h2>Phase 2: The Spatial Orientation Sandbox</h2>
             <p>Welcome to our <b>Spatial Orientation Sandbox</b>. Spin the cube model below and monitor the "Fixed" positioning patterns. Even when target symbols rotate onto the top or side profiles, they preserve their fixed border relationships. Train your child to mentally "X-ray" the hidden rear and base panels of the cube to verify matches.</p>
             
-            <div class="anatomy-display">
-                <div class="cube-viewport-s" id="s-cube">
-                    <div class="face-s f-front-s">★</div>
-                    <div class="face-s f-back-s">●</div>
-                    <div class="face-s f-right-s">▲</div>
-                    <div class="face-s f-left-s">■</div>
-                    <div class="face-s f-top-s">♦</div>
-                    <div class="face-s f-bot-s">♣</div>
+            <div class="anatomy-display-s">
+                <div class="cube-stage-3d-s">
+                    <div class="cube-viewport-s" id="s-cube">
+                        <div class="face-s f-front-s">★</div>
+                        <div class="face-s f-back-s">●</div>
+                        <div class="face-s f-right-s">▲</div>
+                        <div class="face-s f-left-s">■</div>
+                        <div class="face-s f-top-s">♦</div>
+                        <div class="face-s f-bot-s">♣</div>
+                    </div>
                 </div>
+                <div style="text-align: center; margin-top: 10px; font-weight:800; color:#94a3b8; font-size:0.65rem; letter-spacing: 1px; text-transform:uppercase;">3D Laboratory Viewport: Verify Face Adjacency</div>
             </div>
-            <div style="text-align: center; margin-top: 15px; font-weight:800; color:#94a3b8; font-size:0.65rem; letter-spacing: 1px; text-transform:uppercase;">3D Laboratory Viewport: Verify Face Adjacency</div>
         </section>
 
         <section class="phase">
@@ -230,7 +263,7 @@
         }
     }
 
-    /* --- INTRO: SPIN FIXES --- */
+    /* --- INTRO: SPIN --- */
     let introSpun = false;
     function runIntroSpin() {
         introSpun = true;
@@ -240,7 +273,6 @@
         
         if (cubeSvg) cubeSvg.style.transform = "rotate(30deg) scale(1.05)";
         
-        // Simulates realistic horizontal step adjustments, preserving anchor perspective visibility
         setTimeout(() => {
             if (txtLeft && txtRight) {
                 txtLeft.textContent = "▲"; 
@@ -252,7 +284,6 @@
     }
 
     function resetIntro() {
-        // Absolute local variable reset state block instead of an aggressive page window reload loop
         introSpun = false;
         const txtLeft = document.getElementById('intro-face-left-txt');
         const txtRight = document.getElementById('intro-face-right-txt');

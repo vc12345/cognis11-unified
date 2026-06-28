@@ -6,7 +6,7 @@
     <title>Module 51: 3D Block Counting | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,6 +39,7 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🧱'; }
@@ -48,12 +49,19 @@
         .block-f { width: 50px; height: 40px; background: var(--cognis-blue); border: 2px solid white; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; position: absolute; }
         .support-hidden { background: #e5e7eb; border: 1px dashed #cbd5e0; color: #94a3b8; }
 
-        /* PROGRESSING: BLUEPRINT */
+        /* PROGRESSING: BLUEPRINT RE-ENGINEERED */
         .blueprint-grid { display: grid; grid-template-columns: repeat(3, 50px); gap: 5px; background: #f1f5f9; padding: 10px; border-radius: 8px; border: 2px solid var(--cognis-blue); }
-        .blueprint-cell { width: 50px; height: 50px; background: white; border: 1px solid #cbd5e0; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--cognis-gold); font-size: 1.2rem; }
+        .blueprint-cell { width: 50px; height: 50px; background: white; border: 1px solid #cbd5e0; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; font-size: 1.1rem; transition: all 0.4s ease; }
+        .blueprint-cell.mapped { color: var(--cognis-gold); border-color: var(--cognis-gold); background: #fffdf5; transform: scale(1.05); }
+        
+        /* Isometric mini visualizer paths */
+        .mini-iso-block { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 1.5; transition: fill 0.4s; }
+        .mini-iso-block.accent-3 { fill: #93c5fd; }
+        .mini-iso-block.accent-1 { fill: #fed7aa; }
+        .mini-iso-block.accent-4 { fill: #a7f3d0; }
 
         /* SUPPLEMENTAL: ISOMETRIC LAB */
-        .anatomy-display-s { background: #1a202c; padding: 20px; border-radius: 12px; text-align: center; }
+        .anatomy-display-s { background: #0f172a; padding: 20px; border-radius: 12px; text-align: center; }
         #s-stack-svg { width: 100%; max-width: 450px; height: 350px; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); }
         .cube-top { fill: var(--cognis-gold); stroke: #fff; stroke-width: 1; transition: opacity 0.3s; }
         .cube-left { fill: #b58d4a; stroke: #fff; stroke-width: 1; transition: opacity 0.3s; }
@@ -96,7 +104,10 @@
                     <div id="support-2" class="block-f support-hidden" style="bottom:50px; left:75px; opacity:0;">2</div>
                     <div id="support-1" class="block-f support-hidden" style="bottom:10px; left:75px; opacity:0;">1</div>
                 </div>
-                <button class="btn-action" onclick="runIntroSupport()">Reveal Foundation Support</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="btn-action" onclick="runIntroSupport()">Reveal Foundation Support</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Tower</button>
+                </div>
             </div>
 
             <div class="discovery-log" id="intro-log">A block on Floor 3 needs 2 supports.</div>
@@ -112,19 +123,49 @@
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:40px; align-items:center;">
-                    <div style="font-size: 3rem;">MAPPED ROOFS 🏘️</div>
-                    <div style="font-size: 2rem;">&rarr;</div>
-                    <div class="blueprint-grid" id="blueprint-cont">
-                        <div class="blueprint-cell">3</div><div class="blueprint-cell">0</div><div class="blueprint-cell">0</div>
-                        <div class="blueprint-cell">1</div><div class="blueprint-cell">4</div><div class="blueprint-cell">0</div>
-                        <div class="blueprint-cell">0</div><div class="blueprint-cell">0</div><div class="blueprint-cell">0</div>
+                <div style="display:flex; gap:30px; align-items:center; flex-wrap: wrap; justify-content: center;">
+                    <!-- Accurate Isometric Projection Representation SVG instead of text strings -->
+                    <div style="text-align: center;">
+                        <span style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:5px;">3D Stack Model</span>
+                        <svg width="140" height="140" viewBox="0 0 140 140" style="background:#fff; border-radius:8px; border:1px solid #e2e8f0;">
+                            <!-- Column 1 (Height 3) -->
+                            <polygon points="35,55 55,65 35,75 15,65" class="mini-iso-block accent-3" />
+                            <polygon points="15,65 35,75 35,115 15,105" class="mini-iso-block" />
+                            <polygon points="35,75 55,65 55,105 35,115" class="mini-iso-block" />
+                            
+                            <!-- Column 2 (Height 1) -->
+                            <polygon points="65,85 85,95 65,105 45,95" class="mini-iso-block accent-1" />
+                            <polygon points="45,95 65,105 65,125 45,115" class="mini-iso-block" />
+                            <polygon points="65,105 85,95 85,115 65,125" class="mini-iso-block" />
+
+                            <!-- Column 3 (Height 4) -->
+                            <polygon points="85,35 105,45 85,55 65,45" class="mini-iso-block accent-4" />
+                            <polygon points="65,45 85,55 85,105 65,95" class="mini-iso-block" />
+                            <polygon points="85,55 105,45 105,95 85,105" class="mini-iso-block" />
+                        </svg>
+                    </div>
+
+                    <div style="font-size: 1.5rem; color:#cbd5e1; font-weight:900;">&rarr;</div>
+
+                    <div style="text-align: center;">
+                        <span style="font-size:0.65rem; font-weight:800; color:#64748b; text-transform:uppercase; display:block; margin-bottom:5px;">2D Blueprint Map</span>
+                        <div class="blueprint-grid" id="blueprint-cont">
+                            <div class="blueprint-cell" id="bc-0">?</div><div class="blueprint-cell" id="bc-1">?</div><div class="blueprint-cell" id="bc-2">?</div>
+                            <div class="blueprint-cell" id="bc-3">?</div><div class="blueprint-cell" id="bc-4">?</div><div class="blueprint-cell" id="bc-5">?</div>
+                            <div class="blueprint-cell" id="bc-6">?</div><div class="blueprint-cell" id="bc-7">?</div><div class="blueprint-cell" id="bc-8">?</div>
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue);">Total Block Volume: <span id="blueprint-total">8</span></div>
+
+                <div style="margin-top:20px; font-weight:800; color:var(--cognis-blue); font-size: 0.9rem;">Total Volume Score: <span id="blueprint-total" style="color:#94a3b8;">?</span></div>
+                
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" id="map-roofs-btn" onclick="runProgressingMap()">Map Roof Heights</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetProgressingMap()">Clear Grid</button>
+                </div>
             </div>
 
-            <div class="discovery-log" id="prog-log">Numbers are the secret to 3D counting.</div>
+            <div class="discovery-log" id="prog-log">The blueprint sheet is ready for calibration. Click Map Roof Heights!</div>
         </section>
     </div>
 
@@ -165,7 +206,7 @@
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
                 <h3>The "Surface Face-Value" Overcounting Trap</h3>
-                <p>Children working quickly frequently fall victim to counting every single visible diamond face panel they spot. An individual corner block sticking out from the stack exposes 3 separate face directions simultaneously (its Top, its Left, and its Right). Tallying every face creates a massive overcount!</p>
+                <p>When themes work quickly, they frequently fall victim to counting every single visible diamond face panel they spot. An individual corner block sticking out from the stack exposes 3 separate face directions simultaneously (its Top, its Left, and its Right). Tallying every face creates a massive overcount!</p>
                 <p><b>The Easy Fix: Practice the Rooftop Floor Tally Method.</b> Train your student with this shortcut rule: <i>"Isolate only the topmost roof diamonds."</i> Select one golden top face. Ask explicitly: <i>"Which floor level does this specific column rise to?"</i> Write that height integer directly over the diamond face. <b>Summing up the floor numbers of the roofs completely prevents double-counting.</b></p>
             </div>
         </section>
@@ -198,11 +239,54 @@
 
     /* --- INTRO: SUPPORTS --- */
     function runIntroSupport() {
-        document.getElementById('support-1').style.opacity = '1';
-        document.getElementById('support-2').style.opacity = '1';
+        const s1 = document.getElementById('support-1');
+        const s2 = document.getElementById('support-2');
+        if(s1) s1.style.opacity = '1';
+        if(s2) s2.style.opacity = '1';
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Foundation bracing confirmed! The column tower is verified at exactly 3 blocks tall.</div>`;
     }
-    function resetIntro() { location.reload(); }
+    function resetIntro() { 
+        const s1 = document.getElementById('support-1');
+        const s2 = document.getElementById('support-2');
+        if(s1) s1.style.opacity = '0';
+        if(s2) s2.style.opacity = '0';
+        document.getElementById('intro-log').innerHTML = "A block on Floor 3 needs 2 supports.";
+    }
+
+    /* --- PROGRESSING: BLUEPRINT INTERACTION ENGINE --- */
+    const heightMatrix = ['3', '0', '0', '1', '4', '0', '0', '0', '0'];
+    
+    function runProgressingMap() {
+        heightMatrix.forEach((val, index) => {
+            const cell = document.getElementById('bc-' + index);
+            if(cell) {
+                cell.textContent = val;
+                cell.classList.add('mapped');
+            }
+        });
+        const totalSpan = document.getElementById('blueprint-total');
+        if(totalSpan) {
+            totalSpan.textContent = '8';
+            totalSpan.style.color = 'var(--cognis-gold)';
+        }
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Mapping complete! 3D pillars scanned: Left column = <b>3</b>, Front column = <b>1</b>, Center apex = <b>4</b>. Formula: 3 + 1 + 4 = 8.</div>`;
+    }
+
+    function resetProgressingMap() {
+        for(let i = 0; i < 9; i++) {
+            const cell = document.getElementById('bc-' + i);
+            if(cell) {
+                cell.textContent = '?';
+                cell.classList.remove('mapped');
+            }
+        }
+        const totalSpan = document.getElementById('blueprint-total');
+        if(totalSpan) {
+            totalSpan.textContent = '?';
+            totalSpan.style.color = '#94a3b8';
+        }
+        document.getElementById('prog-log').innerHTML = "The blueprint sheet has been cleared. Ready for verification.";
+    }
 
     /* --- SUPPLEMENTAL: ISOMETRIC --- */
     function drawSuppCube(svg, x, y, z, isHidden) {
@@ -236,7 +320,10 @@
         document.getElementById('supp-log').innerHTML = `&rarr; Audit Foundation Support Log: <br>&bull; Surface Scan: 9 visible roofs mapped.<br>&bull; Adjacency Logic: Structural foundations required = <b>${hidden} hidden units</b>.<br>&rarr; <b>Total Calculated Stack Volume: ${total} Blocks</b>`;
     }
 
-    function toggleSuppXRay() { document.getElementById('s-stack-svg').classList.toggle('xray-s'); }
+    function toggleSuppXRay() { 
+        const svg = document.getElementById('s-stack-svg');
+        if(svg) svg.classList.toggle('xray-s'); 
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();

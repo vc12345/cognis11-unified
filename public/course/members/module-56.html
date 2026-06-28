@@ -6,7 +6,7 @@
     <title>Module 56: Context-Clue Missing Words | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,35 +39,37 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🧲'; }
 
         /* INTRO: PUZZLE PIECE */
-        .puzzle-gap { width: 140px; height: 60px; background: #e2e8f0; border: 3px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #94a3b8; margin: 0 10px; }
-        .puzzle-piece { padding: 10px 20px; background: var(--cognis-gold); color: white; border-radius: 8px; font-weight: 900; cursor: grab; transition: transform 0.2s; position: absolute; top: 250px; }
-        .magnet-force { color: var(--cognis-gold); font-size: 1.5rem; opacity: 0; transition: opacity 0.3s; }
+        .puzzle-gap { width: 140px; height: 45px; background: #e2e8f0; border: 3px dashed #cbd5e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #94a3b8; margin: 0 10px; font-size: 1.1rem; }
+        .puzzle-piece { padding: 10px 20px; background: var(--cognis-gold); color: #0f172a; border-radius: 8px; font-weight: 800; transition: transform 0.4s ease, opacity 0.3s ease; margin-top: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
         /* PROGRESSING: ANCHORS */
-        .anchor-text { font-size: 1.2rem; line-height: 1.8; color: #4a5568; background: white; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e0; }
-        .magnet-word { border-bottom: 2px solid var(--cognis-gold); color: var(--cognis-gold); font-weight: 800; cursor: help; }
+        .anchor-text { font-size: 1.2rem; line-height: 1.8; color: #4a5568; background: white; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e0; width: 100%; box-sizing: border-box; text-align: center; }
+        .magnet-word { background: #fef3c7; border-bottom: 2px solid var(--cognis-gold); color: #b45309; padding: 2px 4px; border-radius: 4px; transition: all 0.3s; }
 
         /* SUPPLEMENTAL: CONTEXT RADAR */
-        .anatomy-display-s { background: #0f172a; padding: 50px; border-radius: 12px; text-align: center; border: 2px solid #1e293b; position: relative; overflow: hidden; }
-        .radar-line-s { position: absolute; top: 50%; left: 50%; width: 200%; height: 2px; background: linear-gradient(90deg, transparent, var(--cognis-gold), transparent); transform-origin: center; animation: rotateRadar 4s linear infinite; opacity: 0.2; }
+        .anatomy-display-s { background: #0f172a; padding: 40px 20px; border-radius: 12px; text-align: center; border: 2px solid #1e293b; position: relative; overflow: hidden; width: 100%; box-sizing: border-box; }
+        .radar-line-s { position: absolute; top: 50%; left: 50%; width: 200%; height: 2px; background: linear-gradient(90deg, transparent, var(--cognis-gold), transparent); transform-origin: center; animation: rotateRadar 4s linear infinite; opacity: 0.15; }
         @keyframes rotateRadar { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        .anchor-pill-s { background: rgba(255,255,255,0.05); border: 1px solid var(--cognis-gold); padding: 12px 20px; border-radius: 8px; color: white; font-weight: 800; font-size: 0.7rem; }
-        .grid-node-s { width: 100px; height: 50px; border: 3px dashed #4a5568; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--cognis-gold); font-weight: 900; }
+        .anchor-pill-s { background: #1e293b; border: 1px solid #334155; padding: 10px 15px; border-radius: 8px; color: #cbd5e0; font-weight: 700; font-size: 0.75rem; position: relative; z-index: 2; max-width: 140px; }
+        .grid-node-s { width: 110px; height: 45px; border: 2px solid var(--cognis-gold); background: rgba(197, 160, 89, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--cognis-gold); font-weight: 800; font-size: 0.9rem; position: relative; z-index: 2; }
 
         /* ENGINE */
-        .ui-gap-s { display: inline-block; min-width: 120px; border-bottom: 3px solid var(--cognis-gold); margin: 0 5px; color: var(--cognis-gold); font-weight: 800; }
-        .btn-word-s { background: transparent; border: 1px solid #4a5568; color: white; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
-        .btn-word-s.selected { background: var(--cognis-gold); border-color: white; }
+        .ui-gap-s { display: inline-block; min-width: 100px; border-bottom: 3px solid var(--cognis-gold); margin: 0 5px; color: var(--cognis-gold); font-weight: 800; text-align: center; }
+        .btn-word-s { background: #0f172a; border: 1px solid #334155; color: #94a3b8; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; transition: all 0.2s; }
+        .btn-word-s:hover { background: #1e293b; color: #f8fafc; }
+        .btn-word-s.selected { background: var(--cognis-gold); border-color: var(--cognis-gold); color: #0f172a; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        .btn-action:hover { opacity: 0.9; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,86 +84,87 @@
     <div id="foundation-bundle">
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
-            <h2>The Puzzle Piece Test</h2>
-            <p>Selecting the perfect word to heal a blank sentence gap operates exactly like fitting the correct interlocking piece into a jigsaw puzzle. You cannot simply squeeze any random word choice into the empty space—it must seamlessly match the overall "picture" and thematic direction established by the vocabulary surrounding it.</p>
+            <h2>The Sentence Puzzle Piece</h2>
+            <p>Choosing the perfect missing word for an empty sentence slot works exactly like placing a correct piece into a jigsaw puzzle. You cannot just guess any random word to fill the gap—it has to match the general picture and meaning created by the surrounding vocabulary clues.</p>
             
             <div class="parent-script">
-                "We have a target sentence describing an exceptionally chilly afternoon. Take a close look at our option choice <b>FREEZING**. Click 'Snap into Gap' below to trigger the movement animation. Notice how beautifully the surrounding vocabulary tokens 'Snow' and 'Bleak' function like magnets—they physically pull the word 'Freezing' into the center because they belong to the exact same semantic family!"
+                "We have a sentence describing an freezing day. Take a close look at our option choice <b>FREEZING</b>. Click 'Snap into Gap' to test the word. Notice how the hint words 'snow' and 'weather' act like magnets—they perfectly pull our word into place because they belong to the same meaning group!"
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; align-items:center; font-weight:800; font-size:1.2rem; color:#4a5568;">
-                    The <span class="puzzle-gap" id="intro-gap">?</span> weather brought snow.
+                <div style="display:flex; align-items:center; font-weight:800; font-size:1.3rem; color:#4a5568; justify-content: center; width: 100%;">
+                    <span>The</span> <span class="puzzle-gap" id="intro-gap">?</span> <span>weather brought snow.</span>
                 </div>
                 <div id="intro-piece" class="puzzle-piece">FREEZING</div>
-                <button class="btn-action" style="margin-top:100px;" onclick="runIntroCloze()">Snap into Gap</button>
+                <button class="btn-action" style="margin-top:40px;" onclick="runIntroCloze()">Snap into Gap</button>
             </div>
 
-            <div class="discovery-log" id="intro-log">Only one word matches the "picture" of snow.</div>
+            <div class="discovery-log" id="intro-log">Only one word fits nicely with the clue word 'snow'.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Contextual Logic Anchors</h2>
-            <p>To master tricky eleven-plus verbal worksheets, train your child to hunt down the internal <b>Contextual Anchors</b>. These represent specific, unwavering landmark clues hidden inside the prose that mathematically force the empty slot to accept one exact vocabulary definition over all others. To secure the point, always verify at least two independent anchors for every gap.</p>
+            <h2>The Secret Text Clues</h2>
+            <p>To master tricky missing-word questions in 11+ papers, teach your child to hunt for the hidden sentence clues. These are specific words on the page that force the empty slot to accept one exact vocabulary definition. To be absolutely safe, always look for two clues to back up your answer choice.</p>
             
             <div class="parent-script">
-                "Read this prompt line out loud: 'The hiker felt ______ as his water bottle was completely empty.' Click 'Isolate Logic Anchors'. Notice how securely those two underlined clues work together to navigate your choice straight to the advanced target word <b>PARCHED**? Without those structural anchors text-stamped onto the sheet, the character could have simply felt sad, bored, or tired—but our twin anchors provide concrete proof that he is profoundly thirsty!"
+                "Let's read this line: 'The hiker felt ______ as his water bottle was completely empty.' Click 'Isolate Logic Anchors'. Notice how 'water bottle' and 'completely empty' work together to point straight to the word <b>PARCHED</b>. Without those clues, the hiker might just be tired or sad, but the text explicitly proves he is extremely thirsty!"
             </div>
 
             <div class="viz-container">
-                <div class="anchor-text">
-                    "The hiker felt <span style="color:var(--cognis-gold); font-weight:900;">________</span> after the climb, as his <span id="anc-1">water bottle</span> was <span id="anc-2">completely empty</span>."
+                <div class="anchor-text" style="margin-bottom: 15px;">
+                    "The hiker felt <span style="color:var(--cognis-gold); font-weight:900;">________</span> after the climb, because his <span id="anc-1">water bottle</span> was <span id="anc-2">completely empty</span>."
                 </div>
                 <button class="btn-action" onclick="runProgAnchors()">Isolate Logic Anchors</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">Anchors provide the proof for your choice.</div>
+            <div class="discovery-log" id="prog-log">Clues inside the sentence give you the ultimate proof for your choice.</div>
         </section>
     </div>
 
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Approach sentence completion problems with an analytical <b>"Semantic Logic Radar."</b> Securing full marks on this category isn't a matter of guessing what sounds pleasant; it demands systematically scanning *completely past the empty slot* to locate the logical resolution. <b>Magnet Words</b> are explicit context variables that physically draw a corresponding vocabulary solution straight toward the gap zone. If an advanced sentence block embeds descriptors like "arid," "parched," or "dunes," your internal engine is mathematically constrained to source a matching solution like *desert*.</p>
+            <p>Approach sentence missing-word questions by scanning for **Text Magnets**. Getting high marks isn't about guessing what sounds nice; it requires looking right past the blank slot to find the hint words. Text magnets are anchor words that pull the matching vocabulary option straight into the empty gap. If a sentence uses words like "sand," "dry," or "dunes," your brain knows right away to look for an answer like *desert*.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Contented Feline:</b> "...______ as it curled contently beside the roaring hearth." Context Magnets: roaring hearth / curled contently. (Target payload: Purred).</div>
-                <div class="tier-card"><b>The Exhausted Mountaineer:</b> "...so ______ he devoured his basic rations in mere seconds." Context Magnets: devoured / mere seconds. (Target payload: Famished).</div>
-                <div class="tier-card"><b>The Analytical Juror:</b> "...his ______ address failed to convince the skeptical panel." Context Magnets: failed to convince / skeptical. (Target payload: Ambiguous).</div>
+                <div class="tier-card"><b>The Happy Cat:</b> "...______ as it curled happily right next to the roaring fireplace." <br><b>Text Magnets:</b> roaring fireplace / curled happily. (Correct Answer: Purred).</div>
+                <div class="tier-card"><b>The Hungry Explorer:</b> "...so ______ he ate all his camping food in just two seconds." <br><b>Text Magnets:</b> ate / just two seconds. (Correct Answer: Famished).</div>
+                <div class="tier-card"><b>The Confused Audience:</b> "...his ______ speech failed to convince the listeners." <br><b>Text Magnets:</b> failed to convince / listeners. (Correct Answer: Vague).</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Semantic Logic Radar</h2>
-            <p>Explore our active <b>Semantic Logic Radar** diagnostic interface. Landmark context indicators positioned both upstream and downstream from the target gap calculate a highly restrictive logical envelope. Your objective is to discover the solitary element inside the vocabulary bank that simultaneously satisfies <b>both</b> boundary anchors. Mapping one single point of context is merely an entry guess; locking down two matching anchors creates an absolute solution link.</p>
+            <h2>Phase 2: The Context Clue Radar</h2>
+            <p>Look at our interactive **Context Radar** layout below. Clue words sitting both before and after the empty slot create a strict meaning boundary. Your goal is to find the single choice from the vocabulary panel that matches both anchors at the same time. Finding one single clue is a good start, but matching two clues gives you the locked-in correct answer!</p>
             <div class="anatomy-display-s">
                 <div class="radar-line-s"></div>
-                <div style="display:flex; align-items:center; justify-content:center; gap:20px; position:relative; z-index:2;">
-                    <div class="anchor-pill-s">CONTEXT ANCHOR A: "Empty Water Bottle"</div>
-                    <div style="color:var(--cognis-gold); font-weight:bold;">&rarr;</div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:15px; position:relative; z-index:2; flex-wrap: wrap;">
+                    <div class="anchor-pill-s">CLUE A: "Empty Water Bottle"</div>
+                    <div style="color:var(--cognis-gold); font-weight:bold; font-size: 1.2rem;">&rarr;</div>
                     <div class="grid-node-s">PARCHED</div>
-                    <div style="color:var(--cognis-gold); font-weight:bold;">&larr;</div>
-                    <div class="anchor-pill-s">CONTEXT ANCHOR B: "Blazing Arid Sun"</div>
+                    <div style="color:var(--cognis-gold); font-weight:bold; font-size: 1.2rem;">&larr;</div>
+                    <div class="anchor-pill-s">CLUE B: "Blazing Hot Sun"</div>
                 </div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Vocabulary Balance Simulator</h2>
-            <p style="margin-bottom: 20px;">Calibrate a custom challenge scenario using our selector options below. Visualize the sentence framework as a pair of precision scales; the incoming vocabulary selection must perfectly balance the conceptual logic patterns running on both sides. Track our active trace log below to monitor real-time context verification scores.</p>
-            <div class="simulation-area" style="background:#1a202c; padding:30px; border-radius:12px; border:1px solid #2d3748;">
-                <div id="s-well" class="sentence-well-s" style="background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; color:#cbd5e0; font-size:1.2rem; text-align:center; min-height:80px; margin-bottom:20px;"></div>
+            <h2>Phase 3: The Vocabulary Scanner Simulator</h2>
+            <p style="margin-bottom: 20px;">Pick a custom scenario from the buttons below. Think of the sentence as a pair of balancing scales; your word choice must perfectly match the clue hints running on both sides. Watch our trace log below to check the results in real time.</p>
+            <div class="simulation-area" style="background:#1e293b; padding:25px; border-radius:12px; border:1px solid #334155; width: 100%; box-sizing: border-box;">
+                <div id="s-well" class="sentence-well-s" style="background:#0f172a; padding:20px; border-radius:8px; color:#cbd5e0; font-size:1.15rem; text-align:center; min-height:60px; margin-bottom:20px; border: 1px solid #334155; line-height: 1.6;"></div>
                 <div class="engine-container">
                     <div class="inputs">
-                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Contextual Challenge Scenario</label>
-                        <div style="display:grid; grid-template-columns:1fr; gap:5px; margin-bottom:15px;">
-                            <button class="btn-scenario-s btn-action" style="font-size:0.6rem; padding:10px;" onclick="loadSupp(0, this)">Scenario Model A: The Tempestuous High-Seas Voyage</button>
-                            <button class="btn-scenario-s btn-action" style="font-size:0.6rem; padding:10px;" onclick="loadSupp(1, this)">Scenario Model B: The Meticulous Academic Achievement</button>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Select a Reading Scenario Track</label>
+                        <div style="display:grid; grid-template-columns:1fr; gap:6px; margin-bottom:20px;">
+                            <button class="btn-scenario-s btn-action" style="font-size:0.7rem; padding:10px; margin: 0; background: #0f172a; border: 1px solid #334155;" onclick="loadSupp(0, this)">Scenario A: The Rough Stormy Voyage</button>
+                            <button class="btn-scenario-s btn-action" style="font-size:0.7rem; padding:10px; margin: 0; background: #0f172a; border: 1px solid #334155;" onclick="loadSupp(1, this)">Scenario B: The Careful School Project</button>
                         </div>
-                        <div id="s-options" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Choose the Missing Word</label>
+                        <div id="s-options" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px;"></div>
                     </div>
-                    <div class="trace-log" id="supp-log"></div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 20px;"></div>
                 </div>
             </div>
         </section>
@@ -169,8 +172,8 @@
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The "Casual Colloquial Sound" Association Trap:</b> Students frequently select an answer choice simply because it echoes a familiar everyday phrase they've heard in conversation, even when that choice completely violates the explicit logical parameters of the written prompt (such as selecting a low-level filler option like 'happy' because it flows smoothly off the tongue, completely ignoring that the sentence explicitly specifies the character has just been stranded in a blizzard).</p>
-                <p><b>The Easy Fix: Execute a Strict Structural Evidence Check.</b> Instill this mental checklist in your child's routine: <i>"No word sits isolated on an island."</i> Before committing any final word entry to your testing sheet, physically trace out at least <b>two</b> separate magnet keywords on the page that mandate that specific choice. If you can only extract a single weak point of correlation, throw the choice out as a clever distractor. <b>Verifiable text evidence must always conquer subjective intuition.**</p>
+                <p><b>The "Flows Nicely" Guessing Trap:</b> Students often pick an answer just because it's a common word they hear in daily life, even when it doesn't match the clues in the sentence. For example, they might pick a generic word like "happy" because it sounds smooth, completely ignoring that the text says the character is stuck out in a freezing blizzard!</p>
+                <p><b>The Easy Fix: Look for Double Word Proof.</b> Train your child with this basic check: <i>"No word sits alone on an island."</i> Before choosing an answer on the sheet, make sure they can underline at least <b>two separate clue words</b> that prove it's the correct match. If they can only find one weak connection, it's probably a trick option. <b>Real sentence evidence always beats a lucky guess!</b></p>
             </div>
         </section>
         
@@ -200,50 +203,77 @@
         }
     }
 
-    /* --- INTRO: PIECE --- */
+    /* --- INTRO: PIECE FIXED LAYOUT ENGINE --- */
     function runIntroCloze() {
         const piece = document.getElementById('intro-piece');
-        piece.style.transform = "translateY(-180px)";
+        const gap = document.getElementById('intro-gap');
+        if(!piece || !gap) return;
+
+        piece.style.transform = "translateY(-85px) scale(0.9)";
+        piece.style.opacity = "0";
+        
         setTimeout(() => {
-            document.getElementById('intro-gap').textContent = "FREEZING";
-            document.getElementById('intro-gap').style.color = "var(--cognis-gold)";
-            piece.style.opacity = "0";
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Structural Alignment Locked! The term 'Freezing' establishes a flawless match with the core 'Snow' anchor theme.</div>`;
-        }, 300);
+            gap.textContent = "FREEZING";
+            gap.style.color = "var(--cognis-gold)";
+            gap.style.borderColor = "var(--cognis-gold)";
+            gap.style.background = "#fffdf5";
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Perfect fit!</b> The word 'Freezing' matches the clue context words 'Snow' and 'Weather' beautifully.</div>`;
+        }, 350);
     }
-    function resetIntro() { location.reload(); }
 
     /* --- PROGRESSING: ANCHORS --- */
     function runProgAnchors() {
-        document.getElementById('anc-1').classList.add('magnet-word');
-        document.getElementById('anc-2').classList.add('magnet-word');
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Twin Context Magnets Locked! <b>"Empty Bottle"</b> + <b>"Depleted Water"</b> = Dehydration Context (Parched Choice Validated).</div>`;
+        const a1 = document.getElementById('anc-1');
+        const a2 = document.getElementById('anc-2');
+        if(a1) a1.className = "magnet-word";
+        if(a2) a2.className = "magnet-word";
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Two Clues Highlighted!</b> 'Water bottle' + 'completely empty' = Dehydration context. The target answer choice <b>PARCHED</b> is fully proven!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: SIMULATOR PIPELINE --- */
     const sScenarios = [
-        { t: "The captain grew <span class='ui-gap-s' id='sg'>________</span> when he saw the dark clouds gathering.", a: ["Dark Clouds", "Gathering"], o: ["Apprehensive", "Cheerful", "Bored", "Angry"], c: "Apprehensive" },
-        { t: "The student's <span class='ui-gap-s' id='sg'>________</span> effort resulted in a perfect score.", a: ["Perfect Score", "Resulted"], o: ["Careless", "Meticulous", "Rapid", "Initial"], c: "Meticulous" }
+        { t: "The captain grew <span class='ui-gap-s' id='sg'>________</span> when he saw the dark storm clouds gathering.", a: ["Dark Storm Clouds", "Gathering"], o: ["Apprehensive", "Cheerful", "Bored", "Angry"], c: "Apprehensive" },
+        { t: "The student's <span class='ui-gap-s' id='sg'>________</span> effort resulted in a flawless perfect score.", a: ["Perfect Score", "Resulted"], o: ["Careless", "Meticulous", "Rapid", "Initial"], c: "Meticulous" }
     ];
     let sIdx = 0;
+    
     function loadSupp(idx, btn) {
-        sIdx = idx; const d = sScenarios[idx];
-        document.querySelectorAll('.btn-scenario-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        sIdx = idx; 
+        const d = sScenarios[idx];
+        document.querySelectorAll('.btn-scenario-s').forEach(b => {
+            b.style.background = "#0f172a";
+            b.style.borderColor = "#334155";
+            b.style.color = "#94a3b8";
+        });
+        if(btn) {
+            btn.style.background = "var(--cognis-blue)";
+            btn.style.borderColor = "var(--cognis-blue)";
+            btn.style.color = "white";
+        }
+        
         document.getElementById('s-well').innerHTML = d.t;
-        const optCont = document.getElementById('s-options'); optCont.innerHTML = '';
+        const optCont = document.getElementById('s-options'); 
+        if(!optCont) return;
+        optCont.innerHTML = '';
+        
         d.o.forEach(o => {
             optCont.innerHTML += `<button class="btn-word-s" onclick="testSuppWord('${o}', this)">${o}</button>`;
         });
-        document.getElementById('supp-log').innerHTML = `&rarr; Contextual Anchors Discovered: [<b>${d.a.join(' &bull; ')}</b>]<br>&rarr; Diagnostic Status: Awaiting targeted node input configuration...`;
+        document.getElementById('supp-log').innerHTML = `&rarr; Active Clues Found: [<b>${d.a.join(' &bull; ')}</b>]<br>&rarr; Scanner ready. Select an answer choice word above!`;
     }
+    
     function testSuppWord(val, btn) {
-        document.querySelectorAll('.btn-word-s').forEach(b=>b.classList.remove('selected'));
-        btn.classList.add('selected');
-        const correct = val === sScenarios[sIdx].c;
-        document.getElementById('sg').textContent = val;
-        document.getElementById('sg').style.color = correct ? "var(--pass-green)" : "var(--fail-red)";
-        document.getElementById('supp-log').innerHTML = `&rarr; Active Cloze Alignment Trace: Testing element "<b>${val}</b>"<br>&rarr; Evaluation Verification Score: <b>${correct?'PROSE BOUNDARIES ALIGNED ✅':'SEMANTIC CRITERIA MISMATCH ❌'}</b>`;
+        document.querySelectorAll('.btn-word-s').forEach(b => b.classList.remove('selected'));
+        if(btn) btn.classList.add('selected');
+        
+        const correct = (val === sScenarios[sIdx].c);
+        const gapSpan = document.getElementById('sg');
+        if(!gapSpan) return;
+
+        gapSpan.textContent = val;
+        gapSpan.style.color = correct ? "#10b981" : "#f87171";
+        
+        document.getElementById('supp-log').innerHTML = `&rarr; Scanner Check: Testing word choice [<b>${val}</b>]<br>&rarr; Result: <b>${correct ? 'Perfect Match! This fits the sentence clues seamlessly. ✅' : 'Meaning Mismatch! This option violates the text clues. ❌'}</b>`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

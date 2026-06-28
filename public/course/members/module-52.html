@@ -6,7 +6,7 @@
     <title>Module 52: Finding Direct Facts | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,37 +39,43 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🎯'; }
 
         /* INTRO: HIGHLIGHTER HUNT */
         .sentence-strip { background: white; padding: 20px; border-radius: 8px; border: 2px solid #e2e8f0; font-size: 1.2rem; font-weight: 700; color: #4a5568; line-height: 1.6; }
-        .highlighter-pen { width: 40px; height: 100px; background: #fbbf24; border-radius: 4px 4px 20px 20px; position: absolute; transition: all 0.5s; cursor: grab; }
         .highlight-target { background: #fef3c7; border-bottom: 3px solid #fbbf24; }
 
         /* PROGRESSING: NOUN MAGNET */
-        .question-bubble { background: var(--cognis-blue); color: white; padding: 15px; border-radius: 12px; font-weight: 800; margin-bottom: 20px; position: relative; }
-        .hook-tag { background: var(--cognis-gold); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-left: 10px; }
-        .text-passage-f { background: white; border: 1px solid #cbd5e0; padding: 20px; border-radius: 8px; color: #64748b; line-height: 1.8; }
-        .text-passage-f b { color: var(--cognis-blue); text-decoration: underline; cursor: pointer; transition: 0.2s; }
-        .text-passage-f b:hover { background: #eff6ff; }
+        .question-bubble { background: var(--cognis-blue); color: white; padding: 18px; border-radius: 12px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%; box-sizing: border-box; }
+        .hook-tag-btn { background: var(--cognis-gold); color: #0f172a; padding: 6px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; cursor: pointer; border: none; transition: all 0.2s ease; text-transform: uppercase; white-space: nowrap; }
+        .hook-tag-btn:hover { background: #e0b343; transform: scale(1.02); }
+        .hook-tag-btn.active { background: #10b981; color: white; box-shadow: 0 0 10px rgba(16,185,129,0.4); }
+        .text-passage-f { background: white; border: 1px solid #cbd5e0; padding: 20px; border-radius: 8px; color: #64748b; line-height: 1.8; width: 100%; box-sizing: border-box; }
+        .text-passage-f b.interactive-noun { color: #94a3b8; text-decoration: none; cursor: not-allowed; transition: all 0.2s; padding: 2px 4px; border-radius: 4px; }
+        .text-passage-f b.interactive-noun.unlocked { color: var(--cognis-blue); text-decoration: underline; cursor: pointer; background: rgba(59,130,246,0.05); }
+        .text-passage-f b.interactive-noun.unlocked:hover { background: #eff6ff; }
 
         /* SUPPLEMENTAL: RETRIEVAL HUD */
-        .hud-container-s { background: #0f172a; border: 1px solid var(--cognis-gold); padding: 25px; border-radius: 8px; color: #94a3b8; font-family: 'Consolas', monospace; position: relative; overflow: hidden; width: 100%; }
+        .hud-container-s { background: #0f172a; border: 1px solid var(--cognis-gold); padding: 25px; border-radius: 8px; color: #94a3b8; font-family: 'Consolas', monospace; position: relative; overflow: hidden; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
         .scan-line-s { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--cognis-gold); opacity: 0.3; animation: scan-s 3s linear infinite; box-shadow: 0 0 15px var(--cognis-gold); }
         @keyframes scan-s { 0% { top: 0% } 100% { top: 100% } }
-        .fact-node-s { cursor: pointer; padding: 0 2px; border-bottom: 1px solid transparent; transition: 0.2s; font-weight: 700; color: #cbd5e0; }
-        .fact-node-s:hover { background: rgba(197, 160, 89, 0.1); border-color: var(--cognis-gold); }
-        .fact-node-s.hit { background: var(--pass-green); color: white; }
-        .fact-node-s.miss { background: #ef4444; color: white; text-decoration: line-through; }
+        .fact-node-s { cursor: pointer; padding: 2px 4px; border-bottom: 2px dashed #4a5568; transition: all 0.2s ease; font-weight: 700; color: #e2e8f0; border-radius: 4px; display: inline-block; }
+        .fact-node-s:hover { background: rgba(197, 160, 89, 0.15); color: var(--cognis-gold); border-bottom-style: solid; }
+        .fact-node-s.hit { background: #10b981 !important; color: white !important; border-bottom-color: #047857 !important; }
+        .fact-node-s.miss { background: #ef4444 !important; color: white !important; text-decoration: line-through !important; border-bottom-color: #b91c1c !important; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-scan-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 6px; font-size: 0.65rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; }
-        .btn-scan-s.active { background: var(--cognis-gold); color: white; }
+        .btn-scan-s { background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 800; transition: all 0.2s; }
+        .btn-scan-s:hover { background: #273549; color: #f8fafc; }
+        .btn-scan-s.active { background: var(--cognis-gold); color: #0f172a; border-color: var(--cognis-gold); }
+        .btn-scan-s span { display: block; font-size: 0.6rem; font-weight: 400; color: #64748b; margin-top: 2px; }
+        .btn-scan-s.active span { color: #52421d; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -92,11 +98,13 @@
             </div>
 
             <div class="viz-container">
-                <div class="sentence-strip" id="intro-sentence">
+                <div class="sentence-strip" id="intro-sentence" style="margin-bottom: 15px;">
                     The fluffy cat sat on the mat wearing a <span id="intro-target">green</span> collar.
                 </div>
-                <button class="btn-action" onclick="runIntroHighlight()">Sweep Highlighter Marker</button>
-                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Hunt Area</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-action" onclick="runIntroHighlight()">Sweep Highlighter Marker</button>
+                    <button class="btn-action" style="background:#94a3b8; font-size:0.7rem;" onclick="resetIntro()">Reset Hunt Area</button>
+                </div>
             </div>
 
             <div class="discovery-log" id="intro-log">Waiting to scan the sentence...</div>
@@ -104,19 +112,20 @@
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Noun tracking Magnet</h2>
+            <h2>The Noun Tracking Magnet</h2>
             <p>To pinpoint a missing data fact at high speed, avoid reading the entire story line-by-line from start to finish. Scan the challenge question first to establish a proper keyword <b>tracking hook</b> (this is typically a capitalized proper name or a prominent object noun). Next, train your eyes to act like a magnet, racing across the page until they snap straight onto that matching word!</p>
             
             <div class="parent-script">
-                "Let's solve this mystery question: <b>What did Professor Snape find?</b> Our target tracking hook here is clearly 'Professor Snape'. Click the 'Set Keyword Hook' badge inside the question bar, then find where Snape is hiding inside the block below. Notice how securely that name-hook carries your eyes straight to the prize answer detail?"
+                "Let's solve this mystery question: <b>What did Professor Snape find?</b> Our target tracking hook here is clearly 'Professor Snape'. Click the 'Set Keyword Hook' button inside the question bar, then find where Snape is hiding inside the block below. Notice how securely that name-hook carries your eyes straight to the prize answer detail?"
             </div>
 
             <div class="viz-container">
                 <div class="question-bubble">
-                    What did Professor Snape find? <span class="hook-tag" onclick="markHook()">SET KEYWORD HOOK</span>
+                    <span>What did Professor Snape find?</span>
+                    <button class="hook-tag-btn" id="hook-trigger-btn" onclick="markHook()">Set Keyword Hook</button>
                 </div>
                 <div class="text-passage-f">
-                    The hall was empty. <b id="hook-match" onclick="matchHook()">Professor Snape</b> walked slowly towards the desk. He reached down and picked up a <span id="prog-ans" style="color:var(--cognis-gold); font-weight:800; opacity:0;">silver key</span>.
+                    The hall was empty. <b id="hook-match" class="interactive-noun" onclick="matchHook()">Professor Snape</b> walked slowly towards the desk. He reached down and picked up a <span id="prog-ans" style="color:var(--cognis-gold); font-weight:800; background: #0f172a; padding: 2px 6px; border-radius: 4px; opacity:0; transition: opacity 0.4s ease;">silver key</span>.
                 </div>
             </div>
 
@@ -139,15 +148,15 @@
         <section class="phase">
             <h2>Phase 2: The Fact Detective Station</h2>
             <p>Explore our active <b>Fact Detective Station</b> panel. Always lock down your explicit data query constraints securely before launching an eye-scan across the paragraph block. Pre-setting your data parameters prompts the eyes to skip right over empty filler phrases and rapidly isolate targeted string elements (such as tracing out digits when tracking "When," or following capitalized title strings when tracing "Who"). Maximizing information extraction velocity is our core objective.</p>
-            <div class="anatomy-display-s" style="background:#0f172a;">
+            <div class="anatomy-display-s" style="background:#0f172a; padding: 20px; border-radius: 12px; margin-bottom: 25px;">
                 <div class="hud-container-s">
                     <div class="scan-line-s"></div>
-                    <div style="font-size:0.8rem; margin-bottom:10px;">QUERY ANALYSIS: "When was the base built?"</div>
-                    <div style="display:flex; gap:10px; margin-bottom:15px;">
-                        <div style="border:1px solid #3b82f6; padding:5px 10px; font-size:0.6rem; color:white;">CATEGORY SPEC: WHEN (Numerical Digits)</div>
-                        <div style="border:1px solid var(--cognis-gold); padding:5px 10px; font-size:0.6rem; color:white;">TRACKING HOOK: BASE (Anchor Token)</div>
+                    <div style="font-size:0.8rem; margin-bottom:10px; font-weight: bold; color: #f8fafc;">QUERY ANALYSIS: "When was the base built?"</div>
+                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap: wrap;">
+                        <div style="border:1px solid #3b82f6; padding:5px 10px; font-size:0.65rem; color:#93c5fd; font-weight: bold; background: rgba(59,130,246,0.1);">CATEGORY SPEC: WHEN (Numerical Digits)</div>
+                        <div style="border:1px solid var(--cognis-gold); padding:5px 10px; font-size:0.65rem; color:var(--cognis-gold); font-weight: bold; background: rgba(197,160,89,0.1);">TRACKING HOOK: BASE (Anchor Token)</div>
                     </div>
-                    <div style="color:var(--pass-green); font-size:0.7rem; font-weight:800;">SCANNER STATUS: FILTERING EXCLUSIVELY FOR TEMPORAL REVERSALS</div>
+                    <div style="color:#10b981; font-size:0.7rem; font-weight:800; letter-spacing: 0.5px;">SCANNER STATUS: FILTERING EXCLUSIVELY FOR TEMPORAL REVERSALS</div>
                 </div>
             </div>
         </section>
@@ -155,18 +164,18 @@
         <section class="phase">
             <h2>Phase 3: The Precision Text Filter</h2>
             <p style="margin-bottom: 20px;">Select a specific direct information category below to calibrate our scanning matrix. Next, click directly on the matching correct word inside the raw passage excerpt to trigger a rapid data point extraction.</p>
-            <div class="anatomy-display-s" style="text-align:left; background:#1a202c; border:1px solid #2d3748;">
-                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; line-height:1.8; color:#cbd5e0; margin-bottom:20px;">
+            <div class="anatomy-display-s" style="text-align:left; background:#1a202c; border:1px solid #2d3748; padding: 25px; border-radius: 12px;">
+                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:8px; line-height:2; color:#cbd5e0; margin-bottom:25px; font-size: 1.1rem; border: 1px solid #2d3748;">
                     In <span class="fact-node-s" data-type="when">1924</span>, the <span class="fact-node-s" data-type="who">Explorer Finch</span> discovered the <span class="fact-node-s" data-type="what">Emerald Idol</span> inside a <span class="fact-node-s" data-type="where">hidden cave</span>.
                 </div>
                 <div class="engine-container">
                     <div class="inputs">
-                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Calibrate Keyword Scanner</label>
-                        <button class="btn-scan-s active" onclick="setSuppScan('when', this)">Filter Strategy: WHEN <span>(Isolate Calendar Digits)</span></button>
-                        <button class="btn-scan-s" onclick="setSuppScan('who', this)">Filter Strategy: WHO <span>(Isolate Capitalized Names)</span></button>
-                        <button class="btn-scan-s" onclick="setSuppScan('where', this)">Filter Strategy: WHERE <span>(Isolate Geographic Locations)</span></button>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:10px; text-transform: uppercase;">Calibrate Keyword Scanner</label>
+                        <button class="btn-scan-s active" id="btn-strat-when" onclick="setSuppScan('when', this)">Filter Strategy: WHEN <span>(Isolate Calendar Digits)</span></button>
+                        <button class="btn-scan-s" id="btn-strat-who" onclick="setSuppScan('who', this)">Filter Strategy: WHO <span>(Isolate Capitalized Names)</span></button>
+                        <button class="btn-scan-s" id="btn-strat-where" onclick="setSuppScan('where', this)">Filter Strategy: WHERE <span>(Isolate Geographic Locations)</span></button>
                     </div>
-                    <div class="trace-log" id="supp-log"></div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 15px;"></div>
                 </div>
             </div>
         </section>
@@ -207,49 +216,86 @@
 
     /* --- INTRO: HIGHLIGHT --- */
     function runIntroHighlight() {
-        document.getElementById('intro-target').classList.add('highlight-target');
+        const target = document.getElementById('intro-target');
+        if(target) target.classList.add('highlight-target');
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Target Element Located! The matching word fact is explicitly verified as <b>green</b>. Every extraneous word was safely skipped.</div>`;
     }
     function resetIntro() { 
-        document.getElementById('intro-target').classList.remove('highlight-target');
+        const target = document.getElementById('intro-target');
+        if(target) target.classList.remove('highlight-target');
         document.getElementById('intro-log').innerHTML = "Hunt layout reset down to default.";
     }
 
-    /* --- PROGRESSING: MAGNET --- */
+    /* --- PROGRESSING: FIXED COMPONENT TRIGGER PIPELINE --- */
+    let hookSet = false;
+
     function markHook() {
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Tracking Hook Engaged: <b>Professor Snape</b>. Track that exact name string inside the text field below!</div>`;
-    }
-    function matchHook() {
-        document.getElementById('hook-match').style.background = '#fef3c7';
-        document.getElementById('prog-ans').style.opacity = '1';
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Direct Match Pulled! Searching immediately adjacent to our keyword hook, we unlock the targeted fact: <b>silver key</b>.</div>`;
+        hookSet = true;
+        const btn = document.getElementById('hook-trigger-btn');
+        const noun = document.getElementById('hook-match');
+        
+        if(btn) {
+            btn.textContent = "Hook Engaged!";
+            btn.classList.add('active');
+        }
+        if(noun) {
+            noun.classList.add('unlocked');
+        }
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Tracking Hook Activated: <b>Professor Snape</b>. The system has unlocked the passage text. Click directly on 'Professor Snape' in the passage below to pull the direct fact!</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    function matchHook() {
+        if (!hookSet) {
+            document.getElementById('prog-log').innerHTML = `<div class="discovery-step" style="color:#ef4444;">&times; Strategy Lockout: Please activate the 'Set Keyword Hook' button inside the blue question panel first!</div>`;
+            return;
+        }
+        const matchElement = document.getElementById('hook-match');
+        const ansElement = document.getElementById('prog-ans');
+        
+        if(matchElement) matchElement.style.background = '#fbbf24';
+        if(ansElement) ansElement.style.opacity = '1';
+        
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Direct Match Pulled! Searching immediately adjacent to our keyword hook noun, we unlock the targeted fact: <b>silver key</b>.</div>`;
+    }
+
+    /* --- SUPPLEMENTAL: RESPONSIVE CLICK PIPELINE FIXED --- */
     let sActiveType = 'when';
+    
     function setSuppScan(type, btn) {
         sActiveType = type;
         document.querySelectorAll('.btn-scan-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
         document.querySelectorAll('.fact-node-s').forEach(n => n.classList.remove('hit', 'miss'));
-        document.getElementById('supp-log').innerHTML = `&rarr; Data Extraction History: Tracking parameter: <b>${type.toUpperCase()}</b><br>&rarr; Precision keyword filter active.`;
+        
+        const logBox = document.getElementById('supp-log');
+        if(logBox) logBox.innerHTML = `&rarr; Data Extraction History: Tracking parameter: <b>${type.toUpperCase()}</b><br>&rarr; Precision keyword filter active.`;
     }
 
-    document.querySelectorAll('.fact-node-s').forEach(node => {
-        node.addEventListener('click', function() {
-            if(this.dataset.type === sActiveType) {
-                this.classList.add('hit');
-                document.getElementById('supp-log').innerHTML = `&rarr; Target Detected: String segment <b>"${this.innerText}"</b> matched.<br>&rarr; <b>Extraction Result: COMPREHENSION DATA RETRIEVED SUCCESSFULLY ✅</b>`;
-            } else {
-                this.classList.add('miss');
-                document.getElementById('supp-log').innerHTML = `&rarr; Target Detected: String segment <b>"${this.innerText}"</b> evaluated.<br>&rarr; <b>Extraction Result: NODE CRITERIA MISMATCH ❌</b>`;
-            }
+    function initFactNodes() {
+        document.querySelectorAll('.fact-node-s').forEach(node => {
+            // Programmatically scrub and attach persistent actions safe across standard browser context bindings
+            node.onclick = function(e) {
+                e.preventDefault();
+                const logBox = document.getElementById('supp-log');
+                if(!logBox) return;
+
+                if(this.dataset.type === sActiveType) {
+                    this.classList.remove('miss');
+                    this.classList.add('hit');
+                    logBox.innerHTML = `&rarr; Target Detected: String segment <b>"${this.innerText}"</b> matched.<br>&rarr; <b>Extraction Result: COMPREHENSION DATA RETRIEVED SUCCESSFULLY ✅</b>`;
+                } else {
+                    this.classList.remove('hit');
+                    this.classList.add('miss');
+                    logBox.innerHTML = `&rarr; Target Detected: String segment <b>"${this.innerText}"</b> evaluated.<br>&rarr; <b>Extraction Result: NODE CRITERIA MISMATCH ❌</b>`;
+                }
+            };
         });
-    });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         applyLayout();
-        if(document.getElementById('supp-log')) setSuppScan('when', document.querySelector('.btn-scan-s'));
+        initFactNodes();
+        if(document.getElementById('supp-log')) setSuppScan('when', document.getElementById('btn-strat-when'));
         if(typeof initModule === "function") initModule(52);
     });
 </script>

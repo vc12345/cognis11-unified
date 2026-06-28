@@ -6,7 +6,7 @@
     <title>Module 55: Provable Facts vs. Personal Opinions | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,32 +39,43 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '⚖️'; }
 
         /* INTRO: RULER VS HEART */
-        .tool-icon { font-size: 3.5rem; transition: transform 0.3s; cursor: pointer; }
+        .tool-icon { font-size: 3.5rem; transition: transform 0.3s; cursor: pointer; display: inline-block; }
         .tool-icon:hover { transform: scale(1.1); }
-        .statement-card { background: white; padding: 15px 25px; border-radius: 50px; border: 2px solid var(--cognis-blue); font-weight: 800; margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .statement-container { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 30px; width: 100%; }
+        .statement-card { background: white; padding: 15px 30px; border-radius: 50px; border: 2px solid var(--cognis-blue); font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.05); font-size: 1.2rem; text-align: center; }
+        
+        /* Interactive dynamic feedback badges */
+        .feedback-badge { font-size: 0.85rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; display: none; transition: all 0.3s ease; }
+        .feedback-badge.tick { display: inline-block; background: #e6f4ea; color: #137333; border: 1px solid #137333; }
+        .feedback-badge.cross { display: inline-block; background: #fce8e6; color: #c5221f; border: 1px solid #c5221f; }
 
         /* PROGRESSING: MACHINE AUDIT */
-        .logic-gate-f { background: white; border: 2px solid var(--cognis-blue); padding: 15px; border-radius: 8px; font-weight: 900; color: var(--cognis-blue); display: flex; align-items: center; gap: 10px; }
-        .audit-light { width: 15px; height: 15px; border-radius: 50%; background: #cbd5e0; }
+        .logic-gate-f { background: white; border: 2px solid var(--cognis-blue); padding: 15px; border-radius: 8px; font-weight: 900; color: var(--cognis-blue); display: flex; align-items: center; gap: 12px; width: 220px; box-sizing: border-box; }
+        .audit-light { width: 16px; height: 16px; border-radius: 50%; background: #cbd5e0; transition: background 0.3s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
 
         /* SUPPLEMENTAL: VERIFICATION LAB */
-        .simulation-area-s { background: #1a202c; padding: 40px; border-radius: 12px; border: 1px solid #2d3748; }
-        .logic-well-s { background: rgba(255,255,255,0.03); border: 1px solid #334155; padding: 25px; border-radius: 8px; color: #cbd5e0; line-height: 1.8; text-align: center; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
-        .token-s { cursor: pointer; border-bottom: 2px dashed #4a5568; padding: 0 2px; transition: 0.2s; }
-        .token-s.fact-hit { color: var(--pass-green); border-color: var(--pass-green); border-bottom-style: solid; font-weight: 800; }
-        .token-s.opinion-hit { color: var(--cognis-gold); border-color: var(--cognis-gold); border-bottom-style: solid; font-style: italic; }
+        .simulation-area-s { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155; width: 100%; box-sizing: border-box; }
+        .logic-well-s { background: #0f172a; border: 1px solid #334155; padding: 25px; border-radius: 8px; color: #cbd5e0; line-height: 2; text-align: center; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: 1.1rem; }
+        .token-s { cursor: pointer; border-bottom: 2px dashed #64748b; padding: 2px 4px; transition: all 0.2s; border-radius: 4px; display: inline-block; color: #f8fafc; font-weight: bold; }
+        .token-s:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .token-s.fact-hit { background: #10b981; color: white !important; border-bottom-style: solid; border-bottom-color: #047857; }
+        .token-s.opinion-hit { background: var(--cognis-gold); color: #0f172a !important; border-bottom-style: solid; border-bottom-color: #b58d4a; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-load-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-load-s { background: #0f172a; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-size: 0.75rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 800; transition: all 0.2s; }
+        .btn-load-s:hover { background: #1e293b; color: #f8fafc; }
         .btn-load-s.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
+        .btn-load-s span { display: block; font-size: 0.6rem; color: #64748b; font-weight: 400; margin-top: 2px; }
+        .btn-load-s.active span { color: #a1824a; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -80,92 +91,96 @@
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
             <h2>The Ruler vs. The Heart Test</h2>
-            <p>A true <b>Provable Fact</b> represents an objective truth you can easily measure or verify using an external tool, like a physical ruler, a calendar, or a clock. A <b>Personal Opinion</b> simply illustrates how an individual feels inside their own heart. Describing a feeling doesn't mean the statement is automatically "wrong"—it just means an objective tracking tool can't calculate it as data!</p>
+            <p>A true <b>Provable Fact</b> is information that you can measure or verify using a tool—like a real ruler, a calendar, or a clock. A <b>Personal Opinion</b> shows how someone feels inside their own heart. Describing a feeling doesn't mean the person is wrong, it just means we cannot use a tool to measure it as mathematical data!</p>
             
             <div class="parent-script">
-                "Look closely at this baseline statement: <b>'The cake is 10cm tall.'</b> Can we deploy a standard ruler tool to confirm that measurement? Yes, we can! That instantly locks it in as a solid fact. But if we pivot and say <b>'The cake is delicious,'</b> can a ruler prove that calculation? No, it can't! 'Delicious' is a subjective heart-feeling, which classifies the claim as a personal opinion."
+                "Look at this sentence: <b>'The cake is 10cm tall.'</b> Can we use a real ruler to prove that? Yes, we can! That makes it a solid fact. But if we change it to <b>'The cake is delicious,'</b> can a ruler prove that? No! 'Delicious' is a feeling in your heart, which makes it an opinion. Click the tools below to check the sentence!"
             </div>
 
             <div class="viz-container">
-                <div class="statement-card" id="intro-statement">The cake is 10cm tall.</div>
-                <div style="display:flex; gap:60px;">
+                <div class="statement-container">
+                    <div class="statement-card" id="intro-statement">The cake is 10cm tall.</div>
+                    <div id="intro-badge" class="feedback-badge"></div>
+                </div>
+                
+                <div style="display:flex; gap:40px; flex-wrap: wrap; justify-content: center;">
                     <div style="text-align:center;">
                         <div class="tool-icon" onclick="checkIntro('fact')">📏</div>
-                        <small style="font-weight:800; color:var(--cognis-blue);">MEASURING RULER (Fact)</small>
+                        <small style="display:block; font-weight:800; color:var(--cognis-blue); margin-top: 5px;">MEASURING TOOL<br>(Fact)</small>
                     </div>
                     <div style="text-align:center;">
                         <div class="tool-icon" onclick="checkIntro('opinion')">❤️</div>
-                        <small style="font-weight:800; color:var(--cognis-gold);">FEELING HEART (Opinion)</small>
+                        <small style="display:block; font-weight:800; color:var(--cognis-gold); margin-top: 5px;">HEART FEELING<br>(Opinion)</small>
                     </div>
                 </div>
-                <button class="btn-action" style="background:#94a3b8; font-size:0.7rem; margin-top:40px;" onclick="resetIntro()">Generate Next Statement</button>
+                <button class="btn-action" style="background:#64748b; font-size:0.75rem; margin-top:35px;" onclick="resetIntro()">Try Next Statement</button>
             </div>
 
-            <div class="discovery-log" id="intro-log">Pick a tool to test the statement.</div>
+            <div class="discovery-log" id="intro-log">Pick a tool above to test the sentence statement.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Objective Data Balance</h2>
-            <p>On eleven-plus reading worksheets, authors frequently weave in sophisticated, authoritative vocabulary to make subjective arguments sound exactly like concrete facts. To bypass this trick, your child must run a mental <b>Objective Data Balance</b> audit. If a checking robot can record the line as clean raw data, it passes as fact. If the robot's logic grid parameters get confused by personal bias, it fails.</p>
+            <h2>The Robot Truth Scanner</h2>
+            <p>In 11+ reading tests, writers often use fancy, professional words to make an opinion sound like an absolute fact. To avoid this trap, teach your child to use a mental "truth balance". If a scanner can save it as clean data, it is a fact. If the rule is based on how someone feels, it is an opinion.</p>
             
             <div class="parent-script">
-                "Examine this compound sentence: 'The difficult exam started at 9:00 AM.' Click 'Run Logic Balance' below to watch our scanning process sort the segments. The timestamp '9:00 AM' passes seamlessly because an objective clock can verify it. The word 'difficult' triggers an error, because a highly prepared student might find the exact same test incredibly easy! Descriptive adjectives are usually personal opinions hiding in disguise."
+                "Look at this mixed sentence: 'The difficult exam started at 9:00 AM.' Click 'Start Truth Scanner' to see the computer break it apart. The time '9:00 AM' gets a green light because a clock can prove it. The word 'difficult' gets a red light because a well-prepared student might find the same test incredibly easy! Describing words are often just hidden opinions."
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; flex-direction:column; gap:15px;">
+                <div style="display:flex; flex-direction:column; gap:12px; align-items: center; width: 100%;">
                     <div class="logic-gate-f">
                         <div class="audit-light" id="light-1"></div>
-                        "9:00 AM"
+                        <span>"9:00 AM"</span>
                     </div>
                     <div class="logic-gate-f">
                         <div class="audit-light" id="light-2"></div>
-                        "Difficult"
+                        <span>"Difficult"</span>
                     </div>
                 </div>
-                <button class="btn-action" onclick="runAudit()">Run Logic Balance</button>
+                <button class="btn-action" onclick="runAudit()">Start Truth Scanner</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">Does the data pass the machine test?</div>
+            <div class="discovery-log" id="prog-log">Will the text parts pass the machine scanner test?</div>
         </section>
     </div>
 
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Approach advanced verbal reasoning exercises as executing a rigorous <b>"Linguistic Truth Filter."</b> Inside comprehension excerpts, your student must learn to ruthlessly detach verifiable <b>Facts</b> (metrics that can be cross-checked by physical instruments) from subjective <b>Opinions</b> (value judgments anchored in personal taste). Winning high marks requires ignoring persuasive, decorated prose. Writers routinely coat personal beliefs in authoritative phrasing. Train your child to ask: <i>"Could an automated machine verify this as a data point without human bias?"</i></p>
+            <p>Approach advanced reading passages by using a strict **Word Filter**. In reading exercises, your child must completely separate verifiable **Facts** (things we can check with tools or records) from **Opinions** (judgments based on personal taste). To score high marks, ignore how persuasive or professional the sentence sounds. Authors routinely dress up a personal belief to make it look official. Train your child to ask: <i>"Could a machine verify this as a data point without any human feelings?"</i></p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Baseline Verification:</b> "The Sun maps out as a star" (Verifiable Fact) vs "The Sun creates a beautiful morning view" (Subjective Personal Opinion).</div>
-                <div class="tier-card"><b>The Numerical Context Trap:</b> "The analytical report spanned exactly 42 pages and proved far too tedious to complete." (Detangling a concrete fact from an individual's personal boredom threshold).</div>
-                <div class="tier-card"><b>The Authoritative Filter:</b> "The senior lead scientist argued the local policy change was a total failure." (Is the token 'failure' a piece of raw math data, or an ideological belief statement?)</div>
+                <div class="tier-card"><b>The Simple Test:</b> "The Sun is classified as a star" (Fact we can prove) vs "The Sun creates a beautiful view" (Opinion based on personal taste).</div>
+                <div class="tier-card"><b>The Number Trap:</b> "The math book had exactly 42 pages and was far too boring to finish." (Separating a clear numbers fact from a personal feeling of boredom).</div>
+                <div class="tier-card"><b>The Expert Illusion:</b> "The chief scientist argued that the new rule was a complete failure." (Is the word 'failure' a raw piece of math data, or just the scientist's personal opinion?)</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Objective Data Balance</h2>
-            <p>Welcome to our internal <b>Measurement Validation Grid</b>. If the semantic payload of a phrase can be cataloged as hard, unmoving statistics, it is verified as a fact. If the core validation hinges entirely on the observer's private perspective or emotional response, it maps as an opinion. Remember that words like "stunning," "terrible," or "standard" fluctuate wildly based on who is speaking.</p>
-            <div class="anatomy-display" style="background:#f8fafc;">
-                <div style="display:flex; align-items:center; justify-content:center; gap:15px; font-weight:900; color:var(--cognis-blue);">
-                    RAW TEXT SELECTION <span>&rarr;</span> <span style="color:var(--cognis-gold)">AUTOMATED VERIFICATION</span> <span>&rarr;</span> <span style="color:var(--pass-green)">UNBIASED PROVABLE DATA</span>
+            <h2>Phase 2: The Validation Grid</h2>
+            <p>Welcome to our **Validation Grid**. If a phrase can be tracked down as a hard, unchanging statistic, it is saved as a fact. If the proof relies entirely on who is looking at it or how they feel, it maps as an opinion. Remember that value words like "stunning," "terrible," or "excellent" change completely depending on who is talking.</p>
+            <div class="anatomy-display" style="background:#f8fafc; padding: 20px; border-radius: 8px;">
+                <div style="display:flex; align-items:center; justify-content:center; gap:12px; font-weight:800; color:var(--cognis-blue); font-size: 0.75rem; text-transform: uppercase; flex-wrap: wrap;">
+                    Raw Selection <span>&rarr;</span> <span style="color:var(--cognis-gold)">Machine Check</span> <span>&rarr;</span> <span style="color:#10b981">Provable Data</span>
                 </div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Linguistic Verification Laboratory</h2>
-            <p style="margin-bottom: 20px;">Audit our diagnostic text channels below. Click directly on specific vocabulary word tokens to categorize them as either a <b>Provable Fact</b> (measurable variable) or a <b>Personal Opinion</b> (subjective label). This system sharpens the analytical eye required to master challenging school entry papers.</p>
+            <h2>Phase 3: The Word Filter Laboratory</h2>
+            <p style="margin-bottom: 20px;">Load a sample paragraph below. Click directly on the underlined words to test them. The system will sort them as either a <b>Provable Fact</b> (measurable) or a <b>Personal Opinion</b> (judgment). This trains the sharp analytical eye needed for competitive exams.</p>
             <div class="simulation-area-s">
                 <div class="logic-well-s" id="s-well"></div>
                 <div class="engine-container">
                     <div class="inputs">
-                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Diagnostic Evaluation Text</label>
-                        <button class="btn-load-s active" onclick="loadSuppPassage(0, this)">Passage A: Commercial Facility Inspection</button>
-                        <button class="btn-load-s" onclick="loadSuppPassage(1, this)">Passage B: Analytical Research Abstract</button>
-                        <button class="btn-load-s" onclick="loadSuppPassage(2, this)">Passage C: Municipal Historical Archive</button>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Select a Text Passage to Scan</label>
+                        <button class="btn-load-s active" onclick="loadSuppPassage(0, this)">Passage A: Building Survey Report <span>Scans commercial facility notes</span></button>
+                        <button class="btn-load-s" onclick="loadSuppPassage(1, this)">Passage B: Science Research Notes <span>Scans laboratory testing journals</span></button>
+                        <button class="btn-load-s" onclick="loadSuppPassage(2, this)">Passage C: Historical Archive File <span>Scans old town records</span></button>
                     </div>
-                    <div class="trace-log" id="supp-log">Click words to verify their status...</div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 15px;">Click the underlined words above to filter their status...</div>
                 </div>
             </div>
         </section>
@@ -173,8 +188,8 @@
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The Deceptive "Expert Authority" Fallacy:</b> Children frequently assume a sentence must represent an absolute fact simply because it is delivered by an influential character, such as a "Professor," a "Doctor," or an "Explorer" (for example reading 'The Chief Medical Officer stated the medicine tasted utterly repulsive' and marking the claim as a fact).</p>
-                <p><b>The Easy Fix: Execute a Value-Word Linguistic Check.</b> Remind your child of this simple rule: <i>"Descriptive adjectives are often personal opinions masquerading as data lines."</i> If a keyword relates to a personal sensory reaction or a value scale rating (such as best, worst, crucial, or awful), it functions as an opinion. <b>Highly professional experts can still express subjective opinions.</b></p>
+                <p><b>The "Important Expert" Illusion Trap:</b> Children often assume a sentence must be a fact just because it is said by an important character, like a "Professor," "Doctor," or "Explorer" (for example, reading 'The Head Doctor stated that the syrup tasted completely awful' and marking it as a fact).</p>
+                <p><b>The Easy Fix: Spot the Value Words.</b> Remind your child of this rule: <i>"Describing words are usually just opinions pretending to be facts."</i> If a word is based on a personal reaction or a score rating (like best, worst, important, or awful), it is always an opinion. <b>Even professional experts have personal opinions!</b></p>
             </div>
         </section>
         
@@ -204,7 +219,7 @@
         }
     }
 
-    /* --- INTRO: RULER --- */
+    /* --- INTRO: RULER VS HEART WITH TICKS AND CROSSES FIXED --- */
     const introItems = [
         { s: "The cake is 10cm tall.", type: "fact" },
         { s: "The cake is delicious.", type: "opinion" },
@@ -212,47 +227,80 @@
         { s: "It is a beautiful day.", type: "opinion" }
     ];
     let introIdx = 0;
+    
     function checkIntro(tool) {
         const item = introItems[introIdx];
+        const badge = document.getElementById('intro-badge');
+        if(!badge) return;
+
+        badge.className = "feedback-badge"; // clear
+        
         if(tool === item.type) {
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Excellent verification! <b>"${item.s}"</b> registers correctly as a ${item.type.toUpperCase()}.</div>`;
+            badge.textContent = "✅ Correct!";
+            badge.classList.add('tick');
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Correct!</b> "${item.s}" is a real, provable <b>${item.type.toUpperCase()}</b>.</div>`;
         } else {
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Let's check that track. A mechanical ruler cannot calculate emotional feelings, and a human heart cannot generate precise centimeter coordinates!</div>`;
+            badge.textContent = "❌ Try Again!";
+            badge.classList.add('cross');
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step" style="color:#c5221f;"><b>Not quite!</b> A ruler cannot measure feelings, and your heart cannot tell you exact centimeters. Let's think about the tools!</div>`;
         }
     }
+    
     function resetIntro() {
         introIdx = (introIdx + 1) % introItems.length;
         document.getElementById('intro-statement').textContent = introItems[introIdx].s;
-        document.getElementById('intro-log').textContent = "Pick a tool to test the statement.";
+        const badge = document.getElementById('intro-badge');
+        if(badge) {
+            badge.textContent = "";
+            badge.className = "feedback-badge";
+        }
+        document.getElementById('intro-log').textContent = "Pick a tool to test the new statement.";
     }
 
     /* --- PROGRESSING: AUDIT --- */
     function runAudit() {
-        document.getElementById('light-1').style.background = '#10b981';
-        document.getElementById('light-2').style.background = '#ef4444';
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Logic Check Finalized! <b>"9:00 AM"</b> registers as provable data (Green Light). <b>"Difficult"</b> registers as a personal value opinion (Red Light).</div>`;
+        const l1 = document.getElementById('light-1');
+        const l2 = document.getElementById('light-2');
+        if(l1) l1.style.background = '#10b981';
+        if(l2) l2.style.background = '#ef4444';
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Scan Complete!</b> "9:00 AM" is a provable fact (Green Light). "Difficult" is a personal opinion based on feeling (Red Light).</div>`;
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: WORD SCANNER LAB --- */
     const sPassages = [
-        { ctx: "Property Inspection Data", tokens: [{t:"The",y:"x"}, {t:"stunning",y:"o"}, {t:"5-star hotel",y:"f"}, {t:"has",y:"x"}, {t:"exactly",y:"x"}, {t:"42 rooms",y:"f"}] },
-        { ctx: "Research Abstract Data", tokens: [{t:"The",y:"x"}, {t:"brilliant",y:"o"}, {t:"scientist",y:"f"}, {t:"conducted",y:"x"}, {t:"three",y:"f"}, {t:"difficult",y:"o"}, {t:"tests",y:"f"}] },
-        { ctx: "Municipal Archive Data", tokens: [{t:"The",y:"x"}, {t:"1920",y:"f"}, {t:"treaty",y:"f"}, {t:"was",y:"x"}, {t:"a",y:"x"}, {t:"disastrous",y:"o"}, {t:"mistake",y:"o"}] }
+        { ctx: "Building Survey Report", tokens: [{t:"The",y:"x"}, {t:"stunning",y:"o"}, {t:"5-star hotel",y:"f"}, {t:"has",y:"x"}, {t:"exactly",y:"x"}, {t:"42 rooms",y:"f"}] },
+        { ctx: "Science Research Notes", tokens: [{t:"The",y:"x"}, {t:"brilliant",y:"o"}, {t:"scientist",y:"f"}, {t:"conducted",y:"x"}, {t:"three",y:"f"}, {t:"difficult",y:"o"}, {t:"tests",y:"f"}] },
+        { ctx: "Old Town Records", tokens: [{t:"The",y:"x"}, {t:"1920",y:"f"}, {t:"treaty",y:"f"}, {t:"was",y:"x"}, {t:"a",y:"x"}, {t:"disastrous",y:"o"}, {t:"mistake",y:"o"}] }
     ];
     let sCur = 0;
+    
     function loadSuppPassage(idx, btn) {
-        sCur = idx; document.querySelectorAll('.btn-load-s').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-        const well = document.getElementById('s-well'); well.innerHTML = '';
+        sCur = idx; 
+        document.querySelectorAll('.btn-load-s').forEach(b => b.classList.remove('active')); 
+        if(btn) btn.classList.add('active');
+        
+        const well = document.getElementById('s-well'); 
+        if(!well) return;
+        well.innerHTML = '';
+        
         sPassages[idx].tokens.forEach((tk, i) => {
-            if(tk.y === 'x') well.innerHTML += `<span>${tk.t}</span> `;
-            else well.innerHTML += `<span class="token-s" onclick="classifySupp(this, '${tk.y}')">${tk.t}</span> `;
+            if(tk.y === 'x') {
+                well.innerHTML += `<span>${tk.t}</span> `;
+            } else {
+                well.innerHTML += `<span class="token-s" onclick="classifySupp(this, '${tk.y}')">${tk.t}</span> `;
+            }
         });
-        document.getElementById('supp-log').innerHTML = `&rarr; Linguistic Audit History Trace: <br>&bull; Stream Origin: <b>${sPassages[idx].ctx}</b><br>&bull; Diagnostic Status: Standing by for user token validation...`;
+        document.getElementById('supp-log').innerHTML = `&rarr; Document Selected: <b>${sPassages[idx].ctx}</b><br>&bull; Ready to scan. Click any underlined word above!`;
     }
+    
     function classifySupp(el, type) {
-        if(type === 'f') el.className = "token-s fact-hit"; else el.className = "token-s opinion-hit";
-        const res = type === 'f' ? 'OBJECTIVE FACT (Provable Metric)' : 'SUBJECTIVE OPINION (Personal Judgment)';
-        document.getElementById('supp-log').innerHTML = `&rarr; Extracted Token: "<b>${el.innerText}</b>"<br>&rarr; Audit Classification: <b>${res}</b>`;
+        if(type === 'f') {
+            el.className = "token-s fact-hit"; 
+        } else {
+            el.className = "token-s opinion-hit";
+        }
+        const res = type === 'f' ? 'PROVABLE FACT (Measurable data)' : 'PERSONAL OPINION (Subjective judgment)';
+        document.getElementById('supp-log').innerHTML = `&rarr; Scanned Word: "<b>${el.innerText}</b>"<br>&rarr; Result: This is an <b>${res}</b>.`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

@@ -6,7 +6,7 @@
     <title>Module 46: The Pattern Film Strip | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,6 +39,7 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🎞️'; }
@@ -47,11 +48,21 @@
         .flipbook-frame { width: 140px; height: 140px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; position: relative; transition: all 0.3s; }
         .flipbook-dot { width: 20px; height: 20px; background: var(--cognis-gold); border-radius: 50%; position: absolute; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* PROGRESSING: SPOTLIGHT FIXED ALIGNMENTS */
-        .spotlight-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.92); transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 5; }
+        /* PROGRESSING: SPOTLIGHT FIXED INVERTED MASK */
+        .spotlight-mask { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(15, 23, 42, 0.93); 
+            transition: clip-path 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            pointer-events: none; 
+            z-index: 5; 
+        }
         .busy-box { width: 200px; height: 200px; background: white; border: 2px solid #cbd5e0; position: relative; overflow: hidden; border-radius: 8px; }
 
-        /* SUPPLEMENTAL: SERIES ENGINE WITH ASYMMETRIC FLAGS */
+        /* SUPPLEMENTAL: SERIES ENGINE */
         .series-row-s { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
         .frame-s { width: 100px; height: 100px; background: #0f172a; border: 2px solid #334155; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .frame-s.target { border: 2px dashed var(--cognis-gold); background: rgba(197, 160, 89, 0.05); }
@@ -111,7 +122,8 @@
 
             <div class="viz-container">
                 <div class="busy-box" id="prog-box">
-                    <div class="spotlight-mask" id="prog-mask" style="clip-path: circle(100% at 50% 50%);"></div>
+                    <!-- Configured an inverted polygon mask track to safely clear out positive active spaces while blinding negative clutter spaces -->
+                    <div class="spotlight-mask" id="prog-mask" style="clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);"></div>
                     <div style="position:absolute; top:20px; left:20px; font-size:1.5rem; z-index: 2;" id="prog-dot">🌕</div>
                     <div style="position:absolute; bottom:20px; right:20px; font-size:1.5rem; z-index: 2;" id="prog-sq">🟦</div>
                     <div style="position:absolute; top:85px; left:85px; font-size:1.5rem; line-height:1; z-index: 2;" id="prog-cross">✖</div>
@@ -197,7 +209,7 @@
         }
     }
 
-    /* --- INTRO: FLIPBOOK STABLE BOUNDARY FIXED --- */
+    /* --- INTRO: FLIPBOOK --- */
     let introStep = 0;
     const introPos = [[20,20], [20,100], [100,100], [100,20]];
     
@@ -214,38 +226,46 @@
         if(log) log.innerHTML = `<div class="discovery-step">Movie sequence advanced! Target indicator dot resides at coordinates: <b>[Y: ${introPos[introStep][0]}px, X: ${introPos[introStep][1]}px]</b> inside Frame ${introStep + 1}.</div>`;
     }
 
-    function stepIntro() {
+    style = window.getComputedStyle ? getComputedStyle(document.body) : null;
+
+    stepIntro = function() {
         introStep = (introStep + 1) % 4;
         updateIntroView();
-    }
+    };
     
     function resetIntro() { 
-        introStep = 0; // Explicitly points to index boundary 0 (Frame 1)
+        introStep = 0; 
         updateIntroView(); 
     }
 
-    /* --- PROGRESSING: SPOTLIGHT EXTENSION --- */
+    /* --- PROGRESSING: COVERS NEGATIVE SPACE, TRANSPARENT POSITIVE SPACE --- */
     function focusProg(type) {
         const mask = document.getElementById('prog-mask');
         const log = document.getElementById('prog-log');
         if(!mask || !log) return;
         
+        // standard outer bounding layout coordinates for a 200x200 pixel block box container
+        // Uses sub-pathing vectors via clip-path polygon architecture to leave a 60px viewport square completely transparent over active targets
         if(type === 'dot') {
-            mask.style.clipPath = 'circle(32px at 32px 32px)';
-            log.innerHTML = `<div class="discovery-step">Focus filter locked on <b>MOON Profile</b>. Vector path checks out cleanly!</div>`;
+            // Hole over upper left corner (Top: 20px, Left: 20px) -> window boundary x[10 to 70], y[10 to 70]
+            mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 10px 10px, 10px 70px, 70px 70px, 70px 10px, 10px 10px)';
+            log.innerHTML = `<div class="discovery-step">Focus shield engaged! Negative clutter spaces are covered up. The isolated <b>MOON Profile</b> remains completely clear.</div>`;
         } else if(type === 'sq') {
-            mask.style.clipPath = 'circle(32px at 168px 168px)';
-            log.innerHTML = `<div class="discovery-step">Focus filter locked on <b>BLUE SQUARE Profile</b>. Outer track isolates completely.</div>`;
+            // Hole over bottom right corner (Bottom: 20px, Right: 20px) -> container limits x[130 to 190], y[130 to 190]
+            mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 130px 130px, 130px 190px, 190px 190px, 190px 130px, 130px 130px)';
+            log.innerHTML = `<div class="discovery-step">Focus shield engaged! All distracting noise is covered up. The isolated <b>BLUE SQUARE Profile</b> remains completely clear.</div>`;
         } else if(type === 'cross') {
-            mask.style.clipPath = 'circle(32px at 100px 100px)';
-            log.innerHTML = `<div class="discovery-step">Focus filter locked on central <b>CROSS Glyph Profile</b>. Center orientation verified.</div>`;
+            // Hole over structural center point (Center: 85px, 85px) -> coordinate limits x[70 to 130], y[70 to 130]
+            mask.style.clipPath = 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 70px 70px, 70px 130px, 130px 130px, 130px 70px, 70px 70px)';
+            log.innerHTML = `<div class="discovery-step">Focus shield engaged! Background layout maps are hidden. The central <b>CROSS Glyph Profile</b> remains completely clear.</div>`;
         } else {
-            mask.style.clipPath = 'circle(100% at 50% 50%)';
+            // Zero masking footprint -> full transparency layer tracking layout configuration
+            mask.style.clipPath = 'polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%)';
             log.innerHTML = `<div class="discovery-step">Focus shield disengaged. Full layout composition restored seamlessly!</div>`;
         }
     }
 
-    /* --- SUPPLEMENTAL: ASYMMETRIC DELTA SERIES ENGINE --- */
+    /* --- SUPPLEMENTAL: DELTA REVERSAL ENGINE --- */
     function loadSupp(type, btn) {
         document.querySelectorAll('.btn-logic-s').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
@@ -271,7 +291,6 @@
                 log = "&rarr; Position Tracking Trace: Structural Toggle | Delta Change Map: Horizontal Axis Bounce (Binary Oscillation)";
             } else if(type === 'orbit') {
                 const pts = [[12,12], [12,68], [68,68], [68,12]];
-                // Swapped symmetrical circle token with an asymmetrical flag icon to verify 90° progressive step turns clearly
                 const flagRotation = i * 90;
                 f.innerHTML = `<div class="element-s asym-flag-s" style="top:${pts[i][0]}px; left:${pts[i][1]}px; transform: rotate(${flagRotation}deg);">⚑</div>`;
                 log = "&rarr; Asymmetric Element Trace: Dual Delta Vectors | Delta Change Map: Perimeter Corner-Hop + 90° Clockwise Angular Rotation Step";

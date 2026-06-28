@@ -6,7 +6,7 @@
     <title>Module 57: Sentence Architecture | Cognis 11+</title>
     
     <link rel="stylesheet" href="../css/module-style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght=700&family=DM+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
     
     <style>
         /* SUBSCRIPTION DISPLAY LOGIC */
@@ -39,35 +39,43 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🏗️'; }
 
         /* INTRO: SHAPE SORTER */
-        .slot-f { width: 100px; height: 100px; border: 4px dashed var(--cognis-blue); display: flex; align-items: center; justify-content: center; position: relative; margin: 10px; }
-        .shape-noun { width: 60px; height: 60px; background: var(--cognis-blue); }
+        .slot-f { width: 100px; height: 100px; border: 4px dashed var(--cognis-blue); display: flex; align-items: center; justify-content: center; position: relative; margin: 15px; border-radius: 8px; background: rgba(30, 41, 59, 0.02); }
+        .shape-noun { width: 60px; height: 60px; background: var(--cognis-blue); border-radius: 4px; }
         .shape-verb { width: 0; height: 0; border-left: 35px solid transparent; border-right: 35px solid transparent; border-bottom: 60px solid var(--cognis-gold); }
-        .draggable-word { padding: 10px 15px; background: white; border: 2px solid #cbd5e0; border-radius: 6px; font-weight: 800; cursor: grab; position: absolute; bottom: 40px; }
+        .logic-label { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; width: max-content; }
 
         /* PROGRESSING: ROBOT PROXY */
-        .proxy-card { background: white; border: 2px solid var(--cognis-blue); padding: 20px; border-radius: 12px; text-align: center; width: 100%; max-width: 350px; }
-        .proxy-btn { background: #f1f5f9; border: 1px solid #cbd5e0; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; margin: 5px; }
-        .proxy-btn.active { background: var(--cognis-gold); color: white; border-color: var(--cognis-gold); }
+        .proxy-card { background: white; border: 2px solid var(--cognis-blue); padding: 25px; border-radius: 12px; text-align: center; width: 100%; max-width: 380px; box-sizing: border-box; }
+        .proxy-btn { background: #f1f5f9; border: 1px solid #cbd5e0; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.8rem; margin: 6px; transition: all 0.2s; color: #4a5568; }
+        .proxy-btn:hover { background: #e2e8f0; }
+        .proxy-btn.active { background: var(--cognis-gold); color: #0f172a; border-color: var(--cognis-gold); }
 
         /* SUPPLEMENTAL: BLUEPRINT */
-        .anatomy-display-s { background: #f8fafc; padding: 30px; border-radius: 12px; }
-        .syntax-map-s { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .blueprint-slot-s { padding: 10px; background: white; border: 2px solid var(--cognis-blue); border-radius: 8px; font-size: 0.6rem; font-weight: 900; text-align: center; }
-        .blueprint-slot-s.ext { border-color: var(--cognis-gold); border-style: dashed; }
-        .grammar-well-s { background: #1a202c; color: white; padding: 25px; border-radius: 12px; margin-top: 20px; text-align: center; font-size: 1.2rem; }
-        .syntax-gap-s { border-bottom: 2px solid var(--cognis-gold); color: var(--cognis-gold); font-weight: 800; padding: 0 10px; min-width: 100px; display: inline-block; }
+        .anatomy-display-s { background: #0f172a; padding: 30px; border-radius: 12px; width: 100%; box-sizing: border-box; border: 1px solid #334155; }
+        .syntax-map-s { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 600px) { .syntax-map-s { grid-template-columns: repeat(4, 1fr); } }
+        .blueprint-slot-s { padding: 12px; background: #1e293b; border: 2px solid #334155; border-radius: 8px; font-size: 0.7rem; font-weight: 800; text-align: center; color: #cbd5e0; }
+        .blueprint-slot-s small { display: block; font-size: 0.6rem; color: #64748b; font-weight: 400; margin-top: 4px; }
+        .blueprint-slot-s.ext { border-color: var(--cognis-gold); border-style: dashed; color: var(--cognis-gold); background: rgba(197, 160, 89, 0.05); }
+        .grammar-well-s { background: #0f172a; color: white; padding: 25px; border-radius: 12px; margin-top: 20px; text-align: center; font-size: 1.25rem; border: 1px solid #334155; line-height: 1.6; }
+        .syntax-gap-s { border-bottom: 3px solid var(--cognis-gold); color: var(--cognis-gold); font-weight: 800; padding: 0 10px; min-width: 120px; display: inline-block; text-align: center; }
 
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
         .parent-script { font-style: italic; color: #4a5568; border-left: 3px solid #cbd5e0; padding-left: 15px; margin: 15px 0; }
         .btn-action { background: var(--cognis-blue); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-load-s { background: #2d3748; color: #a0aec0; border: 1px solid #4a5568; padding: 10px; border-radius: 8px; font-size: 0.7rem; width: 100%; text-align: left; margin-bottom: 5px; cursor: pointer; font-weight: 800; text-transform: uppercase; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-load-s { background: #0f172a; color: #94a3b8; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-size: 0.75rem; width: 100%; text-align: left; margin-bottom: 6px; cursor: pointer; font-weight: 800; transition: all 0.2s; }
+        .btn-load-s:hover { background: #1e293b; color: #f8fafc; }
         .btn-load-s.active { background: var(--cognis-blue); border-color: var(--cognis-gold); color: var(--cognis-gold); }
+        .btn-load-s span { display: block; font-size: 0.6rem; color: #64748b; font-weight: 400; margin-top: 2px; }
+        .btn-load-s.active span { color: #a1824a; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -82,87 +90,87 @@
     <div id="foundation-bundle">
         <section class="phase" id="sub-intro">
             <span class="section-tag">Foundation Intro</span>
-            <h2>The Structural Shape Sorter</h2>
-            <p>A functional sentence behaves exactly like a precision machine constructed with differently shaped slots. A <b>Noun</b> (representing a Person, Place, or Thing) functions like a solid square peg. A <b>Verb</b> (representing an Action) functions like a triangular peg. You cannot physically force a triangular peg into a square slot! Mastering grammar cloze puzzles is simply a matter of identifying the missing structural shape for each gap.</p>
+            <h2>The Word Shape Sorter</h2>
+            <p>A working sentence acts just like a block toy layout built with different shaped slots. A <b>Naming Word (Noun)</b> functions like a solid square block. An <b>Action Word (Verb)</b> functions like a triangular block. You cannot fit a triangle block into a square slot! Solving missing-word puzzles is simply about identifying the missing word shape needed for each gap.</p>
             
             <div class="parent-script">
-                "Examine our layout sentence: 'The ______ ran.' The open slot here is distinctly triangular—it requires an explicit action component to operate! Click 'Snap Run (Verb)' to see how it locks into the framework. Notice that trying to drop 'Apple' (a square naming noun) into that action slot breaks down completely because it represents the entirely wrong part of speech."
+                "Look at our block slots below. One is square for names, and one is triangular for actions. Let's test our blocks! Click the buttons to drop words into their matching slots. Notice how 'Apple' fits the square naming slot perfectly, while 'Run' slides cleanly into the triangle action slot!"
             </div>
 
             <div class="viz-container">
-                <div style="display:flex; gap:30px; align-items:center; margin-bottom:40px;">
-                    <div class="slot-f" id="slot-sq"><div class="logic-label" style="position:absolute; top:-20px;">NOUN SLOT (Square)</div></div>
-                    <div class="slot-f" id="slot-tri"><div class="logic-label" style="position:absolute; top:-20px;">VERB SLOT (Triangle)</div></div>
+                <div style="display:flex; gap:40px; align-items:center; margin-bottom:40px; justify-content: center; width: 100%; flex-wrap: wrap;">
+                    <div class="slot-f" id="slot-sq"><div class="logic-label" style="position:absolute; top:-25px;">Names (Square)</div></div>
+                    <div class="slot-f" id="slot-tri"><div class="logic-label" style="position:absolute; top:-25px;">Actions (Triangle)</div></div>
                 </div>
-                <div style="display:flex; gap:10px;">
+                <div style="display:flex; gap:10px; flex-wrap: wrap; justify-content: center;">
                     <button class="btn-action" onclick="testIntroShape('noun')">Snap 'Apple' (Noun)</button>
-                    <button class="btn-action" style="background:var(--cognis-gold)" onclick="testIntroShape('verb')">Snap 'Run' (Verb)</button>
+                    <button class="btn-action" style="background:var(--cognis-gold); color: #0f172a;" onclick="testIntroShape('verb')">Snap 'Run' (Verb)</button>
                 </div>
             </div>
 
-            <div class="discovery-log" id="intro-log">Only the matching shape will lock in.</div>
+            <div class="discovery-log" id="intro-log">Click a word button above to match the puzzle slots.</div>
         </section>
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Placeholder Token Method</h2>
-            <p>If you hit an open slot on your worksheet and cannot immediately deduce what part of speech is missing, deploy the smart <b>Placeholder Token Method</b>. Try dropping in the word "Thingy" (to test if a Noun fits) or the phrase "Doing-it" (to test if a Verb fits). If "Thingy" restores a natural structural balance to the sentence line, you know with total certainty that you are hunting for a Noun inside your option bank!</p>
+            <h2>The Secret Trick Words</h2>
+            <p>If you find a blank space in a reading test and do not know what kind of word is missing, use our secret trick words. Try dropping in the word <b>"Thingy"</b> to check if a Noun fits, or the word <b>"Doing-it"</b> to check if a Verb fits. If "Thingy" makes the sentence sound right, you know for sure you need a naming word!</p>
             
             <div class="parent-script">
-                "Let's test this sentence line: 'The ______ was very tall.' Let's cycle through our placeholder tokens. Try 'The Doing-it was very tall'? No, that sounds entirely broken! Let's swap it out: 'The Thingy was very tall'? Yes, that matches our structural flow perfectly! Now we know with absolute confidence that our missing vocabulary target must be a Noun."
+                "Let's check this sentence: 'The ______ was very tall.' Let's try our trick words. 'The Doing-it was very tall'? No, that sounds completely silly! Let's swap it: 'The Thingy was very tall'? Yes, that flows perfectly. Now we know for absolute sure that the missing word must be a Noun name word! Click a token below to try it."
             </div>
 
             <div class="viz-container">
                 <div class="proxy-card">
-                    <p style="font-size:1.1rem; margin-bottom:20px;">"The <span id="proxy-gap" style="color:var(--cognis-gold); font-weight:800;">______</span> was very tall."</p>
-                    <button class="proxy-btn" onclick="setProxy('Doing-it', 'Verb')">Test Token: Doing-it</button>
-                    <button class="proxy-btn" onclick="setProxy('Thingy', 'Noun')">Test Token: Thingy</button>
+                    <p style="font-size:1.2rem; margin-bottom:20px; font-weight: bold;">"The <span id="proxy-gap" style="color:var(--cognis-gold); font-weight:800;">______</span> was very tall."</p>
+                    <button class="proxy-btn" onclick="setProxy('Doing-it', 'Verb', this)">Try: Doing-it</button>
+                    <button class="proxy-btn" onclick="setProxy('Thingy', 'Noun', this)">Try: Thingy</button>
                 </div>
-                <button class="btn-action" style="margin-top:30px;" onclick="runProgProxy()">Run Structural Audit</button>
+                <button class="btn-action" style="margin-top:25px;" onclick="runProgProxy()">Test Sentence Flow</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">Use proxies to identify the word's job.</div>
+            <div class="discovery-log" id="prog-log">Select a test token above to audit the sentence job.</div>
         </section>
     </div>
 
     <div id="sub-supplemental" class="supplemental-only">
         <section class="phase">
             <h2>Phase 1: Spotting the Pattern</h2>
-            <p>Approach grammatical blank-fill items as practicing rigorous <b>"Sentence Engineering."</b> Conquering these formats is not about absorbing a pleasant plot narrative—it relies on mapping out the underlying <b>Syntactic Skeleton</b>. Isolate the exact physical "job" the missing word is being recruited to perform. Core load-bearing pillars (Nouns and Verbs) sustain the weight of the clause, while modular expansion attachments (Adjectives and Adverbs) inject precise data streams.</p>
+            <p>Approach advanced missing-word questions as a form of **Sentence Building**. Getting top marks isn't about the storyline; it requires finding the **Sentence Skeleton**. Isolate the exact job the missing word is being hired to do. Main building blocks (Nouns and Verbs) hold the weight of the line, while extra add-on blocks (Adjectives and Adverbs) add color and details.</p>
             
             <div class="question-tiers">
-                <div class="tier-card"><b>The Subject Modifier:</b> "The ______ explorer breached the chamber." Open slot: Adjective (Required to inject attributes down into the Subject Noun).</div>
-                <div class="tier-card"><b>The Core Propulsion Engine:</b> "He ______ frantically down the corridor." Open slot: Action Verb (Required to launch the baseline clause dynamic).</div>
-                <div class="tier-card"><b>The Operational Modifier:</b> "The aircraft ascended ______ into the cloud deck." Open slot: Adverb (Required to clarify the manner of the Action Verb).</div>
+                <div class="tier-card"><b>The Subject Description:</b> "The ______ explorer found the cave." <br>Blank space: Describing Word / Adjective (Required to add details to the explorer name).</div>
+                <div class="tier-card"><b>The Main Engine:</b> "He ______ quickly down the dark hallway." <br>Blank space: Action Word / Verb (Required to power the sentence forward).</div>
+                <div class="tier-card"><b>The Action Description:</b> "The rocket shot ______ up into the blue sky." <br>Blank space: Action Helper / Adverb (Required to explain how the rocket shot up).</div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 2: The Syntactic Skeleton Board</h2>
-            <p>Examine our interactive <b>Syntactic Skeleton Board</b> blueprint below. Nouns and Verbs constitute your absolute structural foundation pillars. Adjectives and Adverbs act as specialized "snap-on" data modifiers. The single second you accurately classify which architectural piece is absent from the chain, you can instantly discard up to 75% of your multiple-choice word bank without wasting energy reading definitions.</p>
-            <div class="anatomy-display-s">
+            <h2>Phase 2: The Sentence Skeleton Board</h2>
+            <p>Look at our **Sentence Skeleton Board** blueprint layout below. Nouns and Verbs make up your main foundations. Describing words act as specialty add-on modifiers. The moment you figure out what part of speech is missing from the chain, you can instantly throw away most of the wrong multiple-choice options without wasting any test time!</p>
+            <div class="anatomy-display-s" style="margin-bottom: 20px;">
                 <div class="syntax-map-s">
-                    <div class="blueprint-slot-s ext">ADJECTIVE MODIFIER<br><small>Specifies Noun Properties</small></div>
-                    <div class="blueprint-slot-s">SUBJECT NOUN<br><small>The Primary Anchor</small></div>
-                    <div class="blueprint-slot-s">ACTION VERB<br><small>The Structural Engine</small></div>
-                    <div class="blueprint-slot-s ext">ADVERB MODIFIER<br><small>Specifies Verb Dynamics</small></div>
+                    <div class="blueprint-slot-s ext">Describing Word<small>Adds details to Noun</small></div>
+                    <div class="blueprint-slot-s">Subject Noun<small>The core name anchor</small></div>
+                    <div class="blueprint-slot-s">Action Verb<small>The main engine movement</small></div>
+                    <div class="blueprint-slot-s ext">Action Helper<small>Adds details to Verb</small></div>
                 </div>
             </div>
         </section>
 
         <section class="phase">
-            <h2>Phase 3: The Syntactic Skeleton Board</h2>
-            <p style="margin-bottom: 20px;">Load a target engineering case from our laboratory bank below. Identify the missing structural word class category. Remember your quick morphological filters: if an available word option terminates with a suffix like <i>-ly</i>, it typically operates as an Adverb; if it terminates with an inflection like <i>-ed</i>, it highly likely functions as a past-tense Verb.</p>
+            <h2>Phase 3: The Building Blueprint Board</h2>
+            <p style="margin-bottom: 20px;">Load a target sentence structure from our menu below to test your skills. Identify the missing block category. Remember your quick word-ending patterns: if an option ends in <i>-ly</i>, it is usually an Adverb helper; if it ends in <i>-ed</i>, it is almost always a past-tense action Verb.</p>
             <div class="simulation-area-s">
                 <div id="s-well" class="grammar-well-s"></div>
                 <div class="engine-container">
                     <div class="inputs">
-                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-blue); display:block; margin-bottom:5px;">Select Syntactic Case Study</label>
-                        <button class="btn-load-s active" onclick="loadSuppCase(0, this)">Case Study A: Noun Modifier Slot</button>
-                        <button class="btn-load-s" onclick="loadSuppCase(1, this)">Case Study B: Clause Propulsion Slot</button>
-                        <button class="btn-load-s" onclick="loadSuppCase(2, this)">Case Study C: Verb Modifier Slot</button>
+                        <label style="font-size:0.75rem; font-weight:800; color:var(--cognis-gold); display:block; margin-bottom:10px; text-transform: uppercase; letter-spacing: 0.5px;">Select a Sentence Case to Scan</label>
+                        <button class="btn-load-s active" onclick="loadSuppCase(0, this)">Case Study A: Noun Describing Slot <span>Tests adjective attachments</span></button>
+                        <button class="btn-load-s" onclick="loadSuppCase(1, this)">Case Study B: Core Action Engine Slot <span>Tests primary verb propulsion</span></button>
+                        <button class="btn-load-s" onclick="loadSuppCase(2, this)">Case Study C: Action Helper Slot <span>Tests adverb style mechanics</span></button>
                     </div>
-                    <div class="trace-log" id="supp-log"></div>
+                    <div class="trace-log" id="supp-log" style="margin-top: 15px;"></div>
                 </div>
             </div>
         </section>
@@ -170,8 +178,8 @@
         <section class="phase">
             <h2>Phase 4: Common Mistake to Watch For</h2>
             <div class="trap-box">
-                <p><b>The "Exciting Vocabulary" Illusion Trap:</b> Children routinely select an answer choice simply because the word sounds impressive or advanced, completely ignoring that its structural form completely breaks the basic rules of English grammar (for example forcing an adverb modifier into an adjective slot, like writing 'The *bravely* explorer scaled the rock face').</p>
-                <p><b>The Easy Fix: Deploy the Neighbor Substitution Test.</b> Train your student to focus strictly on the adjacent words bounding the gap: <i>"Audit the immediate neighborhood."</i> If an empty slot sits positioned cleanly between an article like 'The' and a target subject 'Noun', the slot rule <b>mandates</b> an Adjective. Test this rule instantly by substituting ultra-simple tokens like 'Big' or 'Red'. If those simple words restore structural balance, your architectural slot is verified, and you can instantly skip all non-adjective options.</p>
+                <p><b>The "Fancy Word" Distraction Trap:</b> Children routinely choose a word just because it sounds impressive or advanced, completely ignoring that its structure breaks basic grammar rules (for example, forcing an adverb helper into a name-describing slot, like writing 'The *bravely* explorer climbed the wall').</p>
+                <p><b>The Easy Fix: Run the Neighbor Test.</b> Teach your child to check the words directly next to the blank space: <i>"Check the immediate neighborhood."</i> If a space sits cleanly between the word 'The' and a naming noun, the rule **demands** an Adjective. Test this by swapping in a simple word like 'Big' or 'Red'. If those words work perfectly, you know you need a describing word, and you can cross off all other word types immediately.</p>
             </div>
         </section>
         
@@ -205,45 +213,53 @@
     function testIntroShape(type) {
         const sq = document.getElementById('slot-sq');
         const tri = document.getElementById('slot-tri');
-        sq.innerHTML = ''; tri.innerHTML = '';
+        if(!sq || !tri) return;
+        sq.innerHTML = ''; 
+        tri.innerHTML = '';
+        
         if(type === 'noun') {
             sq.innerHTML = '<div class="shape-noun"></div>';
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Structural Alignment Locked! <b>'Apple'</b> functions as a Noun (Square Peg) and snaps cleanly into the Subject Slot.</div>`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Block Matched!</b> 'Apple' is a Noun name block and snaps right into the square naming slot.</div>`;
         } else {
             tri.innerHTML = '<div class="shape-verb"></div>';
-            document.getElementById('intro-log').innerHTML = `<div class="discovery-step">Structural Alignment Locked! <b>'Run'</b> functions as an active Verb (Triangle Peg) and snaps cleanly into the Action Slot.</div>`;
+            document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Block Matched!</b> 'Run' is an active Verb action block and slides perfectly into the triangle action slot.</div>`;
         }
     }
 
     /* --- PROGRESSING: PROXY --- */
     let currentProxy = '';
-    function setProxy(val, type) {
+    function setProxy(val, type, btn) {
         currentProxy = type;
-        document.getElementById('proxy-gap').textContent = val;
+        const gap = document.getElementById('proxy-gap');
+        if(gap) gap.textContent = val;
         document.querySelectorAll('.proxy-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+        if(btn) btn.classList.add('active');
     }
     function runProgProxy() {
+        const log = document.getElementById('prog-log');
+        if(!log) return;
         if(currentProxy === 'Noun') {
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Audit Verified! 'The <b>Thingy</b> was tall' flows with absolute structural integrity. We strictly require a Noun here.</div>`;
+            log.innerHTML = `<div class="discovery-step"><b>Test Passed!</b> 'The <b>Thingy</b> was tall' sounds perfectly balanced. The missing block is definitely a Noun.</div>`;
+        } else if(currentProxy === 'Verb') {
+            log.innerHTML = `<div class="discovery-step" style="color:#ef4444;"><b>Grammar Warning!</b> 'The <b>Doing-it</b> was tall' sounds completely broken. This blank slot cannot be a Verb action word.</div>`;
         } else {
-            document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Syntax Error Detected. 'The <b>Doing-it</b> was tall' violates standard sentence balance parameters. This slot is not a Verb.</div>`;
+            log.innerHTML = `<div class="discovery-step" style="color:#ef4444;">Please select a test word token button from the white box first!</div>`;
         }
     }
 
-    /* --- SUPPLEMENTAL: ENGINE --- */
+    /* --- SUPPLEMENTAL: SIMULATOR HOOKS --- */
     const sCases = [
-        { t: "The <span class='syntax-gap-s' id='sg'>________</span> explorer found a cave.", target: "ADJECTIVE", log: "Modifies and describes the properties of our Subject Noun (Explorer)." },
-        { t: "The giant <span class='syntax-gap-s' id='sg'>________</span> across the field.", target: "VERB", log: "Sustains the primary load-bearing action axis of the clause." },
-        { t: "The scientist watched the test <span class='syntax-gap-s' id='sg'>________</span>.", target: "ADVERB", log: "Modifies and clarifies the execution manner of our Action Verb (Watched)." }
+        { t: "The <span class='syntax-gap-s' id='sg'>________</span> explorer found a deep cave.", target: "Describing Word (Adjective)", log: "Modifies and paints a picture of our core Noun person (Explorer)." },
+        { t: "The fierce giant <span class='syntax-gap-s' id='sg'>________</span> across the open field.", target: "Action Word (Verb)", log: "Powers the primary mechanical weight and movement of the line." },
+        { t: "The lab scientist watched the test screen <span class='syntax-gap-s' id='sg'>________</span>.", target: "Action Helper (Adverb)", log: "Explains exactly how or when the action verb (Watched) happened." }
     ];
     let sIdx = 0;
     function loadSuppCase(idx, btn) {
         sIdx = idx;
         document.querySelectorAll('.btn-load-s').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        if(btn) btn.classList.add('active');
         document.getElementById('s-well').innerHTML = sCases[idx].t;
-        document.getElementById('supp-log').innerHTML = `&rarr; Active Structural Audit History: <br>&bull; Target Allocation Requirement: <b>${sCases[idx].target} Slot</b><br>&bull; Functional Parameter Analysis: ${sCases[idx].log}`;
+        document.getElementById('supp-log').innerHTML = `&rarr; Active Skeleton Check: <br>&bull; Slot Requirement: <b>${sCases[idx].target}</b><br>&bull; Blueprint Analysis: ${sCases[idx].log}`;
     }
 
     document.addEventListener('DOMContentLoaded', () => {

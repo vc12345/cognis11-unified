@@ -39,6 +39,7 @@
         .discovery-log {
             background: #fdfbf7; padding: 20px; border-radius: 12px;
             border: 1px solid #f0e6d2; font-size: 0.95rem; color: #5d5c58; line-height: 1.5;
+            width: 100%; box-sizing: border-box;
         }
         .discovery-step { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 10px; }
         .discovery-step::before { content: '🥞'; }
@@ -48,16 +49,14 @@
         #paper-red { background: #ef4444; transform: translate(-30px, -30px); }
         #paper-blue { background: #3b82f6; transform: translate(30px, 30px); }
 
-        /* PROGRESSING: T-JUNCTIONS */
-        .junction-path { fill: none; stroke: #cbd5e0; stroke-width: 4; }
-        .junction-highlight { stroke: var(--cognis-gold); stroke-width: 6; opacity: 0; transition: opacity 0.3s; fill: none; }
-        .t-point { fill: #ef4444; stroke: white; stroke-width: 1.5; opacity: 0; transition: opacity 0.3s; }
+        /* PROGRESSING: T-JUNCTIONS RE-ENGINEERED */
+        .t-point { fill: #ef4444; stroke: white; stroke-width: 1.5; opacity: 0; transition: opacity 0.3s, fill 0.3s; }
 
         /* SUPPLEMENTAL: 3D SCANNER */
-        .anatomy-display-s { background: #0f172a; padding: 60px 20px; perspective: 1200px; border-radius: 12px; }
+        .anatomy-display-s { background: #0f172a; padding: 60px 20px; perspective: 1200px; border-radius: 12px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
         .stack-stage-s { width: 300px; height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.8s; }
         .view-3d-s .stack-stage-s { transform: rotateX(50deg) rotateZ(-30deg); }
-        .shape-layer-s { position: absolute; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .shape-layer-s { position: absolute; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; transition: all 0.5s; border: 2px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); cursor: pointer; }
         
         /* UTILITY */
         .section-tag { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; background: #f1f5f9; color: var(--cognis-blue); border-left: 3px solid var(--cognis-gold); }
@@ -97,27 +96,41 @@
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Intersecting Line Break Rule</h2>
-            <p>When two complex shapes cross over on a page, their boundaries collide to form a visual letter <b>T</b>. The smooth top horizontal line of that <b>T</b> always belongs to the figure riding <b>On Top</b>. The vertical stem line of the <b>T</b> points directly to the shape hiding below.</p>
+            <h2>The T-Junction Rule</h2>
+            <p>When shapes overlap on a test page, their lines collide to form a visual letter <b>T</b>. Think of it like a mini traffic stop: the smooth crossbar line at the top of the <b>T</b> belongs to the front shape. The vertical stem line that crashes into it and stops dead belongs to the shape hiding underneath!</p>
             
             <div class="parent-script">
-                "Examine the boundary where our circle cuts across the square. Click 'Find Line Intersections'. See the red indicators appear? Notice how the square's lines stop dead when they crash into the circle's smooth border. The square is the background piece—it gets cut off because it rests at the back!"
+                "Look at where the square and circle cross paths. Right now, it's hard to tell who is on top. Click 'Spot the T-Junctions' below. Notice how the square's lines stop dead the exact moment they touch the circle's smooth, unbroken rim? The golden 'T' anchors show you exactly which shape's line was cut short. If its line breaks, it's at the back!"
             </div>
 
             <div class="viz-container">
-                <svg width="250" height="250" viewBox="0 0 220 220">
-                    <rect x="40" y="40" width="120" height="120" class="junction-path" />
-                    <circle cx="140" cy="140" r="55" fill="white" stroke="#cbd5e0" stroke-width="4" />
+                <svg width="250" height="250" viewBox="0 0 220 220" style="background: #ffffff; border-radius: 8px;">
+                    <!-- Background Grid for spatial context -->
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+
+                    <!-- Background Shape: Square (Outlines only, explicitly broken at the intersections) -->
+                    <path d="M 40,40 L 160,40 L 160,115 M 160,115 M 85,40 L 40,40 L 40,160 L 160,160 L 160,115" fill="none" stroke="#cbd5e0" stroke-width="3" id="prog-square-line" />
+                    <!-- The hidden lines inside the circle drawn as dashed to show they are trapped behind -->
+                    <path d="M 160,40 L 160,115 M 85,40 L 160,40" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4" style="opacity: 0.4;" />
+
+                    <!-- Foreground Shape: Circle (Perfect, unbroken boundary path) -->
+                    <circle cx="120" cy="120" r="55" fill="none" stroke="#64748b" stroke-width="4" />
                     
-                    <circle cx="140" cy="85" r="6" class="t-point" id="tp-1" />
-                    <circle cx="85" cy="140" r="6" class="t-point" id="tp-2" />
-                    
-                    <path d="M85,140 A55,55 0 0,1 140,85" class="junction-highlight" id="th-1" />
+                    <!-- Golden T-Junction Crossbars that light up to prove continuity -->
+                    <path d="M 75,47 L 95,33 M 167,105 L 153,125" fill="none" stroke="var(--cognis-gold)" stroke-width="5" stroke-linecap="round" id="t-crossbars" style="opacity: 0; transition: opacity 0.3s;" />
+                    <!-- Intersecting stem indicator points -->
+                    <circle cx="85" cy="40" r="6" class="t-point" id="tp-1" />
+                    <circle cx="160" cy="115" r="6" class="t-point" id="tp-2" />
                 </svg>
-                <button class="btn-action" onclick="showJunctions()">Find Line Intersections</button>
+                <button class="btn-action" onclick="showJunctions()">Spot the T-Junctions</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">The shape that "breaks" its lines is at the back.</div>
+            <div class="discovery-log" id="prog-log">Click the button to trace where the borders collide.</div>
         </section>
     </div>
 
@@ -210,11 +223,21 @@
 
     /* --- PROGRESSING: JUNCTIONS FIXED --- */
     function showJunctions() {
-        document.querySelectorAll('.t-point').forEach(p => p.style.opacity = '1');
-        const highlightPath = document.getElementById('th-1');
-        if(highlightPath) highlightPath.style.opacity = '1';
+        // Illuminate the exact collision points
+        document.querySelectorAll('.t-point').forEach(p => {
+            p.style.opacity = '1';
+            p.style.fill = 'var(--cognis-gold)';
+        });
         
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look closely at the Red indicator nodes! The square's background outline hits a boundary wall and stops dead, forming perfect 'T' stems. The circle is clearly <b>On Top</b>.</div>`;
+        // Reveal the dominant crossbars of the T-junctions
+        const crossbars = document.getElementById('t-crossbars');
+        if(crossbars) crossbars.style.opacity = '1';
+        
+        // Highlight the background line that got cut off
+        const squareLine = document.getElementById('prog-square-line');
+        if(squareLine) squareLine.style.stroke = '#ef4444';
+        
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step">Look at the red lines and gold targets! The square's outline hits the wall of the circle and stops dead, creating a perfect <b>T-stop</b>. The circle's line is completely clean, meaning it is <b>On Top</b>!</div>`;
     }
 
     /* --- SUPPLEMENTAL: ENGINE --- */
