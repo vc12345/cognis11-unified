@@ -49,8 +49,9 @@
         #paper-red { background: #ef4444; transform: translate(-35px, -35px); }
         #paper-blue { background: #3b82f6; transform: translate(35px, 35px); }
 
-        /* PROGRESSING: T-JUNCTIONS HIGHLIGHTS */
-        .t-point { fill: #ef4444; stroke: white; stroke-width: 2; opacity: 0; transition: all 0.4s ease; }
+        /* PROGRESSING: SCISSORS CUT TARGETS */
+        .cut-indicator { stroke: #ef4444; stroke-width: 4; stroke-dasharray: 6; opacity: 0; transition: opacity 0.3s ease; }
+        .cut-glow { fill: #fecaca; opacity: 0; transition: opacity 0.3s ease; }
 
         /* SUPPLEMENTAL: 3D SCANNER */
         .anatomy-display-s { background: #0f172a; padding: 50px 20px; perspective: 1000px; border-radius: 12px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
@@ -97,16 +98,15 @@
 
         <section class="phase" id="sub-progressing">
             <span class="section-tag">Foundation Progressing</span>
-            <h2>The Letter "T" Clue Rule</h2>
-            <p>When flat shapes overlap on a page, their lines meet to form a visible capital letter <b>T</b>. Think of this intersection like a traffic sign: the smooth crossbar at the top of the <b>T</b> belongs to the front shape. The vertical stem line that crashes into it and stops dead belongs to the background shape hiding underneath!</p>
+            <h2>The Scissors Cut Rule</h2>
+            <p>When flat shapes overlap on a page, the front shape stays perfectly whole, but it acts like a pair of scissors cutting a bite straight out of the shape underneath! The shape on top always keeps its clean, perfect borders, while the background shape will show a broken outline where it has been "cut."</p>
             
             <div class="parent-script">
-                "Look at our square and circle layout below. It's tough to tell who is on top at first glance. Click 'Spot the T-Junctions' to scan the intersections. See those golden targets? Notice how the square's lines hit a wall against the circle's round rim and stop dead? Because its line breaks, the square is trapped at the back!"
+                "Look at the square and circle below. Click 'Find the Cut Shape' to see this rule in action. Notice how the circle's borders remain an unbroken, perfect loop, while the square's top corner looks like a chunk has been sliced clean away. Because the square has a broken cut line, it is forced to live in the back!"
             </div>
 
             <div class="viz-container">
                 <svg width="220" height="220" viewBox="0 0 220 220" style="background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
-                    <!-- Background Grid for spatial context -->
                     <defs>
                         <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f8fafc" stroke-width="1"/>
@@ -114,24 +114,18 @@
                     </defs>
                     <rect width="100%" height="100%" fill="url(#grid)" />
 
-                    <!-- Background Shape: Square (Outlines only, broken at intersections to simulate depth) -->
-                    <path d="M 40,40 L 160,40 L 160,115 M 160,115 M 85,40 L 40,40 L 40,160 L 160,160 L 160,115" fill="none" stroke="#cbd5e0" stroke-width="3" id="prog-square-line" />
-                    <!-- Hidden lines behind the circle drawn as faint dashes -->
-                    <path d="M 160,40 L 160,115 M 85,40 L 160,40" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4" style="opacity: 0.3;" />
+                    <path d="M 65,55 A 55,55 0 0,1 160,115 L 160,40 L 85,40 Z" class="cut-glow" id="cut-area-shading" />
 
-                    <!-- Foreground Shape: Circle (Perfect, unbroken boundary rim) -->
-                    <circle cx="120" cy="120" r="55" fill="none" stroke="#64748b" stroke-width="4" />
+                    <path d="M 40,40 L 85,40 M 160,115 L 160,160 L 40,160 L 40,40" fill="none" stroke="#cbd5e0" stroke-width="3" id="prog-square-base" />
                     
-                    <!-- Golden T-Junction Crossbars highlighting the letter T shape -->
-                    <path d="M 75,47 L 95,33 M 167,105 L 153,125" fill="none" stroke="var(--cognis-gold)" stroke-width="5" stroke-linecap="round" id="t-crossbars" style="opacity: 0; transition: opacity 0.3s;" />
-                    <!-- Intersection stem marker target dots -->
-                    <circle cx="85" cy="40" r="7" class="t-point" id="tp-1" />
-                    <circle cx="160" cy="115" r="7" class="t-point" id="tp-2" />
+                    <path d="M 85,40 L 160,40 L 160,115" fill="none" stroke="#ef4444" stroke-width="3" class="cut-indicator" id="prog-square-cutout" />
+
+                    <circle cx="120" cy="120" r="55" fill="none" stroke="#64748b" stroke-width="4" />
                 </svg>
-                <button class="btn-action" onclick="showJunctions()">Spot the T-Junctions</button>
+                <button class="btn-action" onclick="showScissorsCut()">Find the Cut Shape</button>
             </div>
 
-            <div class="discovery-log" id="prog-log">Click the scanner button above to track where the lines collide.</div>
+            <div class="discovery-log" id="prog-log">Click the action button above to scan which shape lost its border.</div>
         </section>
     </div>
 
@@ -143,7 +137,7 @@
             <div class="question-tiers">
                 <div class="tier-card"><b>The Overlapping Pair:</b> A red circle overlaps a blue square. The circle's edge is completely perfect, while the square's outline stops against it. The circle wins the top slot!</div>
                 <div class="tier-card"><b>The Multi-Shape Pile:</b> When multiple items cross paths, find the one shape that has zero cuts to its borders. That is your definitive starting point for peel-back tracking.</div>
-                <div class="tier-card"><b>The Hidden Center Shape:</b> A shape that is buried deep underneath other layers will show multiple line cuts and letter "T" stop marks around its tiny visible patches.</div>
+                <div class="tier-card"><b>The Hidden Center Shape:</b> A shape that is buried deep underneath other layers will show multiple line cuts and broken borders around its tiny visible patches.</div>
             </div>
         </section>
 
@@ -183,7 +177,7 @@
             <div class="trap-box">
                 <h3>The "Same Color" Camouflage Trap</h3>
                 <p>When two overlapping shapes share the exact same color fill, a child's eyes can blend them into a single big blob. They might miss the fact that one shape is actually standing behind the other.</p>
-                <p><b>The Easy Fix: Trace the Letter "T" Stops.</b> Coach your child with this step: <i>"Look for where the borders collide."</i> Ignore the color fills completely and follow the line paths. If Shape A's line hits a wall and stops dead against Shape B's rim, it creates a letter **T**. That proves Shape A is trapped at the back. <b>The true top shape never breaks its border lines!</b></p>
+                <p><b>The Easy Fix: Trace for Missing Bites.</b> Coach your child with this step: <i>"Look for where the borders collide."</i> Ignore the color fills completely and follow the line paths. If Shape A's line stops suddenly or has an entire slice cut out of it by Shape B's rim, Shape A is trapped at the back. <b>The true top shape always keeps its whole uncut border lines!</b></p>
             </div>
         </section>
         
@@ -222,23 +216,19 @@
         document.getElementById('intro-log').innerHTML = `<div class="discovery-step"><b>Layers Swapped!</b> The <b>${redOnTop?'Red':'Blue'}</b> square now holds the clean, unbroken outline border.</div>`;
     }
 
-    /* --- PROGRESSING: JUNCTIONS ILLUMINATED --- */
-    function showJunctions() {
-        // Illuminate the letter T target nodes
-        document.querySelectorAll('.t-point').forEach(p => {
-            p.style.opacity = '1';
-            p.style.fill = 'var(--cognis-gold)';
-        });
+    /* --- PROGRESSING: SCISSORS CUT ILLUMINATED --- */
+    function showScissorsCut() {
+        // Illuminate the cutout path and shading zone
+        const cutout = document.getElementById('prog-square-cutout');
+        const shading = document.getElementById('cut-area-shading');
+        if(cutout) cutout.style.opacity = '1';
+        if(shading) shading.style.opacity = '1';
         
-        // Make the top bar of the T-junction light up golden
-        const crossbars = document.getElementById('t-crossbars');
-        if(crossbars) crossbars.style.opacity = '1';
+        // Change color of background square base line to show structural division
+        const baseLine = document.getElementById('prog-square-base');
+        if(baseLine) baseLine.style.stroke = '#94a3b8';
         
-        // Turn the interrupted background line red to show where it gets cut short
-        const squareLine = document.getElementById('prog-square-line');
-        if(squareLine) squareLine.style.stroke = '#ef4444';
-        
-        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Look at the red lines and golden dots!</b> The square's outline hits a wall against the circle's rim and stops dead. This creates a perfect <b>letter T shape</b>. The circle's line runs completely clean, proving it is <b>On Top</b>!</div>`;
+        document.getElementById('prog-log').innerHTML = `<div class="discovery-step"><b>Scanner Result:</b> The red dashed segment shows the corner that got cut out of the square! The circle overlaps it perfectly without losing any of its own rim. <b>Circle = Top, Square = Back!</b></div>`;
     }
 
     /* --- SUPPLEMENTAL: STACK ENGINE --- */
