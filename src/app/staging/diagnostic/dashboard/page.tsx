@@ -9,7 +9,7 @@ import {
   LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart
 } from 'recharts';
 import { 
-  ShieldAlert, BookOpen, CheckCircle2, XCircle, Wallet, Flame, AlertCircle, PlayCircle, HelpCircle
+  ShieldAlert, BookOpen, CheckCircle2, XCircle, Wallet, Flame, AlertCircle
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
@@ -86,25 +86,35 @@ export default function PremiumDiagnosticDashboard() {
     }
     setIsResumable(activeSessionFound);
 
-   // 2. Fetch Cached Claude Tutor Summary Narrative
-  const { data: summaryData, error: summaryError } = await supabase
-    .from('cognitive_summaries')
-    .select('tutor_narrative')
-    .eq('user_id', uid)
-    .maybeSingle();
+    // 2. Fetch Cached Claude Tutor Summary Narrative Text
+    const { data: summaryData, error: summaryError } = await supabase
+      .from('cognitive_summaries')
+      .select('tutor_narrative')
+      .eq('user_id', uid)
+      .maybeSingle();
 
-  // Add this temporary log line to your console to inspect the database response
-  if (summaryError) {
-    console.error("Cognitive Summary RLS or Fetch Error:", summaryError);
-  }
+    if (summaryError) {
+      console.error("Cognitive Summary Retrieval Link Exception:", summaryError);
+    }
 
-  setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
+    setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
 
-    // 3. Gather Live Spoken Core Telemetry Items
+    // 3. Gather Live Spoken Core Telemetry Items with Deep Relation Joins & Sequential Sorting
     const { data: attempts, error } = await supabase
       .from('user_attempts')
-      .select(`is_correct, solve_time, analysis, variants ( al_classification )`)
-      .eq('user_id', uid);
+      .select(`
+        is_correct, 
+        solve_time, 
+        analysis, 
+        variants ( 
+          skeleton_id, 
+          skeletons ( 
+            al_classification 
+          ) 
+        )
+      `)
+      .eq('user_id', uid)
+      .order('created_at', { ascending: true }); // Guarantees timelines render chronologically
 
     if (error || !attempts || attempts.length === 0) {
       setData({
@@ -136,6 +146,7 @@ export default function PremiumDiagnosticDashboard() {
 
     let matrixDataMap = new Map<string, { correct: number; total: number }>();
 
+    // Cleanly initialize full 4x4 analytical performance coordinates
     for(let a = 1; a <= 4; a++) {
       for(let l = 1; l <= 4; l++) {
         matrixDataMap.set(`A${a}L${l}`, { correct: 0, total: 0 });
@@ -143,8 +154,11 @@ export default function PremiumDiagnosticDashboard() {
     }
 
     const fatigueStream = rawAttempts.map((a, idx) => {
-      const variantsData = a.variants;
-      const al = (Array.isArray(variantsData) ? variantsData[0]?.al_classification : variantsData?.al_classification) || 'A1L1';
+      // Defensively unpack the nested deep join layout structures safely
+      const variantObj = Array.isArray(a.variants) ? a.variants[0] : a.variants;
+      const skeletonObj = variantObj?.skeletons ? (Array.isArray(variantObj.skeletons) ? variantObj.skeletons[0] : variantObj.skeletons) : null;
+      const al = skeletonObj?.al_classification || 'A1L1'; // Resolves out of template configuration safely
+
       const analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
       
       const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
@@ -162,7 +176,6 @@ export default function PremiumDiagnosticDashboard() {
 
       if (analysis?.verbal_action === 'passed' || analysis?.gave_up) passedCount++;
       
-      // Look explicitly for our deep telemetry properties from the save route
       const isHabitual = analysis?.speech_telemetry?.is_structural_flaw || analysis?.is_structural_flaw;
       if (isHabitual) structuralCounter++;
       else if (!a.is_correct) flukeCounter++;
@@ -299,7 +312,7 @@ export default function PremiumDiagnosticDashboard() {
   return (
     <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans p-4 md:p-8 antialiased selection:bg-amber-100 pb-32">
       
-      {/* 1. DYNAMIC ACTIVE SESSION ALERT BANNER */}
+      {/* DYNAMIC ACTIVE SESSION ALERT BANNER */}
       {isResumable && (
         <div className="max-w-[1400px] mx-auto mb-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
           <div className="flex gap-3 items-center">
@@ -336,7 +349,7 @@ export default function PremiumDiagnosticDashboard() {
 
       <main className="max-w-[1400px] mx-auto space-y-6">
 
-        {/* 2. THE HOLISTIC TUTOR ASSESSMENT NARRATIVE (Cached Meta Evaluation text area) */}
+        {/* THE HOLISTIC TUTOR ASSESSMENT NARRATIVE */}
         <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
           <div className="bg-[#1B3A5C] text-white p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/10">
             <div>
@@ -439,7 +452,7 @@ export default function PremiumDiagnosticDashboard() {
 
         </div>
 
-        {/* ROW 3: RECHARTS POWER COHORT (PACING TIMELINE, DEFENSIVE ERROR SPREAD, CRUNCH BREAKPOINT) */}
+        {/* ROW 3: RECHARTS POWER COHORT */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* CHART 3: VERBAL TIMELINE & FRUSTRATION AREA */}
@@ -468,13 +481,13 @@ export default function PremiumDiagnosticDashboard() {
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
             <div>
               <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Structural Leak Filter</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Live error distribution categorizing every single failed logical approach by its absolute failure mode token.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Live error distribution categorizing every single failed logical approach by its failed mode token.</p>
             </div>
             <div className="h-48 w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.charts.errorDistribution} layout="vertical" margin={{ top: 5, right: 10, left: 15, bottom: 5 }}>
                   <XAxis type="number" axisLine={false} tickLine={false} stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} stroke="#1B3A5C" tick={{ fontSize: 9, fontWeight: 'bold' }} width={85} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} stroke="#1B3A5C" tick={{ fontSize: 9, fonttext: 'bold' }} width={85} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#d97706" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -522,7 +535,7 @@ export default function PremiumDiagnosticDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data.charts.altitudeRadar}>
                   <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="tier" tick={{ fill: '#1B3A5C', fontSize: 9, fontWeight: 'bold' }} />
+                  <PolarAngleAxis dataKey="tier" tick={{ fill: '#1B3A5C', fontSize: 9, fonttext: 'bold' }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                   <Radar name="Child Logic Depth" dataKey="childScore" stroke="#d97706" fill="#d97706" fillOpacity={0.2} />
                 </RadarChart>
