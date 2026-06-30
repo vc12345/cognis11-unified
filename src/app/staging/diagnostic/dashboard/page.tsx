@@ -9,7 +9,7 @@ import {
 import { 
   AlertTriangle, Brain, Clock, HelpCircle, ShieldAlert, Target, ThumbsUp, Wallet, Zap 
 } from 'lucide-react';
-import AuthBadge from '../../../components/AuthBadge';
+import AuthBadge from '@/components/AuthBadge';
 
 interface DiagnosticTelemetry {
   raw: {
