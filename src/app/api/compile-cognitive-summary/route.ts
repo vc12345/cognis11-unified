@@ -28,7 +28,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unverified parent session profile.' }, { status: 401 });
     }
 
-    // 2. Extract Complete Historical Spoken Traces Across All Sessions
+    // Parse the targeting session ID out of the incoming payload body
+    const { session_id } = await req.json().catch(() => ({ session_id: null }));
+
+    // 2. Lock down the diagnostic session status via the Service Role bypass client
+    if (session_id) {
+      const { error: patchError } = await supabaseService
+        .from('diagnostic_sessions')
+        .update({ status: 'completed' })
+        .eq('id', session_id);
+        
+      if (patchError) {
+        console.error("Critical Session Status Update Error:", patchError);
+      }
+    }
+
+    // 3. Extract Complete Historical Spoken Traces Across All Sessions
     const { data: allAttempts, error: fetchError } = await supabaseService
       .from('user_attempts')
       .select(`created_at, session_id, is_correct, solve_time, analysis`)
@@ -41,7 +56,6 @@ export async function POST(req: Request) {
 
     const rawHistory = allAttempts as any[];
     
-    // Group telemetry arrays cleanly into separate session blocks
     const sessionGroups: Record<string, any[]> = {};
     rawHistory.forEach(a => {
       const sid = a.session_id || 'historical_migration';
@@ -49,7 +63,6 @@ export async function POST(req: Request) {
       sessionGroups[sid].push(a);
     });
 
-    // 3. Compile the Complete Performance Ledger
     const chronologicalLedger = Object.entries(sessionGroups).map(([sid, attempts], index) => {
       const right = attempts.filter(a => a.is_correct).length;
       const total = attempts.length;
@@ -128,7 +141,6 @@ export async function POST(req: Request) {
     const anthropicData = await anthropicResponse.json();
     let rawText = anthropicData.content[0].text.trim();
     
-    // Normalize string constraints
     const marker = "\x60\x60\x60json";
     if (rawText.startsWith(marker)) rawText = rawText.slice(7);
     if (rawText.endsWith("\x60\x60\x60")) rawText = rawText.slice(0, -3);

@@ -86,14 +86,19 @@ export default function PremiumDiagnosticDashboard() {
     }
     setIsResumable(activeSessionFound);
 
-    // 2. Fetch Cached Claude Tutor Summary Narrative
-    const { data: summaryData } = await supabase
-      .from('cognitive_summaries')
-      .select('tutor_narrative')
-      .eq('user_id', uid)
-      .maybeSingle();
+   // 2. Fetch Cached Claude Tutor Summary Narrative
+  const { data: summaryData, error: summaryError } = await supabase
+    .from('cognitive_summaries')
+    .select('tutor_narrative')
+    .eq('user_id', uid)
+    .maybeSingle();
 
-    setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
+  // Add this temporary log line to your console to inspect the database response
+  if (summaryError) {
+    console.error("Cognitive Summary RLS or Fetch Error:", summaryError);
+  }
+
+  setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
 
     // 3. Gather Live Spoken Core Telemetry Items
     const { data: attempts, error } = await supabase

@@ -169,7 +169,6 @@ function DiagnosticRunner() {
     const timeSpentSeconds = Math.round(timeSpentMs / 1000);
 
     try {
-      // Await question submission to prevent asynchronous state racing conditions
       const saveResponse = await fetch('/api/save-attempt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -191,21 +190,11 @@ function DiagnosticRunner() {
       if (nextIndex >= testState.payload.length) {
         setUiState('COMPILING_SUMMARY');
         
-        // 1. Update the session row in the database table to completed
-        if (testState.sessionId) {
-          const { error: updateError } = await supabase
-            .from('diagnostic_sessions')
-            .update({ status: 'completed' })
-            .eq('id', testState.sessionId);
-            
-          if (updateError) {
-            console.error("Session boundary lockdown exception:", updateError);
-          }
-        }
-
-        // 2. Trigger the heavy-weight tutor macro summary generation call
+        // Hand the compilation payload off to the backend entirely, passing the target session ID
         const compilationResponse = await fetch('/api/compile-cognitive-summary', {
-          method: 'POST'
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: testState.sessionId })
         });
 
         if (!compilationResponse.ok) {
@@ -267,7 +256,7 @@ function DiagnosticRunner() {
             </p>
           </div>
           <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> Mining response behaviors...
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" /> Locking session & compiling...
           </div>
         </div>
       </div>
@@ -354,10 +343,8 @@ function DiagnosticRunner() {
             )}
           </div>
 
-          {/* Core Input Stack */}
           <div className="space-y-6 mt-8">
-            
-            {/* The Active Workspace Scratchpad Container */}
+            {/* Adjusted container using precise backtick template interpolation literals */}
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
               hasRecordedOnce || uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' 
                 ? 'max-h-64 opacity-100' 
