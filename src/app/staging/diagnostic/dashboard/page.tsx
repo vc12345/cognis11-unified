@@ -114,7 +114,7 @@ export default function PremiumDiagnosticDashboard() {
         )
       `)
       .eq('user_id', uid)
-      .order('created_at', { ascending: true }); // Guarantees timelines render chronologically
+      .order('created_at', { ascending: true });
 
     if (error || !attempts || attempts.length === 0) {
       setData({
@@ -154,10 +154,9 @@ export default function PremiumDiagnosticDashboard() {
     }
 
     const fatigueStream = rawAttempts.map((a, idx) => {
-      // Defensively unpack the nested deep join layout structures safely
       const variantObj = Array.isArray(a.variants) ? a.variants[0] : a.variants;
       const skeletonObj = variantObj?.skeletons ? (Array.isArray(variantObj.skeletons) ? variantObj.skeletons[0] : variantObj.skeletons) : null;
-      const al = skeletonObj?.al_classification || 'A1L1'; // Resolves out of template configuration safely
+      const al = skeletonObj?.al_classification || 'A1L1';
 
       const analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
       
@@ -487,7 +486,7 @@ export default function PremiumDiagnosticDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.charts.errorDistribution} layout="vertical" margin={{ top: 5, right: 10, left: 15, bottom: 5 }}>
                   <XAxis type="number" axisLine={false} tickLine={false} stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} stroke="#1B3A5C" tick={{ fontSize: 9, fonttext: 'bold' }} width={85} />
+                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} stroke="#1B3A5C" tick={{ fontSize: 9, fontWeight: 'bold' }} width={85} />
                   <Tooltip />
                   <Bar dataKey="count" fill="#d97706" radius={[0, 4, 4, 0]} />
                 </BarChart>
@@ -535,7 +534,7 @@ export default function PremiumDiagnosticDashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data.charts.altitudeRadar}>
                   <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="tier" tick={{ fill: '#1B3A5C', fontSize: 9, fonttext: 'bold' }} />
+                  <PolarAngleAxis dataKey="tier" tick={{ fill: '#1B3A5C', fontSize: 9, fontWeight: 'bold' }} />
                   <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                   <Radar name="Child Logic Depth" dataKey="childScore" stroke="#d97706" fill="#d97706" fillOpacity={0.2} />
                 </RadarChart>
