@@ -36,7 +36,7 @@ interface DiagnosticTelemetry {
     errorDistribution: { name: string; count: number }[];
     altitudeRadar: { tier: string; childScore: number; fullMark: number }[];
     crunchCurve: { velocityWindow: string; accuracy: number; speedValue: number }[];
-    matrixPoints: { x: number; y: number; z: number; label: string; successRate: number }[];
+    matrixPoints: { label: string; x: number; y: number; z: number; successRate: number }[];
     quadrantPoints: { name: string; speed: number; accuracy: number; label: string }[];
   };
   verdict: {
@@ -99,18 +99,15 @@ export default function PremiumDiagnosticDashboard() {
 
     setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
 
-    // 3. Gather Live Spoken Core Telemetry Items with Deep Relation Joins & Sequential Sorting
+    // 3. Gather Live Spoken Core Telemetry Items with direct skeleton relationship joins
     const { data: attempts, error } = await supabase
       .from('user_attempts')
       .select(`
         is_correct, 
         solve_time, 
         analysis, 
-        variants ( 
-          skeleton_id, 
-          skeletons ( 
-            al_classification 
-          ) 
+        skeletons ( 
+          al_classification 
         )
       `)
       .eq('user_id', uid)
@@ -144,18 +141,26 @@ export default function PremiumDiagnosticDashboard() {
     let timeCrunchDerailments = 0;
     let verbalFrictionHits = 0;
 
-    let matrixDataMap = new Map<string, { correct: number; total: number }>();
+    // Temporal velocity window trackers for continuous calibration curves
+    let curveBuckets = {
+      comfortable: { total: 0, correct: 0 },
+      paced: { total: 0, correct: 0 },
+      highSpeed: { total: 0, correct: 0 },
+      panic: { total: 0, correct: 0 }
+    };
 
-    // Cleanly initialize full 4x4 analytical performance coordinates
+    let matrixDataMap = new Map<string, { correct: number; total: number }>();
     for(let a = 1; a <= 4; a++) {
       for(let l = 1; l <= 4; l++) {
         matrixDataMap.set(`A${a}L${l}`, { correct: 0, total: 0 });
       }
     }
 
+    // Process item distributions completely driven by live metrics
+    const focusPoints = [];
+
     const fatigueStream = rawAttempts.map((a, idx) => {
-      const variantObj = Array.isArray(a.variants) ? a.variants[0] : a.variants;
-      const skeletonObj = variantObj?.skeletons ? (Array.isArray(variantObj.skeletons) ? variantObj.skeletons[0] : variantObj.skeletons) : null;
+      const skeletonObj = Array.isArray(a.skeletons) ? a.skeletons[0] : a.skeletons;
       const al = skeletonObj?.al_classification || 'A1L1';
 
       const analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
@@ -179,6 +184,17 @@ export default function PremiumDiagnosticDashboard() {
       if (isHabitual) structuralCounter++;
       else if (!a.is_correct) flukeCounter++;
 
+      // Velocity bucket sort logic
+      if (a.solve_time > 60) {
+        curveBuckets.comfortable.total++; if (a.is_correct) curveBuckets.comfortable.correct++;
+      } else if (a.solve_time >= 45) {
+        curveBuckets.paced.total++; if (a.is_correct) curveBuckets.paced.correct++;
+      } else if (a.solve_time >= 30) {
+        curveBuckets.highSpeed.total++; if (a.is_correct) curveBuckets.highSpeed.correct++;
+      } else {
+        curveBuckets.panic.total++; if (a.is_correct) curveBuckets.panic.correct++;
+      }
+
       if (analysis?.speech_telemetry?.time_pressure_derailment || analysis?.time_pressure_derailment || (a.solve_time < 35 && !a.is_correct)) {
         timeCrunchDerailments++;
       }
@@ -191,7 +207,7 @@ export default function PremiumDiagnosticDashboard() {
         if (reason === 'concept_unknown') errMap.conceptUnknown++;
         else if (reason === 'app_too_hard') errMap.appTooHard++;
         else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
-        else if (reason === 'misinterpreted_simpler') errMap.misinterpretedSimpler++;
+        else if (reason === 'misrepresented_simpler') errMap.misinterpretedSimpler++;
         else if (reason === 'unjustified_assumption') errMap.unjustifiedAssumption++;
         else if (reason === 'calculation_error') errMap.calculationError++;
         else if (reason === 'intentional_trap') errMap.intentionalTrap++;
@@ -201,11 +217,21 @@ export default function PremiumDiagnosticDashboard() {
 
       const densityScore = analysis?.speech_telemetry?.speech_density_score || Math.max(100 - (a.solve_time / 2), 25);
 
+      // Distribute detailed points onto the Focus Quadrant with slight jitter parameters to map distinct question clouds
+      const scatterSpeed = Math.max(8, Math.min(92, Math.round(100 - (a.solve_time / 1.5))));
+      const scatterAccuracy = a.is_correct ? (82 + (idx % 6)) : (12 + (idx % 6));
+      focusPoints.push({
+        name: `Problem #${idx + 1}`,
+        speed: scatterSpeed,
+        accuracy: scatterAccuracy,
+        label: `Ex. ${idx + 1}: ${al} (${a.solve_time}s)`
+      });
+
       return {
-        question: `Q${idx + 1}`,
+        question: `#${idx + 1}`, // Unique continuous identification sequence string unblocks category collapse
         speechVolume: Math.round(densityScore),
         accuracy: a.is_correct ? 100 : 0,
-        frustration: analysis?.speech_telemetry?.detected_frustration_tokens ? 85 : 10
+        frustration: (analysis?.speech_telemetry?.detected_frustration_tokens || (a.solve_time > 90 && !a.is_correct)) ? 85 : 10
       };
     });
 
@@ -213,9 +239,9 @@ export default function PremiumDiagnosticDashboard() {
       const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
       const x = parseInt(al.match(/L(\d)/)?.[1] || '1'); 
       return {
-        label: al, x, y, z: Math.max(m.total * 30, 15), successRate: m.total > 0 ? Math.round((m.correct / m.total) * 100) : 0
+        label: al, x, y, z: Math.max(m.total * 35, m.total > 0 ? 40 : 0), successRate: m.total > 0 ? Math.round((m.correct / m.total) * 100) : 0
       };
-    });
+    }).filter(p => p.z > 0); // Only display actual encountered coordinate profiles
 
     const errorDistribution = [
       { name: 'Unknown Rules', count: errMap.conceptUnknown },
@@ -230,17 +256,17 @@ export default function PremiumDiagnosticDashboard() {
     ].filter(e => e.count > 0);
 
     const radarData = [
-      { tier: 'Plain Math', childScore: matrixPoints.filter(p => p.x === 1).reduce((acc, p) => acc + p.successRate, 0) / 4, fullMark: 100 },
-      { tier: 'Wordy Riddles', childScore: matrixPoints.filter(p => p.x >= 3).reduce((acc, p) => acc + p.successRate, 0) / 8, fullMark: 100 },
-      { tier: 'Multi-Step Depth', childScore: matrixPoints.filter(p => p.y >= 3).reduce((acc, p) => acc + p.successRate, 0) / 8, fullMark: 100 },
-      { tier: 'Olympiad Shells', childScore: matrixPoints.filter(p => p.y === 4 && p.x === 4).reduce((acc, p) => acc + p.successRate, 0), fullMark: 100 }
-    ].map(r => ({ ...r, childScore: Math.min(Math.round(r.childScore || 15), 100) }));
+      { tier: 'Plain Math', childScore: matrixPoints.filter(p => p.x === 1).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.x === 1).length, 1), fullMark: 100 },
+      { tier: 'Wordy Riddles', childScore: matrixPoints.filter(p => p.x >= 3).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.x >= 3).length, 1), fullMark: 100 },
+      { tier: 'Multi-Step Depth', childScore: matrixPoints.filter(p => p.y >= 3).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.y >= 3).length, 1), fullMark: 100 },
+      { tier: 'Olympiad Shells', childScore: matrixPoints.filter(p => p.y === 4 && p.x === 4).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.y === 4 && p.x === 4).length, 1), fullMark: 100 }
+    ].map(r => ({ ...r, childScore: Math.min(Math.round(r.childScore || 10), 100) }));
 
     const crunchCurve = [
-      { velocityWindow: 'Comfortable (>60s)', accuracy: right > 0 ? 85 : 45, speedValue: 70 },
-      { velocityWindow: 'Paced (45s-60s)', accuracy: right > 2 ? 72 : 35, speedValue: 50 },
-      { velocityWindow: 'High-Speed (30s-45s)', accuracy: Math.max(85 - (timeCrunchDerailments * 15), 20), speedValue: 35 },
-      { velocityWindow: 'Panic Boundary (<30s)', accuracy: Math.max(45 - (timeCrunchDerailments * 22), 5), speedValue: 20 }
+      { velocityWindow: 'Comfortable (>60s)', accuracy: curveBuckets.comfortable.total > 0 ? Math.round((curveBuckets.comfortable.correct / curveBuckets.comfortable.total) * 100) : 65, speedValue: 70 },
+      { velocityWindow: 'Paced (45s-60s)', accuracy: curveBuckets.paced.total > 0 ? Math.round((curveBuckets.paced.correct / curveBuckets.paced.total) * 100) : 50 },
+      { velocityWindow: 'High-Speed (30s-45s)', accuracy: curveBuckets.highSpeed.total > 0 ? Math.round((curveBuckets.highSpeed.correct / curveBuckets.highSpeed.total) * 100) : 35 },
+      { velocityWindow: 'Panic Boundary (<30s)', accuracy: curveBuckets.panic.total > 0 ? Math.round((curveBuckets.panic.correct / curveBuckets.panic.total) * 100) : 15 }
     ];
 
     let triageVerdict = 'Target Basic Formula Gaps First';
@@ -259,7 +285,7 @@ export default function PremiumDiagnosticDashboard() {
         altitudeRadar: radarData,
         crunchCurve,
         matrixPoints,
-        quadrantPoints: [{ name: 'Your Child', speed: right > 0 ? Math.min(total * 4.5, 95) : 30, accuracy: Math.round((right / total) * 100), label: 'Current Performance Center' }]
+        quadrantPoints: focusPoints
       },
       verdict: {
         maxACleared: maxA,
@@ -397,7 +423,7 @@ export default function PremiumDiagnosticDashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="x" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Linguistic Trick Weight (1-4)', position: 'insideBottom', offset: -5, fill: '#94a3b8', fontSize: 10 }} />
                   <YAxis dataKey="y" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Math Execution Layering (1-4)', angle: -90, position: 'insideLeft', offset: 10, fill: '#94a3b8', fontSize: 10 }} />
-                  <ZAxis dataKey="z" type="number" range={[60, 400]} />
+                  <ZAxis dataKey="z" type="number" range={[70, 450]} />
                   <Tooltip 
                     cursor={{ strokeDasharray: '3 3' }}
                     content={({ active, payload }) => {
@@ -440,7 +466,17 @@ export default function PremiumDiagnosticDashboard() {
                   <YAxis type="number" dataKey="accuracy" domain={[0, 100]} axisLine={false} tick={false} />
                   <ReferenceLine x={50} stroke="#E5E3DD" strokeDasharray="3 3" />
                   <ReferenceLine y={50} stroke="#E5E3DD" strokeDasharray="3 3" />
-                  <Scatter name="Placement" data={data.charts.quadrantPoints} fill="#d97706" r={12} />
+                  <Tooltip cursor={{ strokeDasharray: '2 2' }} content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-[#1B3A5C] text-white p-2 text-[10px] rounded shadow-lg">
+                          {payload[0].payload.label}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }} />
+                  <Scatter name="Placement" data={data.charts.quadrantPoints} fill="#d97706" r={7} />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>
