@@ -16,6 +16,25 @@ interface JoinedSkeletonData {
 
 export async function POST(req: Request) {
   try {
+    // 1. Authenticate Parent Context Immediately
+    const cookieStore = await cookies();
+    const authSupabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) { return cookieStore.get(name)?.value; },
+          set() {}, remove() {}
+        },
+      }
+    );
+    
+    const { data: { user } } = await authSupabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unverified parent session profile context.' }, { status: 401 });
+    }
+
+    // 2. Extract Frontend Payload Arguments
     const { session_id, variant_id, raw_answer, execution_velocity_seconds } = await req.json();
 
     if (!variant_id || !raw_answer || !session_id) {
@@ -24,7 +43,7 @@ export async function POST(req: Request) {
 
     const transcript = raw_answer;
 
-    // 1. Ingest Variant & Target Metadata
+    // 3. Ingest Variant & Target Metadata
     const { data: variantData, error: variantError } = await supabaseService
       .from('variants')
       .select('skeleton_id, generated_question, solution_trace, generated_options, correct_answer')
@@ -37,7 +56,7 @@ export async function POST(req: Request) {
 
     const skeleton_id = variantData.skeleton_id;
 
-    // 2. Extract Structural Skeleton Concept Mappings
+    // 4. Extract Structural Skeleton Concept Mappings
     const { data: rawSkeletonData, error: skeletonError } = await supabaseService
       .from('skeletons') 
       .select(`
@@ -46,6 +65,10 @@ export async function POST(req: Request) {
       `) 
       .eq('id', skeleton_id)
       .single();
+
+    if (skeletonError) {
+      console.error("Warning: Skeleton metadata fetch issue.", skeletonError);
+    }
 
     const skeletonData = rawSkeletonData as unknown as JoinedSkeletonData;
     const sourceConcept = Array.isArray(skeletonData?.source_questions) 
@@ -57,7 +80,7 @@ export async function POST(req: Request) {
       ? Object.keys(skeletonData.failure_profile) 
       : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'];
 
-    // 3. Deep Cognitive & Linguistic Instruction Framework
+    // 5. Deep Cognitive & Linguistic Instruction Framework
     const systemInstruction = `
       You are the core UK 11+ Spoken Diagnostics Engine for Cognis11. Your purpose is to evaluate a student's spoken math transcript against an elite Junior Math Olympiad shell and output highly granular cognitive telemetry.
 
@@ -67,7 +90,7 @@ export async function POST(req: Request) {
       - Examine raw speech markers in the transcript: repeated phrases, circular corrections, long pauses marked by '[pause]', heavy sighs, defensive tone triggers, and high density of speculative tokens ("maybe", "probably", "um", "uh").
       - Cross-reference the 'execution_velocity_seconds' value provided against problem complexity. High speed + wrong answer maps to schema substitution/rushing. Slow speed + fragmented sentences maps to working memory dropouts.
 
-      STRICT SCHEMATIC ERROR CLASSIFICATION (You must select exactly ONE core parent_facing_error token):
+      STRICT SCHEMATIC ERROR CLASSIFICATION (You must select exactly ONE core error token from the list below if is_correct is false):
       - "concept_unknown": Completely blind to the underlying rules; zero logical starting point.
       - "app_too_hard": Understands the baseline rule but collapses executing it under multi-layered parameters.
       - "wording_comprehension": Perfectly capable of the math, but fundamentally misread the conditions due to language density.
@@ -88,6 +111,7 @@ export async function POST(req: Request) {
           // Explicitly output 1 if demonstrated, 0 if not for every token in: ${JSON.stringify(availableWCategories)}
         },
         "parent_facing_error": "concept_unknown" | "app_too_hard" | "wording_comprehension" | "misinterpreted_simpler" | "unjustified_assumption" | "calculation_error" | "intentional_trap" | "sub_answer_stall" | "blind_to_solution" | null,
+        "error_reason": "concept_unknown" | "app_too_hard" | "wording_comprehension" | "misinterpreted_simpler" | "unjustified_assumption" | "calculation_error" | "intentional_trap" | "sub_answer_stall" | "blind_to_solution" | null,
         "speech_telemetry": {
           "speech_density_score": number, // 0-100. High density = concise structural words. Low density = circular filler paths.
           "detected_frustration_tokens": boolean, // true if transcript flags heavy sighing, immediate self-defensiveness, or giving up words
@@ -112,7 +136,7 @@ export async function POST(req: Request) {
       "${transcript}"
     `;
 
-    // 4. Execute High-Fidelity Call to Anthropic
+    // 6. Execute High-Fidelity Call to Anthropic
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -148,7 +172,7 @@ export async function POST(req: Request) {
     
     const evaluation = JSON.parse(rawText.trim());
 
-    // 5. Update Structural Aggregates
+    // 7. Update Structural Aggregates
     const triggeredCategories = Object.entries(evaluation.w_category_breakdown || {})
       .filter(([_, value]) => value === 1)
       .map(([key, _]) => key);
@@ -160,33 +184,18 @@ export async function POST(req: Request) {
       });
     }
 
-    // 6. Verify User Identity Guardrail
-    const cookieStore = await cookies();
-    const authSupabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) { return cookieStore.get(name)?.value; },
-          set() {}, remove() {}
-        },
-      }
-    );
-    
-    const { data: { user } } = await authSupabase.auth.getUser();
-
-    // 7. Log Comprehensive High-Fidelity Data Matrix
+    // 8. Log Comprehensive High-Fidelity Data Matrix Row
     const { error: insertError } = await supabaseService
       .from('user_attempts')
       .insert([{
-          user_id: user?.id || null, 
+          user_id: user.id, 
           session_id: session_id,
           skeleton_id: skeleton_id || null, 
           variant_id: variant_id, 
           transcript: transcript,
           is_correct: evaluation.is_correct,
           solve_time: execution_velocity_seconds, 
-          analysis: evaluation // Stores the complete nested data payload cleanly in JSONB
+          analysis: evaluation 
       }]);
 
     if (insertError) throw insertError;

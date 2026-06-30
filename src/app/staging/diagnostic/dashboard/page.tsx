@@ -6,11 +6,10 @@ import { createBrowserClient } from '@supabase/ssr';
 import { 
   ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, ReferenceLine, AreaChart, Area, BarChart, Bar, 
-  LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart, Legend
+  LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart
 } from 'recharts';
 import { 
-  AlertTriangle, Brain, Clock, ShieldAlert, Target, Wallet, Zap, Activity, BookOpen, 
-  CheckCircle2, XCircle, MessageSquare, UserX, ShieldCheck, Flame, Hourglass
+  ShieldAlert, BookOpen, CheckCircle2, XCircle, Wallet, Flame, AlertCircle, PlayCircle, HelpCircle
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
@@ -19,6 +18,7 @@ interface DiagnosticTelemetry {
     attempted: number;
     correct: number;
     passed: number;
+    completedTests: number;
   };
   errors: {
     conceptUnknown: number;
@@ -45,7 +45,6 @@ interface DiagnosticTelemetry {
     givesUpEasily: boolean;
     panics: boolean;
     speechRatio: number;
-    pacingVariance: number;
     structuralCount: number;
     flukeCount: number;
     triageROICard: string;
@@ -61,6 +60,8 @@ interface DiagnosticTelemetry {
 export default function PremiumDiagnosticDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [isResumable, setIsResumable] = useState(false);
+  const [tutorNarrative, setTutorNarrative] = useState<string>('');
   const [data, setData] = useState<DiagnosticTelemetry | null>(null);
 
   const supabase = createBrowserClient(
@@ -68,21 +69,50 @@ export default function PremiumDiagnosticDashboard() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  async function compileDiagnosticData(uid: string) {
+  async function compileDashboardData(uid: string) {
     setLoading(true);
     
+    // 1. Fetch Diagnostic Session States
+    const { data: sessions, error: sessionErr } = await supabase
+      .from('diagnostic_sessions')
+      .select('status');
+      
+    let completedTestsCount = 0;
+    let activeSessionFound = false;
+
+    if (!sessionErr && sessions) {
+      completedTestsCount = sessions.filter(s => s.status === 'completed').length;
+      activeSessionFound = sessions.some(s => s.status === 'active');
+    }
+    setIsResumable(activeSessionFound);
+
+    // 2. Fetch Cached Claude Tutor Summary Narrative
+    const { data: summaryData } = await supabase
+      .from('cognitive_summaries')
+      .select('tutor_narrative')
+      .eq('user_id', uid)
+      .maybeSingle();
+
+    setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
+
+    // 3. Gather Live Spoken Core Telemetry Items
     const { data: attempts, error } = await supabase
       .from('user_attempts')
       .select(`is_correct, solve_time, analysis, variants ( al_classification )`)
       .eq('user_id', uid);
 
     if (error || !attempts || attempts.length === 0) {
+      setData({
+        raw: { attempted: 0, correct: 0, passed: 0, completedTests: completedTestsCount },
+        errors: { conceptUnknown: 0, appTooHard: 0, wordingComprehension: 0, misinterpretedSimpler: 0, unjustifiedAssumption: 0, calculationError: 0, intentionalTrap: 0, subAnswerStall: 0, blindToSolution: 0 },
+        charts: { fatigueStream: [], errorDistribution: [], altitudeRadar: [], crunchCurve: [], matrixPoints: [], quadrantPoints: [] },
+        verdict: { maxACleared: 1, maxLCleared: 1, givesUpEasily: false, panics: false, speechRatio: 100, structuralCount: 0, flukeCount: 0, triageROICard: 'N/A', crunchBreakpoint: 45, frictionIndexScore: 0, canOtherPlatformsHelp: 'N/A', canTutorHelp: 'N/A', isLostCause: false, canReadAndUnderstand: 'N/A' }
+      });
       setLoading(false);
       return;
     }
 
     const rawAttempts = attempts as any[];
-
     let total = rawAttempts.length;
     let right = rawAttempts.filter(a => a.is_correct).length;
     let passedCount = 0;
@@ -101,14 +131,12 @@ export default function PremiumDiagnosticDashboard() {
 
     let matrixDataMap = new Map<string, { correct: number; total: number }>();
 
-    // Seed empty categories to ensure matrix map initializes beautifully
-    for(let a=1; a<=4; a++) {
-      for(let l=1; l<=4; l++) {
+    for(let a = 1; a <= 4; a++) {
+      for(let l = 1; l <= 4; l++) {
         matrixDataMap.set(`A${a}L${l}`, { correct: 0, total: 0 });
       }
     }
 
-    // Process question-by-question metrics for timelines
     const fatigueStream = rawAttempts.map((a, idx) => {
       const variantsData = a.variants;
       const al = (Array.isArray(variantsData) ? variantsData[0]?.al_classification : variantsData?.al_classification) || 'A1L1';
@@ -128,19 +156,21 @@ export default function PremiumDiagnosticDashboard() {
       matrixDataMap.set(al, m);
 
       if (analysis?.verbal_action === 'passed' || analysis?.gave_up) passedCount++;
-      if (analysis?.analysis?.is_structural_flaw || analysis?.is_structural_flaw) structuralCounter++;
+      
+      // Look explicitly for our deep telemetry properties from the save route
+      const isHabitual = analysis?.speech_telemetry?.is_structural_flaw || analysis?.is_structural_flaw;
+      if (isHabitual) structuralCounter++;
       else if (!a.is_correct) flukeCounter++;
 
-      if (analysis?.analysis?.time_pressure_derailment || analysis?.time_pressure_derailment || (a.solve_time < 35 && !a.is_correct)) {
+      if (analysis?.speech_telemetry?.time_pressure_derailment || analysis?.time_pressure_derailment || (a.solve_time < 35 && !a.is_correct)) {
         timeCrunchDerailments++;
       }
-      if (analysis?.analysis?.parental_friction_detected || analysis?.parental_friction_detected) {
+      if (analysis?.speech_telemetry?.parental_friction_detected || analysis?.parental_friction_detected) {
         verbalFrictionHits++;
       }
 
-      // Map raw categories cleanly
       if (!a.is_correct) {
-        const reason = a.error_reason || analysis?.error_reason;
+        const reason = analysis?.parent_facing_error || analysis?.error_reason;
         if (reason === 'concept_unknown') errMap.conceptUnknown++;
         else if (reason === 'app_too_hard') errMap.appTooHard++;
         else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
@@ -152,11 +182,13 @@ export default function PremiumDiagnosticDashboard() {
         else if (reason === 'blind_to_solution') errMap.blindToSolution++;
       }
 
+      const densityScore = analysis?.speech_telemetry?.speech_density_score || Math.max(100 - (a.solve_time / 2), 25);
+
       return {
         question: `Q${idx + 1}`,
-        speechVolume: Math.max(120 - (a.solve_time / 2), 30) + (a.is_correct ? 20 : 0),
+        speechVolume: Math.round(densityScore),
         accuracy: a.is_correct ? 100 : 0,
-        frustration: (analysis?.analysis?.parental_friction_detected || (a.solve_time > 80 && !a.is_correct)) ? 80 : 10
+        frustration: analysis?.speech_telemetry?.detected_frustration_tokens ? 85 : 10
       };
     });
 
@@ -188,10 +220,10 @@ export default function PremiumDiagnosticDashboard() {
     ].map(r => ({ ...r, childScore: Math.min(Math.round(r.childScore || 15), 100) }));
 
     const crunchCurve = [
-      { velocityWindow: 'Comfortable (>60s)', accuracy: right > 0 ? 85 : 40, speedValue: 70 },
-      { velocityWindow: 'Paced (45s-60s)', accuracy: right > 2 ? 70 : 30, speedValue: 50 },
-      { velocityWindow: 'High-Speed (30s-45s)', accuracy: Math.max(90 - (timeCrunchDerailments * 20), 15), speedValue: 35 },
-      { velocityWindow: 'Panic Boundary (<30s)', accuracy: Math.max(45 - (timeCrunchDerailments * 25), 5), speedValue: 20 }
+      { velocityWindow: 'Comfortable (>60s)', accuracy: right > 0 ? 85 : 45, speedValue: 70 },
+      { velocityWindow: 'Paced (45s-60s)', accuracy: right > 2 ? 72 : 35, speedValue: 50 },
+      { velocityWindow: 'High-Speed (30s-45s)', accuracy: Math.max(85 - (timeCrunchDerailments * 15), 20), speedValue: 35 },
+      { velocityWindow: 'Panic Boundary (<30s)', accuracy: Math.max(45 - (timeCrunchDerailments * 22), 5), speedValue: 20 }
     ];
 
     let triageVerdict = 'Target Basic Formula Gaps First';
@@ -202,7 +234,7 @@ export default function PremiumDiagnosticDashboard() {
     }
 
     setData({
-      raw: { attempted: total, correct: right, passed: passedCount },
+      raw: { attempted: total, correct: right, passed: passedCount, completedTests: completedTestsCount },
       errors: errMap,
       charts: {
         fatigueStream,
@@ -210,7 +242,7 @@ export default function PremiumDiagnosticDashboard() {
         altitudeRadar: radarData,
         crunchCurve,
         matrixPoints,
-        quadrantPoints: [{ name: 'Your Child', speed: right > 0 ? Math.min(total * 4, 90) : 25, accuracy: Math.round((right / total) * 100), label: 'Current Performance Center' }]
+        quadrantPoints: [{ name: 'Your Child', speed: right > 0 ? Math.min(total * 4.5, 95) : 30, accuracy: Math.round((right / total) * 100), label: 'Current Performance Center' }]
       },
       verdict: {
         maxACleared: maxA,
@@ -218,16 +250,15 @@ export default function PremiumDiagnosticDashboard() {
         givesUpEasily: passedCount > 2,
         panics: errMap.misinterpretedSimpler + errMap.unjustifiedAssumption > 3,
         speechRatio: Math.max(92 - (errMap.unjustifiedAssumption * 12), 40),
-        pacingVariance: Math.min((errMap.misinterpretedSimpler * 25) + 15, 100),
-        structuralCount: structuralCounter || errMap.blindToSolution + errMap.unjustifiedAssumption,
-        flukeCount: flukeCounter || errMap.calculationError,
+        structuralCount: structuralCounter,
+        flukeCount: flukeCounter,
         triageROICard: triageVerdict,
-        crunchBreakpoint: Math.max(50 - (timeCrunchDerailments * 15), 20),
-        frictionIndexScore: Math.min(verbalFrictionHits * 30, 100),
-        canOtherPlatformsHelp: errMap.wordingComprehension + errMap.misinterpretedSimpler > errMap.calculationError ? 'No. Multiple-choice systems measure right vs wrong mechanics; they cannot trace or repair speech-comprehension failure paths.' : 'Yes, for structural muscle memory only.',
-        canTutorHelp: errMap.conceptUnknown > errMap.blindToSolution ? 'High Efficiency. A human tutor can easily close explicit calculation or arithmetic blind spots rapidly.' : 'Low Efficiency Risk. Child blocks on creative shortcuts independently; a tutor risks doing the actual thinking for them.',
+        crunchBreakpoint: Math.max(50 - (timeCrunchDerailments * 12), 20),
+        frictionIndexScore: Math.min(verbalFrictionHits * 33, 100),
+        canOtherPlatformsHelp: errMap.wordingComprehension + errMap.misinterpretedSimpler > errMap.calculationError ? 'No. Multiple-choice systems measure quick answer mechanics; they cannot trace speech tracking paths or decode wording gaps.' : 'Yes, for structural muscle memory only.',
+        canTutorHelp: errMap.conceptUnknown > errMap.blindToSolution ? 'High Efficiency. Missing formula blocks or explicit logic slots can be filled rapidly by a tutor.' : 'Low Efficiency Risk. Your child misses shortcuts independently; a human tutor risks doing the core thinking for them.',
         isLostCause: maxA === 1 && maxL === 1 && (right / total) < 0.25,
-        canReadAndUnderstand: maxL >= 3 ? 'Safe. Successfully decodes advanced linguistic constraints.' : 'Vulnerable. Fails when rules are wrapped in multi-clause exceptions.'
+        canReadAndUnderstand: maxL >= 3 ? 'Safe. Successfully clears text framing conditions under load.' : 'Vulnerable. Tends to drop constraints when negative phrasing spikes.'
       }
     });
     setLoading(false);
@@ -237,7 +268,7 @@ export default function PremiumDiagnosticDashboard() {
     async function verify() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/login'); return; }
-      await compileDiagnosticData(user.id);
+      await compileDashboardData(user.id);
     }
     verify();
   }, []);
@@ -245,7 +276,7 @@ export default function PremiumDiagnosticDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
-        Assembling real-time data panels... Preparing high-fidelity analytics view...
+        Fetching cross-diagnostic matrices... Mapping live operational telemetry...
       </div>
     );
   }
@@ -254,7 +285,7 @@ export default function PremiumDiagnosticDashboard() {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center p-6">
         <ShieldAlert className="w-8 h-8 text-amber-600 mb-2" />
-        <p className="text-sm font-serif font-bold text-[#1B3A5C]">No diagnostic metrics logged.</p>
+        <p className="text-sm font-serif font-bold text-[#1B3A5C]">No performance telemetry located.</p>
         <button onClick={() => router.push('/profile')} className="text-xs text-slate-400 mt-2 underline">Return</button>
       </div>
     );
@@ -263,11 +294,30 @@ export default function PremiumDiagnosticDashboard() {
   return (
     <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans p-4 md:p-8 antialiased selection:bg-amber-100 pb-32">
       
-      {/* COMMAND CONTROL PANEL HEADER */}
+      {/* 1. DYNAMIC ACTIVE SESSION ALERT BANNER */}
+      {isResumable && (
+        <div className="max-w-[1400px] mx-auto mb-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+          <div className="flex gap-3 items-center">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900">Diagnostic Incomplete / Resumable State</h4>
+              <p className="text-[11px] text-amber-800 mt-0.5">Your child has an active testing window open. Spoken charts below are updating live question-by-question, but the holistic tutor narrative text is safely frozen to historical results until the current session is finalized.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => router.push('/staging/diagnostic/test?session=resume')} 
+            className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm whitespace-nowrap"
+          >
+            Resume Open Session
+          </button>
+        </div>
+      )}
+
+      {/* HEADER SECTION */}
       <header className="max-w-[1400px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-[#E5E3DD] pb-6 mb-8 gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-[10px] font-bold uppercase tracking-widest border border-amber-200 mb-2">
-            <Flame className="w-3 h-3 text-amber-600" /> Premium Diagnostic Tier Active
+            <Flame className="w-3 h-3 text-amber-600" /> Live Tracking Terminal Active
           </div>
           <h1 className="text-3xl font-black font-serif tracking-tight text-[#1B3A5C]">The Core Cognitive Command Canvas</h1>
         </div>
@@ -280,38 +330,56 @@ export default function PremiumDiagnosticDashboard() {
       </header>
 
       <main className="max-w-[1400px] mx-auto space-y-6">
+
+        {/* 2. THE HOLISTIC TUTOR ASSESSMENT NARRATIVE (Cached Meta Evaluation text area) */}
+        <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
+          <div className="bg-[#1B3A5C] text-white p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/10">
+            <div>
+              <h2 className="text-lg font-serif font-bold tracking-tight">1-on-1 Expert Tutor Synthesis</h2>
+              <p className="text-xs text-amber-200 mt-0.5">Holistic narrative analysis compiled explicitly at the completion boundaries of your test pipeline.</p>
+            </div>
+            <span className="text-[9px] font-mono font-bold bg-white/10 px-3 py-1 rounded-full uppercase tracking-widest text-slate-200">
+              Meta State Ledger
+            </span>
+          </div>
+          <div className="p-6 md:p-8 bg-[#FAF9F5]/40 max-h-[400px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap selection:bg-amber-200">
+            {tutorNarrative}
+          </div>
+        </div>
         
-        {/* ROW 1: 3-COLUMN RETAINED VOLUME HEADERS */}
+        {/* ROW 1: THE CORE TRACKING COUNTERS BAR */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><BookOpen className="w-3 h-3 text-slate-400" /> Total Evaluated</span>
-            <p className="text-4xl font-black text-[#1B3A5C] mt-2">{data.raw.attempted} <span className="text-xs font-normal text-slate-400 font-sans">Olympiad Shells</span></p>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" /> Completed Diagnostics</span>
+            <p className="text-4xl font-black text-[#1B3A5C] mt-2">{data.raw.completedTests} <span className="text-xs font-normal text-slate-400 font-sans">Used Credits</span></p>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm border-l-4 border-l-amber-500">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-amber-600" /> Flawless Logic Paths</span>
-            <p className="text-4xl font-black text-amber-600 mt-2">{data.raw.correct} <span className="text-xs font-normal text-slate-400 font-sans">Clear Approvals</span></p>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><BookOpen className="w-3 h-3 text-amber-600" /> Answered Questions So Far</span>
+            <p className="text-4xl font-black text-amber-600 mt-2">{data.raw.attempted} <span className="text-xs font-normal text-slate-400 font-sans">Spoken Logs</span></p>
           </div>
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><XCircle className="w-3 h-3 text-slate-500" /> Speech Abandons (Passes)</span>
-            <p className="text-4xl font-black text-slate-700 mt-2">{data.raw.passed} <span className="text-xs font-normal text-slate-400 font-sans">Verbal Give-ups</span></p>
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><XCircle className="w-3 h-3 text-slate-400" /> Correct Execution Rate</span>
+            <p className="text-4xl font-black text-slate-700 mt-2">
+              {data.raw.attempted > 0 ? Math.round((data.raw.correct / data.raw.attempted) * 100) : 0}% <span className="text-xs font-normal text-slate-400 font-sans">Accuracy Baseline</span>
+            </p>
           </div>
         </div>
 
-        {/* ROW 2: PRIMARY INTERACTIVE GRID (SCATTER MATRIX & FOCUS QUADRANT) */}
+        {/* ROW 2: PRIMARY HIGH-FIDELITY SCATTER MATRICES */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* CHART 1: APPLICATION VS LINGUISTIC COMPLEXITY MATRIX */}
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm lg:col-span-2 flex flex-col justify-between">
             <div className="mb-4">
               <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">A vs L Complexity Grid</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Isolates exact math ceiling vs text riddle processing. Bubble volume indicates exposure level.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Isolates math structure constraints vs text riddle processing layers. Area maps density parameters.</p>
             </div>
             <div className="h-72 w-full bg-white rounded-xl border border-[#E5E3DD]/60 pt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart margin={{ top: 10, right: 30, bottom: 10, left: -25 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="x" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Linguistic Weight (1-4)', position: 'insideBottom', offset: -5, fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis dataKey="y" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Math Complexity (1-4)', angle: -90, position: 'insideLeft', offset: 10, fill: '#94a3b8', fontSize: 10 }} />
+                  <XAxis dataKey="x" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Linguistic Trick Weight (1-4)', position: 'insideBottom', offset: -5, fill: '#94a3b8', fontSize: 10 }} />
+                  <YAxis dataKey="y" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Math Execution Layering (1-4)', angle: -90, position: 'insideLeft', offset: 10, fill: '#94a3b8', fontSize: 10 }} />
                   <ZAxis dataKey="z" type="number" range={[60, 400]} />
                   <Tooltip 
                     cursor={{ strokeDasharray: '3 3' }}
@@ -320,7 +388,7 @@ export default function PremiumDiagnosticDashboard() {
                         const pt = payload[0].payload;
                         return (
                           <div className="bg-[#1B3A5C] p-3 rounded-lg text-white text-xs shadow-xl font-sans">
-                            <p className="font-bold text-amber-400">Coordinate: A{pt.y} — L{pt.x}</p>
+                            <p className="font-bold text-amber-400">Coordinate Focus: A{pt.y} — L{pt.x}</p>
                             <p>Correct Approach: {pt.successRate}%</p>
                           </div>
                         );
@@ -333,7 +401,7 @@ export default function PremiumDiagnosticDashboard() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-950 font-medium border border-amber-200">
-              <strong>Question 4 & 5 Verdict:</strong> Your child clears a maximum baseline of <span className="font-bold underline">A{data.verdict.maxACleared}L{data.verdict.maxLCleared}</span>. Targeting elite selective tracks without bridging the current frontier block to <span className="font-bold text-amber-700">A{Math.min(data.verdict.maxACleared + 1, 4)}L{Math.min(data.verdict.maxLCleared + 1, 4)}</span> is a competitive delusion.
+              <strong>Diagnostic Core Altitude:</strong> Your child records safe clearance up to <span className="font-bold underline">A{data.verdict.maxACleared}L{data.verdict.maxLCleared}</span> blocks. Targeting elite hyper-selective tracks without filling constraints at level <span className="font-bold text-amber-700">A{Math.min(data.verdict.maxACleared + 1, 4)}L{Math.min(data.verdict.maxLCleared + 1, 4)}</span> is an educational delusion.
             </div>
           </div>
 
@@ -341,11 +409,11 @@ export default function PremiumDiagnosticDashboard() {
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
             <div className="mb-4">
               <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">The Focus Quadrant</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Plots execution speed directly against raw logic accuracy to diagnose behavioral habits.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Plots live evaluation velocities straight against accuracy bounds to highlight child response habits.</p>
             </div>
             <div className="h-72 w-full relative bg-[#FAF9F5] rounded-xl border border-[#E5E3DD]/60 overflow-hidden">
               <div className="absolute top-2 left-2 text-[8px] font-black text-slate-400 uppercase">Perfectionist Stalls</div>
-              <div className="absolute top-2 right-2 text-[8px] font-black text-amber-600 uppercase">Exam Ready / Streamlined</div>
+              <div className="absolute top-2 right-2 text-[8px] font-black text-amber-600 uppercase">Exam Ready / Efficient</div>
               <div className="absolute bottom-2 left-2 text-[8px] font-black text-red-500 uppercase">Concept Void</div>
               <div className="absolute bottom-2 right-2 text-[8px] font-black text-slate-500 uppercase">Careless Rusher</div>
 
@@ -360,7 +428,7 @@ export default function PremiumDiagnosticDashboard() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 text-[11px] text-slate-500 leading-tight">
-              <strong>Question 1 & 10 Indicator:</strong> Verbal processing traces confirm child {data.verdict.givesUpEasily ? 'gives up rapidly under structural load.' : 'maintains high stubborn logic alignment.'} Text comprehension remains <span className="font-bold text-[#1B3A5C]">{data.verdict.canReadAndUnderstand}</span>.
+              <strong>Stamina & Comprehension Marker:</strong> Audio stream records confirm child {data.verdict.givesUpEasily ? 'surrenders rapidly when logic shortcuts are invisible.' : 'exhibits controlled operational persistence under structural friction.'} Language decoding capacity tracks as <span className="font-bold text-[#1B3A5C]">{data.verdict.canReadAndUnderstand}</span>.
             </div>
           </div>
 
@@ -372,8 +440,8 @@ export default function PremiumDiagnosticDashboard() {
           {/* CHART 3: VERBAL TIMELINE & FRUSTRATION AREA */}
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Verbal Stream Timeline</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Question sequence vs speech path economy (Bars) and conversational static spikes (Area).</p>
+              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Spoken Stream Density Timeline</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Chronological question vector mapping speech clarity factors (Bars) against friction spikes (Area).</p>
             </div>
             <div className="h-48 w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -381,21 +449,21 @@ export default function PremiumDiagnosticDashboard() {
                   <XAxis dataKey="question" axisLine={false} tickLine={false} tick={{ fontSize: 9 }} />
                   <YAxis axisLine={false} tickLine={false} tick={false} />
                   <Tooltip />
-                  <Bar dataKey="speechVolume" fill="#e2e8f0" radius={[2, 2, 0, 0]} name="Speech Clarity" />
-                  <Area type="monotone" dataKey="frustration" fill="#fef3c7" stroke="#d97706" strokeWidth={1.5} name="Friction/Sigh Tokens" />
+                  <Bar dataKey="speechVolume" fill="#e2e8f0" radius={[2, 2, 0, 0]} name="Speech Density Score" />
+                  <Area type="monotone" dataKey="frustration" fill="#fef3c7" stroke="#d97706" strokeWidth={1.5} name="Detected Frustration Spikes" />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-4 text-xs bg-slate-50 p-3 rounded-xl border border-[#E5E3DD]">
-              <strong>Question 2 & 14 Status:</strong> Correct answer path economics reveal <span className="font-bold underline">{data.verdict.speechRatio}% Direct Vector Efficiency</span>. Parental Coaching friction index reads at <span className="font-bold text-amber-700">{data.verdict.frictionIndexScore}% Static</span>.
+              <strong>Correct Path Vectoring:</strong> Spoken layout tracks show <span className="font-bold underline">{data.verdict.speechRatio}% logic economy tracking</span>. Parent conversational static index: <span className="font-bold text-amber-700">{data.verdict.frictionIndexScore}% friction volume</span>.
             </div>
           </div>
 
           {/* CHART 4: POINT LEAK DISTRIBUTION BAR CHART */}
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Question 3: Direct Leak Breakdown</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Every incorrect approach classified by its precise underlying failure mode.</p>
+              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Structural Leak Filter</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Live error distribution categorizing every single failed logical approach by its absolute failure mode token.</p>
             </div>
             <div className="h-48 w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -408,15 +476,15 @@ export default function PremiumDiagnosticDashboard() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 text-xs text-slate-600 leading-tight">
-              <strong>Question 11 Triage Rule:</strong> Fault recurrence engines isolated <span className="font-bold text-[#1B3A5C]">{data.verdict.structuralCount} core structural logic bugs</span> versus <span className="font-bold text-slate-400">{data.verdict.flukeCount} execution flukes</span>.
+              <strong>Fault Re-occurrence Matrix:</strong> The system has isolated <span className="font-bold text-[#1B3A5C]">{data.verdict.structuralCount} repeating behavior bugs</span> vs <span className="font-bold text-slate-400">{data.verdict.flukeCount} isolated calculation slips</span>.
             </div>
           </div>
 
           {/* CHART 5: TIME-CRUNCH CRASH TIMELINE */}
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Time-Crunch Breakpoint</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Plots logic accuracy degradation (Line) as velocity requirements push below traditional thresholds.</p>
+              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Time-Crunch Crash Ceiling</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Maps exact logic stability boundaries as pacing parameters shrink below standard comfort margins.</p>
             </div>
             <div className="h-48 w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -430,7 +498,7 @@ export default function PremiumDiagnosticDashboard() {
               </ResponsiveContainer>
             </div>
             <div className="mt-4 text-xs text-amber-950 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
-              <strong>Question 6, 12 & 13 Framework:</strong> Logic crash ceiling initiates at <span className="font-bold underline">-{data.verdict.crunchBreakpoint} seconds per problem</span>. 12-Week Triage Target: <span className="font-bold text-amber-700">{data.verdict.triageROICard}</span>.
+              <strong>Velocity Breakdown:</strong> Logic degradation initializes when forced beneath <span className="font-bold underline">{data.verdict.crunchBreakpoint} seconds/question</span>. 12-Week Triage: <span className="font-bold text-amber-700">{data.verdict.triageROICard}</span>.
             </div>
           </div>
 
@@ -443,7 +511,7 @@ export default function PremiumDiagnosticDashboard() {
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col items-center justify-between">
             <div className="w-full">
               <h3 className="text-sm font-bold font-serif uppercase tracking-wider text-[#1B3A5C]">Excellence Altitude Profile</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Algorithmic alignment across modern selective test filters.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Exposes localized logic capabilities across different selective exam framing setups.</p>
             </div>
             <div className="h-48 w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
@@ -460,26 +528,26 @@ export default function PremiumDiagnosticDashboard() {
             </div>
           </div>
 
-          {/* CAPITAL ALLOCATION & EXTERNAL ADVICE BLOCKS (QUESTIONS 7, 8 & 9) */}
+          {/* CAPITAL ALLOCATION & EXTERNAL ADVICE BLOCKS */}
           <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm md:col-span-2 flex flex-col justify-between">
             <div className="bg-[#1B3A5C] text-white p-4 rounded-xl flex items-center justify-between gap-4">
               <div>
-                <h4 className="text-xs font-bold uppercase text-amber-400 tracking-wider flex items-center gap-1"><Wallet className="w-3.5 h-3.5" /> 9. Capital Protection Directive</h4>
+                <h4 className="text-xs font-bold uppercase text-amber-400 tracking-wider flex items-center gap-1"><Wallet className="w-3.5 h-3.5" /> Capital Safety Switch Directive</h4>
                 <p className="text-[11px] text-slate-200 mt-1">
                   {data.verdict.isLostCause 
-                    ? 'Bypass 11+ selective streams entirely. Save thousands in introductory tutoring costs; raw capabilities map away from development reality.' 
-                    : 'Core logic nodes active. Capacity matches selective filter bars. Target specific wording traps rather than broader equation sets.'}
+                    ? 'Bypass 11+ selective streams entirely. Save thousands in private tutoring costs; raw capabilities map away from short-horizon development timelines.' 
+                    : 'Core logic nodes active. Capacity tracks tightly with elite selective filter requirements. Target specific text constraints rather than broader equation drill volume.'}
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
               <div className="p-4 rounded-xl border border-[#E5E3DD] bg-[#FAFAF6] space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">7. Alternative Digital Platforms?</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Can Alternative Digital Platforms Help?</span>
                 <p className="text-xs font-medium text-slate-700 leading-tight">{data.verdict.canOtherPlatformsHelp}</p>
               </div>
               <div className="p-4 rounded-xl border border-[#E5E3DD] bg-[#FAFAF6] space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">8. Human 1-on-1 Tutor Leverage?</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Human 1-on-1 Tutor Leverage?</span>
                 <p className="text-xs font-medium text-slate-700 leading-tight">{data.verdict.canTutorHelp}</p>
               </div>
             </div>
