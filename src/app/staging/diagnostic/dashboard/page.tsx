@@ -7,9 +7,9 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts';
 import { 
-  AlertTriangle, Brain, Clock, HelpCircle, ShieldAlert, Target, ThumbsUp, Wallet, Zap 
+  AlertTriangle, Brain, Clock, ShieldAlert, Target, Wallet, Zap, Activity, BookOpen 
 } from 'lucide-react';
-import AuthBadge from '@/components/AuthBadge';
+import AuthBadge from '../../../../components/AuthBadge';
 
 interface DiagnosticTelemetry {
   raw: {
@@ -55,7 +55,6 @@ export default function RealTalkDashboard() {
   async function compileDiagnosticData(uid: string) {
     setLoading(true);
     
-    // Fetch user attempts from the 20-question Olympiad shell engine
     const { data: attempts, error } = await supabase
       .from('user_attempts')
       .select(`is_correct, solve_time, analysis, variants ( al_classification )`)
@@ -66,9 +65,11 @@ export default function RealTalkDashboard() {
       return;
     }
 
-    // --- Hardcoded defaults for demo mapping / processing fallback ---
-    let total = attempts.length;
-    let right = attempts.filter(a => a.is_correct).length;
+    // Cast to an untyped wrapper during parsing loops to prevent unexpected relational type errors
+    const rawAttempts = attempts as any[];
+
+    let total = rawAttempts.length;
+    let right = rawAttempts.filter(a => a.is_correct).length;
     let passedCount = 0;
 
     let errMap = {
@@ -78,24 +79,26 @@ export default function RealTalkDashboard() {
 
     let matrixDataMap = new Map<string, { correct: number; total: number }>();
 
-    attempts.forEach(a => {
-      const al = a.variants?.al_classification || 'A1L1';
+    rawAttempts.forEach(a => {
+      // Direct defensive check to bypass standard row relation array formatting exceptions
+      const variantsData = a.variants;
+      const al = (Array.isArray(variantsData) 
+        ? variantsData[0]?.al_classification 
+        : variantsData?.al_classification) || 'A1L1';
+        
       const analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
       
-      // Map matrix exposure
       if (!matrixDataMap.has(al)) matrixDataMap.set(al, { correct: 0, total: 0 });
       const m = matrixDataMap.get(al)!;
       m.total++;
       if (a.is_correct) m.correct++;
 
-      // Check if item was outright passed/skipped verbally
       if (analysis?.verbal_action === 'passed' || analysis?.gave_up) {
         passedCount++;
       }
 
-      // Process the 9 specific error categories passed back from our speech LLM parsing
       if (!a.is_correct && analysis?.error_reason) {
-        const reason = analysis.error_reason; // Expected clean token matching our mapping
+        const reason = analysis.error_reason;
         if (reason === 'concept_unknown') errMap.conceptUnknown++;
         else if (reason === 'app_too_hard') errMap.appTooHard++;
         else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
@@ -108,16 +111,14 @@ export default function RealTalkDashboard() {
       }
     });
 
-    // Format A v L matrix points cleanly
     const matrixPoints = Array.from(matrixDataMap.entries()).map(([al, m]) => {
-      const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); // Application Level (1-4)
-      const x = parseInt(al.match(/L(\d)/)?.[1] || '1'); // Linguistic Level (1-4)
+      const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
+      const x = parseInt(al.match(/L(\d)/)?.[1] || '1'); 
       return {
         label: al, x, y, z: m.total * 30, successRate: Math.round((m.correct / m.total) * 100)
       };
     });
 
-    // Generate real-talk answers based on math ceilings
     const maxA_Cleared = Math.max(...matrixPoints.filter(p => p.successRate >= 60).map(p => p.y), 1);
     const maxL_Cleared = Math.max(...matrixPoints.filter(p => p.successRate >= 60).map(p => p.x), 1);
 
@@ -199,7 +200,7 @@ export default function RealTalkDashboard() {
             <p className="text-3xl font-black text-amber-600">{data.raw.correct} <span className="text-xs font-normal text-slate-400">Right Answers</span></p>
           </div>
           <div className="bg-white p-6 rounded-xl border border-[#E5E3DD] shadow-sm">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mb-1">Passed or Abandonded Mid-Speech</p>
+            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest mb-1">Passed or Abandoned Mid-Speech</p>
             <p className="text-3xl font-black text-slate-700">{data.raw.passed} <span className="text-xs font-normal text-slate-400">Gave Up Early</span></p>
           </div>
         </div>
@@ -214,7 +215,6 @@ export default function RealTalkDashboard() {
               <p className="text-xs text-slate-500 mt-1">Maps raw speed against exact concept execution accuracy to highlight deep-set study habits.</p>
             </div>
             <div className="h-64 w-full relative bg-[#FAF9F5] rounded-xl border border-[#E5E3DD]/60 overflow-hidden">
-              {/* Background Quadrant Grid Text Markers */}
               <div className="absolute top-4 left-4 text-[10px] font-bold text-slate-400 uppercase">Perfectionist / Stalls</div>
               <div className="absolute top-4 right-4 text-[10px] font-bold text-amber-600 uppercase">Exam Ready / Efficient</div>
               <div className="absolute bottom-4 left-4 text-[10px] font-bold text-red-500 uppercase">Foundation Void</div>
