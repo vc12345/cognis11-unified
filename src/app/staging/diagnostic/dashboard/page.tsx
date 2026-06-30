@@ -59,6 +59,7 @@ interface DiagnosticTelemetry {
 
 export default function PremiumDiagnosticDashboard() {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isResumable, setIsResumable] = useState(false);
   const [tutorNarrative, setTutorNarrative] = useState<string>('');
@@ -68,6 +69,11 @@ export default function PremiumDiagnosticDashboard() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  // Set mounted state to block hydration glitches
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   async function compileDashboardData(uid: string) {
     setLoading(true);
@@ -99,7 +105,7 @@ export default function PremiumDiagnosticDashboard() {
 
     setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
 
-    // 3. Gather Live Spoken Core Telemetry Items with direct skeleton relationship joins
+    // 3. Gather Live Spoken Core Telemetry Items with direct relationship mapping
     const { data: attempts, error } = await supabase
       .from('user_attempts')
       .select(`
@@ -141,7 +147,6 @@ export default function PremiumDiagnosticDashboard() {
     let timeCrunchDerailments = 0;
     let verbalFrictionHits = 0;
 
-    // Temporal velocity window trackers for continuous calibration curves
     let curveBuckets = {
       comfortable: { total: 0, correct: 0 },
       paced: { total: 0, correct: 0 },
@@ -156,14 +161,19 @@ export default function PremiumDiagnosticDashboard() {
       }
     }
 
-    // Explicitly define array item typing signatures to address strict compilation checking
     const focusPoints: { name: string; speed: number; accuracy: number; label: string }[] = [];
 
     const fatigueStream = rawAttempts.map((a, idx) => {
       const skeletonObj = Array.isArray(a.skeletons) ? a.skeletons[0] : a.skeletons;
       const al = skeletonObj?.al_classification || 'A1L1';
 
-      const analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
+      // Defensive implementation protecting execution boundaries from string parsing drops
+      let analysis: any = {};
+      try {
+        analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
+      } catch (e) {
+        console.error("Warning: Telemetry block parsing fallback triggered for row item index:", idx);
+      }
       
       const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
       const x = parseInt(al.match(/L(\d)/)?.[1] || '1');
@@ -184,7 +194,6 @@ export default function PremiumDiagnosticDashboard() {
       if (isHabitual) structuralCounter++;
       else if (!a.is_correct) flukeCounter++;
 
-      // Velocity bucket sort logic
       if (a.solve_time > 60) {
         curveBuckets.comfortable.total++; if (a.is_correct) curveBuckets.comfortable.correct++;
       } else if (a.solve_time >= 45) {
@@ -217,7 +226,6 @@ export default function PremiumDiagnosticDashboard() {
 
       const densityScore = analysis?.speech_telemetry?.speech_density_score || Math.max(100 - (a.solve_time / 2), 25);
 
-      // Distribute detailed points onto the Focus Quadrant with slight jitter parameters to map distinct question clouds
       const scatterSpeed = Math.max(8, Math.min(92, Math.round(100 - (a.solve_time / 1.5))));
       const scatterAccuracy = a.is_correct ? (82 + (idx % 6)) : (12 + (idx % 6));
       focusPoints.push({
@@ -264,9 +272,9 @@ export default function PremiumDiagnosticDashboard() {
 
     const crunchCurve = [
       { velocityWindow: 'Comfortable (>60s)', accuracy: curveBuckets.comfortable.total > 0 ? Math.round((curveBuckets.comfortable.correct / curveBuckets.comfortable.total) * 100) : 65, speedValue: 70 },
-      { velocityWindow: 'Paced (45s-60s)', accuracy: curveBuckets.paced.total > 0 ? Math.round((curveBuckets.paced.correct / curveBuckets.paced.total) * 100) : 50 },
-      { velocityWindow: 'High-Speed (30s-45s)', accuracy: curveBuckets.highSpeed.total > 0 ? Math.round((curveBuckets.highSpeed.correct / curveBuckets.highSpeed.total) * 100) : 35 },
-      { velocityWindow: 'Panic Boundary (<30s)', accuracy: curveBuckets.panic.total > 0 ? Math.round((curveBuckets.panic.correct / curveBuckets.panic.total) * 100) : 15 }
+      { velocityWindow: 'Paced (45s-60s)', accuracy: curveBuckets.paced.total > 0 ? Math.round((curveBuckets.paced.correct / curveBuckets.paced.total) * 100) : 50, speedValue: 50 },
+      { velocityWindow: 'High-Speed (30s-45s)', accuracy: curveBuckets.highSpeed.total > 0 ? Math.round((curveBuckets.highSpeed.correct / curveBuckets.highSpeed.total) * 100) : 35, speedValue: 35 },
+      { velocityWindow: 'Panic Boundary (<30s)', accuracy: curveBuckets.panic.total > 0 ? Math.round((curveBuckets.panic.correct / curveBuckets.panic.total) * 100) : 15, speedValue: 20 }
     ];
 
     let triageVerdict = 'Target Basic Formula Gaps First';
@@ -313,10 +321,10 @@ export default function PremiumDiagnosticDashboard() {
       if (!user) { router.push('/login'); return; }
       await compileDashboardData(user.id);
     }
-    verify();
-  }, []);
+    if (isMounted) verify();
+  }, [isMounted]);
 
-  if (loading) {
+  if (loading || !isMounted) {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
         Fetching cross-diagnostic matrices... Mapping live operational telemetry...
