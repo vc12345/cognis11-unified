@@ -156,8 +156,8 @@ export default function PremiumDiagnosticDashboard() {
       }
     }
 
-    // Process item distributions completely driven by live metrics
-    const focusPoints = [];
+    // Explicitly define array item typing signatures to address strict compilation checking
+    const focusPoints: { name: string; speed: number; accuracy: number; label: string }[] = [];
 
     const fatigueStream = rawAttempts.map((a, idx) => {
       const skeletonObj = Array.isArray(a.skeletons) ? a.skeletons[0] : a.skeletons;
@@ -207,7 +207,7 @@ export default function PremiumDiagnosticDashboard() {
         if (reason === 'concept_unknown') errMap.conceptUnknown++;
         else if (reason === 'app_too_hard') errMap.appTooHard++;
         else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
-        else if (reason === 'misrepresented_simpler') errMap.misinterpretedSimpler++;
+        else if (reason === 'misinterpreted_simpler') errMap.misinterpretedSimpler++;
         else if (reason === 'unjustified_assumption') errMap.unjustifiedAssumption++;
         else if (reason === 'calculation_error') errMap.calculationError++;
         else if (reason === 'intentional_trap') errMap.intentionalTrap++;
@@ -228,7 +228,7 @@ export default function PremiumDiagnosticDashboard() {
       });
 
       return {
-        question: `#${idx + 1}`, // Unique continuous identification sequence string unblocks category collapse
+        question: `#${idx + 1}`,
         speechVolume: Math.round(densityScore),
         accuracy: a.is_correct ? 100 : 0,
         frustration: (analysis?.speech_telemetry?.detected_frustration_tokens || (a.solve_time > 90 && !a.is_correct)) ? 85 : 10
@@ -241,7 +241,7 @@ export default function PremiumDiagnosticDashboard() {
       return {
         label: al, x, y, z: Math.max(m.total * 35, m.total > 0 ? 40 : 0), successRate: m.total > 0 ? Math.round((m.correct / m.total) * 100) : 0
       };
-    }).filter(p => p.z > 0); // Only display actual encountered coordinate profiles
+    }).filter(p => p.z > 0);
 
     const errorDistribution = [
       { name: 'Unknown Rules', count: errMap.conceptUnknown },
