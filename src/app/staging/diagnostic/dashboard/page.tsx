@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { 
+  ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
+} from 'recharts';
+import { 
   AlertTriangle, Brain, Clock, ShieldAlert, Target, Wallet, Zap, Activity, BookOpen, 
-  HelpCircle, CheckCircle2, XCircle, ChevronRight, UserX, MessageSquare, Gauge 
+  CheckCircle2, XCircle, MessageSquare, UserX, Smile, HelpCircle
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
@@ -31,12 +34,17 @@ interface DiagnosticTelemetry {
     maxLCleared: number;
     givesUpEasily: boolean;
     panics: boolean;
-    speechRatio: number; // optimal logic density ratio
-    pacingVariance: number; // 0 = stable, 100 = volatile panic
+    speechRatio: number;
+    pacingVariance: number;
+    structuralCount: number; // Q11
+    flukeCount: number;       // Q11
+    triageROICard: string;    // Q12
+    crunchBreakpoint: number; // Q13
+    frictionIndexScore: number;// Q14
   };
 }
 
-export default function ParentVerdictDashboard() {
+export default function CompleteVerdictDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<DiagnosticTelemetry | null>(null);
@@ -64,7 +72,6 @@ export default function ParentVerdictDashboard() {
     let total = rawAttempts.length;
     let right = rawAttempts.filter(a => a.is_correct).length;
     let passedCount = 0;
-    let highComplexityPauses = 0;
 
     let errMap = {
       conceptUnknown: 0, appTooHard: 0, wordingComprehension: 0, misinterpretedSimpler: 0,
@@ -73,6 +80,10 @@ export default function ParentVerdictDashboard() {
 
     let maxA = 1;
     let maxL = 1;
+    let structuralCounter = 0;
+    let flukeCounter = 0;
+    let timeCrunchDerailments = 0;
+    let verbalFrictionHits = 0;
 
     rawAttempts.forEach(a => {
       const variantsData = a.variants;
@@ -88,18 +99,29 @@ export default function ParentVerdictDashboard() {
       if (a.is_correct) {
         if (y > maxA) maxA = y;
         if (x > maxL) maxL = x;
+      } else {
+        // Evaluate exploration parameters mapped from speech engine JSON
+        if (analysis?.analysis?.is_structural_flaw || analysis?.is_structural_flaw) {
+          structuralCounter++;
+        } else {
+          flukeCounter++;
+        }
       }
 
-      if (analysis?.verbal_action === 'passed' || analysis?.gave_up || a.solve_time > 120) {
+      if (analysis?.analysis?.time_pressure_derailment || analysis?.time_pressure_derailment || (a.solve_time < 30 && !a.is_correct)) {
+        timeCrunchDerailments++;
+      }
+
+      if (analysis?.analysis?.parental_friction_detected || analysis?.parental_friction_detected) {
+        verbalFrictionHits++;
+      }
+
+      if (analysis?.verbal_action === 'passed' || analysis?.gave_up) {
         passedCount++;
       }
 
-      if (y >= 3 && a.solve_time > 45) {
-        highComplexityPauses++;
-      }
-
-      if (!a.is_correct && analysis?.error_reason) {
-        const reason = analysis.error_reason;
+      if (!a.is_correct) {
+        const reason = a.error_reason || analysis?.error_reason;
         if (reason === 'concept_unknown') errMap.conceptUnknown++;
         else if (reason === 'app_too_hard') errMap.appTooHard++;
         else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
@@ -112,16 +134,29 @@ export default function ParentVerdictDashboard() {
       }
     });
 
+    // Q12 Triage Categorization Logic
+    let triageVerdict = 'Target Formula Gaps';
+    if (errMap.wordingComprehension + errMap.misinterpretedSimpler > errMap.calculationError) {
+      triageVerdict = 'Target Text Decoding Filters';
+    } else if (errMap.calculationError > 3) {
+      triageVerdict = 'Target Computational Accuracy';
+    }
+
     setData({
       raw: { attempted: total, correct: right, passed: passedCount },
       errors: errMap,
       verdict: {
         maxACleared: maxA,
         maxLCleared: maxL,
-        givesUpEasily: passedCount > 3,
+        givesUpEasily: passedCount > 2,
         panics: errMap.misinterpretedSimpler + errMap.unjustifiedAssumption > 3,
-        speechRatio: Math.max(85 - (errMap.unjustifiedAssumption * 8), 40),
-        pacingVariance: Math.min((highComplexityPauses * 20) + (errMap.misinterpretedSimpler * 15), 100)
+        speechRatio: Math.max(90 - (errMap.unjustifiedAssumption * 10), 45),
+        pacingVariance: Math.min((errMap.misinterpretedSimpler * 20) + 20, 100),
+        structuralCount: structuralCounter || errMap.blindToSolution + errMap.unjustifiedAssumption,
+        flukeCount: flukeCounter || errMap.calculationError,
+        triageROICard: triageVerdict,
+        crunchBreakpoint: Math.max(55 - (timeCrunchDerailments * 12), 25),
+        frictionIndexScore: Math.min(verbalFrictionHits * 25, 100)
       }
     });
     setLoading(false);
@@ -139,7 +174,7 @@ export default function ParentVerdictDashboard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
-        Building custom logic components... Generating raw parental truth...
+        Compiling unvarnished diagnostic timeline...
       </div>
     );
   }
@@ -148,338 +183,205 @@ export default function ParentVerdictDashboard() {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center p-6">
         <ShieldAlert className="w-8 h-8 text-amber-600 mb-2" />
-        <p className="text-sm font-serif font-bold text-[#1B3A5C]">No diagnostic records generated yet.</p>
-        <button onClick={() => router.push('/profile')} className="text-xs text-slate-400 mt-2 underline">Return to Hub</button>
+        <p className="text-sm font-serif font-bold text-[#1B3A5C]">No data metrics compiled.</p>
+        <button onClick={() => router.push('/profile')} className="text-xs text-slate-400 mt-2 underline">Return</button>
       </div>
     );
   }
 
-  // Derived helper scores
   const totalErrors = Object.values(data.errors).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans p-4 md:p-8 antialiased selection:bg-amber-100 pb-32">
+    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans p-4 md:p-8 antialiased pb-32 selection:bg-amber-100">
       
       {/* HEADER */}
       <header className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E5E3DD] pb-6 mb-10 gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-serif tracking-tight">The 11+ Reality Report</h1>
-          <p className="text-xs text-slate-500 mt-1">An unvarnished visual diagnostic mapping exactly how your child’s brain responds to elite competition rules.</p>
+          <h1 className="text-2xl font-bold font-serif tracking-tight">The 11+ High-Stakes Matrix</h1>
+          <p className="text-xs text-slate-500 mt-1">14 direct, unvarnished visual profiles built to answer exactly where capital and hours should be spent.</p>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
           <AuthBadge />
-          <button onClick={() => router.push('/profile')} className="bg-[#1B3A5C] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition shadow-sm">
-            Exit to Hub
+          <button onClick={() => router.push('/profile')} className="bg-[#1B3A5C] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition">
+            Exit
           </button>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto space-y-8">
 
-        {/* ------------------------------------------------------------- */}
-        {/* QUESTIONS 1 & 2: STAMINA AND CORRECT PATH ECONOMY            */}
-        {/* ------------------------------------------------------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 14 QUESTIONS GRID */}
+        <div className="bg-white rounded-2xl border border-[#E5E3DD] shadow-sm overflow-hidden divide-y divide-[#E5E3DD]">
           
           {/* Q1: DOES HE GIVE UP EASILY? */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">1. Does he give up easily?</h3>
-              <p className="text-sm font-bold font-serif mb-4">
-                {data.verdict.givesUpEasily ? 'Yes. He hits a complexity ceiling and cuts the speech file short.' : 'No. He maintains stubborn verbal stamina even when entirely lost.'}
-              </p>
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">1. Does he give up easily?</span>
+            <div className="md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+              <p className="text-sm font-bold">{data.verdict.givesUpEasily ? 'Yes. Stalls out when hit by hidden text constraints.' : 'No. Persistent verbal processing even under blind conditions.'}</p>
+              <div className="w-32 bg-slate-100 rounded-full h-2 overflow-hidden"><div className="bg-amber-500 h-full" style={{ width: data.verdict.givesUpEasily ? '85%' : '20%' }} /></div>
             </div>
-            {/* VISUALIZATION: The Verbal Stamina Wave */}
-            <div className="bg-[#FAFAF6] p-4 rounded-xl border border-[#E5E3DD]/60">
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2">Verbal Processing Flow (Stamina Indicator)</div>
-              <div className="flex items-end gap-1 h-12 pt-2">
-                {[45, 60, 80, 75, data.verdict.givesUpEasily ? 20 : 70, data.verdict.givesUpEasily ? 10 : 85, 90, 50, 15, 5].map((h, i) => (
-                  <div 
-                    key={i} 
-                    className={`flex-1 rounded-t-sm transition-all ${
-                      i >= 7 && data.verdict.givesUpEasily ? 'bg-red-300' : 'bg-amber-500'
-                    }`}
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
-              </div>
-              <div className="flex justify-between text-[9px] text-slate-400 font-bold uppercase mt-2">
-                <span>Start (Simple Concepts)</span>
-                <span className={data.verdict.givesUpEasily ? 'text-red-600' : 'text-slate-400'}>
-                  {data.verdict.givesUpEasily ? 'Logic Snapped' : 'Endured Pressure'}
-                </span>
+          </div>
+
+          {/* Q2: CORRECT PATH DYNAMICS */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Correct Answer Dynamics</span>
+            <div className="md:col-span-2">
+              <p className="text-sm font-bold mb-2">Directness vs Speed Allocation</p>
+              <div className="relative h-4 w-full bg-slate-100 rounded-md overflow-hidden">
+                <div className="bg-[#1B3A5C] h-full transition-all" style={{ width: `${data.verdict.speechRatio}%` }} />
+                <span className="absolute right-2 top-0.5 text-[9px] font-mono font-bold text-slate-600">{data.verdict.speechRatio}% Direct Route</span>
               </div>
             </div>
           </div>
 
-          {/* Q2: DIRECTNESS VS SPEED */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">2. When he answers correctly, is it clean?</h3>
-              <p className="text-sm font-bold font-serif mb-4">
-                {data.verdict.speechRatio > 70 ? 'High Directness. He isolates clues instantly without circular chatter.' : 'High Friction. He wanders into verbal loops before stumbling onto the rule.'}
-              </p>
+          {/* Q3: THE LEAK FILTER GRID */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-[#FAFAF6]/30">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-800">3. Incorrect Leaks Matrix</span>
+            <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Concept Unknown:</span> <strong className="float-right">{data.errors.conceptUnknown}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>App Depth Too Hard:</span> <strong className="float-right">{data.errors.appTooHard}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Language Comprehension:</span> <strong className="float-right">{data.errors.wordingComprehension}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Pattern Misinterpretation:</span> <strong className="float-right">{data.errors.misinterpretedSimpler}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Unjustified Assumption:</span> <strong className="float-right">{data.errors.unjustifiedAssumption}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Arithmetic Slip:</span> <strong className="float-right">{data.errors.calculationError}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Bait Trap Sprung:</span> <strong className="float-right">{data.errors.intentionalTrap}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Sub-Answer Boundary Stall:</span> <strong className="float-right">{data.errors.subAnswerStall}</strong></div>
+              <div className="p-2 bg-white border border-[#E5E3DD] rounded"><span>Shortcut Blindness:</span> <strong className="float-right">{data.errors.blindToSolution}</strong></div>
             </div>
-            {/* VISUALIZATION: Logic Streamliner Path */}
-            <div className="bg-[#FAFAF6] p-4 rounded-xl border border-[#E5E3DD]/60 space-y-3">
-              <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Thinking Vector Economy</div>
-              <div className="relative h-6 w-full bg-slate-200 rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-[#1B3A5C] transition-all"
-                  style={{ width: `${data.verdict.speechRatio}%` }}
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-bold text-slate-600">
-                  {data.verdict.speechRatio}% Direct
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 leading-tight">
-                {data.verdict.speechRatio > 70 
-                  ? 'Child moves in a straight vector from question conditions to the conceptual shortcut.' 
-                  : 'Wastes critical exam seconds backtracking through already discarded equations.'}
+          </div>
+
+          {/* Q4: HIGH-STAKES REALITY CHECK */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">4. School Target Reality</span>
+            <div className="md:col-span-2">
+              <p className="text-sm font-bold p-3 rounded-xl bg-amber-50 text-amber-950 border border-amber-200">
+                Current structural threshold supports: <span className="underline font-black">{data.verdict.maxACleared >= 3 && data.verdict.maxLCleared >= 3 ? 'Elite Super-Selective Grammar Ready' : data.verdict.maxACleared >= 2 ? 'Standard Local Selective / Run-of-Mill' : 'Local Secondary Track'}</span>.
               </p>
             </div>
           </div>
 
-        </div>
-
-        {/* ------------------------------------------------------------- */}
-        {/* QUESTION 3: THE 9 EXACT MARK LEAKS                           */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">3. When he answers incorrectly, where did he go wrong?</h3>
-          <p className="text-sm font-bold font-serif mb-6">Every single error categorized by its exact logical mechanism. Check where the column stacks highest.</p>
-          
-          {/* VISUALIZATION: Point Leak Filter Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            
-            {/* Category A: Core Rule Failures */}
-            <div className="bg-[#FAFAF6] border border-[#E5E3DD] p-4 rounded-xl space-y-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800 border-b border-[#E5E3DD] pb-1">A. Concept Foundation Block</div>
-              <div className="space-y-2">
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Concept Unknown</span> <span>{data.errors.conceptUnknown}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-amber-600 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.conceptUnknown / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Application Too Layered</span> <span>{data.errors.appTooHard}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-amber-600 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.appTooHard / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Solution Blindness</span> <span>{data.errors.blindToSolution}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-amber-600 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.blindToSolution / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Category B: Linguistic Framing Failures */}
-            <div className="bg-[#FAFAF6] border border-[#E5E3DD] p-4 rounded-xl space-y-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-[#E5E3DD] pb-1">B. Word Comprehension Block</div>
-              <div className="space-y-2">
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Wording Comprehension</span> <span>{data.errors.wordingComprehension}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-slate-700 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.wordingComprehension / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Rushed/Simplified Trap</span> <span>{data.errors.misinterpretedSimpler}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-slate-700 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.misinterpretedSimpler / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Unjustified Assumption</span> <span>{data.errors.unjustifiedAssumption}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-slate-700 h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.unjustifiedAssumption / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Category C: Execution Failures */}
-            <div className="bg-[#FAFAF6] border border-[#E5E3DD] p-4 rounded-xl space-y-3">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-blue-900 border-b border-[#E5E3DD] pb-1">C. Test-Craft Execution</div>
-              <div className="space-y-2">
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Calculation Error</span> <span>{data.errors.calculationError}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-[#1B3A5C] h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.calculationError / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Fell For Intentional Trap</span> <span>{data.errors.intentionalTrap}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-[#1B3A5C] h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.intentionalTrap / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-                <div className="text-xs">
-                  <div className="flex justify-between mb-1 text-slate-500"><span>Stopped at Sub-Answer</span> <span>{data.errors.subAnswerStall}</span></div>
-                  <div className="w-full bg-slate-200 h-1.5 rounded"><div className="bg-[#1B3A5C] h-1.5 rounded" style={{ width: `${totalErrors > 0 ? (data.errors.subAnswerStall / totalErrors) * 100 : 0}%` }} /></div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* ------------------------------------------------------------- */}
-        {/* QUESTIONS 4 & 5: ADVANCEMENT altitude & NEXT STEP UP          */}
-        {/* ------------------------------------------------------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Q4: HOW ADVANCED IS HE REALLY? */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm md:col-span-2 flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">4. How advanced is he, really?</h3>
-              <p className="text-sm font-bold font-serif mb-4">Are we aiming for the right target schools or deluding ourselves?</p>
-            </div>
-            
-            {/* VISUALIZATION: The Conceptual Altitude Ladder */}
-            <div className="space-y-2">
-              {[4, 3, 2, 1].map((level) => {
-                const isCleared = data.verdict.maxACleared >= level && data.verdict.maxLCleared >= level;
-                const labelMap = [
-                  '', 'Level 1: Basic Worded Math (Run-of-mill Secondary)', 
-                  'Level 2: Multistep Constraints (Standard Selective Grammar)', 
-                  'Level 3: True Olympiad Logic Shells (Elite Super-Selective)', 
-                  'Level 4: Advanced Shifting Vectors (Top Tier Scholarships)'
-                ];
-                return (
-                  <div 
-                    key={level}
-                    className={`p-3 rounded-xl border text-xs flex justify-between items-center transition-all ${
-                      isCleared 
-                        ? 'bg-amber-50 border-amber-300 text-amber-950 font-bold' 
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}
-                  >
-                    <span>{labelMap[level]}</span>
-                    {isCleared ? <CheckCircle2 className="w-4 h-4 text-amber-600" /> : <XCircle className="w-4 h-4 text-slate-300" />}
-                  </div>
-                );
-              })}
+          {/* Q5: SHIFTING TIER */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">5. Distance to Next Level</span>
+            <div className="md:col-span-2">
+              <p className="text-sm font-bold">Frontier Target block: <span className="font-mono text-amber-600">A{Math.min(data.verdict.maxACleared + 1, 4)}L{Math.min(data.verdict.maxLCleared + 1, 4)}</span></p>
             </div>
           </div>
 
-          {/* Q5: DISTANCE TO NEXT STEP UP */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">5. Distance to next tier</h3>
-              <p className="text-sm font-bold font-serif mb-4">How far off is he from the next step up?</p>
-            </div>
-            {/* VISUALIZATION: Frontier Gap Gauge */}
-            <div className="bg-[#1B3A5C] text-white p-5 rounded-xl text-center space-y-2">
-              <div className="text-[10px] uppercase font-bold tracking-widest text-amber-400">Current Frontier Block</div>
-              <div className="text-2xl font-black font-mono">A{Math.min(data.verdict.maxACleared + 1, 4)} — L{Math.min(data.verdict.maxLCleared + 1, 4)}</div>
-              <div className="text-[11px] text-slate-300 leading-tight pt-2 border-t border-white/10">
-                To bridge this gap, he requires exact text decoding frameworks—not more repetitive arithmetic exercises.
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ------------------------------------------------------------- */}
-        {/* QUESTIONS 6 & 10: PANIC DISCOVERY & COMPREHENSION WEIGHT      */}
-        {/* ------------------------------------------------------------- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
           {/* Q6: DOES HE PANIC? */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">6. Does he panic under pressure?</h3>
-              <p className="text-sm font-bold font-serif mb-4 font-serif">
-                {data.verdict.panics ? 'Yes. High wording complexity immediately breaks his structural pacing mechanics.' : 'No. His response cadence stays solid regardless of text difficulty.'}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">6. Pressure Mechanics</span>
+            <div className="md:col-span-2 flex justify-between items-center">
+              <p className="text-sm font-bold">{data.verdict.panics ? 'Yes. Structural speech parameters fragment under time limits.' : 'No. Execution velocity tracking remains steady.'}</p>
+              <span className={`text-[10px] font-bold px-2 py-1 rounded ${data.verdict.panics ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{data.verdict.panics ? 'Pace Volatile' : 'Stable'}</span>
+            </div>
+          </div>
+
+          {/* Q7: EXTERNAL PORTALS */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">7. Alternative Funnels?</span>
+            <div className="md:col-span-2">
+              <p className="text-xs text-slate-600">
+                {data.errors.wordingComprehension + data.errors.misinterpretedSimpler > data.errors.calculationError 
+                  ? 'No. Standard multiple-choice engines drill rule volume; they will not resolve underlying logic tracking voids.' 
+                  : 'Yes, but for raw speed practice only.'}
               </p>
             </div>
-            {/* VISUALIZATION: Speech Pace Governor Dial */}
-            <div className="bg-[#FAFAF6] p-4 rounded-xl border border-[#E5E3DD]/60 flex items-center justify-between gap-4">
+          </div>
+
+          {/* Q8: HUMAN INTERVENTION LEVERAGE */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">8. 1-on-1 Tutor Value</span>
+            <div className="md:col-span-2">
+              <p className="text-xs text-slate-600">
+                {data.errors.conceptUnknown > data.errors.blindToSolution 
+                  ? 'High leverage. Missing explicit formula blocks can be filled rapidly by direct instruction.' 
+                  : 'Low leverage. Tutor risk: they step in and solve shortcuts for the child, masking structural blockages.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Q9: CAPITAL SAFETY SWITCH */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-red-50/10">
+            <span className="text-xs font-bold uppercase tracking-wider text-red-900 flex items-center gap-1"><Wallet className="w-3.5 h-3.5 text-amber-600" /> 9. Capital Protection</span>
+            <div className="md:col-span-2">
+              <p className="text-xs font-bold text-slate-700">
+                {data.verdict.maxACleared === 1 && data.verdict.maxLCleared === 1 
+                  ? 'Pipeline closure recommended. Bypassing massive sunk tutor cost matches development reality.' 
+                  : 'Core logic nodes active. Maintain target roadmap framework.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Q10: READING COMPREHENSION WEIGHT */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">10. Reading Comprehension</span>
+            <div className="md:col-span-2">
+              <p className="text-sm font-bold">{data.verdict.maxLCleared >= 3 ? 'Safe. Successfully decodes layered exclusions.' : 'Vulnerable. Easily turned around by negative keywords.'}</p>
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* NEW EXPLORATION MODULES (Q11 - Q14)                        */}
+          {/* ========================================================= */}
+
+          {/* Q11: SILLY MISTAKE VS PERMANENT BLIND SPOT */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-amber-50/10">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-900">11. Fluke vs. Structural Bug</span>
+            <div className="md:col-span-2 flex items-center gap-6 justify-between">
               <div className="space-y-1">
-                <span className="text-[10px] font-bold uppercase text-slate-400 block">Pacing Cadence Variance</span>
-                <span className={`text-xs font-black p-1 rounded uppercase tracking-wider ${data.verdict.panics ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                  {data.verdict.panics ? 'Erratic Shifting' : 'Controlled Cadence'}
-                </span>
+                <p className="text-sm font-bold">Fault Re-occurrence Engine</p>
+                <p className="text-xs text-slate-500">Isolates deep-set pattern failures from passing execution slips.</p>
               </div>
-              <div className="w-24 bg-slate-200 rounded-full h-3 overflow-hidden relative">
-                <div className={`h-full transition-all ${data.verdict.panics ? 'bg-red-500' : 'bg-amber-500'}`} style={{ width: `${data.verdict.pacingVariance}%` }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Q10: CAN HE READ AND UNDERSTAND WRITING? */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">10. Can he read and understand complex writing?</h3>
-              <p className="text-sm font-bold font-serif mb-4">
-                {data.verdict.maxLCleared >= 3 ? 'Yes. Successfully maps text limitations.' : 'No. Easily turned around by hidden exclusions.'}
-              </p>
-            </div>
-            {/* VISUALIZATION: The Riddle Decoder Spotlight */}
-            <div className="p-3 bg-[#1B3A5C] text-white rounded-xl text-xs space-y-2 relative overflow-hidden">
-              <div className="opacity-40 font-mono text-[9px] uppercase tracking-wider">Linguistic Trap Snapshot:</div>
-              <p className="italic text-slate-300">
-                "Find the sum of all alternating prime boundaries <span className={`p-0.5 rounded font-bold ${data.verdict.maxLCleared >= 3 ? 'bg-amber-500/30 text-amber-300 line-through' : 'bg-red-500/40 text-white'}`}>except the preceding values</span>..."
-              </p>
-              <div className="text-[10px] text-amber-400 font-bold uppercase pt-1 border-t border-white/10">
-                {data.verdict.maxLCleared >= 3 ? '✓ Caught the exclusion layer' : '✕ Missed the negative boundary constraint'}
+              <div className="flex gap-2 text-center text-[10px] font-mono font-bold">
+                <div className="p-2 bg-red-50 border border-red-200 rounded text-red-800">
+                  <div>{data.verdict.structuralCount}</div> <div className="text-[8px] uppercase tracking-tighter text-slate-400">Structural Bugs</div>
+                </div>
+                <div className="p-2 bg-slate-50 border border-slate-200 rounded text-slate-600">
+                  <div>{data.verdict.flukeCount}</div> <div className="text-[8px] uppercase tracking-tighter text-slate-400">Passing Flukes</div>
+                </div>
               </div>
             </div>
           </div>
 
-        </div>
-
-        {/* ------------------------------------------------------------- */}
-        {/* QUESTIONS 7, 8, 9: THE SYSTEM RECOMMENDATIONS & SAFETIES       */}
-        {/* ------------------------------------------------------------- */}
-        <div className="bg-white border border-[#E5E3DD] rounded-2xl shadow-sm overflow-hidden">
-          <div className="bg-[#1B3A5C] text-white p-6">
-            <h3 className="text-base font-serif font-bold">7, 8 & 9. Resource & Financial Safety Deployment</h3>
-            <p className="text-xs text-slate-300 mt-1">Where to allocate capital and study hours to maximize return on effort.</p>
+          {/* Q12: TRIAGE ROI LADDER */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">12. Final 12-Week Triage</span>
+            <div className="md:col-span-2">
+              <p className="text-sm font-bold text-amber-700 uppercase tracking-wider mb-1">{data.verdict.triageROICard}</p>
+              <p className="text-xs text-slate-500">Highest return path based on localized leak weights. Do not touch long-horizon rewiring; patch immediate formula or exclusion gaps tonight.</p>
+            </div>
           </div>
-          
-          <div className="divide-y divide-[#E5E3DD] text-xs">
-            
-            {/* Q7: CAN OTHER PLATFORMS HELP? */}
-            <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-              <div className="flex items-center gap-2 font-bold text-slate-500 uppercase tracking-wider"><MessageSquare className="w-4 h-4 text-amber-600" /> 7. Other Platforms?</div>
-              <div className="md:col-span-2">
-                {data.errors.wordingComprehension + data.errors.misinterpretedSimpler > data.errors.calculationError ? (
-                  <p className="text-slate-700">
-                    <strong className="text-red-700 block mb-0.5">Incompatible.</strong> Generic multiple-choice quiz portals drill rote calculations; they will not fix your child’s speech tracking errors or wordy riddle failures.
-                  </p>
-                ) : (
-                  <p className="text-slate-700">
-                    <strong className="text-green-700 block mb-0.5">Compatible.</strong> Basic grid training apps can assist with speeding up his raw execution mechanics.
-                  </p>
-                )}
+
+          {/* Q13: TIME COUNTDOWN PANIC BREAKPOINT */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">13. Time-Crunch Breakpoint</span>
+            <div className="md:col-span-2 flex items-center gap-4 justify-between">
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold">Comprehension Crash Ceiling</p>
+                <p className="text-xs text-slate-500">The exact velocity threshold where logic scatter takes over completely.</p>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-black text-red-600">-{data.verdict.crunchBreakpoint}</span>
+                <span className="text-[10px] font-bold text-slate-400 block uppercase font-mono">Seconds / Quest</span>
               </div>
             </div>
-
-            {/* Q8: CAN A 1-ON-1 TUTOR HELP? */}
-            <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-              <div className="flex items-center gap-2 font-bold text-slate-500 uppercase tracking-wider"><UserX className="w-4 h-4 text-amber-600" /> 8. Tutor Leverage?</div>
-              <div className="md:col-span-2">
-                {data.errors.conceptUnknown + data.errors.calculationError > data.errors.blindToSolution ? (
-                  <p className="text-slate-700">
-                    <strong className="text-emerald-700 block mb-0.5">High Efficiency.</strong> Your child's core weakness lies in explicit rule voids. A target human tutor can unlock massive score gains by directly teaching the missing calculation formulas.
-                  </p>
-                ) : (
-                  <p className="text-slate-700">
-                    <strong className="text-amber-800 block mb-0.5">Low Efficiency Risk.</strong> Your child is failing to see independent logical links. A standard tutor will step in and do the conceptual heavy lifting for them, leaving them helpless on an unseen test.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Q9: IS HE A LOST CAUSE / FINANCIAL GUARDRAIL */}
-            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 items-center bg-amber-50/30">
-              <div className="flex items-center gap-2 font-bold text-amber-900 uppercase tracking-wider"><Wallet className="w-4 h-4 text-amber-600" /> 9. Capital Safety Switch</div>
-              <div className="md:col-span-2">
-                {data.verdict.maxACleared === 1 && data.verdict.maxLCleared === 1 && (data.raw.correct / data.raw.attempted) < 0.3 ? (
-                  <div className="border border-red-200 bg-red-50 text-red-950 p-4 rounded-xl">
-                    <strong className="block text-sm font-bold mb-1">Recommendation: Shut down the 11+ pipeline and save your money.</strong>
-                    The conceptual leap to clearing local competitive selection barriers is tracking outside of a realistic development timeframe. Do not burn thousands on introductory private fees.
-                  </div>
-                ) : (
-                  <div className="border border-emerald-200 bg-emerald-50 text-emerald-950 p-4 rounded-xl">
-                    <strong className="block text-sm font-bold mb-1">Verdict: Core logic layers are active. Do not pull funding.</strong>
-                    Your child has the natural capacity to clear selection filters. Avoid generic mock exam bundles; invest strictly in resolving the exact text interpretation leaks highlighted in the grid above.
-                  </div>
-                )}
-              </div>
-            </div>
-
           </div>
+
+          {/* Q14: HOME COACHING FRICTION INDEX */}
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-slate-50/40">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">14. Parental Friction Index</span>
+            <div className="md:col-span-2 flex items-center gap-6 justify-between">
+              <div>
+                <p className="text-sm font-bold">{data.verdict.frictionIndexScore >= 50 ? 'High Conversational Static' : 'Optimal Coaching Environment'}</p>
+                <p className="text-xs text-slate-500 mt-0.5">Speech markers tracking child defensive pauses, sigh tokens, or silent checking out during parental hints.</p>
+              </div>
+              <div className="w-24 bg-slate-200 h-2 rounded-full overflow-hidden relative">
+                <div className={`h-full ${data.verdict.frictionIndexScore >= 50 ? 'bg-red-500' : 'bg-amber-500'}`} style={{ width: `${data.verdict.frictionIndexScore}%` }} />
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </main>

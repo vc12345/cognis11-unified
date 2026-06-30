@@ -9,7 +9,6 @@ const supabaseService = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY! 
 );
 
-// Define the interface to clear Supabase Join TypeScript errors
 interface JoinedSkeletonData {
   failure_profile: Record<string, any> | null;
   source_questions: { concept: string } | { concept: string }[] | null;
@@ -26,7 +25,7 @@ export async function POST(req: Request) {
 
     const transcript = raw_answer;
 
-    // 2. Fetch Variant Context (and pull the skeleton_id dynamically)
+    // 2. Fetch Variant Context
     const { data: variantData, error: variantError } = await supabaseService
       .from('variants')
       .select('skeleton_id, generated_question, solution_trace, generated_options, correct_answer')
@@ -39,7 +38,7 @@ export async function POST(req: Request) {
 
     const skeleton_id = variantData.skeleton_id;
 
-    // 3. Fetch Skeleton Context and join Source Question for the Concept Name
+    // 3. Fetch Skeleton Context for the Concept Name
     const { data: rawSkeletonData, error: skeletonError } = await supabaseService
       .from('skeletons') 
       .select(`
@@ -53,7 +52,6 @@ export async function POST(req: Request) {
       console.error("Warning: Skeleton metadata fetch issue.", skeletonError);
     }
 
-    // Cast the raw data to our explicit interface to fix the 'never' type error
     const skeletonData = rawSkeletonData as unknown as JoinedSkeletonData;
 
     const sourceConcept = Array.isArray(skeletonData?.source_questions) 
@@ -62,12 +60,11 @@ export async function POST(req: Request) {
         
     const conceptName = sourceConcept || 'Mathematics';
     
-    // Extract the W-Categories from the static failure_profile JSONB
     const availableWCategories = skeletonData?.failure_profile 
       ? Object.keys(skeletonData.failure_profile) 
       : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'];
 
-    // 4. The Elite System Prompt for Claude
+    // 4. Enhanced System Prompt for Claude capturing late-stage parental metrics
     const systemInstruction = `
       You are an expert UK 11+ Cognitive Diagnostic Engine. Evaluate the student's transcript against the question and the Expected Solution Trace.
       
@@ -81,22 +78,24 @@ export async function POST(req: Request) {
       - W7 (Trap sprung): Question has a designed misdirection/obvious wrong answer, and the child confidently takes the bait.
       - W8 (Working memory overflow): Fine early on, but loses the thread ("wait, what was I finding?") or forgets to use a sub-answer or rule they just stated.
 
-      CRITICAL: You must fill out the "teacher_scratchpad" BEFORE assigning W-categories. You MUST use strict mathematical translation, avoiding vague summaries.
-      
       You must respond with a raw JSON object matching this schema exactly:
       {
-        "teacher_scratchpad": "FORMAT TO STRICTLY FOLLOW -> Step 1 (True Math): [Write the correct equation, e.g., 30+20+1+0=51]. Step 2 (Transcript Translation): [Extract numbers from transcript and write as an equation, e.g., Student said 'two and one in tens', which is 20+10. '3 and 0 in ones', which is 3+0]. Step 3 (Calculated Result): [e.g., 20+10+3+0 = 33]. Step 4 (W-Category Diagnosis): [e.g., Student stated the rule correctly but failed to hold it in memory during execution, matching W8].",
+        "teacher_scratchpad": "Step 1 (True Math): [...]. Step 2 (Transcript Translation): [...]. Step 3 (Calculated Result): [...]. Step 4 (W-Category Diagnosis): [...].",
         "is_correct": boolean,
         "completion_percentage": number, 
         "methodology_used": "EXPECTED_TRACE" | "ALTERNATIVE_VALID" | "ROTE_GUESSING" | "INCOMPLETE_CHAIN",
         "w_category_breakdown": {
-           // Output EXACTLY the keys provided in the prompt. Value must be 1 if that weakness is demonstrated, 0 if not.
+           // Output 1 if demonstrated, 0 if not for every available category.
         },
+        "error_reason": "concept_unknown" | "app_too_hard" | "wording_comprehension" | "misinterpreted_simpler" | "unjustified_assumption" | "calculation_error" | "intentional_trap" | "sub_answer_stall" | "blind_to_solution" | null,
         "analysis": {
            "thought_process_breakdown": "Detailed plain English evaluation of their logical steps.",
            "demonstrated_strengths": "What did they do well?",
            "demonstrated_weaknesses": "Where exactly did the cognitive chain break?",
-           "student_confidence_marker": "HIGH" | "MEDIUM" | "LOW"
+           "student_confidence_marker": "HIGH" | "MEDIUM" | "LOW",
+           "is_structural_flaw": boolean, // true if this is a recurring logical blind spot/habit pattern, false if it is a fluke mistake
+           "time_pressure_derailment": boolean, // true if countdown pressure or timing directly caused their logic to scatter
+           "parental_friction_detected": boolean // true if the script trace flags deep defensive pauses, heavy sighs, or frustration indicators when working together
         },
         "recommended_intervention": "A strict 1-sentence prompt for a tutor on exactly what concept to clarify next."
       }
@@ -138,8 +137,6 @@ export async function POST(req: Request) {
     }
 
     const anthropicData = await anthropicResponse.json();
-    
-    // Safely parse the JSON by stripping markdown wrappers
     let rawText = anthropicData.content[0].text.trim();
     
     const tripleBacktickJson = "\x60\x60\x60json";
@@ -151,21 +148,19 @@ export async function POST(req: Request) {
     
     const evaluation = JSON.parse(rawText.trim());
 
-    // 6. Extract triggered W-Categories (where the AI returned a 1)
-    const triggeredCategories = Object.entries(evaluation.w_category_breakdown)
+    const triggeredCategories = Object.entries(evaluation.w_category_breakdown || {})
       .filter(([_, value]) => value === 1)
       .map(([key, _]) => key);
 
-    // 7. Fire the Safe Database RPC to update the Skeleton's cumulative failure_map
+    // 6. Sync cumulative Skeleton metrics
     if (triggeredCategories.length > 0 && skeleton_id) {
-      const { error: rpcError } = await supabaseService.rpc('increment_failure_map', {
+      await supabaseService.rpc('increment_failure_map', {
         p_skeleton_id: skeleton_id,
         p_w_categories: triggeredCategories
       });
-      if (rpcError) console.error("Failed to update skeleton cumulative map:", rpcError);
     }
 
-    // 8. Retrieve the Cryptographically Verified User
+    // 7. Verify Auth State
     const cookieStore = await cookies();
     const authSupabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -180,7 +175,7 @@ export async function POST(req: Request) {
     
     const { data: { user } } = await authSupabase.auth.getUser();
 
-    // 9. Record the detailed row into the updated user_attempts table
+    // 8. Log comprehensive metrics row
     const { error: insertError } = await supabaseService
       .from('user_attempts')
       .insert([{
