@@ -22,6 +22,7 @@ interface AttemptRow {
   created_at: string;
   is_correct: boolean;
   solve_time: number;
+  variant_id: string;
   step_velocities: { step1: number; step2: number; step3: number } | null;
   skeletons: any;
   variants: any;
@@ -35,26 +36,24 @@ interface AttemptRow {
 
 type TimeWindow = 'month' | 'quarter' | 'all';
 
-// --- INDESTRUCTIBLE CLASSIFICATION EXTRACTOR ---
-// Safely scans the entire payload for the classification key regardless of how deeply nested the DB join is.
+// --- A/L LEVEL EXTRACTOR ---
+// Classification is encoded in the last 4 characters of variant_id, e.g. "...A2L3"
 const getAandLLevels = (row: AttemptRow) => {
   let aLevel = 1;
   let lLevel = 1;
-  
+
   try {
-    const jsonStr = JSON.stringify(row);
-    const alMatch = jsonStr.match(/"al_classification"\s*:\s*"([^"]+)"/i);
-    const classification = alMatch ? alMatch[1] : 'A1L1';
-    
-    const aMatch = classification.match(/A(\d)/i);
-    const lMatch = classification.match(/L(\d)/i);
-    
+    const classification = (row.variant_id || '').slice(-4).toUpperCase();
+
+    const aMatch = classification.match(/A(\d)/);
+    const lMatch = classification.match(/L(\d)/);
+
     if (aMatch) aLevel = parseInt(aMatch[1], 10);
     if (lMatch) lLevel = parseInt(lMatch[1], 10);
   } catch (e) {
     // Fail gracefully to Lvl 1 defaults
   }
-  
+
   return { aLevel, lLevel };
 };
 
@@ -131,6 +130,7 @@ export default function PremiumDiagnosticDashboard() {
         created_at,
         is_correct,
         solve_time,
+        variant_id,
         step_velocities,
         analysis,
         variants (
