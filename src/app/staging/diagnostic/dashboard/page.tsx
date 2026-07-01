@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { 
   Brain, Gauge, Clock, CheckCircle2, AlertCircle, Sparkles, 
-  ChevronRight, BookOpen, Layers, BarChart2, Loader2, Target, Trophy, HelpCircle
+  ChevronRight, BookOpen, Layers, BarChart2, Loader2, Target, Trophy, HelpCircle, XCircle
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
@@ -222,7 +222,6 @@ export default function PremiumDiagnosticDashboard() {
 
   // --- CHART DATA GENERATORS ---
   const pacingChartData = useMemo(() => {
-    // Computes average seconds spent reading vs planning vs calculating across difficulty steps
     const difficulties = ['A1', 'A2', 'A3', 'A4'];
     return difficulties.map(diff => {
       const matched = filteredAttempts.filter(a => a.skeletons?.al_classification?.startsWith(diff));
@@ -247,7 +246,6 @@ export default function PremiumDiagnosticDashboard() {
   }, [filteredAttempts]);
 
   const difficultyErrorChartData = useMemo(() => {
-    // Computes error occurrences mapping against question structure difficulty steps
     const difficulties = ['A1', 'A2', 'A3', 'A4'];
     return difficulties.map(diff => {
       const items = filteredAttempts.filter(a => !a.is_correct && a.skeletons?.al_classification?.startsWith(diff));
@@ -280,7 +278,7 @@ export default function PremiumDiagnosticDashboard() {
   if (loading || !isMounted) {
     return (
       <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
-        <Loader2 className="w-5 h-5 animate-spin mb-2" />
+        <Loader2 className="w-6 h-6 animate-spin mb-2" />
         Syncing tutor insights... Preparing your child's roadmap...
       </div>
     );
@@ -366,7 +364,7 @@ export default function PremiumDiagnosticDashboard() {
             </div>
           </div>
 
-          {/* EXTENDED SCHOOL SELECTIVITY PIPELINE (SHOWS HIGHER TIERS ENCOURAGING CONVERSIONS) */}
+          {/* EXTENDED SCHOOL SELECTIVITY PIPELINE */}
           <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
             <div>
               <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Selective Schools Alignment Pathway</h3>
@@ -417,7 +415,7 @@ export default function PremiumDiagnosticDashboard() {
           {/* GRAPHICAL COGNITIVE VISUALIZATIONS ROW */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* CHART 1: TIME BALANCING METRIC */}
+            {/* CHART 1: FIXED TIME BALANCING METRIC */}
             <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
               <div>
                 <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile Balance</h3>
@@ -430,7 +428,8 @@ export default function PremiumDiagnosticDashboard() {
                     <XAxis dataKey="name" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
                     <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: '10px', pt: '10px' }} />
+                    {/* Fixed 'pt' object literal compilation exception -> swapped for standard style rules */}
+                    <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
                     <Line type="monotone" dataKey="Reading Time" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
                     <Line type="monotone" dataKey="Planning Strategy" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
                     <Line type="monotone" dataKey="Working Calculations" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
@@ -439,7 +438,7 @@ export default function PremiumDiagnosticDashboard() {
               </div>
             </div>
 
-            {/* CHART 2: DIFFICULTY ERROR MIX BREAKDOWN */}
+            {/* CHART 2: FIXED DIFFICULTY ERROR MIX BREAKDOWN */}
             <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
               <div>
                 <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Bumps Triggered by Difficulty Level</h3>
@@ -452,7 +451,8 @@ export default function PremiumDiagnosticDashboard() {
                     <XAxis dataKey="name" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
                     <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: '9px', pt: '10px' }} />
+                    {/* Fixed second 'pt' object literal error here too */}
+                    <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '10px' }} />
                     <Bar dataKey="Missing Clues" stackId="a" fill="#3b82f6" />
                     <Bar dataKey="Rushing Patterns" stackId="a" fill="#ef4444" />
                     <Bar dataKey="Concept Stretches" stackId="a" fill="#f59e0b" />
