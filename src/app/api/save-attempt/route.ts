@@ -34,13 +34,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unverified parent session profile context.' }, { status: 401 });
     }
 
-    // 2. Extract Frontend Payload Arguments (including new step velocities)
+    // 2. Extract Frontend Payload Arguments (including fallback for backwards compatibility)
     const { 
       session_id, 
       variant_id, 
       raw_answer, 
       step_velocities, 
-      total_velocity_seconds 
+      total_velocity_seconds,
+      execution_velocity_seconds // Added to scope here to satisfy the compiler
     } = await req.json();
 
     if (!variant_id || !raw_answer || !session_id) {
@@ -147,7 +148,7 @@ export async function POST(req: Request) {
       - Step 1 (Read Aloud): ${step_velocities?.step1 || 0}s
       - Step 2 (Game Plan): ${step_velocities?.step2 || 0}s
       - Step 3 (Calculations): ${step_velocities?.step3 || 0}s
-      - Total Combined Time: ${total_velocity_seconds || execution_velocity_seconds}s
+      - Total Combined Time: ${total_velocity_seconds || execution_velocity_seconds || 0}s
       
       CHILD'S EXTRACTED PERFORMANCE TRANSCRIPTS:
       - Step 1 Target Isolation text: "${step1 || ''}"
@@ -165,7 +166,7 @@ export async function POST(req: Request) {
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022', // Standard production string anchor 
+        model: 'claude-3-5-sonnet-20241022',
         max_tokens: 2000,
         temperature: 0.1,
         system: systemInstruction,
@@ -204,7 +205,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 8. Log Comprehensive High-Fidelity Data Matrix Row (Preserving your exact storage metrics)
+    // 8. Log Comprehensive High-Fidelity Data Matrix Row
     const { error: insertError } = await supabaseService
       .from('user_attempts')
       .insert([{
@@ -212,10 +213,10 @@ export async function POST(req: Request) {
           session_id: session_id,
           skeleton_id: skeleton_id || null, 
           variant_id: variant_id, 
-          transcript: raw_answer, // Keeps whole raw scaffold JSON structure intact inside database text logs
-          step_velocities: step_velocities, // Saves multi-step time keys smoothly
+          transcript: JSON.stringify(parsedScaffold),
+          step_velocities: step_velocities,
           is_correct: evaluation.is_correct,
-          solve_time: total_velocity_seconds || execution_velocity_seconds, 
+          solve_time: total_velocity_seconds || execution_velocity_seconds || 0, 
           analysis: evaluation 
       }]);
 
