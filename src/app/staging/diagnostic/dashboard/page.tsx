@@ -35,44 +35,27 @@ interface AttemptRow {
 
 type TimeWindow = 'month' | 'quarter' | 'all';
 
-// --- ROBUST MATRIX EXTRACTOR: ENSURES PACING & ERROR PLOTS LOAD DATA CORRECTLY ---
+// --- INDESTRUCTIBLE CLASSIFICATION EXTRACTOR ---
+// Safely scans the entire payload for the classification key regardless of how deeply nested the DB join is.
 const getAandLLevels = (row: AttemptRow) => {
-  let matchedStr = 'A1L1';
+  let aLevel = 1;
+  let lLevel = 1;
   
-  const variants = Array.isArray(row.variants) ? row.variants[0] : row.variants;
-  const skeletons = Array.isArray(row.skeletons) ? row.skeletons[0] : row.skeletons;
+  try {
+    const jsonStr = JSON.stringify(row);
+    const alMatch = jsonStr.match(/"al_classification"\s*:\s*"([^"]+)"/i);
+    const classification = alMatch ? alMatch[1] : 'A1L1';
+    
+    const aMatch = classification.match(/A(\d)/i);
+    const lMatch = classification.match(/L(\d)/i);
+    
+    if (aMatch) aLevel = parseInt(aMatch[1], 10);
+    if (lMatch) lLevel = parseInt(lMatch[1], 10);
+  } catch (e) {
+    // Fail gracefully to Lvl 1 defaults
+  }
   
-  if (variants?.al_classification) {
-    matchedStr = String(variants.al_classification);
-  } else if (skeletons?.al_classification) {
-    matchedStr = String(skeletons.al_classification);
-  } else if ((row as any).al_classification) {
-    matchedStr = String((row as any).al_classification);
-  }
-
-  const aMatch = matchedStr.match(/A(\d)/i);
-  const lMatch = matchedStr.match(/L(\d)/i);
-
-  let aLevel = aMatch ? parseInt(aMatch[1], 10) : null;
-  let lLevel = lMatch ? parseInt(lMatch[1], 10) : null;
-
-  // Fallback if formatting doesn't feature clean A/L prefix combinations
-  if (aLevel === null || lLevel === null) {
-    const digits = matchedStr.match(/\d+/g);
-    if (digits && digits.length >= 2) {
-      if (aLevel === null) aLevel = parseInt(digits[0], 10);
-      if (lLevel === null) lLevel = parseInt(digits[1], 10);
-    } else if (digits && digits.length === 1) {
-      const num = parseInt(digits[0], 10);
-      if (aLevel === null) aLevel = num;
-      if (lLevel === null) lLevel = num;
-    }
-  }
-
-  return {
-    aLevel: aLevel || 1,
-    lLevel: lLevel || 1
-  };
+  return { aLevel, lLevel };
 };
 
 // --- SIMPLIFIED PARENT COGNITIVE LABELS FOR ALL 9 CORE CATEGORIES ---
@@ -87,6 +70,14 @@ const COGNITIVE_CATEGORIES: Record<string, { title: string; desc: string }> = {
   W8: { title: 'Information Tracking Fatigue', desc: 'They can handle each piece of the math easily in isolation, but lose track of sub-answers when juggling too many steps.' },
   W9: { title: 'Skipping Reality Checks', desc: 'They lock in a final value that is contextually impossible (like a speed or age calculation error) without checking if it makes sense.' }
 };
+
+// --- SELECTIVE TIER DEFINITIONS ---
+const SELECTIVE_TIERS = [
+  { level: 4, label: 'Elite Selective', desc: 'Super-selective grammar & top independent boarding benchmarks.' },
+  { level: 3, label: 'Highly Selective', desc: 'Competitive regional selective grammar standards.' },
+  { level: 2, label: 'Standard Selective', desc: 'Baseline single-layer grammar entry requirements.' },
+  { level: 1, label: 'Non-Selective', desc: 'Foundational baseline and core logic tracks.' }
+];
 
 export default function PremiumDiagnosticDashboard() {
   const router = useRouter();
@@ -224,42 +215,20 @@ export default function PremiumDiagnosticDashboard() {
     };
   }, [filteredAttempts]);
 
-  // --- RECONSTRUCTED NON-TECHNICAL GROUNDED TARGET STANDING CHECK ---
-  const selectivityProfile = useMemo(() => {
-    if (attempts.length === 0) {
-      return {
-        title: 'Awaiting Assessment Diagnostics',
-        desc: 'Complete initial assessment puzzles to establish tracking history.'
-      };
-    }
+  // Determine the child's active cleared level for the pill stack
+  const activeSelectiveLevel = useMemo(() => {
+    if (attempts.length === 0) return 1;
+    let max = 1;
+    attempts.forEach(a => {
+      if (a.is_correct) {
+        const { aLevel } = getAandLLevels(a);
+        if (aLevel > max) max = aLevel;
+      }
+    });
+    return max;
+  }, [attempts]);
 
-    const score = parentMetrics.accuracyRate;
-
-    if (score >= 85) {
-      return {
-        title: 'Elite Selective Level Alignment',
-        desc: 'Your child shows the high logic accuracy and focus depth required for the country\'s most selective grammar environments and premier academic independent institutions.'
-      };
-    }
-    if (score >= 65) {
-      return {
-        title: 'Highly Selective Level Standing',
-        desc: 'Core operational strategies are stable and sound. Performance matches benchmarks for highly competitive local schools, where key development revolves around avoiding trick answer options.'
-      };
-    }
-    if (score >= 45) {
-      return {
-        title: 'Standard Selective Level Benchmarks',
-        desc: 'Your child demonstrates comfortable understanding of basic, single-step tasks but encounters frequent friction when rules become abstract. Consistent practice tracking will solidify stability.'
-      };
-    }
-    return {
-      title: 'Non-Selective / Foundational Track Placement',
-      desc: 'Current diagnostic tracing highlights deep concept gaps or hasty reading habits. Focus strictly on mastering fundamental tools and careful double-checking before practicing timed constraints.'
-    };
-  }, [attempts, parentMetrics]);
-
-  // --- CHART PACK: SEPARATED MATRICES MAPPING ALL 9 COMPREHENSIVE CATEGORIES ---
+  // --- CHART DATA GENERATORS ---
   const mathPacingData = useMemo(() => {
     return [1, 2, 3, 4].map(lvl => {
       const matched = filteredAttempts.filter(a => getAandLLevels(a).aLevel === lvl);
@@ -360,6 +329,15 @@ export default function PremiumDiagnosticDashboard() {
     return attempts.find(a => a.id === activeInterventionId) || null;
   }, [attempts, activeInterventionId]);
 
+  if (loading || !isMounted) {
+    return (
+      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
+        <Loader2 className="w-6 h-6 animate-spin mb-2" />
+        Syncing tutor insights... Preparing your child's roadmap...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans antialiased pb-32">
       
@@ -436,15 +414,51 @@ export default function PremiumDiagnosticDashboard() {
             </div>
           </div>
 
-          {/* REALISTIC AND GROUNDED PLACEMENT CARD */}
-          <div className="bg-amber-50/60 border border-amber-200 p-5 rounded-2xl flex items-start gap-4 shadow-xs">
-            <div className="p-3 bg-white text-[#1B3A5C] rounded-xl border border-amber-300 shadow-xs flex-shrink-0">
-              <Gauge className="w-5 h-5" />
+          {/* SELECTIVE STANDING PILL STACK UI */}
+          <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                <Gauge className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Selective Benchmark Standing</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Your child's highest cleanly cleared logical complexity band.</p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-amber-900">Selective Standing Calibration</h3>
-              <p className="text-sm font-serif font-bold text-[#1B3A5C]">{selectivityProfile.title}</p>
-              <p className="text-xs text-slate-700 leading-relaxed pt-0.5">{selectivityProfile.desc}</p>
+            
+            <div className="space-y-3">
+              {[4, 3, 2, 1].map(lvl => {
+                const tier = SELECTIVE_TIERS.find(t => t.level === lvl)!;
+                const isActive = activeSelectiveLevel === lvl;
+                const isUnlocked = activeSelectiveLevel >= lvl;
+
+                return (
+                  <div key={lvl} className={`p-4 rounded-xl border-2 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                    isActive ? 'border-[#1B3A5C] bg-[#1B3A5C] text-white shadow-md' : 
+                    isUnlocked ? 'border-emerald-100 bg-emerald-50/40' : 
+                    'border-slate-100 bg-slate-50/50 opacity-60'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+                        isActive ? 'bg-amber-400 text-[#1B3A5C]' :
+                        isUnlocked ? 'bg-emerald-200 text-emerald-800' :
+                        'bg-slate-200 text-slate-400'
+                      }`}>
+                        {lvl}
+                      </div>
+                      <div>
+                        <h4 className={`text-xs font-black uppercase tracking-wide ${isActive ? 'text-white' : isUnlocked ? 'text-emerald-900' : 'text-slate-500'}`}>{tier.label}</h4>
+                        <p className={`text-[10px] ${isActive ? 'text-slate-300' : isUnlocked ? 'text-emerald-700/70' : 'text-slate-400'}`}>{tier.desc}</p>
+                      </div>
+                    </div>
+                    {isActive && (
+                      <span className="text-[9px] uppercase font-bold tracking-widest bg-white/20 px-3 py-1.5 rounded-full flex-shrink-0">
+                        Current Standing
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
