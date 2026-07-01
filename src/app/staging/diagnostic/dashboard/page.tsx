@@ -35,34 +35,47 @@ interface AttemptRow {
 
 type TimeWindow = 'month' | 'quarter' | 'all';
 
-// --- ROBUST CASE-INSENSITIVE REGEX PARSER FOR STABLE EXTRACTIONS ---
+// --- ROBUST MATRIX EXTRACTOR: ENSURES PACING & ERROR PLOTS LOAD DATA CORRECTLY ---
 const getAandLLevels = (row: AttemptRow) => {
   let matchedStr = 'A1L1';
   
-  if (row.skeletons) {
-    if (Array.isArray(row.skeletons) && row.skeletons[0]) {
-      matchedStr = row.skeletons[0].al_classification || 'A1L1';
-    } else if (row.skeletons.al_classification) {
-      matchedStr = row.skeletons.al_classification;
-    }
-  } else if (row.variants) {
-    if (Array.isArray(row.variants) && row.variants[0]) {
-      matchedStr = row.variants[0].al_classification || 'A1L1';
-    } else if (row.variants.al_classification) {
-      matchedStr = row.variants.al_classification;
-    }
+  const variants = Array.isArray(row.variants) ? row.variants[0] : row.variants;
+  const skeletons = Array.isArray(row.skeletons) ? row.skeletons[0] : row.skeletons;
+  
+  if (variants?.al_classification) {
+    matchedStr = String(variants.al_classification);
+  } else if (skeletons?.al_classification) {
+    matchedStr = String(skeletons.al_classification);
+  } else if ((row as any).al_classification) {
+    matchedStr = String((row as any).al_classification);
   }
 
   const aMatch = matchedStr.match(/A(\d)/i);
   const lMatch = matchedStr.match(/L(\d)/i);
 
+  let aLevel = aMatch ? parseInt(aMatch[1], 10) : null;
+  let lLevel = lMatch ? parseInt(lMatch[1], 10) : null;
+
+  // Fallback if formatting doesn't feature clean A/L prefix combinations
+  if (aLevel === null || lLevel === null) {
+    const digits = matchedStr.match(/\d+/g);
+    if (digits && digits.length >= 2) {
+      if (aLevel === null) aLevel = parseInt(digits[0], 10);
+      if (lLevel === null) lLevel = parseInt(digits[1], 10);
+    } else if (digits && digits.length === 1) {
+      const num = parseInt(digits[0], 10);
+      if (aLevel === null) aLevel = num;
+      if (lLevel === null) lLevel = num;
+    }
+  }
+
   return {
-    aLevel: aMatch ? parseInt(aMatch[1]) : 1,
-    lLevel: lMatch ? parseInt(lMatch[1]) : 1
+    aLevel: aLevel || 1,
+    lLevel: lLevel || 1
   };
 };
 
-// --- ORIGINAL COMPREHENSIVE 9 CATEGORIES (SIMPLIFIED PARENT WORDING) ---
+// --- SIMPLIFIED PARENT COGNITIVE LABELS FOR ALL 9 CORE CATEGORIES ---
 const COGNITIVE_CATEGORIES: Record<string, { title: string; desc: string }> = {
   W1: { title: 'Concept Tool Gaps', desc: 'Your child does not yet know the mathematical formulas or baseline methods needed to solve this specific question type.' },
   W2: { title: 'Complexity Stretch Points', desc: 'They understand the basic math rules perfectly, but get stuck when multiple layers or abstract variables are added.' },
@@ -73,19 +86,6 @@ const COGNITIVE_CATEGORIES: Record<string, { title: string; desc: string }> = {
   W7: { title: 'Falling for Hidden Bait', desc: 'They grab an attractive partial answer or misleading visual trap planted deliberately by the question designer.' },
   W8: { title: 'Information Tracking Fatigue', desc: 'They can handle each piece of the math easily in isolation, but lose track of sub-answers when juggling too many steps.' },
   W9: { title: 'Skipping Reality Checks', desc: 'They lock in a final value that is contextually impossible (like a speed or age calculation error) without checking if it makes sense.' }
-};
-
-const renderLatexString = (text: string) => {
-  if (!text) return null;
-  const parts = text.split(/(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$)/g);
-  return parts.map((part, index) => {
-    if (part.startsWith('$$') && part.endsWith('$$')) {
-      return <BlockMath key={index} math={part.slice(2, -2)} />;
-    } else if (part.startsWith('$') && part.endsWith('$')) {
-      return <InlineMath key={index} math={part.slice(1, -1)} />;
-    }
-    return <span key={index}>{part}</span>;
-  });
 };
 
 export default function PremiumDiagnosticDashboard() {
@@ -177,7 +177,6 @@ export default function PremiumDiagnosticDashboard() {
     if (isMounted) loadDashboardData();
   }, [isMounted]);
 
-  // --- FILTERS & METRICS ENGINE ---
   const filteredAttempts = useMemo(() => {
     const now = new Date();
     return attempts.filter(a => {
@@ -225,49 +224,42 @@ export default function PremiumDiagnosticDashboard() {
     };
   }, [filteredAttempts]);
 
-  // --- HONEST COMPETITIVE BENCHMARKS EVALUATION VIEW ---
+  // --- RECONSTRUCTED NON-TECHNICAL GROUNDED TARGET STANDING CHECK ---
   const selectivityProfile = useMemo(() => {
     if (attempts.length === 0) {
       return {
-        title: 'Awaiting Diagnostic Data',
-        desc: 'Complete your active workflows to establish an initial learning trace baseline.'
+        title: 'Awaiting Assessment Diagnostics',
+        desc: 'Complete initial assessment puzzles to establish tracking history.'
       };
     }
 
-    // Determine highest successfully cleared application block level
-    let maxACleared = 0;
-    attempts.forEach(a => {
-      if (a.is_correct) {
-        const { aLevel } = getAandLLevels(a);
-        if (aLevel > maxACleared) maxACleared = aLevel;
-      }
-    });
+    const score = parentMetrics.accuracyRate;
 
-    if (maxACleared === 4) {
+    if (score >= 85) {
       return {
-        title: 'Level A4: Super-Selective Capable Profile',
-        desc: 'Your child successfully handles highly complex, multi-layered Olympiad-style frames. Their working memory and logical tracking show the depth required for ultra-competitive selective schools.'
+        title: 'Elite Selective Level Alignment',
+        desc: 'Your child shows the high logic accuracy and focus depth required for the country\'s most selective grammar environments and premier academic independent institutions.'
       };
     }
-    if (maxACleared === 3) {
+    if (score >= 65) {
       return {
-        title: 'Level A3: Competitive Grammar & Selective Independent Profile',
-        desc: 'Your child clears complex, multi-step problem paths safely. They are competitive for highly selective regional schools, provided they manage pacing limits and avoid unforced reading slips.'
+        title: 'Highly Selective Level Standing',
+        desc: 'Core operational strategies are stable and sound. Performance matches benchmarks for highly competitive local schools, where key development revolves around avoiding trick answer options.'
       };
     }
-    if (maxACleared === 2) {
+    if (score >= 45) {
       return {
-        title: 'Level A2: Standard Grammar School Capability',
-        desc: 'Your child handles traditional, single-layer grammar school questions well. However, they encounter friction and strategy gaps when rules are masked or abstract variables are added.'
+        title: 'Standard Selective Level Benchmarks',
+        desc: 'Your child demonstrates comfortable understanding of basic, single-step tasks but encounters frequent friction when rules become abstract. Consistent practice tracking will solidify stability.'
       };
     }
     return {
-      title: 'Level A1: Foundational Skill Baseline',
-      desc: 'Your child is currently missing core concepts or rushing basic steps. Any student preparing for selective exams needs to clear this baseline cleanly. Focus on accuracy before adding time pressure.'
+      title: 'Non-Selective / Foundational Track Placement',
+      desc: 'Current diagnostic tracing highlights deep concept gaps or hasty reading habits. Focus strictly on mastering fundamental tools and careful double-checking before practicing timed constraints.'
     };
-  }, [attempts]);
+  }, [attempts, parentMetrics]);
 
-  // --- CHART BUILDERS: SEPARATED BY MATH (A) AND LANGUAGE (L) ---
+  // --- CHART PACK: SEPARATED MATRICES MAPPING ALL 9 COMPREHENSIVE CATEGORIES ---
   const mathPacingData = useMemo(() => {
     return [1, 2, 3, 4].map(lvl => {
       const matched = filteredAttempts.filter(a => getAandLLevels(a).aLevel === lvl);
@@ -317,24 +309,24 @@ export default function PremiumDiagnosticDashboard() {
   const mathErrorData = useMemo(() => {
     return [1, 2, 3, 4].map(lvl => {
       const items = filteredAttempts.filter(a => !a.is_correct && getAandLLevels(a).aLevel === lvl);
-      let w1w2 = 0, w3w5 = 0, w4w7 = 0, w6 = 0, w8w9 = 0;
+      let counts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0 };
 
       items.forEach(i => {
-        const reason = i.analysis?.error_reason;
-        if (reason === 'W1' || reason === 'W2') w1w2++;
-        else if (reason === 'W3' || reason === 'W5') w3w5++;
-        else if (reason === 'W4' || reason === 'W7') w4w7++;
-        else if (reason === 'W6') w6++;
-        else if (reason === 'W8' || reason === 'W9') w8w9++;
+        const r = i.analysis?.error_reason;
+        if (r && counts[r] !== undefined) counts[r]++;
       });
 
       return {
         name: `Math L${lvl}`,
-        'Concept Gaps': w1w2,
-        'Parsing Overlooked': w3w5,
-        'Rushed Triggers': w4w7,
-        'Arithmetic Slips': w6,
-        'Memory Drops': w8w9
+        'Concept Gaps': counts.W1,
+        'Complexity Stretches': counts.W2,
+        'Missing Clues': counts.W3,
+        'Rushed Patterns': counts.W4,
+        'Assumed Rules': counts.W5,
+        'Arithmetic Slips': counts.W6,
+        'Bait Traps': counts.W7,
+        'Tracking Fatigue': counts.W8,
+        'Reality Checks Missed': counts.W9
       };
     });
   }, [filteredAttempts]);
@@ -342,24 +334,24 @@ export default function PremiumDiagnosticDashboard() {
   const langErrorData = useMemo(() => {
     return [1, 2, 3, 4].map(lvl => {
       const items = filteredAttempts.filter(a => !a.is_correct && getAandLLevels(a).lLevel === lvl);
-      let w1w2 = 0, w3w5 = 0, w4w7 = 0, w6 = 0, w8w9 = 0;
+      let counts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0 };
 
       items.forEach(i => {
-        const reason = i.analysis?.error_reason;
-        if (reason === 'W1' || reason === 'W2') w1w2++;
-        else if (reason === 'W3' || reason === 'W5') w3w5++;
-        else if (reason === 'W4' || reason === 'W7') w4w7++;
-        else if (reason === 'W6') w6++;
-        else if (reason === 'W8' || reason === 'W9') w8w9++;
+        const r = i.analysis?.error_reason;
+        if (r && counts[r] !== undefined) counts[r]++;
       });
 
       return {
         name: `Lang L${lvl}`,
-        'Concept Gaps': w1w2,
-        'Parsing Overlooked': w3w5,
-        'Rushed Triggers': w4w7,
-        'Arithmetic Slips': w6,
-        'Memory Drops': w8w9
+        'Concept Gaps': counts.W1,
+        'Complexity Stretches': counts.W2,
+        'Missing Clues': counts.W3,
+        'Rushed Patterns': counts.W4,
+        'Assumed Rules': counts.W5,
+        'Arithmetic Slips': counts.W6,
+        'Bait Traps': counts.W7,
+        'Tracking Fatigue': counts.W8,
+        'Reality Checks Missed': counts.W9
       };
     });
   }, [filteredAttempts]);
@@ -371,7 +363,7 @@ export default function PremiumDiagnosticDashboard() {
   return (
     <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans antialiased pb-32">
       
-      {/* HEADER ROW */}
+      {/* FRAME MAIN HEADER */}
       <header className="border-b border-[#E5E3DD] bg-white px-6 py-5 shadow-xs">
         <div className="max-w-[1500px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
@@ -394,26 +386,26 @@ export default function PremiumDiagnosticDashboard() {
 
       <main className="max-w-[1500px] mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* LEFT PRIMARY PANEL STREAM */}
+        {/* MAIN PANEL CONTENT BODY */}
         <div className="lg:col-span-2 space-y-6">
           
-          {/* HOLISTIC SUMMARY TRACE */}
+          {/* ASSESSMENTS HIGHLIGHT BLOCK */}
           <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
             <div className="bg-[#1B3A5C] text-white p-5 flex justify-between items-center border-b border-white/10">
               <div className="flex items-center gap-2.5">
                 <Brain className="w-5 h-5 text-amber-400" />
                 <div>
                   <h2 className="text-md font-serif font-bold tracking-tight">Tutor Insight Roadmap</h2>
-                  <p className="text-[11px] text-slate-300">Analysis of behavioral adjustments and step-by-step thinking strategies over consecutive runs.</p>
+                  <p className="text-[11px] text-slate-300">Observation of logic tracking patterns and strategy shifts over consecutive task cycles.</p>
                 </div>
               </div>
             </div>
-            <div className="p-6 md:p-8 bg-[#FAF9F5]/30 max-h-[380px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap selection:bg-amber-200 border-b border-slate-100">
+            <div className="p-6 md:p-8 bg-[#FAF9F5]/30 max-h-[380px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap border-b border-slate-100">
               {tutorNarrative}
             </div>
           </div>
 
-          {/* METRIC CARD BAR */}
+          {/* SIMPLIFIED METRIC METERS */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
               <div className="p-3 bg-blue-50 text-blue-700 rounded-xl border border-blue-100">
@@ -421,7 +413,7 @@ export default function PremiumDiagnosticDashboard() {
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Completed Diagnostics</span>
-                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{completedTestsCount} <span className="text-[10px] font-normal text-slate-400">sessions</span></p>
+                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{completedTestsCount} <span className="text-[10px] font-normal text-slate-400">runs</span></p>
               </div>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
@@ -444,26 +436,26 @@ export default function PremiumDiagnosticDashboard() {
             </div>
           </div>
 
-          {/* GROUNDED AND HONEST EVALUATION BLOCK */}
+          {/* REALISTIC AND GROUNDED PLACEMENT CARD */}
           <div className="bg-amber-50/60 border border-amber-200 p-5 rounded-2xl flex items-start gap-4 shadow-xs">
             <div className="p-3 bg-white text-[#1B3A5C] rounded-xl border border-amber-300 shadow-xs flex-shrink-0">
               <Gauge className="w-5 h-5" />
             </div>
             <div className="space-y-1">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-amber-900">Selective Benchmark Alignment Standing</h3>
+              <h3 className="text-[10px] font-black uppercase tracking-wider text-amber-900">Selective Standing Calibration</h3>
               <p className="text-sm font-serif font-bold text-[#1B3A5C]">{selectivityProfile.title}</p>
               <p className="text-xs text-slate-700 leading-relaxed pt-0.5">{selectivityProfile.desc}</p>
             </div>
           </div>
 
-          {/* side-by-side PROGRESSIVE DATA CHARTS COHORT */}
+          {/* MULTI-AXIS CHART SUITE */}
           <div className="space-y-6">
             
-            {/* DUAL PACING PROFILE BAR SECTIONS */}
+            {/* LINE CHARTS BLOCK: MATH VS LANG TIMING */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Math Level (A1–A4)</h3>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Math Challenges</h3>
                   <p className="text-[11px] text-slate-500 mt-0.5">Average seconds spent per phase as problem complexity scales.</p>
                 </div>
                 <div className="h-48 w-full mt-4 text-[10px]">
@@ -484,8 +476,8 @@ export default function PremiumDiagnosticDashboard() {
 
               <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Language Density (L1–L4)</h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Average seconds spent as question vocabulary density grows.</p>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Language Density</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Average seconds spent per phase as question layout text expands.</p>
                 </div>
                 <div className="h-48 w-full mt-4 text-[10px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -504,26 +496,30 @@ export default function PremiumDiagnosticDashboard() {
               </div>
             </div>
 
-            {/* DUAL STRUCTURAL MISTAKE TRIGGER BAR SECTIONS */}
+            {/* STACKED BAR PLOTS BREAKING DOWN INDIVIDUAL 9 CATEGORIES */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Math Level (A1–A4)</h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of mistake points across math abstraction challenges.</p>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Math Core Blocks</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of unforced mistake reasons as logic rules expand.</p>
                 </div>
-                <div className="h-48 w-full mt-4 text-[10px]">
+                <div className="h-56 w-full mt-4 text-[9px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={mathErrorData} margin={{ left: -25, right: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                       <XAxis dataKey="name" stroke="#94a3b8" />
                       <YAxis stroke="#94a3b8" />
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '10px' }} />
-                      <Bar dataKey="Concept Gaps" stackId="a" fill="#3b82f6" />
-                      <Bar dataKey="Parsing Overlooked" stackId="a" fill="#8b5cf6" />
-                      <Bar dataKey="Rushed Triggers" stackId="a" fill="#ef4444" />
-                      <Bar dataKey="Arithmetic Slips" stackId="a" fill="#10b981" />
-                      <Bar dataKey="Memory Drops" stackId="a" fill="#f59e0b" />
+                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '12px' }} />
+                      <Bar dataKey="Concept Gaps" stackId="x" fill="#3b82f6" />
+                      <Bar dataKey="Complexity Stretches" stackId="x" fill="#60a5fa" />
+                      <Bar dataKey="Missing Clues" stackId="x" fill="#f59e0b" />
+                      <Bar dataKey="Rushed Patterns" stackId="x" fill="#fca5a5" />
+                      <Bar dataKey="Assumed Rules" stackId="x" fill="#ef4444" />
+                      <Bar dataKey="Arithmetic Slips" stackId="x" fill="#10b981" />
+                      <Bar dataKey="Bait Traps" stackId="x" fill="#34d399" />
+                      <Bar dataKey="Tracking Fatigue" stackId="x" fill="#8b5cf6" />
+                      <Bar dataKey="Reality Checks Missed" stackId="x" fill="#a78bfa" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -531,22 +527,26 @@ export default function PremiumDiagnosticDashboard() {
 
               <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Language Density (L1–L4)</h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of mistake points across reading trap levels.</p>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Language Density</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of unforced mistake reasons across text reading levels.</p>
                 </div>
-                <div className="h-48 w-full mt-4 text-[10px]">
+                <div className="h-56 w-full mt-4 text-[9px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={langErrorData} margin={{ left: -25, right: 10 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                       <XAxis dataKey="name" stroke="#94a3b8" />
                       <YAxis stroke="#94a3b8" />
                       <Tooltip />
-                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '10px' }} />
-                      <Bar dataKey="Concept Gaps" stackId="a" fill="#3b82f6" />
-                      <Bar dataKey="Parsing Overlooked" stackId="a" fill="#8b5cf6" />
-                      <Bar dataKey="Rushed Triggers" stackId="a" fill="#ef4444" />
-                      <Bar dataKey="Arithmetic Slips" stackId="a" fill="#10b981" />
-                      <Bar dataKey="Memory Drops" stackId="a" fill="#f59e0b" />
+                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '12px' }} />
+                      <Bar dataKey="Concept Gaps" stackId="x" fill="#3b82f6" />
+                      <Bar dataKey="Complexity Stretches" stackId="x" fill="#60a5fa" />
+                      <Bar dataKey="Missing Clues" stackId="x" fill="#f59e0b" />
+                      <Bar dataKey="Rushed Patterns" stackId="x" fill="#fca5a5" />
+                      <Bar dataKey="Assumed Rules" stackId="x" fill="#ef4444" />
+                      <Bar dataKey="Arithmetic Slips" stackId="x" fill="#10b981" />
+                      <Bar dataKey="Bait Traps" stackId="x" fill="#34d399" />
+                      <Bar dataKey="Tracking Fatigue" stackId="x" fill="#8b5cf6" />
+                      <Bar dataKey="Reality Checks Missed" stackId="x" fill="#a78bfa" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -555,12 +555,12 @@ export default function PremiumDiagnosticDashboard() {
 
           </div>
 
-          {/* DETAILED FRICTION MATRIX GRID */}
+          {/* DETAILED FRICTION MATRIX */}
           <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
               <div>
                 <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Learning Friction Breakdown Matrix</h3>
-                <p className="text-xs text-slate-400">Unforced mistake vectors compiled across the window matrix below.</p>
+                <p className="text-xs text-slate-400">Granular look at mistake indicators logged during active analytical runs.</p>
               </div>
               
               <div className="flex bg-slate-100 border border-slate-200 p-1 rounded-xl w-full sm:w-auto">
@@ -604,7 +604,7 @@ export default function PremiumDiagnosticDashboard() {
 
         </div>
 
-        {/* RIGHT SIDEBAR PANEL COLUMN */}
+        {/* RIGHT INTERVENTION SUB-COLUMN */}
         <div className="space-y-4">
           
           <div className="bg-white p-4 rounded-2xl border border-[#E5E3DD] shadow-xs">
@@ -612,8 +612,8 @@ export default function PremiumDiagnosticDashboard() {
               <Layers className="w-3.5 h-3.5 text-[#1B3A5C]" /> Targeted Practice Feed
             </h3>
             
-            {/* Filtered strictly for items where is_correct === false */}
-            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            {/* Filters strictly for incorrect records */}
+            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
               {attempts
                 .filter(a => !a.is_correct && a.analysis?.recommended_intervention)
                 .map((item, idx, arr) => {
@@ -640,7 +640,7 @@ export default function PremiumDiagnosticDashboard() {
                           </span>
                         </div>
                         <p className="text-xs font-serif font-medium truncate pr-2 opacity-95">
-                          Correction Directive Blueprint #{arr.length - idx}
+                          Correction Blueprint Guide #{arr.length - idx}
                         </p>
                       </div>
                       <ChevronRight className="w-3.5 h-3.5 opacity-40 shrink-0" />
@@ -648,12 +648,12 @@ export default function PremiumDiagnosticDashboard() {
                   );
                 })}
               {attempts.filter(a => !a.is_correct && a.analysis?.recommended_intervention).length === 0 && (
-                <div className="text-center p-8 text-xs text-slate-400 font-serif">No corrective feedback items available in historical records.</div>
+                <div className="text-center p-8 text-xs text-slate-400 font-serif">No core review paths flagged in recent tracking windows.</div>
               )}
             </div>
           </div>
 
-          {/* REMEDIAL BLUEPRINT PRESENTATION COMPONENT (ABSTRACT STAMINA LABELS REMOVED) */}
+          {/* ACTIVE COACHING DISPLAY CARD */}
           {activeInterventionItem && activeInterventionItem.analysis?.recommended_intervention && (
             <div className="bg-slate-900 border border-slate-950 text-white rounded-2xl p-5 shadow-md space-y-4 animate-fade-in">
               <div className="border-b border-white/10 pb-3 flex justify-between items-center">
@@ -667,15 +667,15 @@ export default function PremiumDiagnosticDashboard() {
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Coaching Directive for Parents</span>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Coaching Strategy for Parents</span>
                 <p className="text-sm font-serif leading-relaxed text-slate-100 font-medium">
                   {activeInterventionItem.analysis.recommended_intervention}
                 </p>
               </div>
 
               <div className="pt-2 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-400 font-medium">
-                <span>Pacing Record: {activeInterventionItem.solve_time}s total spent</span>
-                <span>Status: Focus Area</span>
+                <span>Pacing Check: {activeInterventionItem.solve_time}s spent</span>
+                <span>Status: Core Focus</span>
               </div>
             </div>
           )}
