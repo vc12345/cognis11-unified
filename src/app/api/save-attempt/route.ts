@@ -34,14 +34,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unverified parent session profile context.' }, { status: 401 });
     }
 
-    // 2. Extract Frontend Payload Arguments (including fallback for backwards compatibility)
+    // 2. Extract Frontend Payload Arguments
     const { 
       session_id, 
       variant_id, 
       raw_answer, 
       step_velocities, 
       total_velocity_seconds,
-      execution_velocity_seconds // Added to scope here to satisfy the compiler
+      execution_velocity_seconds 
     } = await req.json();
 
     if (!variant_id || !raw_answer || !session_id) {
@@ -86,7 +86,6 @@ export async function POST(req: Request) {
         
     const conceptName = sourceConcept || 'Mathematics';
     
-    // Explicitly seed the breakdown metrics arrays, adding W9 into the calculation context dynamically
     const availableWCategories = skeletonData?.failure_profile 
       ? [...Object.keys(skeletonData.failure_profile), 'W9'].filter((v, i, a) => a.indexOf(v) === i)
       : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
@@ -110,7 +109,7 @@ export async function POST(req: Request) {
       - "W3": Passive Linguistic Parsing Failure (Child skips or misreads explicit words like "not", "except", or conditions).
       - "W4": Proactive Schema Substitution (Rushed pattern-snapping; confidently forces an old layout onto this question).
       - "W2": Application Ceiling (Understands the base rule but collapses under deep abstraction or complex variables in Step 2).
-      - "W5": Implicit Assumption Bias (Flawless internal logic built entirely on an imaginary, unstated premise or rule).
+      - "W5": Implicit Assumption Bias (Child invents a fake unstated rule or premise and builds an internally logical plan on it).
       - "W7": Reactive Seduction / Trap Sprung (Direct surrender to a designed distractor element or an attractive partial answer).
       - "W6": Operational / Calculation Slip (Reading and logic tracking are 100% sound, but an arithmetic calculation error happened in Step 3).
       - "W8": Horizontal Working Memory Overflow (Can do steps in isolation, but drops intermediate coordinates or loses track mid-calculation).
@@ -128,7 +127,7 @@ export async function POST(req: Request) {
         "parent_facing_error": "W1" | "W2" | "W3" | "W4" | "W5" | "W6" | "W7" | "W8" | "W9" | null,
         "error_reason": "W1" | "W2" | "W3" | "W4" | "W5" | "W6" | "W7" | "W8" | "W9" | null,
         "speech_telemetry": {
-          "speech_density_score": number, // 0-100. High density = concise structural logic.
+          "speech_density_score": number,
           "detected_frustration_tokens": boolean,
           "time_pressure_derailment": boolean,
           "is_structural_flaw": boolean
@@ -157,7 +156,7 @@ export async function POST(req: Request) {
       - Child's Self-Reported Confidence Marker: "${confidence || 'N/A'}"
     `;
 
-    // 6. Execute High-Fidelity Call to Anthropic Native Wrapper
+    // 6. Execute High-Fidelity Call to Anthropic Native Wrapper (Restored to sonnet-4-6)
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -166,7 +165,7 @@ export async function POST(req: Request) {
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6', // Restored production-ready model name string
         max_tokens: 2000,
         temperature: 0.1,
         system: systemInstruction,
@@ -193,7 +192,7 @@ export async function POST(req: Request) {
     
     const evaluation = JSON.parse(rawText.trim());
 
-    // 7. Update Structural Skeleton Aggregates via your original RPC link
+    // 7. Update Structural Skeleton Aggregates
     const triggeredCategories = Object.entries(evaluation.w_category_breakdown || {})
       .filter(([_, value]) => value === 1)
       .map(([key, _]) => key);
