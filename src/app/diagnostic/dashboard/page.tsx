@@ -11,7 +11,7 @@ import {
   Brain, Gauge, Clock, CheckCircle2, AlertCircle, Sparkles, 
   ChevronRight, BookOpen, Layers, BarChart2, Loader2, Target, Trophy
 } from 'lucide-react';
-import AuthBadge from '../../../../components/AuthBadge';
+import AuthBadge from '../../../components/AuthBadge';
 
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
