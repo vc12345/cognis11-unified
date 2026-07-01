@@ -253,7 +253,7 @@ export default function PremiumDiagnosticDashboard() {
   }, [filteredAttempts]);
 
   const langPacingData = useMemo(() => {
-    return [1, 2, 3, 4].map(lvl => {
+    return [1, 2, 3].map(lvl => {
       const matched = filteredAttempts.filter(a => getAandLLevels(a).lLevel === lvl);
       let r = 0, p = 0, c = 0, count = 0;
 
@@ -301,7 +301,7 @@ export default function PremiumDiagnosticDashboard() {
   }, [filteredAttempts]);
 
   const langErrorData = useMemo(() => {
-    return [1, 2, 3, 4].map(lvl => {
+    return [1, 2, 3].map(lvl => {
       const items = filteredAttempts.filter(a => !a.is_correct && getAandLLevels(a).lLevel === lvl);
       let counts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0 };
 
