@@ -28,29 +28,27 @@ interface TestState {
   errorMessage: string;
 }
 
-// Scaffolding Sub-steps for the active question
 type ScaffoldingStep = 1 | 2 | 3;
-
 type UIState = 'IDLE' | 'RECORDING' | 'ANALYZING_AUDIO' | 'SUBMITTING' | 'COMPILING_SUMMARY';
 
-// --- META COPY GUIDE FOR THE CHILD ---
+// --- CONFIGURATION COPY HUB ---
 const SCAFFOLD_CONFIG = {
   1: {
     title: "Step 1: Spot the Goal",
     prompt: "Read the question out loud, then tell me: what is this puzzle asking you to find?",
-    placeholder: "Listening to you read and find the target goal...",
+    placeholder: "Listening to you read and isolate the question target...",
     badgeColor: "bg-blue-50 text-blue-700 border-blue-200"
   },
   2: {
     title: "Step 2: Form a Game Plan",
     prompt: "Don't do any math yet! In your own words, what is your step-by-step plan to solve this?",
-    placeholder: "Tell me your strategy game plan...",
+    placeholder: "Tell me your logical strategy blueprints...",
     badgeColor: "bg-amber-50 text-amber-700 border-amber-200"
   },
   3: {
     title: "Step 3: Solve & Reflect",
     prompt: "Grab your pen and paper! Solve it out loud step-by-step, then pick your answer and tell me how you feel.",
-    placeholder: "Talk through your calculations all the way to your final answer...",
+    placeholder: "Talk through your calculation vectors all the way to your finalized answer...",
     badgeColor: "bg-purple-50 text-purple-700 border-purple-200"
   }
 };
@@ -72,7 +70,7 @@ function DiagnosticRunner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Core Test States
+  // Core Operational Test State
   const [testState, setTestState] = useState<TestState>({
     status: 'INITIALIZING',
     sessionId: null,
@@ -81,16 +79,20 @@ function DiagnosticRunner() {
     errorMessage: '',
   });
 
-  // Scaffolding Interface Engines
+  // Scaffolding Wizard Engine Components
   const [currentStep, setCurrentStep] = useState<ScaffoldingStep>(1);
   const [transcripts, setTranscripts] = useState({ step1: '', step2: '', step3: '' });
   const [confidence, setConfidence] = useState<'low' | 'medium' | 'high' | null>(null);
 
-  // UI Engine States
+  // Layout Controls 
   const [uiState, setUiState] = useState<UIState>('IDLE');
   const [hasRecordedCurrentStep, setHasRecordedCurrentStep] = useState(false);
   
+  // High-Fidelity Differential Pacing Stopwatch Controllers
   const questionStartTime = useRef<number>(0);
+  const stepStartTime = useRef<number>(0);
+  const stepVelocities = useRef({ step1: 0, step2: 0, step3: 0 });
+
   const { startRecording, stopRecording } = useAudioRecorder();
 
   const supabase = useMemo(() => createBrowserClient(
@@ -119,7 +121,11 @@ function DiagnosticRunner() {
             currentIndex: 0,
             errorMessage: ''
           });
-          questionStartTime.current = Date.now();
+          
+          // Anchor stopwatch tracking metrics instantly on session load
+          const now = Date.now();
+          questionStartTime.current = now;
+          stepStartTime.current = now;
         } else {
           const res = await fetch(`/api/resume-test?session_id=${sessionParam}`);
           const data = await res.json();
@@ -132,7 +138,10 @@ function DiagnosticRunner() {
             currentIndex: data.resume_index,
             errorMessage: ''
           });
-          questionStartTime.current = Date.now();
+          
+          const now = Date.now();
+          questionStartTime.current = now;
+          stepStartTime.current = now;
         }
       } catch (err: any) {
         setTestState(prev => ({ ...prev, status: 'ERROR', errorMessage: err.message }));
@@ -155,7 +164,6 @@ function DiagnosticRunner() {
     })).sort((a, b) => a.label.localeCompare(b.label));
   }, [activeQuestion]);
 
-  // Current active step transcript manager
   const currentTranscriptValue = useMemo(() => {
     if (currentStep === 1) return transcripts.step1;
     if (currentStep === 2) return transcripts.step2;
@@ -195,8 +203,8 @@ function DiagnosticRunner() {
           updateCurrentTranscriptValue(mergedText);
           setHasRecordedCurrentStep(true);
         } catch (err) {
-          console.error("Transcription error:", err);
-          alert("Could not process your voice cleanly. Feel free to adjust the notes area by hand using your keyboard!");
+          console.error("Transcription error fallback exception:", err);
+          alert("Could not snap your audio cleanly. Please verify using your keyboard input pad directly.");
           setHasRecordedCurrentStep(true);
         } finally {
           setUiState('IDLE');
@@ -207,24 +215,39 @@ function DiagnosticRunner() {
     }
   };
 
+  // Dedicated routing switcher capturing isolated differential step tracking paces
   const handleAdvanceStep = () => {
-    if (currentStep < 3) {
-      setCurrentStep((prev) => (prev + 1) as ScaffoldingStep);
+    const now = Date.now();
+    const deltaSeconds = Math.max(1, Math.round((now - stepStartTime.current) / 1000));
+
+    if (currentStep === 1) {
+      stepVelocities.current.step1 = deltaSeconds;
+      stepStartTime.current = now; // Reset trigger delta checkpoint for step 2
+      setCurrentStep(2);
+      setHasRecordedCurrentStep(false);
+    } else if (currentStep === 2) {
+      stepVelocities.current.step2 = deltaSeconds;
+      stepStartTime.current = now; // Reset trigger delta checkpoint for step 3
+      setCurrentStep(3);
       setHasRecordedCurrentStep(false);
     } else {
+      stepVelocities.current.step3 = deltaSeconds;
       handleCommitAnswer();
     }
   };
 
   const handleCommitAnswer = async () => {
     if (uiState === 'SUBMITTING' || uiState === 'COMPILING_SUMMARY') return;
-    setUiState('SUBMITTING');
+    
+    // Safety guard checking final operational step time properties before shipping payload bounds
+    if (stepVelocities.current.step3 === 0 && stepStartTime.current > 0) {
+      stepVelocities.current.step3 = Math.max(1, Math.round((Date.now() - stepStartTime.current) / 1000));
+    }
 
-    const timeSpentMs = Date.now() - questionStartTime.current;
-    const timeSpentSeconds = Math.round(timeSpentMs / 1000);
+    setUiState('SUBMITTING');
+    const totalTimeSpentSeconds = Math.max(1, Math.round((Date.now() - questionStartTime.current) / 1000));
 
     try {
-      // NOTE: For now, keeping core synchronization call structure intact 
       const saveResponse = await fetch('/api/save-attempt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,12 +255,15 @@ function DiagnosticRunner() {
           session_id: testState.sessionId,
           variant_id: activeQuestion.variant_id,
           raw_answer: JSON.stringify({ ...transcripts, confidence }), 
-          execution_velocity_seconds: timeSpentSeconds,
+          
+          // High-fidelity structured synchronization payload fields
+          step_velocities: stepVelocities.current,
+          total_velocity_seconds: totalTimeSpentSeconds,
         })
       });
 
       if (!saveResponse.ok) {
-        console.error("Sync error encountered during data save pipeline loop.");
+        console.error("Warning: Storage sync route pipeline returned an insert tracking exception flag.");
       }
 
       const nextIndex = testState.currentIndex + 1;
@@ -250,23 +276,27 @@ function DiagnosticRunner() {
           body: JSON.stringify({ session_id: testState.sessionId })
         });
 
-        if (!compilationResponse.ok) throw new Error("Global core model extraction error.");
+        if (!compilationResponse.ok) throw new Error("Global model analysis tracking failed.");
 
         setTestState(prev => ({ ...prev, status: 'COMPLETED' }));
         setUiState('IDLE');
       } else {
-        // Reset sub-state metrics for the next incoming problem architecture block
+        // Recycle variables clean for incoming problem matrix structures
+        stepVelocities.current = { step1: 0, step2: 0, step3: 0 };
         setTestState(prev => ({ ...prev, currentIndex: nextIndex }));
         setTranscripts({ step1: '', step2: '', step3: '' });
         setConfidence(null);
         setCurrentStep(1);
         setHasRecordedCurrentStep(false);
         setUiState('IDLE');
-        questionStartTime.current = Date.now();
+        
+        const freshResetNow = Date.now();
+        questionStartTime.current = freshResetNow;
+        stepStartTime.current = freshResetNow;
       }
     } catch (err: any) {
-      console.error("Critical engine crash:", err);
-      alert("A synchronization dropout happened. Please re-tap the submission button.");
+      console.error("Critical dashboard saving crash:", err);
+      alert("A network dropout happened while securing your answer layout. Please re-submit.");
       setUiState('IDLE');
     }
   };
@@ -343,10 +373,10 @@ function DiagnosticRunner() {
   if (!activeQuestion) return null;
 
   return (
-    <main className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans flex flex-col items-center justify-between p-4 md:p-8 selection:bg-amber-100">
+    <main className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans flex flex-col items-center justify-between p-4 md:p-8 antialiased selection:bg-amber-100">
       <div className="max-w-3xl w-full flex-1 flex flex-col justify-center space-y-4">
         
-        {/* TOP METRIC PROGRESS CONTROLLER */}
+        {/* TOP STATUS ROW PROGRESSIVE TRACKER */}
         <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
@@ -357,10 +387,10 @@ function DiagnosticRunner() {
           </span>
         </div>
 
-        {/* PRIMARY PUZZLE CANVAS PANEL */}
+        {/* PRIMARY PROBLEM SURFACE LAYOUT CARD */}
         <div className="bg-white rounded-[2rem] border border-[#E5E3DD] p-6 md:p-10 shadow-sm space-y-6">
           
-          {/* Main Question Display block */}
+          {/* Main Core Question Text Field */}
           <div className="space-y-6 border-b border-slate-100 pb-6">
             <div className="text-xl md:text-2xl text-slate-800 leading-relaxed font-serif font-medium text-balance">
               {renderLatexString(activeQuestion.question)}
@@ -385,10 +415,10 @@ function DiagnosticRunner() {
             )}
           </div>
 
-          {/* SCAFFOLDING GUIDANCE INTERACTION DECK */}
+          {/* DYNAMIC SCANNABLE SCAFFOLD DRIVER PANEL */}
           <div className="space-y-6 pt-2">
             
-            {/* SUB-STEP INDICATOR HUB */}
+            {/* SUB-STEP WIZARD PROGRESS CHIPS */}
             <div className="flex items-center justify-between bg-slate-50 border border-slate-100 p-3 rounded-2xl">
               <div className="flex items-center gap-3">
                 <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${SCAFFOLD_CONFIG[currentStep].badgeColor}`}>
@@ -396,7 +426,6 @@ function DiagnosticRunner() {
                 </span>
               </div>
               
-              {/* Animated Progress Pills */}
               <div className="flex items-center gap-1.5">
                 {([1, 2, 3] as ScaffoldingStep[]).map((stepIdx) => (
                   <div 
@@ -413,7 +442,7 @@ function DiagnosticRunner() {
               </div>
             </div>
 
-            {/* LIVE CONVERSATIONAL COACH PROMPT HEADER */}
+            {/* LIVE VOICE COACH MESSAGE PROMPT BOX */}
             <div className="flex items-start gap-3 bg-amber-50/40 border border-amber-100/70 rounded-2xl p-4">
               <Volume2 className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
               <p className="text-sm font-serif font-medium text-slate-800 leading-relaxed">
@@ -421,9 +450,9 @@ function DiagnosticRunner() {
               </p>
             </div>
 
-            {/* SPEECH TEXT MONITOR ARTIFACT VIEW */}
+            {/* RESPONSIVE RUNTIME SPEECH CAPTUREPAD TEXTAREA */}
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
-              hasRecordedCurrentStep || uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' 
+              hasRecordedCurrentStep || currentTranscriptValue.trim().length > 0 || uiState === 'RECORDING' || uiState === 'ANALYZING_AUDIO' 
                 ? 'max-h-48 opacity-100' 
                 : 'max-h-0 opacity-0 pointer-events-none'
             }`}>
@@ -431,7 +460,7 @@ function DiagnosticRunner() {
                 <div className="flex justify-between items-center text-[9px] font-bold uppercase tracking-wider text-slate-400">
                   <span className="flex items-center gap-1.5">
                     <AlertCircle className="w-3 h-3 text-[#1B3A5C]" />
-                    Interactive Audio Catchpad (Edit your notes anytime if needed)
+                    Interactive Audio Catchpad (Feel free to fine-tune your thoughts by typing here)
                   </span>
                   {uiState === 'ANALYZING_AUDIO' && <span className="text-amber-600 animate-pulse font-bold">Transcribing...</span>}
                 </div>
@@ -446,11 +475,11 @@ function DiagnosticRunner() {
               </div>
             </div>
 
-            {/* STEP 3 OPTIONAL: METACOGNITIVE CONFIDENCE BLOCK */}
-            {currentStep === 3 && hasRecordedCurrentStep && (
+            {/* METRIC STEP 3 CAPABILITY REFLECTION: EVALUATION RADIO HOVER */}
+            {currentStep === 3 && (hasRecordedCurrentStep || currentTranscriptValue.trim().length > 0) && (
               <div className="bg-purple-50/30 border border-purple-100 p-4 rounded-2xl space-y-3 animate-fade-in">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-purple-900 flex items-center gap-1">
-                  <Award className="w-3.5 h-3.5" /> How sure do you feel about this answer?
+                  <Award className="w-3.5 h-3.5" /> How sure do you feel about this final answer route?
                 </span>
                 <div className="grid grid-cols-3 gap-2">
                   {(['low', 'medium', 'high'] as const).map((level) => {
@@ -477,7 +506,7 @@ function DiagnosticRunner() {
               </div>
             )}
 
-            {/* AUDIO RECORDING CONTROL ROW */}
+            {/* PRIMARY BUTTON INTERACTION ROW CONTROLLER */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button 
                 onClick={handleMicToggle}
@@ -493,22 +522,22 @@ function DiagnosticRunner() {
                 {uiState === 'RECORDING' ? (
                   <>
                     <Square className="w-3.5 h-3.5 fill-white text-white" />
-                    Stop & Listen to My Notes
+                    Stop & Save Voice Notes
                   </>
                 ) : uiState === 'ANALYZING_AUDIO' ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
-                    Processing Voice Path...
+                    Processing Speech Vectors...
                   </>
                 ) : (
                   <>
                     <Mic className="w-3.5 h-3.5" />
-                    {hasRecordedCurrentStep ? 'Tap to speak more thoughts' : 'Tap mic and explain your step'}
+                    {hasRecordedCurrentStep || currentTranscriptValue.trim().length > 0 ? 'Tap to expand spoken ideas' : 'Tap mic & talk through this step'}
                   </>
                 )}
               </button>
 
-              {/* ACTION NAVIGATION TRIGGER TRIGGERBUTTON */}
+              {/* NAVIGATION FLOW CONTROL ACTION NAVIGATION */}
               {(hasRecordedCurrentStep || currentTranscriptValue.trim().length > 0) && (
                 <button 
                   onClick={handleAdvanceStep} 
@@ -519,7 +548,7 @@ function DiagnosticRunner() {
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : currentStep === 3 ? (
                     <>
-                      Submit Final Puzzle Path <CheckCircle2 className="w-4 h-4" />
+                      Submit Puzzle Path <CheckCircle2 className="w-4 h-4" />
                     </>
                   ) : (
                     <>
@@ -533,7 +562,7 @@ function DiagnosticRunner() {
 
         </div>
 
-        {/* CONTROLLER PAUSE LEAVE RUNTIME ROW */}
+        {/* REVERT / SUSPEND DIAGNOSTIC ACTION LINK ROW */}
         <div className="text-center">
           <button
             onClick={() => window.location.href = '/profile'}
