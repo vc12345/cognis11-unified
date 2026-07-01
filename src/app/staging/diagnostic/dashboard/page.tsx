@@ -6,7 +6,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { 
   Brain, Gauge, Clock, Calendar, CheckCircle2, XCircle, 
   MessageSquare, TrendingUp, Sparkles, AlertCircle, ShieldAlert,
-  HelpCircle, ChevronRight, BookOpen, Layers, BarChart2
+  HelpCircle, ChevronRight, BookOpen, Layers, BarChart2, Loader2
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
@@ -24,6 +24,8 @@ interface AttemptRow {
   variants: {
     generated_question: string;
     correct_answer: string;
+  } | null;
+  skeletons: {
     al_classification: string;
   } | null;
   analysis: {
@@ -62,15 +64,14 @@ const W_DESCRIPTIONS: Record<string, string> = {
   W4: 'Rushed pattern matching; forces an old layout onto a question because of superficial surface similarities.',
   W5: 'Builds an internally logical strategy upon a completely unstated, self-invented premise.',
   W7: 'Falls directly for a designed distractor element or an attractive partial calculation output.',
-  W6: 'Conceptual tracking is perfect, but a basic, isolated mental arithmetic arithmetic slip occurred.',
+  W6: 'Conceptual tracking is perfect, but a basic, isolated mental arithmetic slip occurred.',
   W8: 'Can execute steps in isolation, but drops intermediate coordinates or loses track mid-calculation.',
   W9: 'Arrives at a contextually impossible output but accepts the result without validating against reality.'
 };
 
-// LaTeX parsing helper for question renders
 const renderLatexString = (text: string) => {
   if (!text) return null;
-  const parts = text.split(/(\$\$[\s\S]*?\ $\$|\$[\s\S]*?\$)/g);
+  const parts = text.split(/(\$\$[\s\S]*?\$\$|\$[\s\S]*?\$)/g);
   return parts.map((part, index) => {
     if (part.startsWith('$$') && part.endsWith('$$')) {
       return <BlockMath key={index} math={part.slice(2, -2)} />;
@@ -128,7 +129,7 @@ export default function PremiumDiagnosticDashboard() {
 
     setTutorNarrative(summaryData?.tutor_narrative || 'Holistic roadmap analysis maps here upon completion of a full diagnostic run.');
 
-    // 3. Extract deep scaffolding attempts
+    // 3. Extract deep scaffolding attempts with corrected multi-table relationship structures
     const { data: attemptRows, error } = await supabase
       .from('user_attempts')
       .select(`
@@ -141,7 +142,9 @@ export default function PremiumDiagnosticDashboard() {
         analysis,
         variants (
           generated_question,
-          correct_answer,
+          correct_answer
+        ),
+        skeletons (
           al_classification
         )
       `)
@@ -149,9 +152,23 @@ export default function PremiumDiagnosticDashboard() {
       .order('created_at', { ascending: false });
 
     if (!error && attemptRows) {
-      setAttempts(attemptRows as unknown as AttemptRow[]);
-      if (attemptRows.length > 0) {
-        setActiveLogId(attemptRows[0].id);
+      // Defensive parsing layer: transforms stringified JSON payloads back into target objects safely
+      const normalizedAttempts = (attemptRows as any[]).map(row => {
+        let cleanAnalysis = row.analysis;
+        if (typeof cleanAnalysis === 'string') {
+          try {
+            cleanAnalysis = JSON.parse(cleanAnalysis);
+          } catch (e) {
+            console.error("Malformed database JSON element normalized to blank state container:", e);
+            cleanAnalysis = {};
+          }
+        }
+        return { ...row, analysis: cleanAnalysis };
+      });
+
+      setAttempts(normalizedAttempts);
+      if (normalizedAttempts.length > 0) {
+        setActiveLogId(normalizedAttempts[0].id);
       }
     }
     setLoading(false);
@@ -185,14 +202,12 @@ export default function PremiumDiagnosticDashboard() {
     };
 
     filteredAttempts.forEach(a => {
-      // Check if they self-corrected (marked correct but flagged with a behavior mismatch in scratchpad)
       const isCorrect = a.is_correct;
       const scratch = a.analysis?.teacher_scratchpad?.toLowerCase() || '';
       if (isCorrect && (scratch.includes('self-correct') || scratch.includes('caught'))) {
         totalSelfCorrections++;
       }
 
-      // Map strict error counters from backend breakdown response
       const breakdown = a.analysis?.w_category_breakdown;
       if (breakdown) {
         Object.keys(errorsCount).forEach(k => {
@@ -405,7 +420,7 @@ export default function PremiumDiagnosticDashboard() {
               </div>
             </div>
 
-            {/* Custom SVG Data Metrics Meter Renders */}
+            {/* Custom Data Metrics Meter Renders */}
             <div className="space-y-3.5 pt-1">
               {Object.entries(metrics.errorMatrix).map(([code, count]) => {
                 const totalErrors = Object.values(metrics.errorMatrix).reduce((acc, v) => acc + v, 0);
@@ -469,7 +484,7 @@ export default function PremiumDiagnosticDashboard() {
                     <div className="space-y-1 overflow-hidden">
                       <div className="flex items-center gap-2">
                         <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded uppercase ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}`}>
-                          {item.variants?.al_classification || 'A1L1'}
+                          {item.skeletons?.al_classification || 'A1L1'}
                         </span>
                         <span className={`text-[9px] font-bold ${active ? 'text-amber-200' : 'text-slate-400'}`}>
                           {new Date(item.created_at).toLocaleDateString()}
@@ -547,7 +562,7 @@ export default function PremiumDiagnosticDashboard() {
                 {activeTranscriptParsed?.step3 && (
                   <div className="p-3 rounded-xl bg-purple-50/40 border border-purple-100/80 space-y-1">
                     <span className="text-[9px] font-bold text-purple-700 uppercase tracking-widest block">Stage 3: Solving Loop</span>
-                    <p className="text-xs text-slate-600 leading-normal italic">"{activeTranscriptParsed.step3}"</p>
+                    <p className="text-xs text-slate-600 timeframe leading-normal italic">"{activeTranscriptParsed.step3}"</p>
                     <div className="flex justify-between items-center pt-0.5">
                       {activeLogItem.step_velocities?.step3 && (
                         <span className="inline-flex items-center gap-1 text-[9px] font-mono text-purple-500 font-bold">
