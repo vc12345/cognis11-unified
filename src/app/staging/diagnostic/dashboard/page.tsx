@@ -1,61 +1,85 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { 
-  ScatterChart, Scatter, XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, ReferenceLine, AreaChart, Area, BarChart, Bar, 
-  LineChart, Line, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ComposedChart
-} from 'recharts';
-import { 
-  ShieldAlert, BookOpen, CheckCircle2, XCircle, Wallet, Flame, AlertCircle
+  Brain, Gauge, Clock, Calendar, CheckCircle2, XCircle, 
+  MessageSquare, TrendingUp, Sparkles, AlertCircle, ShieldAlert,
+  HelpCircle, ChevronRight, BookOpen, Layers, BarChart2
 } from 'lucide-react';
 import AuthBadge from '../../../../components/AuthBadge';
 
-interface DiagnosticTelemetry {
-  raw: {
-    attempted: number;
-    correct: number;
-    passed: number;
-    completedTests: number;
-  };
-  errors: {
-    conceptUnknown: number;
-    appTooHard: number;
-    wordingComprehension: number;
-    misinterpretedSimpler: number;
-    unjustifiedAssumption: number;
-    calculationError: number;
-    intentionalTrap: number;
-    subAnswerStall: number;
-    blindToSolution: number;
-  };
-  charts: {
-    fatigueStream: { question: string; speechVolume: number; accuracy: number; frustration: number }[];
-    errorDistribution: { name: string; count: number }[];
-    altitudeRadar: { tier: string; childScore: number; fullMark: number }[];
-    crunchCurve: { velocityWindow: string; accuracy: number; speedValue: number }[];
-    matrixPoints: { label: string; x: number; y: number; z: number; successRate: number }[];
-    quadrantPoints: { name: string; speed: number; accuracy: number; label: string }[];
-  };
-  verdict: {
-    maxACleared: number;
-    maxLCleared: number;
-    givesUpEasily: boolean;
-    panics: boolean;
-    speechRatio: number;
-    structuralCount: number;
-    flukeCount: number;
-    triageROICard: string;
-    crunchBreakpoint: number;
-    frictionIndexScore: number;
-    canOtherPlatformsHelp: string;
-    canTutorHelp: string;
-    isLostCause: boolean;
-    canReadAndUnderstand: string;
-  };
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
+
+// --- TYPE DEFINITIONS ---
+interface AttemptRow {
+  id: string;
+  created_at: string;
+  is_correct: boolean;
+  solve_time: number;
+  step_velocities: { step1: number; step2: number; step3: number } | null;
+  transcript: string | { step1: string; step2: string; step3: string; confidence?: string };
+  variants: {
+    generated_question: string;
+    correct_answer: string;
+    al_classification: string;
+  } | null;
+  analysis: {
+    teacher_scratchpad?: string;
+    recommended_intervention?: string;
+    w_category_breakdown?: Record<string, number>;
+    error_reason?: string | null;
+    methodology_used?: string;
+    speech_telemetry?: {
+      speech_density_score?: number;
+      detected_frustration_tokens?: boolean;
+      time_pressure_derailment?: boolean;
+      is_structural_flaw?: boolean;
+    };
+  } | null;
 }
+
+type TimeWindow = 'month' | 'quarter' | 'all';
+
+const W_NAMES: Record<string, string> = {
+  W1: 'Concept Unknown',
+  W2: 'Application Ceiling',
+  W3: 'Passive Linguistic Parsing',
+  W4: 'Proactive Schema Substitution',
+  W5: 'Implicit Assumption Bias',
+  W6: 'Operational / Calculation Slip',
+  W7: 'Reactive Seduction (Trap Sprung)',
+  W8: 'Horizontal Working Memory Overflow',
+  W9: 'Metacognitive Absurdity Tolerance'
+};
+
+const W_DESCRIPTIONS: Record<string, string> = {
+  W1: 'Lacks the mathematical framework or baseline tool to address the problem entirely.',
+  W2: 'Recognizes the concept but breaks down when deep abstraction or multi-layered variables are introduced.',
+  W3: 'Reading mechanics failure—passes over or skips written conditions (e.g., negative modifiers).',
+  W4: 'Rushed pattern matching; forces an old layout onto a question because of superficial surface similarities.',
+  W5: 'Builds an internally logical strategy upon a completely unstated, self-invented premise.',
+  W7: 'Falls directly for a designed distractor element or an attractive partial calculation output.',
+  W6: 'Conceptual tracking is perfect, but a basic, isolated mental arithmetic arithmetic slip occurred.',
+  W8: 'Can execute steps in isolation, but drops intermediate coordinates or loses track mid-calculation.',
+  W9: 'Arrives at a contextually impossible output but accepts the result without validating against reality.'
+};
+
+// LaTeX parsing helper for question renders
+const renderLatexString = (text: string) => {
+  if (!text) return null;
+  const parts = text.split(/(\$\$[\s\S]*?\ $\$|\$[\s\S]*?\$)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('$$') && part.endsWith('$$')) {
+      return <BlockMath key={index} math={part.slice(2, -2)} />;
+    } else if (part.startsWith('$') && part.endsWith('$')) {
+      return <InlineMath key={index} math={part.slice(1, -1)} />;
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
 
 export default function PremiumDiagnosticDashboard() {
   const router = useRouter();
@@ -63,557 +87,496 @@ export default function PremiumDiagnosticDashboard() {
   const [loading, setLoading] = useState(true);
   const [isResumable, setIsResumable] = useState(false);
   const [tutorNarrative, setTutorNarrative] = useState<string>('');
-  const [data, setData] = useState<DiagnosticTelemetry | null>(null);
+  const [attempts, setAttempts] = useState<AttemptRow[]>([]);
+  const [completedTestsCount, setCompletedTestsCount] = useState(0);
+  const [selectedWindow, setSelectedWindow] = useState<TimeWindow>('all');
+  const [activeLogId, setActiveLogId] = useState<string | null>(null);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Set mounted state to block hydration glitches
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  async function compileDashboardData(uid: string) {
+  async function loadDashboardData() {
     setLoading(true);
-    
-    // 1. Fetch Diagnostic Session States
-    const { data: sessions, error: sessionErr } = await supabase
-      .from('diagnostic_sessions')
-      .select('status');
-      
-    let completedTestsCount = 0;
-    let activeSessionFound = false;
-
-    if (!sessionErr && sessions) {
-      completedTestsCount = sessions.filter(s => s.status === 'completed').length;
-      activeSessionFound = sessions.some(s => s.status === 'active');
-    }
-    setIsResumable(activeSessionFound);
-
-    // 2. Fetch Cached Claude Tutor Summary Narrative Text
-    const { data: summaryData, error: summaryError } = await supabase
-      .from('cognitive_summaries')
-      .select('tutor_narrative')
-      .eq('user_id', uid)
-      .maybeSingle();
-
-    if (summaryError) {
-      console.error("Cognitive Summary Retrieval Link Exception:", summaryError);
-    }
-
-    setTutorNarrative(summaryData?.tutor_narrative || 'No global narrative synthesis compiled yet. Complete a full diagnostic run to trigger your expert tutor evaluation report.');
-
-    // 3. Gather Live Spoken Core Telemetry Items with direct relationship mapping
-    const { data: attempts, error } = await supabase
-      .from('user_attempts')
-      .select(`
-        is_correct, 
-        solve_time, 
-        analysis, 
-        skeletons ( 
-          al_classification 
-        )
-      `)
-      .eq('user_id', uid)
-      .order('created_at', { ascending: true });
-
-    if (error || !attempts || attempts.length === 0) {
-      setData({
-        raw: { attempted: 0, correct: 0, passed: 0, completedTests: completedTestsCount },
-        errors: { conceptUnknown: 0, appTooHard: 0, wordingComprehension: 0, misinterpretedSimpler: 0, unjustifiedAssumption: 0, calculationError: 0, intentionalTrap: 0, subAnswerStall: 0, blindToSolution: 0 },
-        charts: { fatigueStream: [], errorDistribution: [], altitudeRadar: [], crunchCurve: [], matrixPoints: [], quadrantPoints: [] },
-        verdict: { maxACleared: 1, maxLCleared: 1, givesUpEasily: false, panics: false, speechRatio: 100, structuralCount: 0, flukeCount: 0, triageROICard: 'N/A', crunchBreakpoint: 45, frictionIndexScore: 0, canOtherPlatformsHelp: 'N/A', canTutorHelp: 'N/A', isLostCause: false, canReadAndUnderstand: 'N/A' }
-      });
-      setLoading(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
       return;
     }
 
-    const rawAttempts = attempts as any[];
-    let total = rawAttempts.length;
-    let right = rawAttempts.filter(a => a.is_correct).length;
-    let passedCount = 0;
-
-    let errMap = {
-      conceptUnknown: 0, appTooHard: 0, wordingComprehension: 0, misinterpretedSimpler: 0,
-      unjustifiedAssumption: 0, calculationError: 0, intentionalTrap: 0, subAnswerStall: 0, blindToSolution: 0
-    };
-
-    let maxA = 1;
-    let maxL = 1;
-    let structuralCounter = 0;
-    let flukeCounter = 0;
-    let timeCrunchDerailments = 0;
-    let verbalFrictionHits = 0;
-
-    let curveBuckets = {
-      comfortable: { total: 0, correct: 0 },
-      paced: { total: 0, correct: 0 },
-      highSpeed: { total: 0, correct: 0 },
-      panic: { total: 0, correct: 0 }
-    };
-
-    let matrixDataMap = new Map<string, { correct: number; total: number }>();
-    for(let a = 1; a <= 4; a++) {
-      for(let l = 1; l <= 4; l++) {
-        matrixDataMap.set(`A${a}L${l}`, { correct: 0, total: 0 });
-      }
+    // 1. Session state compilation
+    const { data: sessions } = await supabase
+      .from('diagnostic_sessions')
+      .select('status');
+    
+    if (sessions) {
+      setCompletedTestsCount(sessions.filter(s => s.status === 'completed').length);
+      setIsResumable(sessions.some(s => s.status === 'active'));
     }
 
-    const focusPoints: { name: string; speed: number; accuracy: number; label: string }[] = [];
+    // 2. Extract narrative insights
+    const { data: summaryData } = await supabase
+      .from('cognitive_summaries')
+      .select('tutor_narrative')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-    const fatigueStream = rawAttempts.map((a, idx) => {
-      const skeletonObj = Array.isArray(a.skeletons) ? a.skeletons[0] : a.skeletons;
-      const al = skeletonObj?.al_classification || 'A1L1';
+    setTutorNarrative(summaryData?.tutor_narrative || 'Holistic roadmap analysis maps here upon completion of a full diagnostic run.');
 
-      // Defensive implementation protecting execution boundaries from string parsing drops
-      let analysis: any = {};
-      try {
-        analysis = typeof a.analysis === 'string' ? JSON.parse(a.analysis) : a.analysis;
-      } catch (e) {
-        console.error("Warning: Telemetry block parsing fallback triggered for row item index:", idx);
+    // 3. Extract deep scaffolding attempts
+    const { data: attemptRows, error } = await supabase
+      .from('user_attempts')
+      .select(`
+        id,
+        created_at,
+        is_correct,
+        solve_time,
+        step_velocities,
+        transcript,
+        analysis,
+        variants (
+          generated_question,
+          correct_answer,
+          al_classification
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (!error && attemptRows) {
+      setAttempts(attemptRows as unknown as AttemptRow[]);
+      if (attemptRows.length > 0) {
+        setActiveLogId(attemptRows[0].id);
       }
-      
-      const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
-      const x = parseInt(al.match(/L(\d)/)?.[1] || '1');
-
-      if (a.is_correct) {
-        if (y > maxA) maxA = y;
-        if (x > maxL) maxL = x;
-      }
-
-      const m = matrixDataMap.get(al) || { correct: 0, total: 0 };
-      m.total++;
-      if (a.is_correct) m.correct++;
-      matrixDataMap.set(al, m);
-
-      if (analysis?.verbal_action === 'passed' || analysis?.gave_up) passedCount++;
-      
-      const isHabitual = analysis?.speech_telemetry?.is_structural_flaw || analysis?.is_structural_flaw;
-      if (isHabitual) structuralCounter++;
-      else if (!a.is_correct) flukeCounter++;
-
-      if (a.solve_time > 60) {
-        curveBuckets.comfortable.total++; if (a.is_correct) curveBuckets.comfortable.correct++;
-      } else if (a.solve_time >= 45) {
-        curveBuckets.paced.total++; if (a.is_correct) curveBuckets.paced.correct++;
-      } else if (a.solve_time >= 30) {
-        curveBuckets.highSpeed.total++; if (a.is_correct) curveBuckets.highSpeed.correct++;
-      } else {
-        curveBuckets.panic.total++; if (a.is_correct) curveBuckets.panic.correct++;
-      }
-
-      if (analysis?.speech_telemetry?.time_pressure_derailment || analysis?.time_pressure_derailment || (a.solve_time < 35 && !a.is_correct)) {
-        timeCrunchDerailments++;
-      }
-      if (analysis?.speech_telemetry?.parental_friction_detected || analysis?.parental_friction_detected) {
-        verbalFrictionHits++;
-      }
-
-      if (!a.is_correct) {
-        const reason = analysis?.parent_facing_error || analysis?.error_reason;
-        if (reason === 'concept_unknown') errMap.conceptUnknown++;
-        else if (reason === 'app_too_hard') errMap.appTooHard++;
-        else if (reason === 'wording_comprehension') errMap.wordingComprehension++;
-        else if (reason === 'misinterpreted_simpler') errMap.misinterpretedSimpler++;
-        else if (reason === 'unjustified_assumption') errMap.unjustifiedAssumption++;
-        else if (reason === 'calculation_error') errMap.calculationError++;
-        else if (reason === 'intentional_trap') errMap.intentionalTrap++;
-        else if (reason === 'sub_answer_stall') errMap.subAnswerStall++;
-        else if (reason === 'blind_to_solution') errMap.blindToSolution++;
-      }
-
-      const densityScore = analysis?.speech_telemetry?.speech_density_score || Math.max(100 - (a.solve_time / 2), 25);
-
-      const scatterSpeed = Math.max(8, Math.min(92, Math.round(100 - (a.solve_time / 1.5))));
-      const scatterAccuracy = a.is_correct ? (82 + (idx % 6)) : (12 + (idx % 6));
-      focusPoints.push({
-        name: `Problem #${idx + 1}`,
-        speed: scatterSpeed,
-        accuracy: scatterAccuracy,
-        label: `Ex. ${idx + 1}: ${al} (${a.solve_time}s)`
-      });
-
-      return {
-        question: `#${idx + 1}`,
-        speechVolume: Math.round(densityScore),
-        accuracy: a.is_correct ? 100 : 0,
-        frustration: (analysis?.speech_telemetry?.detected_frustration_tokens || (a.solve_time > 90 && !a.is_correct)) ? 85 : 10
-      };
-    });
-
-    const matrixPoints = Array.from(matrixDataMap.entries()).map(([al, m]) => {
-      const y = parseInt(al.match(/A(\d)/)?.[1] || '1'); 
-      const x = parseInt(al.match(/L(\d)/)?.[1] || '1'); 
-      return {
-        label: al, x, y, z: Math.max(m.total * 35, m.total > 0 ? 40 : 0), successRate: m.total > 0 ? Math.round((m.correct / m.total) * 100) : 0
-      };
-    }).filter(p => p.z > 0);
-
-    const errorDistribution = [
-      { name: 'Unknown Rules', count: errMap.conceptUnknown },
-      { name: 'App Ceiling', count: errMap.appTooHard },
-      { name: 'Text Confusion', count: errMap.wordingComprehension },
-      { name: 'Rushed Patterns', count: errMap.misinterpretedSimpler },
-      { name: 'Flawed Assumptions', count: errMap.unjustifiedAssumption },
-      { name: 'Basic Sum Slips', count: errMap.calculationError },
-      { name: 'Bait Traps Sprung', count: errMap.intentionalTrap },
-      { name: 'Boundary Stalls', count: errMap.subAnswerStall },
-      { name: 'Shortcut Blindness', count: errMap.blindToSolution }
-    ].filter(e => e.count > 0);
-
-    const radarData = [
-      { tier: 'Plain Math', childScore: matrixPoints.filter(p => p.x === 1).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.x === 1).length, 1), fullMark: 100 },
-      { tier: 'Wordy Riddles', childScore: matrixPoints.filter(p => p.x >= 3).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.x >= 3).length, 1), fullMark: 100 },
-      { tier: 'Multi-Step Depth', childScore: matrixPoints.filter(p => p.y >= 3).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.y >= 3).length, 1), fullMark: 100 },
-      { tier: 'Olympiad Shells', childScore: matrixPoints.filter(p => p.y === 4 && p.x === 4).reduce((acc, p) => acc + p.successRate, 0) / Math.max(matrixPoints.filter(p => p.y === 4 && p.x === 4).length, 1), fullMark: 100 }
-    ].map(r => ({ ...r, childScore: Math.min(Math.round(r.childScore || 10), 100) }));
-
-    const crunchCurve = [
-      { velocityWindow: 'Comfortable (>60s)', accuracy: curveBuckets.comfortable.total > 0 ? Math.round((curveBuckets.comfortable.correct / curveBuckets.comfortable.total) * 100) : 65, speedValue: 70 },
-      { velocityWindow: 'Paced (45s-60s)', accuracy: curveBuckets.paced.total > 0 ? Math.round((curveBuckets.paced.correct / curveBuckets.paced.total) * 100) : 50, speedValue: 50 },
-      { velocityWindow: 'High-Speed (30s-45s)', accuracy: curveBuckets.highSpeed.total > 0 ? Math.round((curveBuckets.highSpeed.correct / curveBuckets.highSpeed.total) * 100) : 35, speedValue: 35 },
-      { velocityWindow: 'Panic Boundary (<30s)', accuracy: curveBuckets.panic.total > 0 ? Math.round((curveBuckets.panic.correct / curveBuckets.panic.total) * 100) : 15, speedValue: 20 }
-    ];
-
-    let triageVerdict = 'Target Basic Formula Gaps First';
-    if (errMap.wordingComprehension + errMap.misinterpretedSimpler > errMap.calculationError) {
-      triageVerdict = 'Target Text Decoding Filters';
-    } else if (errMap.calculationError > 2) {
-      triageVerdict = 'Target Core Computational Accuracy';
     }
-
-    setData({
-      raw: { attempted: total, correct: right, passed: passedCount, completedTests: completedTestsCount },
-      errors: errMap,
-      charts: {
-        fatigueStream,
-        errorDistribution,
-        altitudeRadar: radarData,
-        crunchCurve,
-        matrixPoints,
-        quadrantPoints: focusPoints
-      },
-      verdict: {
-        maxACleared: maxA,
-        maxLCleared: maxL,
-        givesUpEasily: passedCount > 2,
-        panics: errMap.misinterpretedSimpler + errMap.unjustifiedAssumption > 3,
-        speechRatio: Math.max(92 - (errMap.unjustifiedAssumption * 12), 40),
-        structuralCount: structuralCounter,
-        flukeCount: flukeCounter,
-        triageROICard: triageVerdict,
-        crunchBreakpoint: Math.max(50 - (timeCrunchDerailments * 12), 20),
-        frictionIndexScore: Math.min(verbalFrictionHits * 33, 100),
-        canOtherPlatformsHelp: errMap.wordingComprehension + errMap.misinterpretedSimpler > errMap.calculationError ? 'No. Multiple-choice systems measure quick answer mechanics; they cannot trace speech tracking paths or decode wording gaps.' : 'Yes, for structural muscle memory only.',
-        canTutorHelp: errMap.conceptUnknown > errMap.blindToSolution ? 'High Efficiency. Missing formula blocks or explicit logic slots can be filled rapidly by a tutor.' : 'Low Efficiency Risk. Your child misses shortcuts independently; a human tutor risks doing the core thinking for them.',
-        isLostCause: maxA === 1 && maxL === 1 && (right / total) < 0.25,
-        canReadAndUnderstand: maxL >= 3 ? 'Safe. Successfully clears text framing conditions under load.' : 'Vulnerable. Tends to drop constraints when negative phrasing spikes.'
-      }
-    });
     setLoading(false);
   }
 
   useEffect(() => {
-    async function verify() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
-      await compileDashboardData(user.id);
-    }
-    if (isMounted) verify();
+    if (isMounted) loadDashboardData();
   }, [isMounted]);
+
+  // --- FILTERS AND METRICS COMPILATION ENGINE ---
+  const filteredAttempts = useMemo(() => {
+    const now = new Date();
+    return attempts.filter(a => {
+      const createdAt = new Date(a.created_at);
+      const diffTime = Math.abs(now.getTime() - createdAt.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (selectedWindow === 'month') return diffDays <= 30;
+      if (selectedWindow === 'quarter') return diffDays <= 90;
+      return true;
+    });
+  }, [attempts, selectedWindow]);
+
+  const metrics = useMemo(() => {
+    const total = filteredAttempts.length;
+    const correctCount = filteredAttempts.filter(a => a.is_correct).length;
+    
+    let totalSelfCorrections = 0;
+    const errorsCount: Record<string, number> = {
+      W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0
+    };
+
+    filteredAttempts.forEach(a => {
+      // Check if they self-corrected (marked correct but flagged with a behavior mismatch in scratchpad)
+      const isCorrect = a.is_correct;
+      const scratch = a.analysis?.teacher_scratchpad?.toLowerCase() || '';
+      if (isCorrect && (scratch.includes('self-correct') || scratch.includes('caught'))) {
+        totalSelfCorrections++;
+      }
+
+      // Map strict error counters from backend breakdown response
+      const breakdown = a.analysis?.w_category_breakdown;
+      if (breakdown) {
+        Object.keys(errorsCount).forEach(k => {
+          if (breakdown[k] === 1 || a.analysis?.error_reason === k) {
+            errorsCount[k]++;
+          }
+        });
+      } else if (!isCorrect && a.analysis?.error_reason) {
+        const reason = a.analysis.error_reason;
+        if (errorsCount[reason] !== undefined) errorsCount[reason]++;
+      }
+    });
+
+    return {
+      totalAnswers: total,
+      accuracyRate: total > 0 ? Math.round((correctCount / total) * 100) : 0,
+      selfCorrectionRate: total > 0 ? Math.round((totalSelfCorrections / total) * 100) : 0,
+      errorMatrix: errorsCount
+    };
+  }, [filteredAttempts]);
+
+  // --- REGIONAL COMPETITIVE SELECTIVITY INDEX GAUGE ---
+  const selectivityIndex = useMemo(() => {
+    if (attempts.length === 0) return { tier: 'Baseline Audit Needed', description: 'Complete initial diagnostic sequences to calibrate capability ranges.', styling: 'text-slate-400 bg-slate-50 border-slate-200' };
+    
+    const overallAccuracy = Math.round((attempts.filter(a => a.is_correct).length / attempts.length) * 100);
+    const complexFailures = (metrics.errorMatrix.W1 || 0) + (metrics.errorMatrix.W2 || 0) + (metrics.errorMatrix.W5 || 0);
+
+    if (overallAccuracy >= 82 && complexFailures <= 1) {
+      return {
+        tier: 'Tier 1: Ultra-Selective Profile',
+        description: 'Demonstrates optimal working memory capacity and linguistic filters. Fully competitive for top-tier highly selective London Grammars and independent boarding shells.',
+        styling: 'text-emerald-800 bg-emerald-50 border-emerald-200'
+      };
+    }
+    if (overallAccuracy >= 60 && complexFailures <= 4) {
+      return {
+        tier: 'Tier 2: Highly Selective Profile',
+        description: 'Solid conceptual foundations present. Cognitive breakdowns occur primarily under speed-induced pressure blocks or intentional traps. Competitive for regional selective systems.',
+        styling: 'text-amber-800 bg-amber-50 border-amber-200'
+      };
+    }
+    return {
+      tier: 'Tier 3: Standard Local Stream',
+      description: 'Foundational tool gaps or structural substitution tendencies are currently impacting application stamina. Focus on systematic constraint tracking rather than pacing drills.',
+      styling: 'text-blue-800 bg-blue-50 border-blue-200'
+    };
+  }, [attempts, metrics]);
+
+  const activeLogItem = useMemo(() => {
+    return attempts.find(a => a.id === activeLogId) || null;
+  }, [attempts, activeLogId]);
+
+  const activeTranscriptParsed = useMemo(() => {
+    if (!activeLogItem) return null;
+    const t = activeLogItem.transcript;
+    if (typeof t === 'string') {
+      try { return JSON.parse(t); } catch { return { step3: t }; }
+    }
+    return t;
+  }, [activeLogItem]);
 
   if (loading || !isMounted) {
     return (
-      <div className="min-h-screen bg-[#FAFAF6] flex items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
-        Fetching cross-diagnostic matrices... Mapping live operational telemetry...
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center p-6">
-        <ShieldAlert className="w-8 h-8 text-amber-600 mb-2" />
-        <p className="text-sm font-serif font-bold text-[#1B3A5C]">No performance telemetry located.</p>
-        <button onClick={() => router.push('/profile')} className="text-xs text-slate-400 mt-2 underline">Return</button>
+      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
+        <Loader2 className="w-6 h-6 animate-spin mb-2" />
+        Compiling tracking matrices... Synchronizing historical cognitive runs...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans p-4 md:p-8 antialiased selection:bg-amber-100 pb-32">
+    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans antialiased selection:bg-amber-100 pb-32">
       
-      {/* DYNAMIC ACTIVE SESSION ALERT BANNER */}
+      {/* ACTIVE RESUMABLE SESSION PROMPT BANNER */}
       {isResumable && (
-        <div className="max-w-[1400px] mx-auto mb-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
-          <div className="flex gap-3 items-center">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 sm:mt-0" />
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900">Diagnostic Incomplete / Resumable State</h4>
-              <p className="text-[11px] text-amber-800 mt-0.5">Your child has an active testing window open. Spoken charts below are updating live question-by-question, but the holistic tutor narrative text is safely frozen to historical results until the current session is finalized.</p>
+        <div className="bg-amber-50 border-b border-amber-200 px-6 py-3.5 shadow-sm">
+          <div className="max-w-[1500px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex gap-2.5 items-center">
+              <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+              <p className="text-xs text-amber-900 font-medium">
+                <strong>Diagnostic Incomplete:</strong> Your child has an active testing window currently open. Evaluation trackers are logging active runtime parameters, but the global narrative synthesis below is frozen until the session closes.
+              </p>
             </div>
+            <button 
+              onClick={() => router.push('/staging/diagnostic/test?session=resume')} 
+              className="bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2 rounded-xl transition-all shadow-sm"
+            >
+              Resume Open Session
+            </button>
           </div>
-          <button 
-            onClick={() => router.push('/staging/diagnostic/test?session=resume')} 
-            className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm whitespace-nowrap"
-          >
-            Resume Open Session
-          </button>
         </div>
       )}
 
-      {/* HEADER SECTION */}
-      <header className="max-w-[1400px] mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-[#E5E3DD] pb-6 mb-8 gap-4">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-[10px] font-bold uppercase tracking-widest border border-amber-200 mb-2">
-            <Flame className="w-3 h-3 text-amber-600" /> Live Tracking Terminal Active
+      {/* CORE FRAME HEADER */}
+      <header className="border-b border-[#E5E3DD] bg-white px-6 py-5 shadow-xs">
+        <div className="max-w-[1500px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-widest border border-slate-200 mb-1.5">
+              <Sparkles className="w-3 h-3 text-amber-500 fill-amber-400" /> Pedagogical Command Terminal
+            </div>
+            <h1 className="text-2xl font-black font-serif tracking-tight text-[#1B3A5C]">The Cognitive Architecture Dashboard</h1>
           </div>
-          <h1 className="text-3xl font-black font-serif tracking-tight text-[#1B3A5C]">The Core Cognitive Command Canvas</h1>
-        </div>
-        <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-          <AuthBadge />
-          <button onClick={() => router.push('/profile')} className="bg-[#1B3A5C] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition shadow-sm">
-            Return to Hub
-          </button>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <AuthBadge />
+            <button 
+              onClick={() => router.push('/profile')} 
+              className="bg-[#1B3A5C] text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition shadow-xs"
+            >
+              Return to Hub
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto space-y-6">
-
-        {/* THE HOLISTIC TUTOR ASSESSMENT NARRATIVE */}
-        <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
-          <div className="bg-[#1B3A5C] text-white p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/10">
-            <div>
-              <h2 className="text-lg font-serif font-bold tracking-tight">1-on-1 Expert Tutor Synthesis</h2>
-              <p className="text-xs text-amber-200 mt-0.5">Holistic narrative analysis compiled explicitly at the completion boundaries of your test pipeline.</p>
-            </div>
-            <span className="text-[9px] font-mono font-bold bg-white/10 px-3 py-1 rounded-full uppercase tracking-widest text-slate-200">
-              Meta State Ledger
-            </span>
-          </div>
-          <div className="p-6 md:p-8 bg-[#FAF9F5]/40 max-h-[400px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap selection:bg-amber-200">
-            {tutorNarrative}
-          </div>
-        </div>
+      <main className="max-w-[1500px] mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* ROW 1: THE CORE TRACKING COUNTERS BAR */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><CheckCircle2 className="w-3 h-3 text-emerald-600" /> Completed Diagnostics</span>
-            <p className="text-4xl font-black text-[#1B3A5C] mt-2">{data.raw.completedTests} <span className="text-xs font-normal text-slate-400 font-sans">Used Credits</span></p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm border-l-4 border-l-amber-500">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><BookOpen className="w-3 h-3 text-amber-600" /> Answered Questions So Far</span>
-            <p className="text-4xl font-black text-amber-600 mt-2">{data.raw.attempted} <span className="text-xs font-normal text-slate-400 font-sans">Spoken Logs</span></p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1"><XCircle className="w-3 h-3 text-slate-400" /> Correct Execution Rate</span>
-            <p className="text-4xl font-black text-slate-700 mt-2">
-              {data.raw.attempted > 0 ? Math.round((data.raw.correct / data.raw.attempted) * 100) : 0}% <span className="text-xs font-normal text-slate-400 font-sans">Accuracy Baseline</span>
-            </p>
-          </div>
-        </div>
-
-        {/* ROW 2: PRIMARY HIGH-FIDELITY SCATTER MATRICES */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* LEFT COL: NARRATIVE SYNTHESIS & HISTORICAL TIMELINE METRICS */}
+        <div className="lg:col-span-2 space-y-6">
           
-          {/* CHART 1: APPLICATION VS LINGUISTIC COMPLEXITY MATRIX */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm lg:col-span-2 flex flex-col justify-between">
-            <div className="mb-4">
-              <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">A vs L Complexity Grid</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Isolates math structure constraints vs text riddle processing layers. Area maps density parameters.</p>
+          {/* NARRATIVE REPORT VIEW */}
+          <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
+            <div className="bg-[#1B3A5C] text-white p-5 flex justify-between items-center border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <Brain className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h2 className="text-md font-serif font-bold tracking-tight">1-on-1 Expert Summary Report</h2>
+                  <p className="text-[11px] text-slate-300">Cross-diagnostic trace evaluating child baseline behavioral shifts over time.</p>
+                </div>
+              </div>
+              <span className="text-[9px] font-mono font-bold bg-white/10 px-2.5 py-1 rounded-full uppercase tracking-widest text-slate-200">
+                Active Matrix Synthesis
+              </span>
             </div>
-            <div className="h-72 w-full bg-white rounded-xl border border-[#E5E3DD]/60 pt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 10, right: 30, bottom: 10, left: -25 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="x" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Linguistic Trick Weight (1-4)', position: 'insideBottom', offset: -5, fill: '#94a3b8', fontSize: 10 }} />
-                  <YAxis dataKey="y" type="number" domain={[0, 5]} ticks={[1,2,3,4]} stroke="#94a3b8" label={{ value: 'Math Execution Layering (1-4)', angle: -90, position: 'insideLeft', offset: 10, fill: '#94a3b8', fontSize: 10 }} />
-                  <ZAxis dataKey="z" type="number" range={[70, 450]} />
-                  <Tooltip 
-                    cursor={{ strokeDasharray: '3 3' }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const pt = payload[0].payload;
-                        return (
-                          <div className="bg-[#1B3A5C] p-3 rounded-lg text-white text-xs shadow-xl font-sans">
-                            <p className="font-bold text-amber-400">Coordinate Focus: A{pt.y} — L{pt.x}</p>
-                            <p>Correct Approach: {pt.successRate}%</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Scatter data={data.charts.matrixPoints} fill="#1B3A5C" fillOpacity={0.85} />
-                </ScatterChart>
-              </ResponsiveContainer>
+            <div className="p-6 md:p-8 bg-[#FAF9F5]/30 max-h-[420px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap selection:bg-amber-200 border-b border-slate-100">
+              {tutorNarrative}
             </div>
-            <div className="mt-4 p-3 bg-amber-50 rounded-xl text-xs text-amber-950 font-medium border border-amber-200">
-              <strong>Diagnostic Core Altitude:</strong> Your child records safe clearance up to <span className="font-bold underline">A{data.verdict.maxACleared}L{data.verdict.maxLCleared}</span> blocks. Targeting elite hyper-selective tracks without filling constraints at level <span className="font-bold text-amber-700">A{Math.min(data.verdict.maxACleared + 1, 4)}L{Math.min(data.verdict.maxLCleared + 1, 4)}</span> is an educational delusion.
+            <div className="bg-slate-50 p-3.5 px-6 text-[11px] text-slate-500 italic flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+              Claude is trained to focus explicitly on systemic methodology trends rather than numerical accuracy benchmarks across historical sessions.
             </div>
           </div>
 
-          {/* CHART 2: THE FOCUS QUADRANT */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div className="mb-4">
-              <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">The Focus Quadrant</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Plots live evaluation velocities straight against accuracy bounds to highlight child response habits.</p>
-            </div>
-            <div className="h-72 w-full relative bg-[#FAF9F5] rounded-xl border border-[#E5E3DD]/60 overflow-hidden">
-              <div className="absolute top-2 left-2 text-[8px] font-black text-slate-400 uppercase">Perfectionist Stalls</div>
-              <div className="absolute top-2 right-2 text-[8px] font-black text-amber-600 uppercase">Exam Ready / Efficient</div>
-              <div className="absolute bottom-2 left-2 text-[8px] font-black text-red-500 uppercase">Concept Void</div>
-              <div className="absolute bottom-2 right-2 text-[8px] font-black text-slate-500 uppercase">Careless Rusher</div>
-
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: -20 }}>
-                  <XAxis type="number" dataKey="speed" domain={[0, 100]} axisLine={false} tick={false} />
-                  <YAxis type="number" dataKey="accuracy" domain={[0, 100]} axisLine={false} tick={false} />
-                  <ReferenceLine x={50} stroke="#E5E3DD" strokeDasharray="3 3" />
-                  <ReferenceLine y={50} stroke="#E5E3DD" strokeDasharray="3 3" />
-                  <Tooltip cursor={{ strokeDasharray: '2 2' }} content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-[#1B3A5C] text-white p-2 text-[10px] rounded shadow-lg">
-                          {payload[0].payload.label}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }} />
-                  <Scatter name="Placement" data={data.charts.quadrantPoints} fill="#d97706" r={7} />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-[11px] text-slate-500 leading-tight">
-              <strong>Stamina & Comprehension Marker:</strong> Audio stream records confirm child {data.verdict.givesUpEasily ? 'surrenders rapidly when logic shortcuts are invisible.' : 'exhibits controlled operational persistence under structural friction.'} Language decoding capacity tracks as <span className="font-bold text-[#1B3A5C]">{data.verdict.canReadAndUnderstand}</span>.
-            </div>
-          </div>
-
-        </div>
-
-        {/* ROW 3: RECHARTS POWER COHORT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* CHART 3: VERBAL TIMELINE & FRUSTRATION AREA */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Spoken Stream Density Timeline</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Chronological question vector mapping speech clarity factors (Bars) against friction spikes (Area).</p>
-            </div>
-            <div className="h-48 w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={data.charts.fatigueStream} margin={{ top: 10, right: -5, left: -30, bottom: 0 }}>
-                  <XAxis dataKey="question" axisLine={false} tickLine={false} tick={{ fontSize: 9 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={false} />
-                  <Tooltip />
-                  <Bar dataKey="speechVolume" fill="#e2e8f0" radius={[2, 2, 0, 0]} name="Speech Density Score" />
-                  <Area type="monotone" dataKey="frustration" fill="#fef3c7" stroke="#d97706" strokeWidth={1.5} name="Detected Frustration Spikes" />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-xs bg-slate-50 p-3 rounded-xl border border-[#E5E3DD]">
-              <strong>Correct Path Vectoring:</strong> Spoken layout tracks show <span className="font-bold underline">{data.verdict.speechRatio}% logic economy tracking</span>. Parent conversational static index: <span className="font-bold text-amber-700">{data.verdict.frictionIndexScore}% friction volume</span>.
-            </div>
-          </div>
-
-          {/* CHART 4: POINT LEAK DISTRIBUTION BAR CHART */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Structural Leak Filter</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Live error distribution categorizing every single failed logical approach by its failed mode token.</p>
-            </div>
-            <div className="h-48 w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.charts.errorDistribution} layout="vertical" margin={{ top: 5, right: 10, left: 15, bottom: 5 }}>
-                  <XAxis type="number" axisLine={false} tickLine={false} stroke="#94a3b8" tick={{ fontSize: 9 }} />
-                  <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} stroke="#1B3A5C" tick={{ fontSize: 9, fontWeight: 'bold' }} width={85} />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#d97706" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-xs text-slate-600 leading-tight">
-              <strong>Fault Re-occurrence Matrix:</strong> The system has isolated <span className="font-bold text-[#1B3A5C]">{data.verdict.structuralCount} repeating behavior bugs</span> vs <span className="font-bold text-slate-400">{data.verdict.flukeCount} isolated calculation slips</span>.
-            </div>
-          </div>
-
-          {/* CHART 5: TIME-CRUNCH CRASH TIMELINE */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider">Time-Crunch Crash Ceiling</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Maps exact logic stability boundaries as pacing parameters shrink below standard comfort margins.</p>
-            </div>
-            <div className="h-48 w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.charts.crunchCurve} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <XAxis dataKey="velocityWindow" axisLine={false} tickLine={false} tick={{ fontSize: 8 }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9 }} />
-                  <Tooltip />
-                  <CartesianGrid stroke="#f1f5f9" vertical={false} />
-                  <Line type="monotone" dataKey="accuracy" stroke="#1B3A5C" strokeWidth={3} dot={{ r: 5, fill: '#d97706', stroke: '#1B3A5C', strokeWidth: 2 }} name="Comprehension %" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 text-xs text-amber-950 bg-amber-50/60 p-3 rounded-xl border border-amber-200">
-              <strong>Velocity Breakdown:</strong> Logic degradation initializes when forced beneath <span className="font-bold underline">{data.verdict.crunchBreakpoint} seconds/question</span>. 12-Week Triage: <span className="font-bold text-amber-700">{data.verdict.triageROICard}</span>.
-            </div>
-          </div>
-
-        </div>
-
-        {/* ROW 4: STRATEGIC ALTITUDE RADAR & STRATEGIC ALLOCATION VERDICTS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* CHART 6: THE CAPABILITY ALTITUDE RADAR */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col items-center justify-between">
-            <div className="w-full">
-              <h3 className="text-sm font-bold font-serif uppercase tracking-wider text-[#1B3A5C]">Excellence Altitude Profile</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Exposes localized logic capabilities across different selective exam framing setups.</p>
-            </div>
-            <div className="h-48 w-full mt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data.charts.altitudeRadar}>
-                  <PolarGrid stroke="#e2e8f0" />
-                  <PolarAngleAxis dataKey="tier" tick={{ fill: '#1B3A5C', fontSize: 9, fontWeight: 'bold' }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Child Logic Depth" dataKey="childScore" stroke="#d97706" fill="#d97706" fillOpacity={0.2} />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="w-full text-center text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest pt-2 border-t border-slate-100">
-              Olympiad Baseline Analysis System
-            </div>
-          </div>
-
-          {/* CAPITAL ALLOCATION & EXTERNAL ADVICE BLOCKS */}
-          <div className="bg-white p-6 rounded-2xl border border-[#E5E3DD] shadow-sm md:col-span-2 flex flex-col justify-between">
-            <div className="bg-[#1B3A5C] text-white p-4 rounded-xl flex items-center justify-between gap-4">
+          {/* COUNTERS BLOCK */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-blue-50 text-blue-700 rounded-xl border border-blue-100">
+                <BarChart2 className="w-5 h-5" />
+              </div>
               <div>
-                <h4 className="text-xs font-bold uppercase text-amber-400 tracking-wider flex items-center gap-1"><Wallet className="w-3.5 h-3.5" /> Capital Safety Switch Directive</h4>
-                <p className="text-[11px] text-slate-200 mt-1">
-                  {data.verdict.isLostCause 
-                    ? 'Bypass 11+ selective streams entirely. Save thousands in private tutoring costs; raw capabilities map away from short-horizon development timelines.' 
-                    : 'Core logic nodes active. Capacity tracks tightly with elite selective filter requirements. Target specific text constraints rather than broader equation drill volume.'}
-                </p>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Completed Diagnostics</span>
+                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{completedTestsCount} <span className="text-[10px] font-normal text-slate-400">Sessions</span></p>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-              <div className="p-4 rounded-xl border border-[#E5E3DD] bg-[#FAFAF6] space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Can Alternative Digital Platforms Help?</span>
-                <p className="text-xs font-medium text-slate-700 leading-tight">{data.verdict.canOtherPlatformsHelp}</p>
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-amber-50 text-amber-700 rounded-xl border border-amber-100">
+                <BookOpen className="w-5 h-5" />
               </div>
-              <div className="p-4 rounded-xl border border-[#E5E3DD] bg-[#FAFAF6] space-y-1">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Human 1-on-1 Tutor Leverage?</span>
-                <p className="text-xs font-medium text-slate-700 leading-tight">{data.verdict.canTutorHelp}</p>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Total Traces Submitted</span>
+                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{metrics.totalAnswers} <span className="text-[10px] font-normal text-slate-400">Spoken Steps</span></p>
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Self-Correction Rate</span>
+                <p className="text-2xl font-black text-emerald-700 mt-0.5">{metrics.selfCorrectionRate}% <span className="text-[10px] font-normal text-slate-400 font-sans">Metacognition</span></p>
               </div>
             </div>
           </div>
 
+          {/* SELECTIVITY ASSESSMENT PROFILE */}
+          <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start gap-4 transition-all ${selectivityIndex.styling}`}>
+            <div className="p-3 bg-white/80 rounded-xl border border-inherit shadow-xs flex-shrink-0">
+              <Gauge className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xs uppercase font-black tracking-wider">Selective Benchmark Positioning Map</h3>
+              <p className="text-sm font-serif font-bold">{selectivityIndex.tier}</p>
+              <p className="text-xs opacity-90 leading-relaxed text-balance pt-0.5">{selectivityIndex.description}</p>
+            </div>
+          </div>
+
+          {/* FAILURE MODE PROFILE VIEW */}
+          <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
+              <div>
+                <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Cognitive Breakdown Metrics Matrix</h3>
+                <p className="text-xs text-slate-400">Isolates operational friction trends across chronological filter limits.</p>
+              </div>
+              
+              {/* Window Selector Tabs */}
+              <div className="flex bg-slate-100 border border-slate-200 p-1 rounded-xl w-full sm:w-auto">
+                {(['month', 'quarter', 'all'] as const).map((w) => (
+                  <button
+                    key={w}
+                    onClick={() => setSelectedWindow(w)}
+                    className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all text-center flex-1 sm:flex-initial ${
+                      selectedWindow === w 
+                        ? 'bg-white text-[#1B3A5C] shadow-xs' 
+                        : 'text-slate-400 hover:text-[#1B3A5C]'
+                    }`}
+                  >
+                    {w === 'month' ? 'Last Month' : w === 'quarter' ? 'Last 3 Months' : 'All Time'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom SVG Data Metrics Meter Renders */}
+            <div className="space-y-3.5 pt-1">
+              {Object.entries(metrics.errorMatrix).map(([code, count]) => {
+                const totalErrors = Object.values(metrics.errorMatrix).reduce((acc, v) => acc + v, 0);
+                const percentWidth = totalErrors > 0 ? Math.max(4, Math.round((count / totalErrors) * 100)) : 0;
+                
+                return (
+                  <div key={code} className="group border border-slate-100/70 p-3 rounded-xl hover:bg-slate-50/50 transition-all">
+                    <div className="flex justify-between items-start text-xs font-medium mb-1">
+                      <div className="space-y-0.5">
+                        <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold bg-[#1B3A5C]/10 text-[#1B3A5C] px-1.5 py-0.2 rounded">
+                            {code}
+                          </span>
+                          {W_NAMES[code]}
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-normal group-hover:text-slate-500 leading-normal">
+                          {W_DESCRIPTIONS[code]}
+                        </p>
+                      </div>
+                      <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded-md ${count > 0 ? 'bg-amber-100 text-amber-900' : 'bg-slate-50 text-slate-300'}`}>
+                        {count} hits
+                      </span>
+                    </div>
+                    {count > 0 && (
+                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-2">
+                        <div 
+                          className="h-full bg-amber-500 rounded-full transition-all duration-500" 
+                          style={{ width: `${percentWidth}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT COL: QUESTION FEED & DETAILED SCAFFOLDING COGNITIVE PATHS */}
+        <div className="space-y-4">
+          <div className="bg-white p-4 rounded-2xl border border-[#E5E3DD] shadow-xs">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-[#1B3A5C]" /> Question-Answer Streams
+            </h3>
+            
+            {/* Scrollable Feed List */}
+            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+              {filteredAttempts.map((item, idx) => {
+                const active = item.id === activeLogId;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveLogId(item.id)}
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex justify-between items-center gap-3 ${
+                      active 
+                        ? 'bg-[#1B3A5C] border-[#1B3A5C] text-white shadow-sm' 
+                        : 'bg-[#FAFAF6]/60 border-slate-200 hover:bg-slate-100/50 text-[#1B3A5C]'
+                    }`}
+                  >
+                    <div className="space-y-1 overflow-hidden">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded uppercase ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                          {item.variants?.al_classification || 'A1L1'}
+                        </span>
+                        <span className={`text-[9px] font-bold ${active ? 'text-amber-200' : 'text-slate-400'}`}>
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-xs font-serif font-medium truncate pr-2 opacity-90">
+                        {item.variants?.generated_question ? item.variants.generated_question.replace(/\$/g, '') : `Problem Log #${idx + 1}`}
+                      </p>
+                    </div>
+                    <div className="flex-shrink-0 flex items-center gap-1.5">
+                      {item.is_correct ? (
+                        <CheckCircle2 className={`w-4 h-4 ${active ? 'text-emerald-300' : 'text-emerald-600'}`} />
+                      ) : (
+                        <XCircle className={`w-4 h-4 ${active ? 'text-rose-300' : 'text-rose-600'}`} />
+                      )}
+                      <ChevronRight className="w-3.5 h-3.5 opacity-40" />
+                    </div>
+                  </button>
+                );
+              })}
+              {filteredAttempts.length === 0 && (
+                <div className="text-center p-8 text-xs text-slate-400 font-serif">No historical problem logs found inside this window.</div>
+              )}
+            </div>
+          </div>
+
+          {/* SPECIFIC ITEM LEVEL INTERVENTION DATA BOX */}
+          {activeLogItem && (
+            <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4 animate-fade-in">
+              <div className="border-b border-slate-100 pb-3 flex justify-between items-start gap-2">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Specific Question Feedback</h4>
+                  <p className="text-[10px] font-mono font-bold text-[#1B3A5C] mt-0.5">ID Ref: {activeLogItem.id.substring(0,8)}</p>
+                </div>
+                {activeLogItem.analysis?.error_reason && (
+                  <span className="text-[9px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    {activeLogItem.analysis.error_reason} Detected
+                  </span>
+                )}
+              </div>
+
+              {/* Pinned active problem context query text */}
+              <div className="p-4 bg-[#FAFAF6]/60 border border-[#E5E3DD] rounded-xl text-xs text-slate-700 leading-relaxed font-serif max-h-36 overflow-y-auto">
+                {renderLatexString(activeLogItem.variants?.generated_question || '')}
+              </div>
+
+              {/* Structured 3-Stage Transcripts Stack */}
+              <div className="space-y-2.5">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Extracted Voice Channels</span>
+                
+                {activeTranscriptParsed?.step1 && (
+                  <div className="p-3 rounded-xl bg-blue-50/40 border border-blue-100/80 space-y-1">
+                    <span className="text-[9px] font-bold text-blue-700 uppercase tracking-widest block">Stage 1: Read & Parse</span>
+                    <p className="text-xs text-slate-600 leading-normal italic">"{activeTranscriptParsed.step1}"</p>
+                    {activeLogItem.step_velocities?.step1 && (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-mono text-blue-500 font-bold pt-0.5">
+                        <Clock className="w-2.5 h-2.5" /> Velocity delta: {activeLogItem.step_velocities.step1}s
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {activeTranscriptParsed?.step2 && (
+                  <div className="p-3 rounded-xl bg-amber-50/40 border border-amber-100/80 space-y-1">
+                    <span className="text-[9px] font-bold text-amber-700 uppercase tracking-widest block">Stage 2: Strategy Plan</span>
+                    <p className="text-xs text-slate-600 leading-normal italic">"{activeTranscriptParsed.step2}"</p>
+                    {activeLogItem.step_velocities?.step2 && (
+                      <span className="inline-flex items-center gap-1 text-[9px] font-mono text-amber-600 font-bold pt-0.5">
+                        <Clock className="w-2.5 h-2.5" /> Velocity delta: {activeLogItem.step_velocities.step2}s
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {activeTranscriptParsed?.step3 && (
+                  <div className="p-3 rounded-xl bg-purple-50/40 border border-purple-100/80 space-y-1">
+                    <span className="text-[9px] font-bold text-purple-700 uppercase tracking-widest block">Stage 3: Solving Loop</span>
+                    <p className="text-xs text-slate-600 leading-normal italic">"{activeTranscriptParsed.step3}"</p>
+                    <div className="flex justify-between items-center pt-0.5">
+                      {activeLogItem.step_velocities?.step3 && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-mono text-purple-500 font-bold">
+                          <Clock className="w-2.5 h-2.5" /> Velocity delta: {activeLogItem.step_velocities.step3}s
+                        </span>
+                      )}
+                      {activeTranscriptParsed?.confidence && (
+                        <span className="text-[9px] font-bold capitalize text-purple-800 bg-purple-100 px-1.5 py-0.2 rounded">
+                          Confidence: {activeTranscriptParsed.confidence}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* TARGET INTERVENTION REMEDY FOOTER */}
+              {activeLogItem.analysis?.recommended_intervention && (
+                <div className="p-4 bg-slate-900 text-white rounded-xl space-y-1.5 border border-slate-950 shadow-xs">
+                  <span className="text-[9px] uppercase font-mono font-bold text-amber-400 tracking-widest flex items-center gap-1">
+                    <MessageSquare className="w-3 h-3" /> Custom Clinical Intervention Directive
+                  </span>
+                  <p className="text-xs text-slate-200 font-medium leading-relaxed">
+                    {activeLogItem.analysis.recommended_intervention}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
       </main>
