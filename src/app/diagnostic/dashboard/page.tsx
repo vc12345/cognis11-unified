@@ -1,483 +1,699 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 import { 
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
-  LineChart, Line, ScatterChart, Scatter, ZAxis, CartesianGrid,
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  PieChart, Pie, Cell, ComposedChart, Legend
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line
 } from 'recharts';
 import { 
-  BrainCircuit, Clock, Target, TrendingUp, AlertTriangle, Zap, 
-  Activity, Trophy, Flame, Crosshair, Lock, ShieldAlert
+  Brain, Gauge, Clock, CheckCircle2, AlertCircle, Sparkles, 
+  ChevronRight, BookOpen, Layers, BarChart2, Loader2, Target, Trophy
 } from 'lucide-react';
-import AuthBadge from '../../../components/AuthBadge';
+import AuthBadge from '../../../../components/AuthBadge';
 
-interface AggregatedTelemetry {
-  kpis: {
-    totalAttempts: number;
-    overallAccuracy: number;
-    avgSolveTime: number;
-    dominantWeakness: string;
-    longestStreak: number;
-    hesitationPenalty: number;
-    mentalStamina: number; 
-    velocityScore: string;
-  };
-  cognitiveProfile: { name: string; count: number; fullDesc: string }[];
-  sessionTrends: { sessionName: string; accuracy: number; avgTime: number }[];
-  complexityMatrix: { x: number; y: number; z: number; label: string; successRate: number }[];
-  interventions: { date: string; concept: string; advice: string }[];
-  radarData: { subject: string; accuracy: number; fullMark: number }[];
-  fatigueData: { sequence: string; accuracy: number; avgTime: number }[];
-  outcomeDistribution: { name: string; value: number }[];
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
+
+// --- TYPE DEFINITIONS ---
+interface AttemptRow {
+  id: string;
+  created_at: string;
+  is_correct: boolean;
+  solve_time: number;
+  variant_id: string;
+  step_velocities: { step1: number; step2: number; step3: number } | null;
+  skeletons: any;
+  variants: any;
+  analysis: {
+    teacher_scratchpad?: string;
+    recommended_intervention?: string;
+    w_category_breakdown?: Record<string, number>;
+    error_reason?: string | null;
+  } | null;
 }
 
-const W_CATEGORY_MAP: Record<string, string> = {
-  W1: 'Concept Void', W2: 'App Complexity', W3: 'Linguistic Error', W4: 'Pattern Snap',
-  W5: 'False Assumption', W6: 'Math/Execution', W7: 'Trap Sprung', W8: 'Memory Overflow'
+type TimeWindow = 'month' | 'quarter' | 'all';
+
+// --- A/L LEVEL EXTRACTOR ---
+// Classification is encoded in the last 4 characters of variant_id, e.g. "...A2L3"
+const getAandLLevels = (row: AttemptRow) => {
+  let aLevel = 1;
+  let lLevel = 1;
+
+  try {
+    const classification = (row.variant_id || '').slice(-4).toUpperCase();
+
+    const aMatch = classification.match(/A(\d)/);
+    const lMatch = classification.match(/L(\d)/);
+
+    if (aMatch) aLevel = parseInt(aMatch[1], 10);
+    if (lMatch) lLevel = parseInt(lMatch[1], 10);
+  } catch (e) {
+    // Fail gracefully to Lvl 1 defaults
+  }
+
+  return { aLevel, lLevel };
 };
 
-const PIE_COLORS = ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#3b82f6', '#f97316', '#ec4899'];
+// --- SIMPLIFIED PARENT COGNITIVE LABELS FOR ALL 9 CORE CATEGORIES ---
+const COGNITIVE_CATEGORIES: Record<string, { title: string; desc: string }> = {
+  W1: { title: 'Concept Tool Gaps', desc: 'Your child does not yet know the mathematical formulas or baseline methods needed to solve this specific question type.' },
+  W2: { title: 'Complexity Stretch Points', desc: 'They understand the basic math rules perfectly, but get stuck when multiple layers or abstract variables are added.' },
+  W3: { title: 'Missing Small Clues', desc: 'A reading oversight where your child accidentally skips past a tiny modifier word in the question text (like "not" or "except").' },
+  W4: { title: 'Rushing Familiar Patterns', desc: 'They pick an operational route too quickly because the problem layout looks exactly like a puzzle they remember solving before.' },
+  W5: { title: 'Assumed Rule Biases', desc: 'Your child creates an internally logical mathematical plan built upon a completely unstated, self-invented rule.' },
+  W6: { title: 'Basic Arithmetic Slips', desc: 'Their core reasoning and operational plan are 100% sound, but a simple mechanical calculation error occurred.' },
+  W7: { title: 'Falling for Hidden Bait', desc: 'They grab an attractive partial answer or misleading visual trap planted deliberately by the question designer.' },
+  W8: { title: 'Information Tracking Fatigue', desc: 'They can handle each piece of the math easily in isolation, but lose track of sub-answers when juggling too many steps.' },
+  W9: { title: 'Skipping Reality Checks', desc: 'They lock in a final value that is contextually impossible (like a speed or age calculation error) without checking if it makes sense.' }
+};
 
-export default function AnalystDashboard() {
+// --- SELECTIVE TIER DEFINITIONS ---
+const SELECTIVE_TIERS = [
+  { level: 4, label: 'Elite Selective', desc: 'Super-selective grammar & top independent boarding benchmarks.' },
+  { level: 3, label: 'Highly Selective', desc: 'Competitive regional selective grammar standards.' },
+  { level: 2, label: 'Standard Selective', desc: 'Baseline single-layer grammar entry requirements.' },
+  { level: 1, label: 'Non-Selective', desc: 'Foundational baseline and core logic tracks.' }
+];
+
+export default function PremiumDiagnosticDashboard() {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [telemetry, setTelemetry] = useState<AggregatedTelemetry | null>(null);
+  const [isResumable, setIsResumable] = useState(false);
+  const [tutorNarrative, setTutorNarrative] = useState<string>('');
+  const [attempts, setAttempts] = useState<AttemptRow[]>([]);
+  const [completedTestsCount, setCompletedTestsCount] = useState(0);
+  const [selectedWindow, setSelectedWindow] = useState<TimeWindow>('all');
+  const [activeInterventionId, setActiveInterventionId] = useState<string | null>(null);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // --- DATA AGGREGATION LOOP ---
-  async function fetchAndCompileTelemetry(targetUid: string) {
-    setLoading(true);
-    const { data: attempts, error } = await supabase
-      .from('user_attempts')
-      .select(`created_at, session_id, is_correct, solve_time, analysis, variants ( al_classification )`)
-      .eq('user_id', targetUid)
-      .order('created_at', { ascending: true });
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-    if (error || !attempts || attempts.length === 0) {
-      setLoading(false);
+  async function loadDashboardData() {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
       return;
     }
 
-    let correctCount = 0;
-    let totalTime = 0;
-    let currentStreak = 0;
-    let maxStreak = 0;
+    const { data: sessions } = await supabase
+      .from('diagnostic_sessions')
+      .select('status');
     
-    let correctTimeTotal = 0;
-    let incorrectTimeTotal = 0;
-    let incorrectCount = 0;
+    if (sessions) {
+      setCompletedTestsCount(sessions.filter(s => s.status === 'completed').length);
+      setIsResumable(sessions.some(s => s.status === 'active'));
+    }
 
-    let lateTestCorrect = 0;
-    let lateTestTotal = 0;
+    const { data: summaryData } = await supabase
+      .from('cognitive_summaries')
+      .select('tutor_narrative')
+      .eq('user_id', user.id)
+      .maybeSingle();
 
-    const wCounts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0 };
-    const sessionsMap = new Map<string, { correct: number; total: number; time: number }>();
-    const matrixMap = new Map<string, { correct: number; total: number }>();
-    const radarMap = new Map<string, { correct: number; total: number }>();
-    const sequenceMap = new Map<number, { correct: number; total: number; time: number }>();
-    const recentInterventions: any[] = [];
+    setTutorNarrative(summaryData?.tutor_narrative || 'Your learning profile overview will render here once a full diagnostic session concludes.');
 
-    const sessionGroups: Record<string, any[]> = {};
-    attempts.forEach(a => {
-      const sid = a.session_id || 'unknown';
-      if (!sessionGroups[sid]) sessionGroups[sid] = [];
-      sessionGroups[sid].push(a);
-    });
+    const { data: attemptRows, error } = await supabase
+      .from('user_attempts')
+      .select(`
+        id,
+        created_at,
+        is_correct,
+        solve_time,
+        variant_id,
+        step_velocities,
+        analysis,
+        variants (
+          generated_question,
+          correct_answer,
+          al_classification
+        ),
+        skeletons (
+          al_classification
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
 
-    Object.values(sessionGroups).forEach((sessionAttempts) => {
-      sessionAttempts.forEach((attempt, index) => {
-        const isCorrect = attempt.is_correct;
-        const time = attempt.solve_time || 0;
-        const al = attempt.variants?.al_classification;
-
-        totalTime += time;
-        if (isCorrect) {
-          correctCount++;
-          currentStreak++;
-          maxStreak = Math.max(maxStreak, currentStreak);
-          correctTimeTotal += time;
-        } else {
-          currentStreak = 0;
-          incorrectCount++;
-          incorrectTimeTotal += time;
+    if (!error && attemptRows) {
+      const normalizedAttempts = (attemptRows as any[]).map(row => {
+        let cleanAnalysis = row.analysis;
+        if (typeof cleanAnalysis === 'string') {
+          try { cleanAnalysis = JSON.parse(cleanAnalysis); } catch { cleanAnalysis = {}; }
         }
-
-        if (index > 13) {
-          lateTestTotal++;
-          if (isCorrect) lateTestCorrect++;
-        }
-
-        const seq = index + 1;
-        if (!sequenceMap.has(seq)) sequenceMap.set(seq, { correct: 0, total: 0, time: 0 });
-        const seqData = sequenceMap.get(seq)!;
-        seqData.total++;
-        seqData.time += time;
-        if (isCorrect) seqData.correct++;
-
-        if (al) {
-          if (!matrixMap.has(al)) matrixMap.set(al, { correct: 0, total: 0 });
-          const mData = matrixMap.get(al)!;
-          mData.total++;
-          if (isCorrect) mData.correct++;
-
-          const aMatch = al.match(/(A\d)/);
-          const lMatch = al.match(/(L\d)/);
-          if (aMatch) {
-            if (!radarMap.has(aMatch[1])) radarMap.set(aMatch[1], { correct: 0, total: 0 });
-            radarMap.get(aMatch[1])!.total++;
-            if (isCorrect) radarMap.get(aMatch[1])!.correct++;
-          }
-          if (lMatch) {
-            if (!radarMap.has(lMatch[1])) radarMap.set(lMatch[1], { correct: 0, total: 0 });
-            radarMap.get(lMatch[1])!.total++;
-            if (isCorrect) radarMap.get(lMatch[1])!.correct++;
-          }
-        }
-
-        const sid = attempt.session_id || 'unknown';
-        if (!sessionsMap.has(sid)) sessionsMap.set(sid, { correct: 0, total: 0, time: 0 });
-        const sData = sessionsMap.get(sid)!;
-        sData.total++;
-        sData.time += time;
-        if (isCorrect) sData.correct++;
-
-        const analysis = typeof attempt.analysis === 'string' ? JSON.parse(attempt.analysis) : attempt.analysis;
-        if (analysis?.w_category_breakdown && !isCorrect) {
-          Object.entries(analysis.w_category_breakdown).forEach(([key, val]) => {
-            if (val === 1 && wCounts[key] !== undefined) wCounts[key]++;
-          });
-        }
-        if (!isCorrect && analysis?.recommended_intervention) {
-          recentInterventions.unshift({
-            date: new Date(attempt.created_at).toLocaleDateString(),
-            concept: al || 'General',
-            advice: analysis.recommended_intervention
-          });
-        }
+        return { ...row, analysis: cleanAnalysis };
       });
-    });
 
-    const dominantW = Object.entries(wCounts).reduce((a, b) => a[1] > b[1] ? a : b);
-    const avgCorrectTime = correctCount > 0 ? correctTimeTotal / correctCount : 0;
-    const avgIncorrectTime = incorrectCount > 0 ? incorrectTimeTotal / incorrectCount : 0;
-
-    const outcomeDistribution = [
-      { name: 'Flawless Execution', value: correctCount },
-      ...Object.entries(wCounts).filter(([_, count]) => count > 0).map(([key, count]) => ({
-        name: W_CATEGORY_MAP[key], value: count
-      }))
-    ];
-
-    let sessionCounter = 1;
-    const sessionTrends = Array.from(sessionsMap.entries()).map(([_, data]) => ({
-      sessionName: `S${sessionCounter++}`,
-      accuracy: Math.round((data.correct / data.total) * 100),
-      avgTime: Math.round(data.time / data.total)
-    }));
-
-    const complexityMatrix = Array.from(matrixMap.entries()).map(([al, data]) => {
-      const y = parseInt(al.match(/A(\d)/)?.[1] || '0');
-      const x = parseInt(al.match(/L(\d)/)?.[1] || '0');
-      return { label: al, x, y, z: data.total * 20, successRate: Math.round((data.correct / data.total) * 100) };
-    }).filter(d => d.x > 0 && d.y > 0);
-
-    const radarOrder = ['L1', 'L2', 'L3', 'A1', 'A2', 'A3', 'A4'];
-    const radarData = radarOrder.map(key => {
-      const data = radarMap.get(key) || { correct: 0, total: 1 };
-      return { subject: key, accuracy: Math.round((data.correct / (data.total || 1)) * 100), fullMark: 100 };
-    });
-
-    const fatigueData = Array.from(sequenceMap.entries())
-      .sort((a, b) => a[0] - b[0])
-      .map(([seq, data]) => ({
-        sequence: `Q${seq}`,
-        accuracy: Math.round((data.correct / data.total) * 100),
-        avgTime: Math.round(data.time / data.total)
-      }));
-
-    setTelemetry({
-      kpis: {
-        totalAttempts: attempts.length,
-        overallAccuracy: Math.round((correctCount / attempts.length) * 100),
-        avgSolveTime: Math.round(totalTime / attempts.length),
-        dominantWeakness: dominantW[1] > 0 ? W_CATEGORY_MAP[dominantW[0]] : 'None',
-        longestStreak: maxStreak,
-        hesitationPenalty: Math.round(avgIncorrectTime - avgCorrectTime),
-        mentalStamina: lateTestTotal > 0 ? Math.round((lateTestCorrect / lateTestTotal) * 100) : 0,
-        velocityScore: (avgCorrectTime < 25 && correctCount/attempts.length > 0.8) ? 'ELITE' : 'STANDARD'
-      },
-      cognitiveProfile: [],
-      sessionTrends,
-      complexityMatrix,
-      interventions: recentInterventions.slice(0, 5),
-      radarData,
-      fatigueData,
-      outcomeDistribution
-    });
+      setAttempts(normalizedAttempts);
+      
+      const wrongInterventions = normalizedAttempts.filter(a => !a.is_correct && a.analysis?.recommended_intervention);
+      if (wrongInterventions.length > 0) {
+        setActiveInterventionId(wrongInterventions[0].id);
+      }
+    }
     setLoading(false);
   }
 
-  // --- AUTHENTICATION & CACHE CHECK ---
   useEffect(() => {
-    async function verifyUserContext() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push('/login'); return; }
-      
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('user_pin')
-        .eq('id', user.id)
-        .single();
-        
-      const requiresPin = profile?.user_pin && profile.user_pin !== '000';
-      const isSessionUnlocked = sessionStorage.getItem('dashboard_unlocked') === 'true';
-      
-      if (requiresPin && !isSessionUnlocked) {
-        router.push('/profile');
-        return;
+    if (isMounted) loadDashboardData();
+  }, [isMounted]);
+
+  const filteredAttempts = useMemo(() => {
+    const now = new Date();
+    return attempts.filter(a => {
+      const createdAt = new Date(a.created_at);
+      const diffDays = Math.ceil(Math.abs(now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      if (selectedWindow === 'month') return diffDays <= 30;
+      if (selectedWindow === 'quarter') return diffDays <= 90;
+      return true;
+    });
+  }, [attempts, selectedWindow]);
+
+  const parentMetrics = useMemo(() => {
+    const total = filteredAttempts.length;
+    const correctCount = filteredAttempts.filter(a => a.is_correct).length;
+    
+    const errorsCount: Record<string, number> = {
+      W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0
+    };
+
+    let totalSelfCorrections = 0;
+    filteredAttempts.forEach(a => {
+      const scratch = a.analysis?.teacher_scratchpad?.toLowerCase() || '';
+      if (a.is_correct && (scratch.includes('self-correct') || scratch.includes('caught'))) {
+        totalSelfCorrections++;
       }
-      
-      await fetchAndCompileTelemetry(user.id);
-    }
-    verifyUserContext();
-  }, [router, supabase]);
 
-  if (loading) {
+      const breakdown = a.analysis?.w_category_breakdown;
+      if (breakdown) {
+        Object.keys(errorsCount).forEach(k => {
+          if (breakdown[k] === 1 || a.analysis?.error_reason === k) {
+            errorsCount[k]++;
+          }
+        });
+      } else if (!a.is_correct && a.analysis?.error_reason) {
+        const reason = a.analysis.error_reason;
+        if (errorsCount[reason] !== undefined) errorsCount[reason]++;
+      }
+    });
+
+    return {
+      totalAnswers: total,
+      accuracyRate: total > 0 ? Math.round((correctCount / total) * 100) : 0,
+      selfCorrectionCount: totalSelfCorrections,
+      errorMatrix: errorsCount
+    };
+  }, [filteredAttempts]);
+
+  // Determine the child's active cleared level for the pill stack
+  const activeSelectiveLevel = useMemo(() => {
+    if (attempts.length === 0) return 1;
+    let max = 1;
+    attempts.forEach(a => {
+      if (a.is_correct) {
+        const { aLevel } = getAandLLevels(a);
+        if (aLevel > max) max = aLevel;
+      }
+    });
+    return max;
+  }, [attempts]);
+
+  // --- CHART DATA GENERATORS ---
+  const mathPacingData = useMemo(() => {
+    return [1, 2, 3, 4].map(lvl => {
+      const matched = filteredAttempts.filter(a => getAandLLevels(a).aLevel === lvl);
+      let r = 0, p = 0, c = 0, count = 0;
+
+      matched.forEach(m => {
+        if (m.step_velocities) {
+          r += m.step_velocities.step1 || 0;
+          p += m.step_velocities.step2 || 0;
+          c += m.step_velocities.step3 || 0;
+          count++;
+        }
+      });
+
+      return {
+        name: `Math Lvl ${lvl}`,
+        'Reading Time': count > 0 ? Math.round(r / count) : 0,
+        'Planning Strategy': count > 0 ? Math.round(p / count) : 0,
+        'Calculations': count > 0 ? Math.round(c / count) : 0,
+      };
+    });
+  }, [filteredAttempts]);
+
+  const langPacingData = useMemo(() => {
+    return [1, 2, 3].map(lvl => {
+      const matched = filteredAttempts.filter(a => getAandLLevels(a).lLevel === lvl);
+      let r = 0, p = 0, c = 0, count = 0;
+
+      matched.forEach(m => {
+        if (m.step_velocities) {
+          r += m.step_velocities.step1 || 0;
+          p += m.step_velocities.step2 || 0;
+          c += m.step_velocities.step3 || 0;
+          count++;
+        }
+      });
+
+      return {
+        name: `Lang Lvl ${lvl}`,
+        'Reading Time': count > 0 ? Math.round(r / count) : 0,
+        'Planning Strategy': count > 0 ? Math.round(p / count) : 0,
+        'Calculations': count > 0 ? Math.round(c / count) : 0,
+      };
+    });
+  }, [filteredAttempts]);
+
+  const mathErrorData = useMemo(() => {
+    return [1, 2, 3, 4].map(lvl => {
+      const items = filteredAttempts.filter(a => !a.is_correct && getAandLLevels(a).aLevel === lvl);
+      let counts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0 };
+
+      items.forEach(i => {
+        const r = i.analysis?.error_reason;
+        if (r && counts[r] !== undefined) counts[r]++;
+      });
+
+      return {
+        name: `Math L${lvl}`,
+        'Concept Gaps': counts.W1,
+        'Complexity Stretches': counts.W2,
+        'Missing Clues': counts.W3,
+        'Rushed Patterns': counts.W4,
+        'Assumed Rules': counts.W5,
+        'Arithmetic Slips': counts.W6,
+        'Bait Traps': counts.W7,
+        'Tracking Fatigue': counts.W8,
+        'Reality Checks Missed': counts.W9
+      };
+    });
+  }, [filteredAttempts]);
+
+  const langErrorData = useMemo(() => {
+    return [1, 2, 3].map(lvl => {
+      const items = filteredAttempts.filter(a => !a.is_correct && getAandLLevels(a).lLevel === lvl);
+      let counts: Record<string, number> = { W1: 0, W2: 0, W3: 0, W4: 0, W5: 0, W6: 0, W7: 0, W8: 0, W9: 0 };
+
+      items.forEach(i => {
+        const r = i.analysis?.error_reason;
+        if (r && counts[r] !== undefined) counts[r]++;
+      });
+
+      return {
+        name: `Lang L${lvl}`,
+        'Concept Gaps': counts.W1,
+        'Complexity Stretches': counts.W2,
+        'Missing Clues': counts.W3,
+        'Rushed Patterns': counts.W4,
+        'Assumed Rules': counts.W5,
+        'Arithmetic Slips': counts.W6,
+        'Bait Traps': counts.W7,
+        'Tracking Fatigue': counts.W8,
+        'Reality Checks Missed': counts.W9
+      };
+    });
+  }, [filteredAttempts]);
+
+  const activeInterventionItem = useMemo(() => {
+    return attempts.find(a => a.id === activeInterventionId) || null;
+  }, [attempts, activeInterventionId]);
+
+  if (loading || !isMounted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center font-mono text-xs tracking-widest uppercase text-slate-400 animate-pulse">
-        Aggregating High-Dimensional Telemetry...
+      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-serif text-sm text-[#1B3A5C] animate-pulse">
+        <Loader2 className="w-6 h-6 animate-spin mb-2" />
+        Syncing tutor insights... Preparing your child's roadmap...
       </div>
     );
   }
 
-  if (!telemetry) {
-    return (
-      <div className="min-h-screen bg-[#FAFAF6] flex flex-col items-center justify-center font-mono space-y-4">
-        <div className="text-xs tracking-widest uppercase text-amber-800 font-bold border border-amber-200 bg-amber-50 px-6 py-4 rounded-xl flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-amber-600" /> NO_METRIC_RECORDS_FOUND
-        </div>
-        <button onClick={() => router.push('/profile')} className="text-[10px] uppercase tracking-widest text-slate-400 hover:text-[#1B3A5C] underline">
-          Return to Hub
-        </button>
-      </div>
-    );
-  }
-
-  // ============================================================================
-  // RENDER COMPLETE PERFORMANCE COMMAND CANVAS
-  // ============================================================================
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans p-4 md:p-8 selection:bg-blue-100 pb-24">
+    <div className="min-h-screen bg-[#FAFAF6] text-[#1B3A5C] font-sans antialiased pb-32">
       
-      {/* HEADER */}
-      <header className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            <Activity className="text-blue-600 w-8 h-8" />
-            Command Center
-          </h1>
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mt-2">
-            Comprehensive Cognitive Profiling Matrix
-          </p>
-        </div>
-        
-        <div className="flex flex-col items-end gap-4 w-full md:w-auto">
-          <AuthBadge />
-          <div className="flex gap-3 w-full md:w-auto">
+      {/* FRAME MAIN HEADER */}
+      <header className="border-b border-[#E5E3DD] bg-white px-6 py-5 shadow-xs">
+        <div className="max-w-[1500px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[9px] font-bold uppercase tracking-widest border border-slate-200 mb-1.5">
+              <Sparkles className="w-3 h-3 text-amber-500 fill-amber-400" /> Private Parent Portal
+            </div>
+            <h1 className="text-2xl font-black font-serif tracking-tight text-[#1B3A5C]">Your Child's Cognitive Learning Profile</h1>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <AuthBadge />
             <button 
-              onClick={() => {
-                sessionStorage.removeItem('dashboard_unlocked');
-                router.push('/profile'); // Lock and return immediately
-              }} 
-              className="bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition shadow-sm flex items-center gap-2"
+              onClick={() => router.push('/profile')} 
+              className="bg-[#1B3A5C] text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition shadow-xs"
             >
-              <Lock className="w-4 h-4" /> Lock
-            </button>
-            <button onClick={() => router.push('/profile')} className="flex-1 md:flex-none bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-md">
-              Return to Profile Hub
+              Return to Hub
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1400px] mx-auto space-y-6">
+      <main className="max-w-[1500px] mx-auto px-4 md:px-6 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* ROW 1: 8-POINT MICRO KPI GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><Target className="w-3 h-3"/> Accuracy</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.overallAccuracy}<span className="text-sm text-slate-400">%</span></div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><TrendingUp className="w-3 h-3"/> Evaluated</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.totalAttempts}</div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><Clock className="w-3 h-3"/> Avg Speed</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.avgSolveTime}<span className="text-sm text-slate-400">s</span></div>
-          </div>
-          <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-md flex flex-col justify-between text-white">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3 text-amber-400"/> Critical Fault</div>
-            <div className="text-lg font-black leading-tight truncate">{telemetry.kpis.dominantWeakness}</div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-500"/> Max Streak</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.longestStreak}<span className="text-sm text-slate-400">🔥</span></div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between" title="Additional time spent hesitating on incorrect answers vs correct ones.">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><Crosshair className="w-3 h-3 text-red-500"/> Hesitation</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.hesitationPenalty > 0 ? '+' : ''}{telemetry.kpis.hesitationPenalty}<span className="text-sm text-slate-400">s</span></div>
-          </div>
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-            <div className="text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-2 flex items-center gap-1"><BrainCircuit className="w-3 h-3"/> Stamina</div>
-            <div className="text-2xl font-black text-slate-900">{telemetry.kpis.mentalStamina}<span className="text-sm text-slate-400">%</span></div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl shadow-md flex flex-col justify-between text-white">
-            <div className="text-[9px] uppercase font-bold text-blue-200 tracking-wider mb-2 flex items-center gap-1"><Zap className="w-3 h-3"/> Projection</div>
-            <div className="text-xl font-black tracking-widest">{telemetry.kpis.velocityScore}</div>
-          </div>
-        </div>
-
-        {/* ROW 2: PRIMARY CHARTS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* MAIN PANEL CONTENT BODY */}
+        <div className="lg:col-span-2 space-y-6">
           
-          <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm lg:col-span-2">
-            <div className="mb-6">
-              <h3 className="text-sm font-bold text-slate-900">Cognitive Fatigue & Pacing</h3>
-              <p className="text-[11px] text-slate-500 font-medium mt-1">Tracks average time allocation (Bars) against accuracy (Line) as the assessment progresses.</p>
-            </div>
-            <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={telemetry.fatigueData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="sequence" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                  <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                  <YAxis yAxisId="right" orientation="right" domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                  <Bar yAxisId="left" dataKey="avgTime" name="Avg Time (s)" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
-                  <Line yAxisId="right" type="monotone" dataKey="accuracy" name="Accuracy (%)" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col items-center">
-            <div className="w-full mb-2">
-              <h3 className="text-sm font-bold text-slate-900">Load Tolerance</h3>
-              <p className="text-[11px] text-slate-500 font-medium mt-1">Linguistic vs Application parsing accuracy.</p>
-            </div>
-            <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={telemetry.radarData}>
-                  <PolarGrid stroke="#f1f5f9" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11, fontWeight: 'bold' }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                  <Radar name="Accuracy" dataKey="accuracy" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.4} />
-                  <Tooltip />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ROW 3: DEEP DIVE MATRIX & OUTCOMES */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm lg:col-span-2">
-            <h3 className="text-sm font-bold text-slate-900">Orthogonal Complexity Matrix</h3>
-            <p className="text-[11px] text-slate-500 font-medium mt-1 mb-6">X-Axis: Linguistic Complexity | Y-Axis: Application Framework | Bubble Size: Exposure Volume</p>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 10, right: 20, bottom: 0, left: -25 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis dataKey="x" type="number" domain={[0, 4]} ticks={[1,2,3]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                  <YAxis dataKey="y" type="number" domain={[0, 5]} ticks={[1,2,3,4]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-                  <ZAxis dataKey="z" type="number" range={[50, 400]} />
-                  <Tooltip 
-                    cursor={{ strokeDasharray: '3 3' }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-slate-900 border border-slate-700 p-3 rounded-lg shadow-xl text-white font-sans text-xs">
-                            <p className="font-bold mb-1 text-blue-400">Blueprint: {data.label}</p>
-                            <p>Success Rate: {data.successRate}%</p>
-                            <p className="text-slate-400">Sample Volume: {data.z / 20}</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }} 
-                  />
-                  <Scatter data={telemetry.complexityMatrix} fill="#3b82f6" fillOpacity={0.6} />
-                </ScatterChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-900 mb-6">Behavioral Outcome Spread</h3>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={telemetry.outcomeDistribution || []}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {telemetry.outcomeDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ROW 4: AI TUTOR FEED */}
-        <div className="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-6">
-            <Flame className="w-5 h-5 text-orange-500" />
-            Active Micro-Interventions (Tutor Directives)
-          </h3>
-          
-          {telemetry.interventions.length === 0 ? (
-            <div className="py-12 flex items-center justify-center text-sm text-slate-400 italic">
-              No corrective interventions logged yet.
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {telemetry.interventions.map((log, idx) => (
-                <div key={idx} className="p-5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-100/50 px-3 py-1.5 rounded-lg uppercase tracking-widest border border-blue-200/50">
-                      Target: {log.concept}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">{log.date}</span>
-                  </div>
-                  <p className="text-sm text-slate-700 leading-relaxed font-medium">
-                    "{log.advice}"
-                  </p>
+          {/* ASSESSMENTS HIGHLIGHT BLOCK */}
+          <div className="bg-white rounded-3xl border border-[#E5E3DD] shadow-sm overflow-hidden">
+            <div className="bg-[#1B3A5C] text-white p-5 flex justify-between items-center border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <Brain className="w-5 h-5 text-amber-400" />
+                <div>
+                  <h2 className="text-md font-serif font-bold tracking-tight">Tutor Insight Roadmap</h2>
+                  <p className="text-[11px] text-slate-300">Observation of logic tracking patterns and strategy shifts over consecutive task cycles.</p>
                 </div>
-              ))}
+              </div>
+            </div>
+            <div className="p-6 md:p-8 bg-[#FAF9F5]/30 max-h-[380px] overflow-y-auto text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap border-b border-slate-100">
+              {tutorNarrative}
+            </div>
+          </div>
+
+          {/* SIMPLIFIED METRIC METERS */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-blue-50 text-blue-700 rounded-xl border border-blue-100">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Completed Diagnostics</span>
+                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{completedTestsCount} <span className="text-[10px] font-normal text-slate-400">runs</span></p>
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-amber-50 text-amber-700 rounded-xl border border-amber-100">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Observed Puzzle Steps</span>
+                <p className="text-2xl font-black text-[#1B3A5C] mt-0.5">{parentMetrics.totalAnswers} <span className="text-[10px] font-normal text-slate-400">tracks</span></p>
+              </div>
+            </div>
+            <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-xs flex items-center gap-4">
+              <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Self-Correction Alerts</span>
+                <p className="text-2xl font-black text-emerald-700 mt-0.5">{parentMetrics.selfCorrectionCount} <span className="text-[10px] font-normal text-slate-400 font-sans">catches</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* SELECTIVE STANDING PILL STACK UI */}
+          <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                <Gauge className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Selective Benchmark Standing</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Your child's highest cleanly cleared logical complexity band.</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {[4, 3, 2, 1].map(lvl => {
+                const tier = SELECTIVE_TIERS.find(t => t.level === lvl)!;
+                const isActive = activeSelectiveLevel === lvl;
+                const isUnlocked = activeSelectiveLevel >= lvl;
+
+                return (
+                  <div key={lvl} className={`p-4 rounded-xl border-2 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                    isActive ? 'border-[#1B3A5C] bg-[#1B3A5C] text-white shadow-md' : 
+                    isUnlocked ? 'border-emerald-100 bg-emerald-50/40' : 
+                    'border-slate-100 bg-slate-50/50 opacity-60'
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${
+                        isActive ? 'bg-amber-400 text-[#1B3A5C]' :
+                        isUnlocked ? 'bg-emerald-200 text-emerald-800' :
+                        'bg-slate-200 text-slate-400'
+                      }`}>
+                        {lvl}
+                      </div>
+                      <div>
+                        <h4 className={`text-xs font-black uppercase tracking-wide ${isActive ? 'text-white' : isUnlocked ? 'text-emerald-900' : 'text-slate-500'}`}>{tier.label}</h4>
+                        <p className={`text-[10px] ${isActive ? 'text-slate-300' : isUnlocked ? 'text-emerald-700/70' : 'text-slate-400'}`}>{tier.desc}</p>
+                      </div>
+                    </div>
+                    {isActive && (
+                      <span className="text-[9px] uppercase font-bold tracking-widest bg-white/20 px-3 py-1.5 rounded-full flex-shrink-0">
+                        Current Standing
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* MULTI-AXIS CHART SUITE */}
+          <div className="space-y-6">
+            
+            {/* LINE CHARTS BLOCK: MATH VS LANG TIMING */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Math Challenges</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Average seconds spent per phase as problem complexity scales.</p>
+                </div>
+                <div className="h-48 w-full mt-4 text-[10px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={mathPacingData} margin={{ left: -25, right: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="name" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                      <Line type="monotone" dataKey="Reading Time" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
+                      <Line type="monotone" dataKey="Planning Strategy" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
+                      <Line type="monotone" dataKey="Calculations" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Pacing Profile: Language Density</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Average seconds spent per phase as question layout text expands.</p>
+                </div>
+                <div className="h-48 w-full mt-4 text-[10px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={langPacingData} margin={{ left: -25, right: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="name" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                      <Line type="monotone" dataKey="Reading Time" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
+                      <Line type="monotone" dataKey="Planning Strategy" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
+                      <Line type="monotone" dataKey="Calculations" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {/* STACKED BAR PLOTS BREAKING DOWN INDIVIDUAL 9 CATEGORIES */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Math Core Blocks</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of unforced mistake reasons as logic rules expand.</p>
+                </div>
+                <div className="h-56 w-full mt-4 text-[9px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={mathErrorData} margin={{ left: -25, right: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '12px' }} />
+                      <Bar dataKey="Concept Gaps" stackId="x" fill="#3b82f6" />
+                      <Bar dataKey="Complexity Stretches" stackId="x" fill="#60a5fa" />
+                      <Bar dataKey="Missing Clues" stackId="x" fill="#f59e0b" />
+                      <Bar dataKey="Rushed Patterns" stackId="x" fill="#fca5a5" />
+                      <Bar dataKey="Assumed Rules" stackId="x" fill="#ef4444" />
+                      <Bar dataKey="Arithmetic Slips" stackId="x" fill="#10b981" />
+                      <Bar dataKey="Bait Traps" stackId="x" fill="#34d399" />
+                      <Bar dataKey="Tracking Fatigue" stackId="x" fill="#8b5cf6" />
+                      <Bar dataKey="Reality Checks Missed" stackId="x" fill="#a78bfa" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-[#E5E3DD] shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-bold font-serif uppercase tracking-wider text-slate-400">Friction Metrics: Language Density</h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Distribution of unforced mistake reasons across text reading levels.</p>
+                </div>
+                <div className="h-56 w-full mt-4 text-[9px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={langErrorData} margin={{ left: -25, right: 10 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" />
+                      <Tooltip />
+                      <Legend wrapperStyle={{ fontSize: '9px', paddingTop: '12px' }} />
+                      <Bar dataKey="Concept Gaps" stackId="x" fill="#3b82f6" />
+                      <Bar dataKey="Complexity Stretches" stackId="x" fill="#60a5fa" />
+                      <Bar dataKey="Missing Clues" stackId="x" fill="#f59e0b" />
+                      <Bar dataKey="Rushed Patterns" stackId="x" fill="#fca5a5" />
+                      <Bar dataKey="Assumed Rules" stackId="x" fill="#ef4444" />
+                      <Bar dataKey="Arithmetic Slips" stackId="x" fill="#10b981" />
+                      <Bar dataKey="Bait Traps" stackId="x" fill="#34d399" />
+                      <Bar dataKey="Tracking Fatigue" stackId="x" fill="#8b5cf6" />
+                      <Bar dataKey="Reality Checks Missed" stackId="x" fill="#a78bfa" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* DETAILED FRICTION MATRIX */}
+          <div className="bg-white rounded-2xl border border-[#E5E3DD] p-5 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 pb-3 gap-3">
+              <div>
+                <h3 className="text-sm font-bold font-serif text-[#1B3A5C] uppercase tracking-wider">Learning Friction Breakdown Matrix</h3>
+                <p className="text-xs text-slate-400">Granular look at mistake indicators logged during active analytical runs.</p>
+              </div>
+              
+              <div className="flex bg-slate-100 border border-slate-200 p-1 rounded-xl w-full sm:w-auto">
+                {(['month', 'quarter', 'all'] as const).map((w) => (
+                  <button
+                    key={w}
+                    onClick={() => setSelectedWindow(w)}
+                    className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all text-center flex-1 sm:flex-initial ${
+                      selectedWindow === w 
+                        ? 'bg-white text-[#1B3A5C] shadow-xs' 
+                        : 'text-slate-400 hover:text-[#1B3A5C]'
+                    }`}
+                  >
+                    {w === 'month' ? 'Last Month' : w === 'quarter' ? 'Last 3 Months' : 'All Time'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {Object.entries(COGNITIVE_CATEGORIES).map(([wCode, copy]) => {
+                const count = parentMetrics.errorMatrix[wCode] || 0;
+                return (
+                  <div key={wCode} className="p-4 rounded-xl border border-slate-100 bg-[#FAFAF6]/40 flex justify-between items-start gap-4">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-black uppercase text-slate-800 tracking-wide block">
+                        {copy.title}
+                      </span>
+                      <p className="text-xs text-slate-500 leading-normal font-serif">
+                        {copy.desc}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md shrink-0 ${count > 0 ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-300'}`}>
+                      {count} flagged
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+
+        {/* RIGHT INTERVENTION SUB-COLUMN */}
+        <div className="space-y-4">
+          
+          <div className="bg-white p-4 rounded-2xl border border-[#E5E3DD] shadow-xs">
+            <h3 className="text-xs uppercase font-bold tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-[#1B3A5C]" /> Targeted Practice Feed
+            </h3>
+            
+            {/* Filters strictly for incorrect records */}
+            <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+              {attempts
+                .filter(a => !a.is_correct && a.analysis?.recommended_intervention)
+                .map((item, idx, arr) => {
+                  const active = item.id === activeInterventionId;
+                  const reasonCode = item.analysis?.error_reason || 'W6';
+                  
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveInterventionId(item.id)}
+                      className={`w-full text-left p-3.5 rounded-xl border transition-all flex justify-between items-center gap-3 ${
+                        active 
+                          ? 'bg-[#1B3A5C] border-[#1B3A5C] text-white shadow-sm' 
+                          : 'bg-[#FAFAF6]/60 border-slate-200 hover:bg-slate-100/50 text-[#1B3A5C]'
+                      }`}
+                    >
+                      <div className="space-y-1 overflow-hidden">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded uppercase ${active ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                            {COGNITIVE_CATEGORIES[reasonCode]?.title || 'Practice Note'}
+                          </span>
+                          <span className={`text-[9px] font-medium ${active ? 'text-amber-200' : 'text-slate-400'}`}>
+                            {new Date(item.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <p className="text-xs font-serif font-medium truncate pr-2 opacity-95">
+                          Correction Blueprint Guide #{arr.length - idx}
+                        </p>
+                      </div>
+                      <ChevronRight className="w-3.5 h-3.5 opacity-40 shrink-0" />
+                    </button>
+                  );
+                })}
+              {attempts.filter(a => !a.is_correct && a.analysis?.recommended_intervention).length === 0 && (
+                <div className="text-center p-8 text-xs text-slate-400 font-serif">No core review paths flagged in recent tracking windows.</div>
+              )}
+            </div>
+          </div>
+
+          {/* ACTIVE COACHING DISPLAY CARD */}
+          {activeInterventionItem && activeInterventionItem.analysis?.recommended_intervention && (
+            <div className="bg-slate-900 border border-slate-950 text-white rounded-2xl p-5 shadow-md space-y-4 animate-fade-in">
+              <div className="border-b border-white/10 pb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <Target className="w-4 h-4" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider">Targeted Practice Action</h4>
+                </div>
+                <span className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">
+                  Active Strategy
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Coaching Strategy for Parents</span>
+                <p className="text-sm font-serif leading-relaxed text-slate-100 font-medium">
+                  {activeInterventionItem.analysis.recommended_intervention}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-400 font-medium">
+                <span>Pacing Check: {activeInterventionItem.solve_time}s spent</span>
+                <span>Status: Core Focus</span>
+              </div>
             </div>
           )}
+
         </div>
 
       </main>

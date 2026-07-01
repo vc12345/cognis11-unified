@@ -19,11 +19,11 @@ export default function LocalhostSplitLanding() {
         </div>
         
         <h2 className="text-3xl md:text-4xl font-bold font-serif text-[#1B3A5C] max-w-3xl tracking-tight mb-4">
-          An intelligent alternative to 11+ preparation.
+          Because the 11+ has become an arms race. Let’s change how you play it.
         </h2>
         
         <p className="text-sm md:text-base text-slate-500 max-w-2xl leading-relaxed">
-          Mass-market platforms measure right vs. wrong and prescribe more repetitive volume. We evaluate the underlying cognitive mechanics. Whether you are building a foundational base early or establishing high-ROI interventions in the final 6 months.
+          Schools are designing trickier tests to catch out children who simply memorise answers. We don't believe in endless, expensive drilling. Whether you want to quietly build an unbreakable foundation early at home, or need to instantly spot hidden mistakes in the final stretch, we give your child a level footing.
         </p>
       </header>
 
@@ -39,17 +39,17 @@ export default function LocalhostSplitLanding() {
         <div className="flex-1 bg-[#FAFAF6] flex flex-col justify-center px-8 md:px-16 py-16 border-b md:border-b-0 md:border-r border-[#E5E3DD]">
           <div className="max-w-md w-full mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-widest mb-6 border border-amber-200">
-              <Sparkles className="w-3 h-3" /> Years 2 — 5
+              <Sparkles className="w-3 h-3 text-amber-600 fill-amber-500" /> Years 2 — 5
             </div>
-            <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">Concept Introduction & Elaboration</h3>
+            <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">Build the Foundation Early</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8">
-              Build intuitive logic before the pressure of rote drilling sets in. Complete open-access curriculum mapping with 10-minute parental conversational scripts. Pay what you want.
+              Don’t wait for the classroom to rush through the basics. Use our 10-minute conversational scripts to introduce tricky concepts to your child in your own family's voice—long before test pressure sets in. Fully accessible, open to every budget, and completely free.
             </p>
             <button 
               onClick={() => router.push('/course/')}
               className="inline-flex items-center gap-2 bg-[#1B3A5C] hover:bg-slate-800 text-white font-medium text-xs uppercase tracking-wider px-6 py-3.5 rounded-md shadow-sm transition-all"
             >
-              Enter Pre-Prep Course
+              Start Free Concept Course
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -58,18 +58,18 @@ export default function LocalhostSplitLanding() {
         {/* CTA 2: Diagnostic Evaluation Path */}
         <div className="flex-1 bg-[#F5F4EE] flex flex-col justify-center px-8 md:px-16 py-16">
           <div className="max-w-md w-full mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-900 text-[10px] font-bold uppercase tracking-widest mb-6 border border-blue-200">
-              <Target className="w-3 h-3" /> Year 6 Focus
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-widest mb-6 border border-amber-200">
+              <Target className="w-3 h-3 text-amber-600" /> Year 6 / Final Push
             </div>
-            <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">The Codified Cognitive Baseline</h3>
+            <h3 className="text-3xl font-bold font-serif mb-4 text-[#1B3A5C]">Skip the Tutor Trial & Error</h3>
             <p className="text-sm text-slate-600 leading-relaxed mb-8">
-              A premium tutor spends weeks figuring out what a child needs. Our high-stakes evaluation matrices isolate the exact logic failure types capping their scores in the final 6 months.
+              Private tutors charge hundreds of pounds over several sessions just to work out where a child is struggling. Our single, targeted diagnostic bypasses the sunk cost—instantly mapping out the exact logical blind spots holding back your child's score in these vital final months.
             </p>
             <button 
               onClick={() => router.push('/diagnostic/')}
-              className="inline-flex items-center gap-2 bg-[#1B3A5C] hover:bg-slate-800 text-white font-medium text-xs uppercase tracking-wider px-6 py-3.5 rounded-md shadow-sm transition-all"
+              className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs uppercase tracking-wider px-6 py-3.5 rounded-md shadow-sm transition-all"
             >
-              Access Diagnostic Engine
+              Run the 11+ Diagnostic
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
