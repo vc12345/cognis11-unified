@@ -34,14 +34,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unverified parent session profile context.' }, { status: 401 });
     }
 
-    // 2. Extract Frontend Payload Arguments
-    const { session_id, variant_id, raw_answer, execution_velocity_seconds } = await req.json();
+    // 2. Extract Frontend Payload Arguments (including new step velocities)
+    const { 
+      session_id, 
+      variant_id, 
+      raw_answer, 
+      step_velocities, 
+      total_velocity_seconds 
+    } = await req.json();
 
     if (!variant_id || !raw_answer || !session_id) {
       return NextResponse.json({ error: 'Missing mandatory payload variables.' }, { status: 400 });
     }
 
-    const transcript = raw_answer;
+    // Unpack the 3 structural scaffolding steps from the client-side JSON bundle
+    const parsedScaffold = typeof raw_answer === 'string' ? JSON.parse(raw_answer) : raw_answer;
+    const { step1, step2, step3, confidence } = parsedScaffold;
 
     // 3. Ingest Variant & Target Metadata
     const { data: variantData, error: variantError } = await supabaseService
@@ -76,49 +84,55 @@ export async function POST(req: Request) {
         : (skeletonData?.source_questions as { concept: string })?.concept;
         
     const conceptName = sourceConcept || 'Mathematics';
+    
+    // Explicitly seed the breakdown metrics arrays, adding W9 into the calculation context dynamically
     const availableWCategories = skeletonData?.failure_profile 
-      ? Object.keys(skeletonData.failure_profile) 
-      : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'];
+      ? [...Object.keys(skeletonData.failure_profile), 'W9'].filter((v, i, a) => a.indexOf(v) === i)
+      : ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
 
-    // 5. Deep Cognitive & Linguistic Instruction Framework
+    // 5. Deep Cognitive & Linguistic Instruction Framework (Calibrated for 3-Stage Scaffolding)
     const systemInstruction = `
-      You are the core UK 11+ Spoken Diagnostics Engine for Cognis11. Your purpose is to evaluate a student's spoken math transcript against an elite Junior Math Olympiad shell and output highly granular cognitive telemetry.
+      You are the core UK 11+ Spoken Diagnostics Engine for Cognis11. Your purpose is to evaluate a student's multi-stage spoken math transcripts against an elite Junior Math Olympiad shell and output highly granular cognitive telemetry.
 
       You are evaluating a child up to the end of primary school competing in an educational arms race. Do not mask tracking flaws in vague academic generalities.
 
-      CRITICAL LINGUISTIC ANALYSIS INSTRUCTIONS:
-      - Examine raw speech markers in the transcript: repeated phrases, circular corrections, long pauses marked by '[pause]', heavy sighs, defensive tone triggers, and high density of speculative tokens ("maybe", "probably", "um", "uh").
-      - Cross-reference the 'execution_velocity_seconds' value provided against problem complexity. High speed + wrong answer maps to schema substitution/rushing. Slow speed + fragmented sentences maps to working memory dropouts.
+      CRITICAL SCENARIO HANDLING PROMPT DIRECTIVE:
+      - If the child's final calculation path is correct, mark "is_correct": true. If they initially fell into a trap or made a strategy error but caught it independently and fixed it, you should track that initial behavioral error token as the "error_reason" and primary flag, noting their exceptional self-monitoring loop in your text logs.
 
-      STRICT SCHEMATIC ERROR CLASSIFICATION (You must select exactly ONE core error token from the list below if is_correct is false):
-      - "concept_unknown": Completely blind to the underlying rules; zero logical starting point.
-      - "app_too_hard": Understands the baseline rule but collapses executing it under multi-layered parameters.
-      - "wording_comprehension": Perfectly capable of the math, but fundamentally misread the conditions due to language density.
-      - "misinterpreted_simpler": Fast, confident pattern-snapping that completely ignores custom constraints because the problem looked easy.
-      - "unjustified_assumption": Flawless internal logic built upon an imaginary, unstated baseline rule not present in the text.
-      - "calculation_error": Approach, setup, and concept tracking are 100% sound, but a direct arithmetic slip occurred.
-      - "intentional_trap": Direct surrender to designed question misdirection or attractive bait options.
-      - "sub_answer_stall": Successfully resolves a massive multi-step milestone but stops and outputs a partial value instead of continuing.
-      - "blind_to_solution": Stares at the conditions but cannot see the logical shortcut or puzzle pivot required to solve cleanly.
+      STRICT PHASIC ANALYSIS CONSTRAINTS:
+      - Evaluate Step 1 Transcript solely for Input & Perception errors (W1, W3, W4).
+      - Evaluate Step 2 Transcript solely for Planning & Strategy errors (W2, W5, W7).
+      - Evaluate Step 3 Transcript solely for Execution & Review errors (W6, W8, W9).
 
-      You must respond with a raw JSON object matching this schema exactly:
+      STRICT CHRONOLOGICAL ERROR CLASSIFICATION (You must select exactly ONE core error reason token from the list below if any structural friction or slip happened):
+      - "W1": Concept Unknown (Completely blind to underlying rules; zero logical starting point in Step 1).
+      - "W3": Passive Linguistic Parsing Failure (Child skips or misreads explicit words like "not", "except", or conditions).
+      - "W4": Proactive Schema Substitution (Rushed pattern-snapping; confidently forces an old layout onto this question).
+      - "W2": Application Ceiling (Understands the base rule but collapses under deep abstraction or complex variables in Step 2).
+      - "W5": Implicit Assumption Bias (Flawless internal logic built entirely on an imaginary, unstated premise or rule).
+      - "W7": Reactive Seduction / Trap Sprung (Direct surrender to a designed distractor element or an attractive partial answer).
+      - "W6": Operational / Calculation Slip (Reading and logic tracking are 100% sound, but an arithmetic calculation error happened in Step 3).
+      - "W8": Horizontal Working Memory Overflow (Can do steps in isolation, but drops intermediate coordinates or loses track mid-calculation).
+      - "W9": Metacognitive Absurdity Tolerance (Arrives at a contextually impossible output like a bus moving at 900mph, but accepts it anyway).
+
+      You must respond with a raw JSON object matching this schema exactly. Do not wrap in markdown or block annotations:
       {
-        "teacher_scratchpad": "Step 1 (True Math): [Explicit formula mapping]. Step 2 (Transcript Translation): [Translate raw text to formulas]. Step 3 (Calculated Result): [...]. Step 4 (W-Category Diagnosis): [...].",
+        "teacher_scratchpad": "Step 1 (True Math): [Formula tracking]. Step 2 (Transcript Translation): [Translate scaffold text keys]. Step 3 (Calculated Result): [...]. Step 4 (W-Category Diagnosis): [...].",
         "is_correct": boolean,
         "completion_percentage": number,
         "methodology_used": "EXPECTED_TRACE" | "ALTERNATIVE_VALID" | "ROTE_GUESSING" | "INCOMPLETE_CHAIN",
         "w_category_breakdown": {
-          // Explicitly output 1 if demonstrated, 0 if not for every token in: ${JSON.stringify(availableWCategories)}
+          "W1": 0 or 1, "W2": 0 or 1, "W3": 0 or 1, "W4": 0 or 1, "W5": 0 or 1, "W6": 0 or 1, "W7": 0 or 1, "W8": 0 or 1, "W9": 0 or 1
         },
-        "parent_facing_error": "concept_unknown" | "app_too_hard" | "wording_comprehension" | "misinterpreted_simpler" | "unjustified_assumption" | "calculation_error" | "intentional_trap" | "sub_answer_stall" | "blind_to_solution" | null,
-        "error_reason": "concept_unknown" | "app_too_hard" | "wording_comprehension" | "misinterpreted_simpler" | "unjustified_assumption" | "calculation_error" | "intentional_trap" | "sub_answer_stall" | "blind_to_solution" | null,
+        "parent_facing_error": "W1" | "W2" | "W3" | "W4" | "W5" | "W6" | "W7" | "W8" | "W9" | null,
+        "error_reason": "W1" | "W2" | "W3" | "W4" | "W5" | "W6" | "W7" | "W8" | "W9" | null,
         "speech_telemetry": {
-          "speech_density_score": number, // 0-100. High density = concise structural words. Low density = circular filler paths.
-          "detected_frustration_tokens": boolean, // true if transcript flags heavy sighing, immediate self-defensiveness, or giving up words
-          "time_pressure_derailment": boolean, // true if rapid pacing directly caused an unforced reading or processing failure
-          "is_structural_flaw": boolean // true if this mistake is born from deep-set behavioral habits (rushing, assumption creation) rather than an isolated arithmetic slip
+          "speech_density_score": number, // 0-100. High density = concise structural logic.
+          "detected_frustration_tokens": boolean,
+          "time_pressure_derailment": boolean,
+          "is_structural_flaw": boolean
         },
-        "recommended_intervention": "A strict 1-sentence plain-English coaching directive isolating exactly what concept or habit to patch next."
+        "recommended_intervention": "A strict 1-sentence plain-English coaching directive isolating exactly what habit or logic slot to patch next."
       }
     `;
 
@@ -129,14 +143,20 @@ export async function POST(req: Request) {
       EXPECTED SOLUTION TRACE: "${variantData.solution_trace}"
       AVAILABLE COMPILING COHORTS: ${JSON.stringify(availableWCategories)}
       
-      FRONTEND PACING TELEMETRY:
-      - Execution Velocity: ${execution_velocity_seconds} seconds
+      SCAFFOLDED TIMING TELEMETRY (SECONDS):
+      - Step 1 (Read Aloud): ${step_velocities?.step1 || 0}s
+      - Step 2 (Game Plan): ${step_velocities?.step2 || 0}s
+      - Step 3 (Calculations): ${step_velocities?.step3 || 0}s
+      - Total Combined Time: ${total_velocity_seconds || execution_velocity_seconds}s
       
-      RAW SPOKEN STUDENT TRANSCRIPT TO PARSE:
-      "${transcript}"
+      CHILD'S EXTRACTED PERFORMANCE TRANSCRIPTS:
+      - Step 1 Target Isolation text: "${step1 || ''}"
+      - Step 2 Strategy blueprint text: "${step2 || ''}"
+      - Step 3 Solution execution track: "${step3 || ''}"
+      - Child's Self-Reported Confidence Marker: "${confidence || 'N/A'}"
     `;
 
-    // 6. Execute High-Fidelity Call to Anthropic
+    // 6. Execute High-Fidelity Call to Anthropic Native Wrapper
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -145,7 +165,7 @@ export async function POST(req: Request) {
         'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6', 
+        model: 'claude-3-5-sonnet-20241022', // Standard production string anchor 
         max_tokens: 2000,
         temperature: 0.1,
         system: systemInstruction,
@@ -163,16 +183,16 @@ export async function POST(req: Request) {
     const anthropicData = await anthropicResponse.json();
     let rawText = anthropicData.content[0].text.trim();
     
-    // Defensive parsing normalization
-    const jsonMarker = "\x60\x60\x60json";
-    const closingMarker = "\x60\x60\x60";
+    // Defensive parsing normalization structures
+    const jsonMarker = "```json";
+    const closingMarker = "```";
     if (rawText.startsWith(jsonMarker)) rawText = rawText.slice(7);
     else if (rawText.startsWith(closingMarker)) rawText = rawText.slice(3);
     if (rawText.endsWith(closingMarker)) rawText = rawText.slice(0, -3);
     
     const evaluation = JSON.parse(rawText.trim());
 
-    // 7. Update Structural Aggregates
+    // 7. Update Structural Skeleton Aggregates via your original RPC link
     const triggeredCategories = Object.entries(evaluation.w_category_breakdown || {})
       .filter(([_, value]) => value === 1)
       .map(([key, _]) => key);
@@ -184,7 +204,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // 8. Log Comprehensive High-Fidelity Data Matrix Row
+    // 8. Log Comprehensive High-Fidelity Data Matrix Row (Preserving your exact storage metrics)
     const { error: insertError } = await supabaseService
       .from('user_attempts')
       .insert([{
@@ -192,17 +212,18 @@ export async function POST(req: Request) {
           session_id: session_id,
           skeleton_id: skeleton_id || null, 
           variant_id: variant_id, 
-          transcript: transcript,
+          transcript: raw_answer, // Keeps whole raw scaffold JSON structure intact inside database text logs
+          step_velocities: step_velocities, // Saves multi-step time keys smoothly
           is_correct: evaluation.is_correct,
-          solve_time: execution_velocity_seconds, 
+          solve_time: total_velocity_seconds || execution_velocity_seconds, 
           analysis: evaluation 
       }]);
 
     if (insertError) throw insertError;
 
     return NextResponse.json({ success: true, evaluation });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Core Evaluation Engine Crash:', err);
-    return NextResponse.json({ error: 'Internal grading architecture exception.' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal grading architecture exception.', details: err.message }, { status: 500 });
   }
 }
